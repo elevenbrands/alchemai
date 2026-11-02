@@ -102,6 +102,12 @@ def claude_agent(card):
     return solve_card(public_view(card), log=lambda s: print(s))
 
 
+def claude_code_agent(card):
+    """Same agent rules, run on the owner's Claude Code subscription via `claude -p` + the AlchemAI MCP server."""
+    from packages.agent.claude_code_agent import solve_card
+    return solve_card(public_view(card), log=lambda s: print(s))
+
+
 def subprocess_agent(cmd):
     def run(card):
         proc = subprocess.run(cmd, shell=True, input=json.dumps(public_view(card), ensure_ascii=False), capture_output=True, text=True, timeout=600)
@@ -134,13 +140,13 @@ def run_bench(agent, cards, verbose=True):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--agent", default="oracle", choices=["oracle", "null", "claude", "cmd"])
+    ap.add_argument("--agent", default="oracle", choices=["oracle", "null", "claude", "claude-code", "cmd"])
     ap.add_argument("--agent-cmd", default=None)
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("ids", nargs="*")
     a = ap.parse_args()
     cards = load_cards(a.ids)
-    agent = {"oracle": oracle_agent, "null": null_agent, "claude": claude_agent}.get(a.agent) or subprocess_agent(a.agent_cmd)
+    agent = {"oracle": oracle_agent, "null": null_agent, "claude": claude_agent, "claude-code": claude_code_agent}.get(a.agent) or subprocess_agent(a.agent_cmd)
     mean, _ = run_bench(agent, cards, verbose=not a.quiet)
     return 0
 
