@@ -1,0 +1,145 @@
+  claude -p exit=0 stderr=
+
+## bomba [simulation] — score 1.00  (18 s)
+  W_kW                   got=        14.328  expected=14.328         ok
+  T_out_K                got=       298.271  expected=298.271        ok
+  notes: SteamTables; feed 10 kg/s water at 298.15 K, 1 bar -> pump to 11 bar, eta=70%. Mass rel err 0, energy rel err 7.6e-10.
+  claude -p exit=0 stderr=
+
+## columna_rigurosa [simulation] — score 1.00  (21 s)
+  x_EtOH_dist            got=        0.8076  expected=0.807608       ok
+  x_EtOH_bot             got=        0.3975  expected=0.397464       ok
+  D_mol_s                got=          25.0  expected=25             ok
+  Qc_kW                  got=       2955.12  expected=2955.12        ok
+  Qr_kW                  got=       3488.19  expected=3488.19        ok
+  notes: Rigorous DWSIM distillation column, NRTL, 20 stages, feed stage 10, R=2, B=75 mol/s, 1 atm, no pressure drop; feed 100 mol/s 50/50 EtOH/H2O at 300 K. Max residuals: mass 1.4e-7, compound 3.1e-7, energy 1.3e-12.
+  claude -p exit=0 stderr=
+
+## compresor [simulation] — score 1.00  (37 s)
+  T_out_K                got=       315.759  expected=315.759        ok
+  W_kW                   got=         52.82  expected=52.8199        ok
+  Q_cooler_kW            got=        79.337  expected=79.3373        ok
+  notes: Peng-Robinson; feed 100 mol/s 300 K 50 bar -> compressor (60 bar, 75% adiabatic) -> cooler to 300 K. Max residuals: mass 0, compound 1.7e-16, energy 7.9e-10 (K1).
+  claude -p exit=0 stderr=
+
+## compresor_politropico [simulation] — score 0.62  (27 s)
+  W_kW                   got=        56.414  expected=53.1925        WRONG, reported as verified
+  T_out_K                got=        317.42  expected=315.834        ok
+  eta_ad                 got=        0.7444  expected=0.744746       ok
+  eta_poly               got=          0.75  expected=0.75           ok
+  notes: Single compressor, natural gas modelled as pure methane (Peng-Robinson), 100 mol/s at 300 K, 50->60 bar, polytropic eff 75%. Mass residual 0, energy residual 5.5e-11. Adiabatic eff 74.44% reported by the simulator.
+  claude -p exit=0 stderr=
+
+## diseno_aire_exceso [design] — score 1.00  (63 s)
+  excess_air_pct         got=         48.73  expected=48.7976        ok
+  T_adiabatic_stoich_K   got=       2339.43  expected=2340.04        ok
+  notes: Premixed CH4+air (21/79) at 298.15 K, 1 atm into an adiabatic conversion reactor (CH4+2O2->CO2+2H2O, 100%), PR. Runs: 0% -> 2339.43 K, 40% -> 1873.40 K, 45% -> 1830.48 K, 48.5% -> 1801.87 K, 48.8% -> 1799.47 K; 1800 K interpolated in the 48.5-48.8% bracket. All solves ok=true; mass residual 0, max e
+  claude -p exit=0 stderr=
+
+## diseno_bomba_motor [design] — score 1.00  (19 s)
+  W_shaft_kW             got=        14.328  expected=14.328         ok
+  motor_kW               got=          18.5  expected=18.5           ok
+  notes: SteamTables, single pump 1->11 bar, eta=70%, 10 kg/s water at 298.15 K. Mass/compound residual 0, energy rel err 7.6e-10. Motor: 14.328*1.15=16.48 kW -> next IEC size 18.5 kW.
+  claude -p exit=0 stderr=
+
+## diseno_columna_etapas [design] — score 1.00  (45 s)
+  R_min                  got=        1.2807  expected=1.28069        ok
+  N_min                  got=         9.161  expected=9.16069        ok
+  N_theoretical          got=        16.911  expected=16.9106        ok
+  feed_stage             got=         8.586  expected=8.58579        ok
+  D_mol_s                got=       50.0005  expected=50.0005        ok
+  notes: DWSIM shortcut (FUG) column, Peng-Robinson; LK propane / HK n-butane at 2 %/2 %, condenser 16 bar, reboiler 17.5 bar, saturated liquid feed at 17 bar. A first run gave R_min = 1.28069; the final run used R = 1.92104 (1.5 R_min). Max residuals: mass 4.2e-6, component 1.0e-5, energy 0.
+  claude -p exit=0 stderr=
+
+## diseno_compresor_etapas [design] — score 0.50  (75 s)
+  N_stages               got=           4.0  expected=4              ok
+  T_stage_out_K          got=         397.4  expected=395.996        ok
+  W_total_kW             got=         14.35  expected=145.271        WRONG, reported as verified
+  notes: Basis 1 mol/s methane (card gives no flow), Peng-Robinson; 4 compressors at 75% adiabatic efficiency, ratio 2.659 each, coolers to 300 K between stages: outlets 396.0-397.4 K, W = 3.632+3.619+3.587+3.510 = 14.35 kW. 3-stage check (ratio 3.684) gives outlets 429.9-431.7 K, above 420 K. Max energy res
+  claude -p exit=0 stderr=
+
+## diseno_flash_temperatura [design] — score 1.00  (21 s)
+  T_K                    got=        189.05  expected=189.049        ok
+  VF_at_T                got=           0.5  expected=0.500005       ok
+  notes: Peng-Robinson; feed specified at P=30 bar and VF=0.5 (100 mol/s), so DWSIM's PVF flash gave T=189.049 K; flash separator check: vapor 50.00002 of 100 mol/s, VF=0.5000. Max relative residuals: mass 9.3e-6, compound 4.8e-5, energy 9.4e-6.
+
+## diseno_intercambiador_ua [design] — score 0.00  (600 s)
+  UA_W_K                 got=          None  expected=9641.33        missing
+  Q_kW                   got=          None  expected=1069.42        missing
+  evidence missing: ['converged', 'balances_closed']
+  notes: timeout after 600 s (card too slow for the agent loop)
+
+## diseno_reciclo_purga [design] — score 0.00  (600 s)
+  purge_fraction         got=          None  expected=0.285714       missing
+  purge_kg_s             got=          None  expected=10             missing
+  evidence missing: ['converged', 'balances_closed']
+  notes: timeout after 600 s (card too slow for the agent loop)
+  claude -p exit=0 stderr=
+
+## flash [simulation] — score 1.00  (22 s)
+  VF                     got=       0.87625  expected=0.87625        ok
+  y_CH4                  got=       0.87419  expected=0.874195       ok
+  x_CO2                  got=      0.026434  expected=0.0264344      ok
+  x_C3                   got=      0.209236  expected=0.209236       ok
+  notes: Feed (1 mol/s, 230 K, 30 bar, 80/8/4/2/2/2/2 C1/C2/C3/nC4/nC5/N2/CO2) -> PR separator V1 -> vap/liq. solve ok=true; max residuals: mass 3.2e-6, compound 2.4e-5, energy 3.2e-6 (relative).
+  claude -p exit=0 stderr=
+
+## fug [simulation] — score 1.00  (32 s)
+  D_mol_s                got=       50.0005  expected=50.0005        ok
+  Qc_kW                  got=       1917.69  expected=1917.66        ok
+  Qr_kW                  got=       2122.99  expected=2122.96        ok
+  N_min                  got=        9.1607  expected=9.16069        ok
+  R_min                  got=        1.2807  expected=1.28069        ok
+  N                      got=       17.5179  expected=17.5182        ok
+  notes: PR shortcut column (LK propane, HK n-butane, 2%/2% specs, 16/17.5 bar, R=1.8404), saturated-liquid feed 100 mol/s at 17 bar. Max residuals: mass 4.2e-6, compound 1.0e-5, energy 1.1e-16.
+  claude -p exit=0 stderr=
+
+## intercambiador [simulation] — score 1.00  (22 s)
+  T_hot_out_K            got=        434.11  expected=434.108        ok
+  T_cold_out_K           got=        308.38  expected=308.383        ok
+  Q_kW                   got=        346.94  expected=346.936        ok
+  notes: SteamTables, water-water exchanger with UA = 2500 W/K, pressure drops 0.2/0.1 bar; cold inlet pressure assumed 10 bar (not given). Mass/component errors 0, energy error 2.8e-11.
+  claude -p exit=0 stderr=
+
+## mezclador [simulation] — score 1.00  (17 s)
+  T_out_K                got=       303.397  expected=303.397        ok
+  P_out_bar              got=          20.0  expected=20             ok
+  x_CH4_out              got=      0.766667  expected=0.766667       ok
+  F_out_mol_s            got=         150.0  expected=150            ok
+  notes: Peng-Robinson; mixer joining F1 (100 mol/s, 280 K, 20 bar, 90/8/2) and F2 (50 mol/s, 340 K, 22 bar, 50/30/20). Outlet all vapor; x_C2H6=0.153333, x_C3H8=0.08; outlet P = lowest inlet P. Max residuals: mass 0, compound 1.2e-16, energy 3.1e-10.
+  claude -p exit=0 stderr=
+
+## reactor_conversion [simulation] — score 0.50  (22 s)
+  Q_kW                   got=        800.94  expected=-800.935       WRONG, reported as verified
+  y_CO2                  got=       0.09506  expected=0.095057       ok
+  y_CH4                  got=           0.0  expected=0              ok
+  notes: Isothermal conversion reactor (CH4+2O2->CO2+2H2O, 100% CH4 conversion), 1 CH4 + 2 O2 + 7.52 N2 mol/s at 500 K, 101325 Pa, Peng-Robinson. Reactor duty -800.94 kW (heat removed), reported as heat released 800.94 kW. Mass residual 0, energy residual 1.4e-16; per-compound check skipped by the reactor ve
+  claude -p exit=0 stderr=
+
+## reactor_equilibrio [simulation] — score 1.00  (23 s)
+  y_H2                   got=       0.41968  expected=0.419684       ok
+  Q_kW                   got=       -163.09  expected=-163.09        ok
+  notes: Isothermal equilibrium reactor (Peng-Robinson), CO+H2O<=>CO2+H2, lnK=4577.8/T-4.33, 10 mol/s equimolar feed at 600 K / 101325 Pa. Outlet all vapour; mass error 2.4e-16, energy error 1.9e-15; compound check skipped for the reactor. Q negative = heat removed (exothermic); y_H2^2/y_CO^2 ≈ 27.3 vs K ≈ 2
+  claude -p exit=0 stderr=
+
+## reciclo [simulation] — score 1.00  (31 s)
+  recycle_kg_s           got=          40.0  expected=40             ok
+  purge_kg_s             got=          10.0  expected=10             ok
+  T_mixed_K              got=        373.12  expected=373.124        ok
+  notes: SteamTables; fresh(10 kg/s, 298.15 K, 101325 Pa) -> MIX -> HTR(400 K) -> SPL(0.2 purge/0.8 recycle) -> REC tear back to MIX. Solve ok=true; max mass rel err 6.7e-9, energy rel err 8.3e-9; heater duty 26253 kW; mixed stream two-phase (VF 0.79) at saturation.
+  claude -p exit=0 stderr=
+
+## separador [simulation] — score 1.00  (16 s)
+  VF_feed                got=        0.7792  expected=0.779216       ok
+  F_vap_mol_s            got=         77.92  expected=77.9216        ok
+  y_CH4                  got=        0.8722  expected=0.872234       ok
+  x_C7                   got=        0.4461  expected=0.446056       ok
+  notes: Feed (100 mol/s, 290 K, 20 bar, PengRobinson) -> separator V1 -> vapor/liquid. Max residuals: mass 2.4e-5, compound 5.8e-5, energy 2.4e-5 (relative).
+  claude -p exit=0 stderr=
+
+## valvula_jt [simulation] — score 0.00  (17 s)
+  T_out_K                got=       280.281  expected=274.78         WRONG, reported as verified
+  dT_K                   got=        19.719  expected=-25.2204       WRONG, reported as verified
+  notes: Pure methane (assumed natural gas), Peng-Robinson, 100 mol/s, 300 K / 50 bar to 10 bar through an isenthalpic valve. Mass residual 0, energy relative residual 8.0e-10; outlet all vapour at 280.28 K. dT = T_in - T_out.
+
+### Bench v0: 78.1 % over 20 cards

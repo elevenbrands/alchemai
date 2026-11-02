@@ -5,10 +5,10 @@ title:
   es: Combustión de metano (reactor de conversión)
   en: Methane combustion (conversion reactor)
 statement:
-  es: 1 mol/s de CH₄ con aire estequiométrico (2 O₂ + 7.52 N₂) a 500 K y 1 atm, conversión 100 %, isotérmico. Calor
-    liberado y humos.
-  en: 1 mol/s CH₄ with stoichiometric air (2 O₂ + 7.52 N₂) at 500 K, 1 atm, 100 % conversion, isothermal. Heat released
-    and flue gas.
+  es: 1 mol/s de CH₄ con aire estequiométrico (2 O₂ + 7.52 N₂) a 500 K y 1 atm, conversión 100 %, isotérmico (Peng-Robinson).
+    Carga térmica del reactor Q_kW con signo del simulador (negativo = calor retirado) y composición de humos.
+  en: 1 mol/s CH₄ with stoichiometric air (2 O₂ + 7.52 N₂) at 500 K, 1 atm, 100 % conversion, isothermal (Peng-Robinson).
+    Reactor duty Q_kW with the simulator's sign (negative = heat removed) and flue-gas composition.
 tags:
 - reactores
 expected:

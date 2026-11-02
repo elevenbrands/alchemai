@@ -21,7 +21,8 @@ from packages.agent.agent import SYSTEM, _parse_answer  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_CC_MODEL", "opus")
 EFFORT = os.environ.get("ALCHEMAI_CC_EFFORT", "high")
-MAX_TURNS = int(os.environ.get("ALCHEMAI_CC_MAX_TURNS", "60"))
+MAX_TURNS = int(os.environ.get("ALCHEMAI_CC_MAX_TURNS", "40"))
+TIMEOUT_S = int(os.environ.get("ALCHEMAI_CC_TIMEOUT_S", "600"))   # per card wall clock
 
 
 def _mcp_config_path() -> str:
@@ -40,7 +41,11 @@ def solve_card(card: dict, log=None) -> dict:
            "--append-system-prompt", SYSTEM, "--max-turns", str(MAX_TURNS),
            "--output-format", "json", "--no-session-persistence", "--permission-mode", "bypassPermissions"]
     env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1800, cwd=str(ROOT), env=env)
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_S, cwd=str(ROOT), env=env)
+    except subprocess.TimeoutExpired:
+        return {"answers": {}, "evidence": {"notes": f"timeout after {TIMEOUT_S} s (card too slow for the agent loop)",
+                                            "model": f"claude-code:{MODEL}"}, "unverified": []}
     if log:
         log(f"  claude -p exit={proc.returncode} stderr={proc.stderr.strip()[-300:]}")
     try:

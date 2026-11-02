@@ -120,21 +120,30 @@ def subprocess_agent(cmd):
     return run
 
 
-def run_bench(agent, cards, verbose=True):
+def run_bench(agent, cards, verbose=True, out_jsonl=None):
+    """Grade every card; optionally append one JSON line per card to `out_jsonl` as it finishes."""
+    import time
     total, results = 0.0, []
     for card in cards:
+        t0 = time.time()
         resp = agent(card)
         s, rows, missing = grade(card, resp)
         total += s
         results.append((card["id"], s, rows, missing))
         if verbose:
-            print(f"\n## {card['id']} [{card['kind']}] — score {s:.2f}")
+            print(f"\n## {card['id']} [{card['kind']}] — score {s:.2f}  ({time.time() - t0:.0f} s)", flush=True)
             for q, got, v, status in rows:
-                print(f"  {q:22s} got={got!s:>14s}  expected={v:<14.6g} {status}")
+                print(f"  {q:22s} got={got!s:>14s}  expected={v:<14.6g} {status}", flush=True)
             if missing:
-                print(f"  evidence missing: {missing}")
+                print(f"  evidence missing: {missing}", flush=True)
+            if resp.get("evidence", {}).get("notes"):
+                print(f"  notes: {str(resp['evidence']['notes'])[:300]}", flush=True)
+        if out_jsonl:
+            with open(out_jsonl, "a") as f:
+                f.write(json.dumps({"id": card["id"], "score": s, "seconds": round(time.time() - t0, 1),
+                                    "rows": rows, "missing_evidence": missing, "response": resp}, ensure_ascii=False, default=str) + "\n")
     mean = total / max(len(cards), 1)
-    print(f"\n### Bench v0: {mean * 100:.1f} % over {len(cards)} cards")
+    print(f"\n### Bench v0: {mean * 100:.1f} % over {len(cards)} cards", flush=True)
     return mean, results
 
 
@@ -143,11 +152,12 @@ def main():
     ap.add_argument("--agent", default="oracle", choices=["oracle", "null", "claude", "claude-code", "cmd"])
     ap.add_argument("--agent-cmd", default=None)
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--out", default=None, help="append per-card JSON lines here as cards finish")
     ap.add_argument("ids", nargs="*")
     a = ap.parse_args()
     cards = load_cards(a.ids)
     agent = {"oracle": oracle_agent, "null": null_agent, "claude": claude_agent, "claude-code": claude_code_agent}.get(a.agent) or subprocess_agent(a.agent_cmd)
-    mean, _ = run_bench(agent, cards, verbose=not a.quiet)
+    mean, _ = run_bench(agent, cards, verbose=not a.quiet, out_jsonl=a.out)
     return 0
 
 

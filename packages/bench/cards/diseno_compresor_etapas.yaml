@@ -5,10 +5,12 @@ title:
   es: Número de etapas de compresión
   en: Number of compression stages
 statement:
-  es: Metano a 300 K de 1 a 50 bar, η adiabática 75 %, enfriamiento entre etapas a 300 K, relación igual por etapa.
-    Mínimo número de etapas para que ninguna salga arriba de 420 K, T de salida de etapa y potencia total aproximada.
-  en: Methane at 300 K from 1 to 50 bar, 75 % adiabatic efficiency, intercooling to 300 K, equal ratio per stage.
-    Minimum stages so no stage exceeds 420 K, stage outlet T and approximate total power.
+  es: Metano, 10 mol/s, a 300 K de 1 a 50 bar, η adiabática 75 %, enfriamiento entre etapas a 300 K, relación igual
+    por etapa. Mínimo número de etapas para que ninguna salga arriba de 420 K, T de salida de etapa y potencia total
+    aproximada (N × potencia de la primera etapa).
+  en: Methane, 10 mol/s, at 300 K from 1 to 50 bar, 75 % adiabatic efficiency, intercooling to 300 K, equal ratio
+    per stage. Minimum stages so no stage exceeds 420 K, stage outlet T and approximate total power (N × first-stage
+    power).
 tags:
 - diseno
 - rotatorios

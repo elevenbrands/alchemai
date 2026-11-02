@@ -5,8 +5,10 @@ title:
   es: Water-gas shift en equilibrio
   en: Water-gas shift at equilibrium
 statement:
-  es: CO + H₂O equimolar, 10 mol/s a 600 K y 1 atm, ln K = 4577.8/T − 4.33, isotérmico. Fracción de H₂ y calor.
-  en: Equimolar CO + H₂O, 10 mol/s at 600 K, 1 atm, ln K = 4577.8/T − 4.33, isothermal. H₂ fraction and heat duty.
+  es: CO + H₂O equimolar, 10 mol/s a 600 K y 1 atm, ln K = 4577.8/T − 4.33, isotérmico (Peng-Robinson). Fracción
+    molar de H₂ y carga térmica Q_kW (negativo = calor retirado).
+  en: Equimolar CO + H₂O, 10 mol/s at 600 K, 1 atm, ln K = 4577.8/T − 4.33, isothermal (Peng-Robinson). H₂ mole
+    fraction and duty Q_kW (negative = heat removed).
 tags:
 - reactores
 - equilibrio

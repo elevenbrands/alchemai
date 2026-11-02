@@ -23,6 +23,7 @@ import anthropic  # noqa: E402
 from anthropic import beta_tool  # noqa: E402
 
 from packages.dwsim_client import tools as T  # noqa: E402
+from packages.dwsim_client import tools_sweep as TS  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -38,11 +39,20 @@ Hard rules:
 2. Call solve() before reading anything. If solve() returns ok=false or an error, fix the flowsheet
    (missing products, wrong ports, bad specs) and solve again. Reactors need BOTH a vapor and a liquid
    product stream; columns need distillate, bottoms and both duties; separators need vapor and liquid.
-3. Design questions (find a T, P, N, UA, fraction...) are solved by searching with the simulator:
-   bracket, bisect or enumerate, re-solving each time, until the target is met within tolerance.
+3. Design questions (find a T, P, N, UA, fraction...) are solved by searching with the simulator. Use
+   sweep(): it varies one spec over a list of values, re-solves each time and returns the table and the
+   interpolated crossing of your target in ONE call. Then sweep a finer range around the crossing (or
+   set_unit_param/set_stream_spec + solve) and report the verified value. Never iterate one solve per
+   turn when sweep can do it; never stop at an unverified interpolation.
+6. Use exactly the flows, temperatures, pressures and basis stated in the card. If the card omits a
+   basis (e.g. a flow rate) and the answer depends on it, state the basis you assumed in notes and list
+   the affected quantities in "unverified".
 4. Report exactly the quantities the card lists (same names, SI units stated). If you could not
    verify a quantity with a successful solve, still report your best value but list it in "unverified".
 5. Efficiencies given in percent in tools are reported as fractions when the card asks for a fraction.
+   Duties keep the simulator's sign: heat removed from a unit (exothermic reactor, cooler duty read as a
+   reactor/heater duty) is NEGATIVE; power consumed by a compressor/pump is positive. For a polytropic
+   compressor pass polytropic_eff_pct (not adiabatic_eff_pct) and read duty_or_power_kW.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -161,13 +171,41 @@ def read_unit(flowsheet_id: str, name: str) -> str:
 
 
 @beta_tool
+def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> str:
+    """Re-specify one numeric parameter of an existing unit (outlet_T_K, outlet_P_Pa, UA_W_K, reflux_ratio,
+    adiabatic_eff_pct, polytropic_eff_pct, efficiency_pct, heat_added_kW, heat_removed_kW, split_ratio_0). Then solve()."""
+    return json.dumps(TS.set_unit_param(flowsheet_id, unit, param, value))
+
+
+@beta_tool
+def set_stream_spec(flowsheet_id: str, stream: str, temperature_K: float | None = None, pressure_Pa: float | None = None,
+                    vapor_fraction: float | None = None, molar_flow_mol_s: float | None = None,
+                    mass_flow_kg_s: float | None = None, mole_fractions: dict[str, float] | None = None,
+                    compound_molar_flows_mol_s: dict[str, float] | None = None) -> str:
+    """Re-specify a feed stream (any subset of T, P, vapor fraction, flow, composition). Then solve()."""
+    return json.dumps(TS.set_stream_spec(flowsheet_id, stream, temperature_K, pressure_Pa, vapor_fraction,
+                                         molar_flow_mol_s, mass_flow_kg_s, mole_fractions, compound_molar_flows_mol_s))
+
+
+@beta_tool
+def sweep(flowsheet_id: str, vary_kind: str, vary_name: str, vary_param: str, values: list[float],
+          read_kind: str, read_name: str, read_key: str, target: float | None = None) -> str:
+    """Vary one spec over `values` (unit param as in set_unit_param, or stream spec temperature_K / pressure_Pa /
+    vapor_fraction / molar_flow_mol_s / mass_flow_kg_s), re-solve each, read one quantity (read_key as in
+    read_unit/read_stream, e.g. "T_K", "vapor_fraction", "power_kW", "mole_fractions.Ethanol",
+    "energy_streams_kW.Qr") and return the table plus the interpolated crossing of `target`. One call = whole search."""
+    return json.dumps(TS.sweep(flowsheet_id, vary_kind, vary_name, vary_param, values, read_kind, read_name, read_key, target), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
 
 
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
-               define_equilibrium_reaction, add_unit, connect, solve, read_stream, read_unit, close_flowsheet]
+               define_equilibrium_reaction, add_unit, connect, solve, read_stream, read_unit,
+               set_unit_param, set_stream_spec, sweep, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 
