@@ -39,7 +39,7 @@ macOS no incluye el servidor compilado (solo `.deb` Linux), por eso se compila d
 
 ```
 packages/dwsim_client/  fluent.py (carga DWSIM en proceso), verify.py (balances + convergencia), smoke*.py
-packages/bench/         cases_baseline.py (3 flowsheets reutilizables); luego casos yaml + runner
+packages/bench/         cases_baseline.py (3 casos), cases_ref.py (10 casos con enunciado ES/EN, readouts y chequeos de libro), run_ref.py, expected_ref.yaml (snapshot DWSIM)
 packages/agent/         agente (Claude) que resuelve el bench vía MCP
 packages/hazop/         HAZOP preliminar sobre grafo SFILES/DEXPI (fase 2)
 notebooks/              estudio semanal, un notebook = un resultado reproducido
@@ -49,6 +49,8 @@ docs/                   plan, decisiones, lecturas
 
 ## Decisiones
 
+- 2026-11-02: las entalpías de corriente de DWSIM excluyen la entalpía de formación (referencia: compuestos puros a 25 °C). Para reactores `verify.py` suma Σ Δn·ΔHf (de `ConstantProperties.IG_Enthalpy_of_Formation_25C`); con eso el balance cierra a 1e-13 kW. Intercambiador: Q es interno, el balance externo es ΔH ≈ 0.
+- 2026-11-02: compresor politrópico requiere `WithProcessPath(Compressor.ProcessPathType.Polytropic)`; sin eso DWSIM calcula adiabático. Reactores: productos vapor puerto 0 y líquido puerto 1 obligatorios; energía como *feed* puerto 1. Reciclo: tolerancias por defecto (0.01 kg/s) dejan 0.04 % de error; se aprietan vía `ConvergenceParameters`.
 - 2026-11-02: `verify.py` lee el modelo de objetos (`Inner.SimulationObjects`): el diccionario entrega `ISimulationObject`; las propiedades concretas (`DeltaQ`, `EnergyFlow`) se leen por reflexión y las corrientes por `fs.MaterialStream(tag).Object`. Tolerancia de balance 1e-4 (DWSIM cierra flash/shortcut a ~1e-5).
 - 2026-11-02: nombre **AlchemAI** confirmado por el owner. Libre en PyPI y en `elevenbrands/`; en GitHub solo repos ajenos de 0-1 ★ (un juego, un newsletter). Marcas registradas no revisadas. Remoto privado `elevenbrands/alchemai` hasta el primer release público (OK del owner).
 
@@ -62,5 +64,5 @@ docs/                   plan, decisiones, lecturas
 
 ## Gates (adaptados; no es app iOS)
 
-G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py ✅ (2026-11-02) + 10 flowsheets ⏳ ·
+G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py + 10 flowsheets ✅ (2026-11-02) ·
 G3 Bench v0 (20 casos) ⏳ · G4 Agente ≥80 % bench ⏳ · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳

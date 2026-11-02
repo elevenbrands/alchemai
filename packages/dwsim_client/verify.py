@@ -27,6 +27,7 @@ class StreamView:
     molar_mol_s: float
     enthalpy_kw: float             # mass enthalpy (kJ/kg) × mass flow (kg/s) = kW
     compounds_mol_s: dict[str, float]
+    hf_kj_mol: dict[str, float]    # ideal-gas enthalpy of formation at 25 °C, per compound
     temperature_k: float
     pressure_pa: float
     vapor_fraction: float
@@ -117,7 +118,12 @@ def _prop(obj, name: str, default=None):
 def _stream_view(ms) -> StreamView:
     mass = float(ms.GetMassFlow() or 0.0)
     h_mass = float(ms.GetMassEnthalpy() or 0.0)   # kJ/kg
-    compounds = {c.Key: float(c.Value.MolarFlow or 0.0) for c in ms.Phases[0].Compounds}
+    compounds, hf = {}, {}
+    for c in ms.Phases[0].Compounds:
+        compounds[c.Key] = float(c.Value.MolarFlow or 0.0)
+        cp = c.Value.ConstantProperties
+        # IG_Enthalpy_of_Formation_25C is kJ/kg; Molar_Weight is g/mol → kJ/mol
+        hf[c.Key] = float(cp.IG_Enthalpy_of_Formation_25C or 0.0) * float(cp.Molar_Weight or 0.0) / 1000.0
     props = ms.Phases[0].Properties
     return StreamView(
         name=ms.GraphicObject.Tag,
@@ -125,6 +131,7 @@ def _stream_view(ms) -> StreamView:
         molar_mol_s=float(ms.GetMolarFlow() or 0.0),
         enthalpy_kw=h_mass * mass,
         compounds_mol_s=compounds,
+        hf_kj_mol=hf,
         temperature_k=float(props.temperature or 0.0),
         pressure_pa=float(props.pressure or 0.0),
         vapor_fraction=float(ms.Phases[2].Properties.molarfraction or 0.0),
@@ -207,8 +214,9 @@ def verify(fs, rel_tol: float = REL_TOL, energy_tol: float = ENERGY_TOL, solve: 
 
         mass_err = _rel(mass_in, mass_out) if (mass_in or mass_out) else 0.0
 
+        is_reactor = kind.startswith("RCT") or "Reactor" in kind
         comp_err: float | None = None
-        if "Reactor" not in kind and vin and vout:
+        if not is_reactor and vin and vout:
             names = set().union(*(v.compounds_mol_s for v in vin + vout))
             comp_err = max(
                 _rel(sum(v.compounds_mol_s.get(n, 0.0) for v in vin),
@@ -216,20 +224,36 @@ def verify(fs, rel_tol: float = REL_TOL, energy_tol: float = ENERGY_TOL, solve: 
                 if (sum(v.compounds_mol_s.get(n, 0.0) for v in vin) > 1e-9 * max(mass_in, 1e-12)) else 0.0
                 for n in names
             )
-        elif "Reactor" in kind:
+        elif is_reactor:
             notes.append("reactor: per-compound balance skipped (only mass conserved)")
 
         duty = None
-        dq = _prop(o, "DeltaQ")
-        if dq is not None:
-            try:
-                duty = float(dq)
-            except TypeError:
-                duty = None
+        for prop_name in ("DeltaQ", "Q"):      # DeltaQ: most units; Q: heat exchanger
+            dq = _prop(o, prop_name)
+            if dq is not None:
+                try:
+                    duty = float(dq)
+                    break
+                except TypeError:
+                    continue
 
         delta_h = h_out - h_in
+        if is_reactor and vin and vout:
+            # DWSIM stream enthalpies exclude formation enthalpy (reference: pure compounds at
+            # 25 °C), so the reaction term Σ Δn_i·ΔHf_i must be added to close the balance.
+            names = set().union(*(v.compounds_mol_s for v in vin + vout))
+            hf = {n: next((v.hf_kj_mol[n] for v in vin + vout if n in v.hf_kj_mol), 0.0) for n in names}
+            rxn = sum((sum(v.compounds_mol_s.get(n, 0.0) for v in vout) - sum(v.compounds_mol_s.get(n, 0.0) for v in vin)) * hf[n]
+                      for n in names)
+            delta_h += rxn
+            notes.append(f"reactor: ΔH includes Σ Δn·ΔHf = {rxn:.6g} kW")
         if e_in or e_out:
             residual = delta_h - (e_in - e_out)
+        elif len(vin) >= 2 and len(vout) >= 2 and "Exchanger" in kind:
+            # Heat exchanger: Q is internal (hot → cold); externally adiabatic, so ΔH must be 0.
+            residual = delta_h
+            notes.append(f"heat exchanger: internal duty Q = {duty:.6g} kW; external ΔH checked ≈ 0" if duty is not None
+                         else "heat exchanger: external ΔH checked ≈ 0")
         elif duty is not None and abs(duty) > 1e-9:
             # No energy stream attached: the unit's own duty must explain ΔH, whatever its sign.
             residual = min(abs(delta_h - duty), abs(delta_h + duty)) * (1 if delta_h >= 0 else -1)

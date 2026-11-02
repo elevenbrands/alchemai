@@ -1,0 +1,44 @@
+# DWSIM 10.2.12 reference readouts (PR / NRTL / IAPWS-IF97). Regenerate with --update.
+bomba:
+  T_out_K: 298.2713321726987
+  W_kW: 14.328018686359767
+columna_rigurosa:
+  D_mol_s: 24.9999999999
+  Qc_kW: 2955.1200595789587
+  Qr_kW: 3488.193428533421
+  x_EtOH_bot: 0.39746381745485193
+  x_EtOH_dist: 0.8076079300607897
+compresor_politropico:
+  T_out_K: 315.83384448375415
+  W_kW: 53.192491256306226
+  eta_ad: 0.7447459219276129
+  eta_poly: 0.75
+intercambiador:
+  Q_kW: 346.9364053293922
+  T_cold_out_K: 308.382713017251
+  T_hot_out_K: 434.1079090006398
+mezclador:
+  F_out_mol_s: 150.0
+  P_out_bar: 20.0
+  T_out_K: 303.3969049429198
+  x_CH4_out: 0.7666666666666667
+reactor_conversion:
+  Q_kW: -800.9352314325923
+  y_CH4: 0.0
+  y_CO2: 0.09505703422053233
+reactor_equilibrio:
+  Q_kW: -163.08953172784385
+  y_H2: 0.41968403960735773
+reciclo:
+  T_mixed_K: 373.12430000048056
+  iterations: 76.0
+  purge_kg_s: 9.99999966353987
+  recycle_kg_s: 39.99999865415948
+separador:
+  F_vap_mol_s: 77.92160495438296
+  VF_feed: 0.7792160495438296
+  x_C7: 0.4460560996248468
+  y_CH4: 0.8722340922776591
+valvula_jt:
+  T_out_K: 274.7795959568391
+  dT_K: -25.220404043160897

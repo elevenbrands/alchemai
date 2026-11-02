@@ -3,18 +3,18 @@
 Actualizado: 2026-11-02
 
 ## Dónde estamos
-Fase 1, **bloque 1 cerrado (2026-11-02)**: `packages/dwsim_client/verify.py` (convergencia,
-balances de masa, por compuesto y energía por equipo, leyendo el modelo de objetos de DWSIM) y
-`packages/bench/cases_baseline.py`; 6 tests verdes (`uv run pytest -q`). Estudio semana 1:
-`notebooks/01_flash_michelsen.py` → `thermo` reproduce a Fluxo a 4 decimales con sus k_ij; la
-diferencia con DWSIM en CO₂ es la base de k_ij (anotado y pusheado en Fluxo).
+Fase 1, **bloque 2 cerrado (2026-11-02)**: 10 flowsheets de referencia en `packages/bench/cases_ref.py`
+(enunciado ES/EN, builder, readouts, chequeos de libro), runner `run_ref.py`, snapshot DWSIM en
+`expected_ref.yaml`; 17 tests verdes. `verify.py` ya cierra reactores (término Σ Δn·ΔHf) e
+intercambiadores. Hallazgo para Fluxo: η_p 0.75 → η_ad 0.7447 en DWSIM (gas ideal 0.744) para
+r = 1.2; Fluxo documenta 0.722 → revisar en qué condiciones (no es necesariamente error).
 
 ## Siguiente acción exacta
-Bloque 2: **10 flowsheets de referencia** en `packages/bench/cases_ref/` (yaml + builder):
-mezclador, válvula JT, separador trifásico, intercambiador, bomba, compresor politrópico,
-reactor de conversión (combustión CH₄), reactor de equilibrio, columna rigurosa (etanol-agua
-NRTL), reciclo con Wegstein. Cada uno con respuesta esperada (DWSIM + literatura) y `verify()`
-verde. Estudio semana 2: NRTL/UNIQUAC con `thermo` (notebook 02).
+Bloque 3 (semanas 3-4): **ChemE Design Bench v0**. Convertir los 13 casos (3 base + 10 ref) en
+tarjetas `yaml` con enunciado, entradas, respuestas esperadas con tolerancia y rúbrica; añadir
+7 casos de *diseño* (no solo simulación): dimensionar separador, elegir P de columna, estimar
+etapas, etc. Runner que puntúa a cualquier agente MCP. Estudio semana 2: NRTL/UNIQUAC con
+`thermo` (notebook 02) sobre el caso etanol-agua.
 
 ## Bloqueante actual
 Ninguno.
