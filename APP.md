@@ -77,4 +77,4 @@ docs/                   plan, decisiones, lecturas
 ## Gates (adaptados; no es app iOS)
 
 G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py + 10 flowsheets ✅ (2026-11-02) ·
-G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ✅ (2026-11-02: 78.1 % → 97.8 % → 100 % tras corregir 4 enunciados y añadir `sweep`; medido con `claude -p` + suscripción; corrida 4 limpia en curso) · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
+G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ✅ (2026-11-02: 78.1 % → 97.8 % → **100 % en corrida limpia** tras corregir 4 enunciados y añadir `sweep`; medido con `claude -p` + suscripción, Opus; 554 s las 20 tarjetas) · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
