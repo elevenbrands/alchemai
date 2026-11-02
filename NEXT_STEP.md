@@ -20,5 +20,5 @@ verde. Estudio semana 2: NRTL/UNIQUAC con `thermo` (notebook 02).
 Ninguno.
 
 ## Decisiones pendientes del owner
-- Nombre: confirmar **AlchemAI** (libre en PyPI y GitHub propio) → renombrar y crear remoto.
-- Repo público (hoy local, sin remoto).
+- (ninguna) Nombre AlchemAI confirmado 2026-11-02; remoto `elevenbrands/alchemai` (privado).
+- Hacer público el repo al cerrar Bench v0 (mes 3) = OK del owner.

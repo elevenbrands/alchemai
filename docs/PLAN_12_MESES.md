@@ -24,7 +24,7 @@ Mapa del terreno (verificado 2026-11-01/02):
 2. **Motor de simulación de la fase 1 = DWSIM 10 headless** (ya probado, compara bien con HYSYS). DWSIM es GPLv3: el agente vive en **proceso separado** (MCP), nunca enlazado. No usar `ol-dwsim-mcp-server` (AGPL) como base; escribir servidor MCP propio bajo MIT, aprendiendo de él y del paquete MCP oficial de DWSIM 10.
 3. **Verdad = motor + reglas deterministas; la IA solo propone** (misma regla que `AI_FEATURES_PLAYBOOK.md`). Todo output del agente lleva evidencia (balances cerrados, convergencia) o se marca como no verificado.
 4. **Benchmark público primero.** Quien publica el benchmark define el campo: 20 casos de diseño con respuesta conocida (separación flash, columna FUG, reactor CSTR/PFR, reciclo, intercambiador) en inglés con descripción en español. Mide a cualquier agente, incluido el propio.
-5. **Repo nuevo fuera de `apps/`** (no es app iOS): `VS Code/<nombre>/` como monorepo Python con `uv`. El nombre del producto lo elige el owner (identidad = decisión del owner); placeholder en este plan: `proceso-ia`.
+5. **Repo nuevo fuera de `apps/`** (no es app iOS): `VS Code/<nombre>/` como monorepo Python con `uv`. El nombre del producto lo elige el owner (identidad = decisión del owner); placeholder en este plan: `alchemai`.
 6. **Python 3.12 principal** (`uv python install 3.12`): cumple biosteam ≥3.12, pydexpi ≥3.12, cantera <3.15, SFILES2, idaes. `pcgym` exige 3.11 → venv aparte solo para fase 3.
 
 ## Ritmo semanal (20 h)
@@ -41,7 +41,7 @@ Regla de la fábrica aplicada: una sesión = un sub-bloque; `APP.md`/`NEXT_STEP.
 ## Fase 0 · Entorno y línea base (semanas 1-2)
 
 Hecho cuando:
-- `VS Code/proceso-ia/` creado con `uv`, Python 3.12, deps: `thermo chemicals fluids ht cantera idaes-pse omlt biosteam SFILES2 pydexpi mcp fastmcp`. `uv run python -c "import cantera, thermo, idaes, SFILES2, pydexpi"` pasa.
+- `VS Code/alchemai/` creado con `uv`, Python 3.12, deps: `thermo chemicals fluids ht cantera idaes-pse omlt biosteam SFILES2 pydexpi mcp fastmcp`. `uv run python -c "import cantera, thermo, idaes, SFILES2, pydexpi"` pasa.
 - DWSIM 10.x Apple Silicon instalado desde `DanWBR/dwsim10` (verificar firma/procedencia; descargar a carpeta vacía propia). Paquete MCP headless de DWSIM corriendo un flowsheet de ejemplo desde Python. Si el headless no corre en macOS, plan B: DwsimPy (`volkan-a/dwsimpy`, .NET 10) o Windows 11 ARM en Parallels (compra = OK del owner).
 - **Línea base Fluxo vs DWSIM**: 3 casos (flash PT de gas natural, columna FUG, compresor + enfriador) con desviación <1 % en flujos y temperaturas. Esto es a la vez el primer notebook y QA real de Fluxo; lo que no cuadre entra en `apps/fluxo/MOCKS.md`.
 - `APP.md`, `NEXT_STEP.md`, `MOCKS.md`, `BENCHMARK.md` creados; repo en GitHub (privado hasta el primer release público).
@@ -112,4 +112,4 @@ Hecho cuando:
 - Mes 12: UI con al menos 10 usuarios reales probándola; bench v2 con resultados de ≥3 modelos; 40+ posts publicados.
 
 ## Primer paso al aprobar
-Crear `VS Code/proceso-ia/` (nombre provisional) con `uv`, Python 3.12 y las dependencias; instalar DWSIM 10 Apple Silicon desde releases de `DanWBR/dwsim10`; correr el primer flowsheet headless desde Python. Un solo sub-bloque, cierra con commit.
+Crear `VS Code/alchemai/` (nombre provisional) con `uv`, Python 3.12 y las dependencias; instalar DWSIM 10 Apple Silicon desde releases de `DanWBR/dwsim10`; correr el primer flowsheet headless desde Python. Un solo sub-bloque, cierra con commit.

@@ -2,6 +2,6 @@
 
 | Estado | Id | Dónde | Qué | Salida |
 |---|---|---|---|---|
-| 🟠 | NOMBRE-PROVISIONAL | repo, `pyproject.toml`, `APP.md` | «proceso-ia» es placeholder; candidato del owner **AlchemAI** (2026-11-02) | Owner confirma; renombrar carpeta, `pyproject`, docs y crear remoto |
+| ✅ | NOMBRE-PROVISIONAL | repo, `pyproject.toml`, `APP.md` | «proceso-ia» era placeholder | Cerrado 2026-11-02: **AlchemAI**, repo `elevenbrands/alchemai` |
 
 🔴 = entra en una build/entrega y bloquea. 🟠 = pendiente, no bloquea. ✅ = resuelto.

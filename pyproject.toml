@@ -1,7 +1,7 @@
 [project]
-name = "proceso-ia"
+name = "alchemai"
 version = "0.1.0"
-description = "Add your description here"
+description = "AlchemAI: verified AI agent for chemical process design on top of DWSIM"
 requires-python = ">=3.12"
 dependencies = [
     "biosteam>=2.54.0",

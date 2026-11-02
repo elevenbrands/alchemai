@@ -33,7 +33,7 @@ def load_dwsim():
             "rollForward": "LatestMajor",
         }
     }
-    cfg_path = Path(tempfile.gettempdir()) / "proceso_ia.runtimeconfig.json"
+    cfg_path = Path(tempfile.gettempdir()) / "alchemai.runtimeconfig.json"
     cfg_path.write_text(json.dumps(cfg))
     os.environ.setdefault("DOTNET_ROOT", str(DOTNET_ROOT))
     load("coreclr", runtime_config=str(cfg_path), dotnet_root=str(DOTNET_ROOT))

@@ -1,6 +1,6 @@
-# proceso-ia — verdad técnica
+# AlchemAI — verdad técnica
 
-> Nombre provisional. El nombre e identidad del producto los decide el owner.
+> Nombre confirmado por el owner el 2026-11-02: **AlchemAI** (alquimia + AI). Repo `elevenbrands/alchemai`.
 
 ## Qué es
 
@@ -50,7 +50,7 @@ docs/                   plan, decisiones, lecturas
 ## Decisiones
 
 - 2026-11-02: `verify.py` lee el modelo de objetos (`Inner.SimulationObjects`): el diccionario entrega `ISimulationObject`; las propiedades concretas (`DeltaQ`, `EnergyFlow`) se leen por reflexión y las corrientes por `fs.MaterialStream(tag).Object`. Tolerancia de balance 1e-4 (DWSIM cierra flash/shortcut a ~1e-5).
-- 2026-11-02: nombre candidato del owner: **AlchemAI** («algo así»). Libre en PyPI y en `elevenbrands/`; en GitHub solo repos ajenos de 0-1 ★ (un juego, un newsletter). Pendiente confirmación para renombrar.
+- 2026-11-02: nombre **AlchemAI** confirmado por el owner. Libre en PyPI y en `elevenbrands/`; en GitHub solo repos ajenos de 0-1 ★ (un juego, un newsletter). Marcas registradas no revisadas. Remoto privado `elevenbrands/alchemai` hasta el primer release público (OK del owner).
 
 - 2026-11-02: Python 3.12 (biosteam y pydexpi exigen ≥3.12; cantera <3.15). `pcgym` (3.11) irá en
   venv aparte en fase 3.

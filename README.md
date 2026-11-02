@@ -1,4 +1,4 @@
-# proceso-ia (working name)
+# AlchemAI
 
 An AI agent for chemical process design that **never guesses**: it builds the flowsheet,
 solves it in a deterministic engine (DWSIM 10 via MCP), reports only verified results
