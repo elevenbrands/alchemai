@@ -26,8 +26,8 @@ Reglas:
 | TEA | `biosteam` 2.54.0 | ✅ importa |
 | Flowsheet como texto/grafo | `SFILES2` 1.2.0 (módulo `Flowsheet_Class`), `pydexpi` 2.1.0 | ✅ importa |
 | MCP | `mcp` 2.3.0, `fastmcp` 4.1.5 | ✅ |
-| Motor de simulación | DWSIM 10.2.12 arm64 (self-contained .NET 10) en `~/Applications/DWSIM10/` | ✅ extraído; falta correr headless |
-| Servidor MCP de DWSIM | `~/tools/dwsim10/tools/DWSIM.MCPServer` (58 tools reales en fuente: flowsheet, thermo, streams, unitops, reactions, solve, dynamics, scenarios), stdio o SSE | ⏳ falta compilar (owner corre el build) |
+| Motor de simulación | DWSIM 10.2.12 arm64 en `~/Applications/DWSIM10/`, **Fluent API en proceso vía pythonnet + coreclr 10** (`packages/dwsim_client/fluent.py`) | ✅ headless verificado (mezclador y flash PR) |
+| Servidor MCP de DWSIM (opcional) | `~/tools/dwsim10/tools/DWSIM.MCPServer` (58 tools reales en fuente: flowsheet, thermo, streams, unitops, reactions, solve, dynamics, scenarios), stdio o SSE | ⏳ opcional: la Fluent API ya cubre fase 0-1; compilar solo si el agente lo necesita como proceso MCP |
 | .NET 10 SDK | 10.0.403 user-level en `~/.dotnet` (dotnet-install.sh oficial, sin sudo) | ✅ |
 
 Hallazgo clave (2026-11-02): el repo oficial `DanWBR/dwsim10` ya trae un servidor MCP oficial
@@ -53,9 +53,10 @@ docs/                   plan, decisiones, lecturas
   venv aparte en fase 3.
 - 2026-11-02: no usar `ol-dwsim-mcp-server` (AGPL). Usar el MCP oficial de DWSIM 10 (GPL, proceso
   separado).
+- 2026-11-02: ruta principal al motor = Fluent API de DWSIM 10 cargada con pythonnet (runtime .NET 10 user-level, runtimeconfig propio con rollForward LatestMajor). El MCP oficial queda como alternativa cuando haga falta aislar el proceso.
 - 2026-11-02: DWSIM instalado fuera del repo (`~/Applications/DWSIM10`), fuente en `~/tools/dwsim10`.
 
 ## Gates (adaptados; no es app iOS)
 
-G0 Entorno ✅ parcial · G1 Línea base Fluxo vs DWSIM ⏳ · G2 MCP cliente + 10 flowsheets ⏳ ·
+G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ⏳ · G2 MCP cliente + 10 flowsheets ⏳ ·
 G3 Bench v0 (20 casos) ⏳ · G4 Agente ≥80 % bench ⏳ · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
