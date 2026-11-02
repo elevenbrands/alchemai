@@ -1,0 +1,12 @@
+caso                           VF    x_CO2    x_CH4     x_C3
+k_ij = 0                   0.8680   0.0394   0.2847   0.2049
+Fluxo (Knapp subset)       0.8750   0.0209   0.2780   0.2126
+solo CO2                   0.8735   0.0209   0.2848   0.2103
+Fluxo (motor Swift)        0.8751   0.0209   0.2780   0.2125
+DWSIM 10.2.12              0.8762   0.0264   0.2747   0.2092
+
+Michelsen stability test (feed, Fluxo k_ij):
+  feed as vapor  : stable? False  appearing phase zs=[0.8672, 0.0686, 0.0183, 0.0029, 0.0007, 0.0221, 0.0201]
+  feed as liquid : stable? False  appearing phase zs=[0.8672, 0.0686, 0.0183, 0.0029, 0.0007, 0.0221, 0.0201]
+
+T burbuja @30 bar = 180.46 K, T rocío = 291.38 K  (flash a 230.0 K está dentro)

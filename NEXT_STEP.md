@@ -3,21 +3,22 @@
 Actualizado: 2026-11-02
 
 ## Dónde estamos
-**Fase 0 cerrada (2026-11-02).** Entorno ✅, DWSIM 10 headless ✅, línea base Fluxo vs DWSIM ✅:
-balances, potencias, cargas térmicas y temperaturas dentro de 0.3 %; FUG (N_min/R_min) y k_ij de
-CO₂ divergen y quedaron anotados como 🟠 en `apps/fluxo/MOCKS.md`. Tabla:
-`notebooks/baseline_fluxo_vs_dwsim.md`.
+Fase 1, **bloque 1 cerrado (2026-11-02)**: `packages/dwsim_client/verify.py` (convergencia,
+balances de masa, por compuesto y energía por equipo, leyendo el modelo de objetos de DWSIM) y
+`packages/bench/cases_baseline.py`; 6 tests verdes (`uv run pytest -q`). Estudio semana 1:
+`notebooks/01_flash_michelsen.py` → `thermo` reproduce a Fluxo a 4 decimales con sus k_ij; la
+diferencia con DWSIM en CO₂ es la base de k_ij (anotado y pusheado en Fluxo).
 
 ## Siguiente acción exacta
-Fase 1, bloque 1 (semana 1): **estudio** = flash y estabilidad (Michelsen) con `thermo`,
-notebook que reproduce el caso 1 y explica la diferencia de k_ij; **construcción** =
-`packages/dwsim_client/verify.py`: balances de masa/energía por equipo y chequeo de convergencia
-sobre la Fluent API, con los 3 casos de la línea base como primeros tests (`tests/`).
-Después: 10 flowsheets de referencia (bloque 2) → Bench v0 (bloque 3).
+Bloque 2: **10 flowsheets de referencia** en `packages/bench/cases_ref/` (yaml + builder):
+mezclador, válvula JT, separador trifásico, intercambiador, bomba, compresor politrópico,
+reactor de conversión (combustión CH₄), reactor de equilibrio, columna rigurosa (etanol-agua
+NRTL), reciclo con Wegstein. Cada uno con respuesta esperada (DWSIM + literatura) y `verify()`
+verde. Estudio semana 2: NRTL/UNIQUAC con `thermo` (notebook 02).
 
 ## Bloqueante actual
 Ninguno.
 
 ## Decisiones pendientes del owner
-- Nombre e identidad del producto/repo.
+- Nombre: confirmar **AlchemAI** (libre en PyPI y GitHub propio) → renombrar y crear remoto.
 - Repo público (hoy local, sin remoto).

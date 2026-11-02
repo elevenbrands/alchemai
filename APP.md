@@ -38,8 +38,8 @@ macOS no incluye el servidor compilado (solo `.deb` Linux), por eso se compila d
 ## Estructura
 
 ```
-packages/dwsim_client/  cliente Python → MCP de DWSIM (stdio), helpers de verificación
-packages/bench/         ChemE Design Bench: casos yaml + runner
+packages/dwsim_client/  fluent.py (carga DWSIM en proceso), verify.py (balances + convergencia), smoke*.py
+packages/bench/         cases_baseline.py (3 flowsheets reutilizables); luego casos yaml + runner
 packages/agent/         agente (Claude) que resuelve el bench vía MCP
 packages/hazop/         HAZOP preliminar sobre grafo SFILES/DEXPI (fase 2)
 notebooks/              estudio semanal, un notebook = un resultado reproducido
@@ -48,6 +48,9 @@ docs/                   plan, decisiones, lecturas
 ```
 
 ## Decisiones
+
+- 2026-11-02: `verify.py` lee el modelo de objetos (`Inner.SimulationObjects`): el diccionario entrega `ISimulationObject`; las propiedades concretas (`DeltaQ`, `EnergyFlow`) se leen por reflexión y las corrientes por `fs.MaterialStream(tag).Object`. Tolerancia de balance 1e-4 (DWSIM cierra flash/shortcut a ~1e-5).
+- 2026-11-02: nombre candidato del owner: **AlchemAI** («algo así»). Libre en PyPI y en `elevenbrands/`; en GitHub solo repos ajenos de 0-1 ★ (un juego, un newsletter). Pendiente confirmación para renombrar.
 
 - 2026-11-02: Python 3.12 (biosteam y pydexpi exigen ≥3.12; cantera <3.15). `pcgym` (3.11) irá en
   venv aparte en fase 3.
@@ -59,5 +62,5 @@ docs/                   plan, decisiones, lecturas
 
 ## Gates (adaptados; no es app iOS)
 
-G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 MCP cliente + 10 flowsheets ⏳ ·
+G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py ✅ (2026-11-02) + 10 flowsheets ⏳ ·
 G3 Bench v0 (20 casos) ⏳ · G4 Agente ≥80 % bench ⏳ · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
