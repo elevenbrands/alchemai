@@ -1,0 +1,6 @@
+  claude -p exit=0 stderr=
+
+## bomba [simulation] — score 1.00  (28 s)
+  W_kW                   got=        14.328  expected=14.328         ok
+  T_out_K                got=       298.271  expected=298.271        ok
+  notes: SteamTables flowsheet: feed (10 kg/s water, 298.15 K, 1e5 Pa) -> pump P1 (outlet 1.1e6 Pa, eta 70%) -> out, energy stream W. Mass residual 0, energy residual 7.6e-10.

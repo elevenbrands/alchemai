@@ -32,7 +32,25 @@ def _mcp_config_path() -> str:
     return str(p)
 
 
-def solve_card(card: dict, log=None) -> dict:
+def _tools_unavailable(ans: dict) -> bool:
+    """claude -p occasionally starts before the MCP server (DWSIM takes a few seconds to load) and then
+    answers from memory. Detect it so we can retry once instead of grading a hand estimate."""
+    ev = ans.get("evidence", {}) or {}
+    notes = str(ev.get("notes", "")).lower()
+    return (ev.get("num_turns") in (0, 1) and not ev.get("converged")) or "not available" in notes or "no tools" in notes
+
+
+def solve_card(card: dict, log=None, _retry: bool = True) -> dict:
+    ans = _solve_card_once(card, log)
+    if _retry and _tools_unavailable(ans):
+        if log:
+            log("  MCP tools were not available to claude -p; retrying once")
+        ans = _solve_card_once(card, log)
+        ans.setdefault("evidence", {})["retried"] = True
+    return ans
+
+
+def _solve_card_once(card: dict, log=None) -> dict:
     user = ("Card:\n```json\n" + json.dumps(card, ensure_ascii=False, indent=1) + "\n```\n"
             "Solve it with the alchemai MCP tools only and finish with the JSON block.")
     cmd = ["claude", "-p", user, "--model", MODEL, "--effort", EFFORT,

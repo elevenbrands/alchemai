@@ -5,10 +5,10 @@ title:
   es: Compresor politrópico
   en: Polytropic compressor
 statement:
-  es: Gas natural 100 mol/s, 300 K, de 50 a 60 bar con η politrópica 75 %. Potencia, T de salida y η adiabática
-    equivalente.
-  en: Natural gas 100 mol/s, 300 K, 50 to 60 bar with 75 % polytropic efficiency. Power, outlet T and equivalent
-    adiabatic efficiency.
+  es: Gas natural 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂, 100 mol/s, 300 K, de 50 a 60 bar con η politrópica 75 % (Peng-Robinson).
+    Potencia, T de salida, y η adiabática y politrópica como fracciones.
+  en: Natural gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂, 100 mol/s, 300 K, 50 to 60 bar with 75 % polytropic efficiency
+    (Peng-Robinson). Power, outlet T, and adiabatic and polytropic efficiencies as fractions.
 tags:
 - equipos
 - rotatorios

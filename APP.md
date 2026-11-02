@@ -55,6 +55,8 @@ docs/                   plan, decisiones, lecturas
 
 ## Decisiones
 
+- 2026-11-02: **medición del agente con la suscripción**, no con la API: `claude -p` + `--mcp-config` estricto + `--tools ""` + `--allowedTools mcp__alchemai__*` (`packages/agent/claude_code_agent.py`). Protocolo y grader idénticos; costo marginal cero. La medición formal multi-modelo para el whitepaper sí requerirá llave API.
+- 2026-11-02: **lecciones del bench**: (1) cuatro de seis fallos eran del examen (composición, flujo o signo ausentes en el enunciado), no del agente: cada enunciado debe fijar base, composición, modelo termodinámico y convención de signos; (2) las búsquedas de diseño necesitan `sweep` server-side (un valor por turno agota 10 min; el barrido tarda 0.3 s); (3) el agente, cuando le faltan herramientas, estima a mano y lo marca `unverified` → el grader lo topa en 0.8, como debe ser; se añadió reintento si el MCP no arrancó.
 - 2026-11-02: **un solo registro de herramientas** (`tools.py`) alimenta tres superficies: el agente (`@beta_tool` del SDK de Anthropic), el servidor MCP (FastMCP) y llamadas directas en tests. Verificado: pump, FUG, reactor y columna NRTL dan los mismos números que los builders. MCP smoke: 12 tools, bomba 14.328 kW por stdio.
 - 2026-11-02: modelo del agente `claude-opus-5-5` con `output_config.effort=high` (la skill `claude-api` fija Opus 5.5 como default; Sonnet 5.5 queda como opción `ALCHEMAI_MODEL` para abaratar cuando el bench esté verde). Credenciales: `ANTHROPIC_API_KEY` en env o Keychain (servicio `ANTHROPIC_API_KEY`, cuenta `alchemai`); nunca en archivos. Sin `fallbacks` server-side por ahora (añadir al medir).
 - 2026-11-02: **Protocolo del bench**: el agente recibe la tarjeta sin valores (id, enunciado ES/EN, nombres y unidades de las cantidades, evidencia requerida) por stdin y responde JSON `{answers, evidence{converged, balances_closed}, unverified[]}`. Puntaje: 1/n por cantidad en tolerancia; −0.5/n por valor erróneo NO marcado como `unverified` (castiga la confianza falsa, la honestidad es gratis); tope 0.8 sin evidencia. Así mide a cualquier agente MCP/LLM, incluido el nuestro.
@@ -75,4 +77,4 @@ docs/                   plan, decisiones, lecturas
 ## Gates (adaptados; no es app iOS)
 
 G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py + 10 flowsheets ✅ (2026-11-02) ·
-G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente: código ✅ (2026-11-02), medición ⏳ (falta llave Anthropic en Keychain) · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
+G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ✅ (2026-11-02: 78.1 % → 97.8 % → 100 % tras corregir 4 enunciados y añadir `sweep`; medido con `claude -p` + suscripción; corrida 4 limpia en curso) · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
