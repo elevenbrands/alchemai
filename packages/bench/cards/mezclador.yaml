@@ -1,0 +1,36 @@
+id: mezclador
+kind: simulation
+version: v0
+title:
+  es: Mezclador de dos corrientes de gas
+  en: Two-stream gas mixer
+statement:
+  es: Mezcla 100 mol/s de gas (90/8/2 % C1/C2/C3) a 280 K y 20 bar con 50 mol/s (50/30/20 %) a 340 K y 22 bar. Reporta
+    T, P y composición de salida.
+  en: Mix 100 mol/s of gas (90/8/2 % C1/C2/C3) at 280 K, 20 bar with 50 mol/s (50/30/20 %) at 340 K, 22 bar. Report
+    outlet T, P and composition.
+tags:
+- basico
+- balance
+expected:
+  T_out_K:
+    value: 303.3969049429198
+    unit: K
+    tol: &id001
+      rel: 0.01
+  P_out_bar:
+    value: 20.0
+    unit: bar
+    tol: *id001
+  x_CH4_out:
+    value: 0.7666666666666667
+    unit: '-'
+    tol: *id001
+  F_out_mol_s:
+    value: 150.0
+    unit: mol/s
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

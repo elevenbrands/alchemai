@@ -1,0 +1,32 @@
+id: compresor
+kind: simulation
+version: v0
+title:
+  es: Compresor adiabático + enfriador
+  en: Adiabatic compressor + cooler
+statement:
+  es: Gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂, 100 mol/s, 300 K y 50 bar, se comprime a 60 bar con η adiabática 75
+    % y se enfría a 300 K. T de descarga, potencia y calor retirado.
+  en: Gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂, 100 mol/s, 300 K, 50 bar, compressed to 60 bar at 75 % adiabatic efficiency
+    and cooled to 300 K. Discharge T, power and heat removed.
+tags:
+- baseline
+expected:
+  T_out_K:
+    value: 315.7590822478548
+    unit: K
+    tol:
+      abs: 0.5
+  W_kW:
+    value: 52.81985458707236
+    unit: kW
+    tol: &id001
+      rel: 0.01
+  Q_cooler_kW:
+    value: 79.3372575384029
+    unit: kW
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

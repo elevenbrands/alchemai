@@ -1,0 +1,36 @@
+id: separador
+kind: simulation
+version: v0
+title:
+  es: Separador bifásico de gas húmedo
+  en: Two-phase wet-gas separator
+statement:
+  es: 100 mol/s de C1/C2/nC5/nC7 (70/10/10/10 %) a 290 K y 20 bar entran a un separador. Flujos y composiciones
+    de vapor y líquido.
+  en: 100 mol/s of C1/C2/nC5/nC7 (70/10/10/10 %) at 290 K, 20 bar enter a separator. Vapor and liquid flows and
+    compositions.
+tags:
+- basico
+- flash
+expected:
+  VF_feed:
+    value: 0.7792160495438296
+    unit: '-'
+    tol: &id001
+      rel: 0.01
+  F_vap_mol_s:
+    value: 77.92160495438296
+    unit: mol/s
+    tol: *id001
+  y_CH4:
+    value: 0.8722340922776591
+    unit: '-'
+    tol: *id001
+  x_C7:
+    value: 0.4460560996248468
+    unit: '-'
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

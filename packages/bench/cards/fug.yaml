@@ -1,0 +1,46 @@
+id: fug
+kind: simulation
+version: v0
+title:
+  es: Depropanizadora por FUG
+  en: Depropanizer by FUG shortcut
+statement:
+  es: Alimentación líquida saturada 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) a 17 bar; 2 % nC4 en destilado, 2 % C3
+    en fondo; condensador 16 bar, rehervidor 17.5 bar, R = 1.8404. Destilado, cargas, N_min, R_min y N.
+  en: Saturated-liquid feed 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) at 17 bar; 2 % nC4 in distillate, 2 % C3 in bottoms;
+    condenser 16 bar, reboiler 17.5 bar, R = 1.8404. Distillate, duties, N_min, R_min and N.
+tags:
+- baseline
+expected:
+  D_mol_s:
+    value: 50.00050462686068
+    unit: mol/s
+    tol: &id001
+      rel: 0.01
+  Qc_kW:
+    value: 1917.65973324978
+    unit: kW
+    tol: *id001
+  Qr_kW:
+    value: 2122.963604846041
+    unit: kW
+    tol: *id001
+  N_min:
+    value: 9.160690261378484
+    unit: '-'
+    tol:
+      rel: 0.08
+  R_min:
+    value: 1.28069151003539
+    unit: '-'
+    tol:
+      rel: 0.1
+  N:
+    value: 17.51823454623985
+    unit: '-'
+    tol:
+      rel: 0.2
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

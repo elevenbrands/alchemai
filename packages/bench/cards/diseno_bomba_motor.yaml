@@ -1,0 +1,29 @@
+id: diseno_bomba_motor
+kind: design
+version: v0
+title:
+  es: Motor de una bomba de agua
+  en: Motor for a water pump
+statement:
+  es: 10 kg/s de agua a 25 °C de 1 a 11 bar, η 70 %. Potencia al eje y motor IEC estándar (5.5, 7.5, 11, 15, 18.5,
+    22, 30 kW) con 15 % de margen.
+  en: 10 kg/s of water at 25 °C from 1 to 11 bar, η 70 %. Shaft power and standard IEC motor (5.5, 7.5, 11, 15,
+    18.5, 22, 30 kW) with 15 % margin.
+tags:
+- diseno
+- equipos
+expected:
+  W_shaft_kW:
+    value: 14.328018686359767
+    unit: kW
+    tol:
+      rel: 0.02
+  motor_kW:
+    value: 18.5
+    unit: kW
+    tol:
+      abs: 0.0
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

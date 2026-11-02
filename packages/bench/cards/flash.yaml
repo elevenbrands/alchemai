@@ -1,0 +1,36 @@
+id: flash
+kind: simulation
+version: v0
+title:
+  es: Flash PT de gas natural
+  en: Natural-gas PT flash
+statement:
+  es: Gas natural 80/8/4/2/2 % C1/C2/C3/nC4/nC5 + 2 % N₂ + 2 % CO₂, 1 mol/s, a 230 K y 30 bar en un separador. Fracción
+    vapor y composición del vapor y del líquido (Peng-Robinson).
+  en: Natural gas 80/8/4/2/2 % C1/C2/C3/nC4/nC5 + 2 % N₂ + 2 % CO₂, 1 mol/s, at 230 K and 30 bar in a separator.
+    Vapor fraction and vapor/liquid compositions (Peng-Robinson).
+tags:
+- baseline
+expected:
+  VF:
+    value: 0.8762498757779519
+    unit: '-'
+    tol: &id001
+      rel: 0.01
+  y_CH4:
+    value: 0.8741946818157801
+    unit: '-'
+    tol: *id001
+  x_CO2:
+    value: 0.026434406113853993
+    unit: '-'
+    tol:
+      abs: 0.003
+  x_C3:
+    value: 0.2092358225341442
+    unit: '-'
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

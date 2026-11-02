@@ -1,0 +1,143 @@
+"""ChemE Design Bench v0 runner — grades any agent against the yaml cards.
+
+Agent protocol (JSON over stdin/stdout, so any language or MCP client can play):
+    stdin : the card as JSON (id, kind, title, statement, expected quantity *names and units*
+            but NOT the values, requires)
+    stdout: {"answers": {quantity: number}, "evidence": {"converged": bool,
+             "balances_closed": bool, "notes": str}, "unverified": [quantity, ...]}
+
+Scoring per card (0..1):
+    * each expected quantity within tolerance → 1/n; outside → 0; missing → 0
+    * a quantity reported *and* listed in "unverified" is graded but flagged (honesty is free);
+      a wrong value NOT flagged as unverified costs an extra 0.5/n (penalises confident errors)
+    * if the card requires evidence and the agent claims it falsely (we cannot check from outside,
+      so we only check presence), missing evidence caps the score at 0.8
+
+Built-in agents: `oracle` (re-solves with the case builders — should score 1.0) and `null`
+(answers nothing — scores 0). External: `--agent-cmd "uv run python my_agent.py"`.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+CARDS_DIR = Path(__file__).with_name("cards")
+
+
+def load_cards(ids=None):
+    cards = [yaml.safe_load(p.read_text()) for p in sorted(CARDS_DIR.glob("*.yaml")) if p.name != "index.yaml"]
+    return [c for c in cards if not ids or c["id"] in ids]
+
+
+def public_view(card):
+    return {"id": card["id"], "kind": card["kind"], "title": card["title"], "statement": card["statement"],
+            "expected_quantities": {k: v["unit"] for k, v in card["expected"].items()}, "requires": card["requires"]}
+
+
+def grade(card, response):
+    answers = response.get("answers", {}) or {}
+    unverified = set(response.get("unverified", []) or [])
+    evidence = response.get("evidence", {}) or {}
+    n = len(card["expected"])
+    score, rows = 0.0, []
+    for q, spec in card["expected"].items():
+        got = answers.get(q)
+        v, tol = spec["value"], spec["tol"]
+        if got is None:
+            rows.append((q, None, v, "missing")); continue
+        try:
+            got = float(got)
+        except (TypeError, ValueError):
+            rows.append((q, got, v, "not a number")); continue
+        band = tol.get("abs", 0.0) + tol.get("rel", 0.0) * abs(v)
+        ok = abs(got - v) <= band + 1e-12
+        if ok:
+            score += 1.0 / n
+            rows.append((q, got, v, "ok"))
+        else:
+            penalty = 0.0 if q in unverified else 0.5 / n
+            score -= penalty
+            rows.append((q, got, v, "wrong (flagged unverified)" if q in unverified else "WRONG, reported as verified"))
+    score = max(0.0, score)
+    missing_evidence = [r for r in card.get("requires", []) if not evidence.get(r)]
+    if missing_evidence:
+        score = min(score, 0.8)
+    return score, rows, missing_evidence
+
+
+# ----------------------------------------------------------------------------- built-in agents
+def oracle_agent(card):
+    """Re-solves the case with our builders/oracles. Upper bound for any agent."""
+    from packages.bench.build_cards import BASELINE, BASELINE_META, REF, DESIGN_CASES
+    from packages.dwsim_client.verify import verify
+    cid = card["id"]
+    if cid in BASELINE:
+        fs, h = BASELINE[cid](); rep = verify(fs)
+        return {"answers": BASELINE_META[cid]["readouts"](h), "evidence": {"converged": rep.solved, "balances_closed": rep.ok}, "unverified": []}
+    ref = {c.id: c for c in REF}
+    if cid in ref:
+        fs, h = ref[cid].build(); rep = verify(fs)
+        return {"answers": ref[cid].readouts(h), "evidence": {"converged": rep.solved, "balances_closed": rep.ok}, "unverified": []}
+    des = {d.id: d for d in DESIGN_CASES}
+    if cid in des:
+        a = des[cid].oracle()
+        return {"answers": a, "evidence": {"converged": True, "balances_closed": True, "notes": "oracle: DWSIM search + analytic checks"}, "unverified": []}
+    raise KeyError(cid)
+
+
+def null_agent(card):
+    return {"answers": {}, "evidence": {}, "unverified": []}
+
+
+def subprocess_agent(cmd):
+    def run(card):
+        proc = subprocess.run(cmd, shell=True, input=json.dumps(public_view(card), ensure_ascii=False), capture_output=True, text=True, timeout=600)
+        if proc.returncode != 0:
+            return {"answers": {}, "evidence": {"notes": f"agent failed: {proc.stderr[-500:]}"}, "unverified": []}
+        try:
+            return json.loads(proc.stdout.strip().splitlines()[-1])
+        except Exception as ex:  # noqa: BLE001
+            return {"answers": {}, "evidence": {"notes": f"bad JSON: {ex}"}, "unverified": []}
+    return run
+
+
+def run_bench(agent, cards, verbose=True):
+    total, results = 0.0, []
+    for card in cards:
+        resp = agent(card)
+        s, rows, missing = grade(card, resp)
+        total += s
+        results.append((card["id"], s, rows, missing))
+        if verbose:
+            print(f"\n## {card['id']} [{card['kind']}] — score {s:.2f}")
+            for q, got, v, status in rows:
+                print(f"  {q:22s} got={got!s:>14s}  expected={v:<14.6g} {status}")
+            if missing:
+                print(f"  evidence missing: {missing}")
+    mean = total / max(len(cards), 1)
+    print(f"\n### Bench v0: {mean * 100:.1f} % over {len(cards)} cards")
+    return mean, results
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--agent", default="oracle", choices=["oracle", "null", "cmd"])
+    ap.add_argument("--agent-cmd", default=None)
+    ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("ids", nargs="*")
+    a = ap.parse_args()
+    cards = load_cards(a.ids)
+    agent = {"oracle": oracle_agent, "null": null_agent}.get(a.agent) or subprocess_agent(a.agent_cmd)
+    mean, _ = run_bench(agent, cards, verbose=not a.quiet)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

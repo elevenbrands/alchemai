@@ -1,0 +1,29 @@
+id: diseno_aire_exceso
+kind: design
+version: v0
+title:
+  es: Exceso de aire para 1800 K de flama
+  en: Excess air for an 1800 K flame
+statement:
+  es: CH₄ y aire a 298.15 K y 1 atm, combustión completa adiabática sin disociación (Peng-Robinson). ¿Qué % de exceso
+    de aire da 1800 K en los humos?
+  en: CH₄ and air at 298.15 K, 1 atm, complete adiabatic combustion without dissociation (Peng-Robinson). What %
+    excess air gives 1800 K flue gas?
+tags:
+- diseno
+- reactores
+expected:
+  excess_air_pct:
+    value: 48.797607421875
+    unit: '%'
+    tol:
+      abs: 2.0
+  T_adiabatic_stoich_K:
+    value: 2340.0448326162045
+    unit: K
+    tol:
+      abs: 25.0
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

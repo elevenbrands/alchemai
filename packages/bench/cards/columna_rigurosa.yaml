@@ -1,0 +1,40 @@
+id: columna_rigurosa
+kind: simulation
+version: v0
+title:
+  es: Columna etanol-agua (NRTL)
+  en: Ethanol-water column (NRTL)
+statement:
+  es: 100 mol/s etanol-agua 50/50 a 300 K y 1 atm, 20 etapas, alimentación en la 10, R = 2, fondo 75 mol/s. Purezas
+    y cargas.
+  en: 100 mol/s ethanol-water 50/50 at 300 K, 1 atm, 20 stages, feed at 10, R = 2, bottoms 75 mol/s. Purities and
+    duties.
+tags:
+- columnas
+- nrtl
+expected:
+  x_EtOH_dist:
+    value: 0.8076079300607897
+    unit: '-'
+    tol: &id001
+      rel: 0.01
+  x_EtOH_bot:
+    value: 0.39746381745485193
+    unit: '-'
+    tol: *id001
+  D_mol_s:
+    value: 24.9999999999
+    unit: mol/s
+    tol: *id001
+  Qc_kW:
+    value: 2955.1200595789587
+    unit: kW
+    tol: *id001
+  Qr_kW:
+    value: 3488.193428533421
+    unit: kW
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

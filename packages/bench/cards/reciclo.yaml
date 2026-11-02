@@ -1,0 +1,32 @@
+id: reciclo
+kind: simulation
+version: v0
+title:
+  es: Lazo de reciclo con Wegstein
+  en: Recycle loop (Wegstein)
+statement:
+  es: 10 kg/s de agua fresca se mezclan con el reciclo, se calientan a 400 K y un divisor purga 20 % y recicla 80
+    %. Flujos en estado estacionario.
+  en: 10 kg/s fresh water mixes with the recycle, is heated to 400 K and a splitter purges 20 % and recycles 80
+    %. Steady-state flows.
+tags:
+- flowsheet
+- reciclo
+expected:
+  recycle_kg_s:
+    value: 39.99999865415948
+    unit: kg/s
+    tol: &id001
+      rel: 0.01
+  purge_kg_s:
+    value: 9.99999966353987
+    unit: kg/s
+    tol: *id001
+  T_mixed_K:
+    value: 373.12430000048056
+    unit: K
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

@@ -1,0 +1,29 @@
+id: diseno_flash_temperatura
+kind: design
+version: v0
+title:
+  es: Temperatura de separador para VF = 0.5
+  en: Separator temperature for VF = 0.5
+statement:
+  es: Gas natural (80/8/4/2/2 % C1/C2/C3/nC4/nC5, 2 % N₂, 2 % CO₂) a 30 bar. ¿A qué temperatura (K) un separador
+    flash deja exactamente la mitad molar en vapor? Peng-Robinson.
+  en: Natural gas (80/8/4/2/2 % C1/C2/C3/nC4/nC5, 2 % N₂, 2 % CO₂) at 30 bar. At what temperature (K) does a flash
+    separator leave exactly half the moles as vapor? Peng-Robinson.
+tags:
+- diseno
+- flash
+expected:
+  T_K:
+    value: 189.04869079589844
+    unit: K
+    tol:
+      abs: 1.0
+  VF_at_T:
+    value: 0.5000051198301072
+    unit: '-'
+    tol:
+      abs: 0.01
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

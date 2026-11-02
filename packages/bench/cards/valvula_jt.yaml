@@ -1,0 +1,26 @@
+id: valvula_jt
+kind: simulation
+version: v0
+title:
+  es: Válvula Joule-Thomson
+  en: Joule-Thomson valve
+statement:
+  es: Gas natural a 300 K y 50 bar se expande a 10 bar en una válvula. ¿Cuánto se enfría?
+  en: Natural gas at 300 K, 50 bar expands to 10 bar through a valve. How much does it cool?
+tags:
+- basico
+- termo
+expected:
+  T_out_K:
+    value: 274.7795959568391
+    unit: K
+    tol: &id001
+      rel: 0.01
+  dT_K:
+    value: -25.220404043160897
+    unit: K
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

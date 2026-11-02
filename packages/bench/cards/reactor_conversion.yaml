@@ -1,0 +1,31 @@
+id: reactor_conversion
+kind: simulation
+version: v0
+title:
+  es: Combustión de metano (reactor de conversión)
+  en: Methane combustion (conversion reactor)
+statement:
+  es: 1 mol/s de CH₄ con aire estequiométrico (2 O₂ + 7.52 N₂) a 500 K y 1 atm, conversión 100 %, isotérmico. Calor
+    liberado y humos.
+  en: 1 mol/s CH₄ with stoichiometric air (2 O₂ + 7.52 N₂) at 500 K, 1 atm, 100 % conversion, isothermal. Heat released
+    and flue gas.
+tags:
+- reactores
+expected:
+  Q_kW:
+    value: -800.9352314325923
+    unit: kW
+    tol: &id001
+      rel: 0.01
+  y_CO2:
+    value: 0.09505703422053233
+    unit: '-'
+    tol: *id001
+  y_CH4:
+    value: 0.0
+    unit: '-'
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

@@ -1,0 +1,32 @@
+id: intercambiador
+kind: simulation
+version: v0
+title:
+  es: Intercambiador agua-agua (UA)
+  en: Water-water heat exchanger (UA)
+statement:
+  es: 5 kg/s de agua a 450 K y 10 bar calientan 8 kg/s a 298 K; UA = 2500 W/K, ΔP 0.2/0.1 bar. Temperaturas de salida
+    y carga.
+  en: 5 kg/s of water at 450 K, 10 bar heat 8 kg/s at 298 K; UA = 2500 W/K, ΔP 0.2/0.1 bar. Outlet temperatures
+    and duty.
+tags:
+- equipos
+- calor
+expected:
+  T_hot_out_K:
+    value: 434.1079090006398
+    unit: K
+    tol: &id001
+      rel: 0.01
+  T_cold_out_K:
+    value: 308.382713017251
+    unit: K
+    tol: *id001
+  Q_kW:
+    value: 346.9364053293922
+    unit: kW
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

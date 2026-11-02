@@ -1,0 +1,36 @@
+id: compresor_politropico
+kind: simulation
+version: v0
+title:
+  es: Compresor politrópico
+  en: Polytropic compressor
+statement:
+  es: Gas natural 100 mol/s, 300 K, de 50 a 60 bar con η politrópica 75 %. Potencia, T de salida y η adiabática
+    equivalente.
+  en: Natural gas 100 mol/s, 300 K, 50 to 60 bar with 75 % polytropic efficiency. Power, outlet T and equivalent
+    adiabatic efficiency.
+tags:
+- equipos
+- rotatorios
+expected:
+  W_kW:
+    value: 53.192491256306226
+    unit: kW
+    tol: &id001
+      rel: 0.01
+  T_out_K:
+    value: 315.83384448375415
+    unit: K
+    tol: *id001
+  eta_ad:
+    value: 0.7447459219276129
+    unit: '-'
+    tol: *id001
+  eta_poly:
+    value: 0.75
+    unit: '-'
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

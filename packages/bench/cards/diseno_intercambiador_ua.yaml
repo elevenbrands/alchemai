@@ -1,0 +1,29 @@
+id: diseno_intercambiador_ua
+kind: design
+version: v0
+title:
+  es: UA para calentar agua a 330 K
+  en: UA to heat water to 330 K
+statement:
+  es: 5 kg/s de agua a 450 K y 10 bar deben calentar 8 kg/s de 298 a 330 K (contracorriente, sin ΔP). ¿Qué UA (W/K)
+    se requiere y cuál es la carga?
+  en: 5 kg/s of water at 450 K, 10 bar must heat 8 kg/s from 298 to 330 K (counter-current, no ΔP). What UA (W/K)
+    is required and what is the duty?
+tags:
+- diseno
+- calor
+expected:
+  UA_W_K:
+    value: 9641.326904296875
+    unit: W/K
+    tol:
+      rel: 0.03
+  Q_kW:
+    value: 1069.421470824339
+    unit: kW
+    tol:
+      rel: 0.02
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

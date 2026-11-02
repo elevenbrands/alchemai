@@ -1,0 +1,34 @@
+id: diseno_compresor_etapas
+kind: design
+version: v0
+title:
+  es: Número de etapas de compresión
+  en: Number of compression stages
+statement:
+  es: Metano a 300 K de 1 a 50 bar, η adiabática 75 %, enfriamiento entre etapas a 300 K, relación igual por etapa.
+    Mínimo número de etapas para que ninguna salga arriba de 420 K, T de salida de etapa y potencia total aproximada.
+  en: Methane at 300 K from 1 to 50 bar, 75 % adiabatic efficiency, intercooling to 300 K, equal ratio per stage.
+    Minimum stages so no stage exceeds 420 K, stage outlet T and approximate total power.
+tags:
+- diseno
+- rotatorios
+expected:
+  N_stages:
+    value: 4.0
+    unit: '-'
+    tol:
+      abs: 0.0
+  T_stage_out_K:
+    value: 395.9962142400651
+    unit: K
+    tol:
+      abs: 2.0
+  W_total_kW:
+    value: 145.27092203388958
+    unit: kW
+    tol:
+      rel: 0.05
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

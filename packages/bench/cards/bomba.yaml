@@ -1,0 +1,25 @@
+id: bomba
+kind: simulation
+version: v0
+title:
+  es: Bomba de agua
+  en: Water pump
+statement:
+  es: 10 kg/s de agua a 25 °C de 1 a 11 bar con η = 70 %. Potencia al eje.
+  en: 10 kg/s of water at 25 °C from 1 to 11 bar, η = 70 %. Shaft power.
+tags:
+- equipos
+expected:
+  W_kW:
+    value: 14.328018686359767
+    unit: kW
+    tol: &id001
+      rel: 0.01
+  T_out_K:
+    value: 298.2713321726987
+    unit: K
+    tol: *id001
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

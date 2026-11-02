@@ -1,0 +1,29 @@
+id: diseno_reciclo_purga
+kind: design
+version: v0
+title:
+  es: Fracción de purga para un reciclo de 25 kg/s
+  en: Purge fraction for a 25 kg/s recycle
+statement:
+  es: 10 kg/s de agua fresca se mezclan con el reciclo, se calientan a 400 K y un divisor purga una fracción p.
+    ¿Qué p deja un reciclo de 25 kg/s en estado estacionario?
+  en: 10 kg/s fresh water mixes with the recycle, is heated to 400 K and a splitter purges a fraction p. Which p
+    gives a 25 kg/s recycle at steady state?
+tags:
+- diseno
+- flowsheet
+expected:
+  purge_fraction:
+    value: 0.2857142857142857
+    unit: '-'
+    tol:
+      abs: 0.003
+  purge_kg_s:
+    value: 10.0
+    unit: kg/s
+    tol:
+      abs: 0.05
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

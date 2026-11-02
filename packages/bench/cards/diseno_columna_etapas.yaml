@@ -1,0 +1,46 @@
+id: diseno_columna_etapas
+kind: design
+version: v0
+title:
+  es: Etapas de una depropanizadora a 1.5 R_min
+  en: Depropanizer stages at 1.5 R_min
+statement:
+  es: 'Alimentación líquida saturada 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) a 17 bar; 2 % de nC4 en destilado y
+    2 % de C3 en fondo; condensador 16 bar, rehervidor 17.5 bar. Con R = 1.5 R_min: R_min, N_min, N teórico y plato
+    de alimentación (FUG).'
+  en: 'Saturated-liquid feed 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) at 17 bar; 2 % nC4 in distillate and 2 % C3
+    in bottoms; condenser 16 bar, reboiler 17.5 bar. At R = 1.5 R_min: R_min, N_min, theoretical N and feed stage
+    (FUG).'
+tags:
+- diseno
+- columnas
+expected:
+  R_min:
+    value: 1.28069151003539
+    unit: '-'
+    tol:
+      rel: 0.05
+  N_min:
+    value: 9.160690261378484
+    unit: '-'
+    tol:
+      rel: 0.05
+  N_theoretical:
+    value: 16.91060007148312
+    unit: '-'
+    tol:
+      rel: 0.08
+  feed_stage:
+    value: 8.585787204980592
+    unit: '-'
+    tol:
+      abs: 1.5
+  D_mol_s:
+    value: 50.00050462686068
+    unit: mol/s
+    tol:
+      rel: 0.01
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks
