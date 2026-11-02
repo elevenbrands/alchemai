@@ -43,6 +43,10 @@ packages/bench/         cases_baseline.py (3), cases_ref.py (10 simulación), de
                         build_cards.py → cards/*.yaml (20 tarjetas ES/EN), runner.py (protocolo JSON stdin/stdout,
                         agentes oracle/null/cmd), run_ref.py + expected_ref.yaml
 packages/agent/         agente (Claude) que resuelve el bench vía MCP
+packages/dwsim_client/tools.py  registro de 12 herramientas JSON sobre fluent.py (sesiones, add_unit por kind, connect
+                                con convenciones de puertos, solve = resolver + verificar). Lo comparten agente y MCP.
+packages/dwsim_mcp/     servidor MCP propio (MIT, FastMCP, stdio) con las 12 herramientas; smoke_mcp.py
+packages/agent/         agent.py: Claude (`claude-opus-5-5`, effort high) + tool runner del SDK + protocolo del bench
 packages/hazop/         HAZOP preliminar sobre grafo SFILES/DEXPI (fase 2)
 notebooks/              estudio semanal, un notebook = un resultado reproducido
 tests/
@@ -51,6 +55,8 @@ docs/                   plan, decisiones, lecturas
 
 ## Decisiones
 
+- 2026-11-02: **un solo registro de herramientas** (`tools.py`) alimenta tres superficies: el agente (`@beta_tool` del SDK de Anthropic), el servidor MCP (FastMCP) y llamadas directas en tests. Verificado: pump, FUG, reactor y columna NRTL dan los mismos números que los builders. MCP smoke: 12 tools, bomba 14.328 kW por stdio.
+- 2026-11-02: modelo del agente `claude-opus-5-5` con `output_config.effort=high` (la skill `claude-api` fija Opus 5.5 como default; Sonnet 5.5 queda como opción `ALCHEMAI_MODEL` para abaratar cuando el bench esté verde). Credenciales: `ANTHROPIC_API_KEY` en env o Keychain (servicio `ANTHROPIC_API_KEY`, cuenta `alchemai`); nunca en archivos. Sin `fallbacks` server-side por ahora (añadir al medir).
 - 2026-11-02: **Protocolo del bench**: el agente recibe la tarjeta sin valores (id, enunciado ES/EN, nombres y unidades de las cantidades, evidencia requerida) por stdin y responde JSON `{answers, evidence{converged, balances_closed}, unverified[]}`. Puntaje: 1/n por cantidad en tolerancia; −0.5/n por valor erróneo NO marcado como `unverified` (castiga la confianza falsa, la honestidad es gratis); tope 0.8 sin evidencia. Así mide a cualquier agente MCP/LLM, incluido el nuestro.
 - 2026-11-02: la presión de flash para VF = 0.5 a 230 K está mal planteada (región retrógrada: VF > 0.75 hasta 60 bar); el caso de diseño usa temperatura a 30 bar (monótona).
 - 2026-11-02: las entalpías de corriente de DWSIM excluyen la entalpía de formación (referencia: compuestos puros a 25 °C). Para reactores `verify.py` suma Σ Δn·ΔHf (de `ConstantProperties.IG_Enthalpy_of_Formation_25C`); con eso el balance cierra a 1e-13 kW. Intercambiador: Q es interno, el balance externo es ΔH ≈ 0.
@@ -69,4 +75,4 @@ docs/                   plan, decisiones, lecturas
 ## Gates (adaptados; no es app iOS)
 
 G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py + 10 flowsheets ✅ (2026-11-02) ·
-G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ⏳ · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
+G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente: código ✅ (2026-11-02), medición ⏳ (falta llave Anthropic en Keychain) · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳

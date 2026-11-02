@@ -13,4 +13,13 @@ uv run pytest -q                                   # 22 tests
 uv run python packages/bench/runner.py --agent oracle   # Bench v0, 20 cards
 ```
 
+**MCP server** (use DWSIM from Claude Desktop / Claude Code / Cursor):
+
+```json
+{"mcpServers": {"alchemai": {"command": "uv", "args": ["run", "--directory", "/path/to/alchemai", "python", "-m", "packages.dwsim_mcp.server"]}}}
+```
+
+**Agent** (Claude + the same tools, Bench v0 protocol): `uv run python packages/bench/runner.py --agent claude bomba`
+(needs `ANTHROPIC_API_KEY` in the environment or in the macOS Keychain, service `ANTHROPIC_API_KEY`, account `alchemai`).
+
 License: MIT (this repo). DWSIM is GPL-3.0 and runs as a separate process.

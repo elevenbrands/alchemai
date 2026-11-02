@@ -3,22 +3,21 @@
 Actualizado: 2026-11-02
 
 ## Dónde estamos
-Fase 1, **bloque 3 cerrado (2026-11-02)**: ChemE Design Bench v0 con 20 tarjetas yaml bilingües
-(`packages/bench/cards/`), 7 casos de diseño con oráculo DWSIM (`design_cases.py`), runner con
-protocolo JSON para cualquier agente (`runner.py`): oráculo 100 %, nulo 0 %; 22 tests verdes.
-Pendiente de estudio: notebook 02 NRTL (etanol-agua) con `thermo`.
+Fase 1, **bloque 4 en curso (2026-11-02)**: código del agente completo y verificado sin LLM:
+`packages/dwsim_client/tools.py` (12 herramientas JSON), `packages/dwsim_mcp/server.py` (MCP propio,
+12 tools por stdio ✅), `packages/agent/agent.py` (Claude Opus 5.5 + tool runner + protocolo del
+bench), `runner.py --agent claude`. Tests: 26 (el live del agente se salta sin credenciales).
 
 ## Siguiente acción exacta
-Bloque 4 (semanas 5-8): **el agente**. `packages/agent/`: agente con Claude (`claude-sonnet-5-5`
-por defecto) que recibe la tarjeta pública, planea, construye el flowsheet con la Fluent API de
-DWSIM (herramientas: add_compounds, add_stream, add_unit, connect, solve, verify, read), adjunta
-el `Report` de `verify.py` como evidencia y marca `unverified` lo que no cerró. Primer objetivo:
-≥ 80 % del bench. Decisión: exponer las herramientas vía MCP propio (MIT) sobre `fluent.py`,
-en proceso separado (GPL de DWSIM), para que también lo usen Claude Desktop/Code.
-Requiere ANTHROPIC_API_KEY en Keychain (nunca en archivos).
+1. Owner guarda la llave: `security add-generic-password -a alchemai -s ANTHROPIC_API_KEY -w`
+2. `ALCHEMAI_LIVE=1 uv run pytest -q tests/test_tools_and_mcp.py -k live` (1 tarjeta, ~1 min)
+3. `uv run python packages/bench/runner.py --agent claude` → anotar % en BENCHMARK.md; meta ≥ 80 %.
+   Iterar prompt/herramientas sobre las tarjetas que fallen (esperable: reactores adiabáticos con
+   búsqueda, columna rigurosa). Luego probar `ALCHEMAI_MODEL=claude-sonnet-5-5` para costo.
+4. Añadir `fallbacks` server-side al medir; registrar costo por tarjeta (usage).
 
 ## Bloqueante actual
-Ninguno. (Para el bloque 4: llave de Anthropic del owner en Keychain.)
+**Llave de Anthropic en Keychain** (decisión/acción del owner). Todo lo demás está listo.
 
 ## Decisiones pendientes del owner
 - (ninguna) Nombre AlchemAI confirmado 2026-11-02; remoto `elevenbrands/alchemai` (privado).
