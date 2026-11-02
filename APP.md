@@ -54,9 +54,10 @@ docs/                   plan, decisiones, lecturas
 - 2026-11-02: no usar `ol-dwsim-mcp-server` (AGPL). Usar el MCP oficial de DWSIM 10 (GPL, proceso
   separado).
 - 2026-11-02: ruta principal al motor = Fluent API de DWSIM 10 cargada con pythonnet (runtime .NET 10 user-level, runtimeconfig propio con rollForward LatestMajor). El MCP oficial queda como alternativa cuando haga falta aislar el proceso.
+- 2026-11-02: la Fluent API conecta energía del rehervidor de la Shortcut Column como *energy feed* puerto 1 y la del condensador como *energy product* puerto 0; el compresor no acepta energy feed puerto 0 → leer `builder.Object.DeltaQ` (kW).
 - 2026-11-02: DWSIM instalado fuera del repo (`~/Applications/DWSIM10`), fuente en `~/tools/dwsim10`.
 
 ## Gates (adaptados; no es app iOS)
 
-G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ⏳ · G2 MCP cliente + 10 flowsheets ⏳ ·
+G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 MCP cliente + 10 flowsheets ⏳ ·
 G3 Bench v0 (20 casos) ⏳ · G4 Agente ≥80 % bench ⏳ · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
