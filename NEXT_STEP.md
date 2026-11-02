@@ -3,18 +3,18 @@
 Actualizado: 2026-11-02
 
 ## Dónde estamos
-**Fase 1 completa (2026-11-02).** Bloque 4 cerrado: el agente corre sobre la suscripción (`claude -p` +
-MCP AlchemAI) y la corrida 4 limpia dio **100 % en las 20 tarjetas** (554 s). Historial: 78.1 % →
-97.8 % → 100 %. 27 tests verdes. Pendiente de la Fase 1 solo lo que es decisión del owner: repo
-público + primer post.
+**Fase 2, bloque 5 cerrado (2026-11-02)**: HAZOP preliminar determinista en `packages/hazop/`
+(grafo + reglas + reporte MD/Excel), 16 herramientas en MCP y agente (`hazop_preliminary`), 3 tests
+nuevos (30 en total). Demo: `notebooks/hazop/gas_compresion.xlsx`.
 
 ## Siguiente acción exacta
-1. Bloque 5 (Fase 2): **HAZOP preliminar automático** en `packages/hazop/`: exportar el flowsheet
-   resuelto a grafo (nodos = equipos/corrientes, con T, P, fases, duty) → reglas deterministas de
-   desviación por tipo de nodo → tabla HAZOP; el LLM solo redacta causas/consecuencias/salvaguardas
-   candidatas marcadas como propuesta. Primer caso: compresor + enfriador + separador.
-2. Barato y útil: medir el bench con `--model sonnet` en `claude -p` (ALCHEMAI_CC_MODEL=sonnet) para
-   comparar costo/calidad; publicar repo = OK del owner.
+Bloque 6: (1) **capa LLM del HAZOP**: a partir de las filas `rule` y el grafo, Claude propone causas,
+consecuencias y salvaguardas adicionales marcadas `source=proposal`, nunca reemplaza filas `rule`;
+vía `claude -p` con la suscripción. (2) **Bench v1**: 10 tarjetas "trampa" (especificaciones
+inconsistentes: cruce de temperaturas, destilado imposible por azeótropo, bomba con descarga menor
+que succión, reactor sin oxidante) para medir que el agente detecta errores en vez de inventar.
+(3) Estudio semana 3: cinética y redes de reactores con Cantera (notebook 03) → base del reactor
+cinético de Fluxo 1.1.
 
 ## Bloqueante actual
 Ninguno.

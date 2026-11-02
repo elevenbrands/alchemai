@@ -13,6 +13,8 @@ uv run pytest -q                                   # 22 tests
 uv run python packages/bench/runner.py --agent oracle   # Bench v0, 20 cards
 ```
 
+**Preliminary HAZOP** (`packages/hazop/`): deterministic deviation rules per unit, instantiated with the solved numbers (hydrates, runaway, relief cases, blowby...), exported to Markdown/Excel and exposed as the `hazop_preliminary` tool. A rule-based draft, not a substitute for a HAZOP team.
+
 **MCP server** (use DWSIM from Claude Desktop / Claude Code / Cursor):
 
 ```json

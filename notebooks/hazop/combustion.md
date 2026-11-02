@@ -1,0 +1,11 @@
+# HAZOP preliminar — combustión de metano
+
+Generado por reglas deterministas sobre el flowsheet resuelto. **No sustituye un HAZOP con equipo multidisciplinario.** Las filas `rule` salen de reglas por tipo de equipo con los números del caso; cualquier fila `proposal` es una sugerencia del LLM sin verificar.
+
+| Nodo | Tipo | Parámetro | Desviación | Causas | Consecuencias | Salvaguardas | Sev. | Evidencia | Fuente |
+|---|---|---|---|---|---|---|---|---|---|
+| R-1 | RCT_Conversion | Flow | No / less flow | Válvula de bloqueo cerrada aguas arriba<br>Falla de equipo aguas arriba<br>Taponamiento | Pérdida de producción<br>Equipo aguas abajo fuera de especificación | Alarma de bajo flujo (FAL)<br>Paro por bajo flujo en rotatorios | 2 | P 1.0→1.0 bar; T 298→298 K; duty -883.0 kW; inflamable, 0.29 kg/s | rule |
+| R-1 | RCT_Conversion | Flow | Reverse flow | Paro del equipo con presión aguas abajo mayor<br>Falla de válvula check | Retroceso de fluido inflamable/tóxico a sección de menor presión<br>Sobrepresión de equipo aguas arriba | Válvula check en descarga<br>Interlock de paro con cierre de válvula de descarga | 3 | P 1.0→1.0 bar; T 298→298 K; duty -883.0 kW; inflamable, 0.29 kg/s | rule |
+| R-1 | RCT_Conversion | Temperature | More temperature (runaway) | Pérdida de enfriamiento<br>Exceso de reactivo limitante<br>Falla del control de T | Reacción exotérmica (-883 kW retirados en diseño): aumento de T y P, posible descontrol<br>Reacciones secundarias / descomposición | TAHH con paro de alimentación<br>Sistema de enfriamiento de emergencia<br>PSV/disco de ruptura dimensionado para runaway<br>Quench | 3 | P 1.0→1.0 bar; T 298→298 K; duty -883.0 kW; inflamable, 0.29 kg/s | rule |
+| R-1 | RCT_Conversion | Composition | Wrong ratio / composition | Falla del control de relación de alimentación<br>Contaminación de la alimentación | Baja conversión<br>Mezcla inflamable dentro del reactor<br>Generación de subproductos | Analizador en línea / control de relación<br>Interlock por relación fuera de rango | 3 | P 1.0→1.0 bar; T 298→298 K; duty -883.0 kW; inflamable, 0.29 kg/s | rule |
+| R-1 | RCT_Conversion | Pressure | More pressure | Generación de gas por reacción<br>Salida bloqueada<br>Runaway | Sobrepresión del reactor | PSV / disco de ruptura<br>PAH con paro | 3 | P 1.0→1.0 bar; T 298→298 K; duty -883.0 kW; inflamable, 0.29 kg/s | rule |

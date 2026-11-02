@@ -47,7 +47,9 @@ packages/dwsim_client/tools.py  registro de 12 herramientas JSON sobre fluent.py
                                 con convenciones de puertos, solve = resolver + verificar). Lo comparten agente y MCP.
 packages/dwsim_mcp/     servidor MCP propio (MIT, FastMCP, stdio) con las 12 herramientas; smoke_mcp.py
 packages/agent/         agent.py: Claude (`claude-opus-5-5`, effort high) + tool runner del SDK + protocolo del bench
-packages/hazop/         HAZOP preliminar sobre grafo SFILES/DEXPI (fase 2)
+packages/hazop/         graph.py (grafo del proceso desde el flowsheet resuelto, con banderas inflamable/tóxico/hidratos),
+                        rules.py (reglas deterministas por tipo de equipo, palabras guía × parámetro, severidad 1-5),
+                        report.py (Markdown, Excel, herramienta `hazop_preliminary` en MCP y agente)
 notebooks/              estudio semanal, un notebook = un resultado reproducido
 tests/
 docs/                   plan, decisiones, lecturas
@@ -55,6 +57,7 @@ docs/                   plan, decisiones, lecturas
 
 ## Decisiones
 
+- 2026-11-02: **HAZOP preliminar = reglas primero, LLM después.** `packages/hazop/` genera filas `source=rule` desde el grafo del flowsheet resuelto (DWSIM nombra al mezclador `NodeIn` y al divisor `NodeOut`); las consecuencias llevan los números del caso (P de diseño, T de descarga, duty exotérmico, hidratos si hay agua + formadores a T < 300 K y P > 10 bar). La severidad es ranking preliminar, no evaluación de riesgo. La capa LLM (causas/consecuencias adicionales marcadas `proposal`) queda para el bloque 6 y nunca sobreescribe una fila `rule`.
 - 2026-11-02: **medición del agente con la suscripción**, no con la API: `claude -p` + `--mcp-config` estricto + `--tools ""` + `--allowedTools mcp__alchemai__*` (`packages/agent/claude_code_agent.py`). Protocolo y grader idénticos; costo marginal cero. La medición formal multi-modelo para el whitepaper sí requerirá llave API.
 - 2026-11-02: **lecciones del bench**: (1) cuatro de seis fallos eran del examen (composición, flujo o signo ausentes en el enunciado), no del agente: cada enunciado debe fijar base, composición, modelo termodinámico y convención de signos; (2) las búsquedas de diseño necesitan `sweep` server-side (un valor por turno agota 10 min; el barrido tarda 0.3 s); (3) el agente, cuando le faltan herramientas, estima a mano y lo marca `unverified` → el grader lo topa en 0.8, como debe ser; se añadió reintento si el MCP no arrancó.
 - 2026-11-02: **un solo registro de herramientas** (`tools.py`) alimenta tres superficies: el agente (`@beta_tool` del SDK de Anthropic), el servidor MCP (FastMCP) y llamadas directas en tests. Verificado: pump, FUG, reactor y columna NRTL dan los mismos números que los builders. MCP smoke: 12 tools, bomba 14.328 kW por stdio.
@@ -77,4 +80,4 @@ docs/                   plan, decisiones, lecturas
 ## Gates (adaptados; no es app iOS)
 
 G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py + 10 flowsheets ✅ (2026-11-02) ·
-G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ✅ (2026-11-02: 78.1 % → 97.8 % → **100 % en corrida limpia** tras corregir 4 enunciados y añadir `sweep`; medido con `claude -p` + suscripción, Opus; 554 s las 20 tarjetas) · G5 HAZOP ⏳ · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
+G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ✅ (2026-11-02: 78.1 % → 97.8 % → **100 % en corrida limpia** tras corregir 4 enunciados y añadir `sweep`; medido con `claude -p` + suscripción, Opus; 554 s las 20 tarjetas) · G5 HAZOP preliminar determinista ✅ (2026-11-02; capa LLM `proposal` ⏳) · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳

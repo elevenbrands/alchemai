@@ -339,6 +339,8 @@ def close_flowsheet(flowsheet_id: str) -> dict:
 
 
 from packages.dwsim_client.tools_sweep import SWEEP_TOOLS  # noqa: E402  (imports this module; placed last on purpose)
+from packages.hazop.report import hazop_preliminary  # noqa: E402
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
-         define_equilibrium_reaction, add_unit, connect, solve, read_stream, read_unit, *SWEEP_TOOLS, close_flowsheet]
+         define_equilibrium_reaction, add_unit, connect, solve, read_stream, read_unit, *SWEEP_TOOLS,
+         hazop_preliminary, close_flowsheet]

@@ -24,6 +24,7 @@ from anthropic import beta_tool  # noqa: E402
 
 from packages.dwsim_client import tools as T  # noqa: E402
 from packages.dwsim_client import tools_sweep as TS  # noqa: E402
+from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -44,7 +45,9 @@ Hard rules:
    interpolated crossing of your target in ONE call. Then sweep a finer range around the crossing (or
    set_unit_param/set_stream_spec + solve) and report the verified value. Never iterate one solve per
    turn when sweep can do it; never stop at an unverified interpolation.
-6. Use exactly the flows, temperatures, pressures and basis stated in the card. If the card omits a
+6. If the card asks for hazards, deviations, safeguards or a HAZOP, call hazop_preliminary() after a
+   successful solve and summarise its rows; present it as a rule-based preliminary draft.
+7. Use exactly the flows, temperatures, pressures and basis stated in the card. If the card omits a
    basis (e.g. a flow rate) and the answer depends on it, state the basis you assumed in notes and list
    the affected quantities in "unverified".
 4. Report exactly the quantities the card lists (same names, SI units stated). If you could not
@@ -198,6 +201,17 @@ def sweep(flowsheet_id: str, vary_kind: str, vary_name: str, vary_param: str, va
 
 
 @beta_tool
+def hazop_preliminary(flowsheet_id: str) -> str:
+    """Preliminary HAZOP of a SOLVED flowsheet: deterministic deviation rules per unit (guide words × parameters)
+    instantiated with the solved T, P, phases, duties and hazard flags. Returns rows (node, parameter, deviation,
+    causes, consequences, safeguards, severity 1-5, evidence) and a Markdown table. Use when the card asks for
+    hazards, deviations, safeguards or a HAZOP. Report it as a preliminary, rule-based draft."""
+    out = _hazop(flowsheet_id)
+    out.pop("markdown", None)
+    return json.dumps(out, ensure_ascii=False, default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -205,7 +219,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, add_unit, connect, solve, read_stream, read_unit,
-               set_unit_param, set_stream_spec, sweep, close_flowsheet]
+               set_unit_param, set_stream_spec, sweep, hazop_preliminary, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 
