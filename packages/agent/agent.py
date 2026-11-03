@@ -64,6 +64,15 @@ Hard rules:
    "infeasible": {"detected": true, "reason": "<which physical limit, with the numbers>"} and leave the
    answers empty (or flagged unverified). Do NOT flag a card infeasible merely because it is hard, converges
    slowly or the result surprises you: only when a physical law or a limit of the specified system is violated.
+9. Specification errors are a second kind of trap. UNDER-specified: the card omits a quantity the answer depends
+   on non-linearly (a pressure, a temperature, the composition, a column's reflux ratio or stage count, a
+   reaction's conversion). OVER-specified: the card fixes more than the unit can accept (two conflicting specs on
+   one unit such as an outlet temperature AND a duty, the outlet of a unit whose outlet is computed, a mixer
+   outlet temperature, a split that is also given as flows). In both cases build what you can, call dof_check()
+   to confirm, and report "infeasible": {"detected": true, "reason": "under-specified: missing <what>" |
+   "over-specified: <which two specs conflict> (and the numbers if they disagree)"}. Never invent the missing
+   value and never silently drop one of two conflicting specs. The ONLY omission you may fill yourself is a
+   missing flow basis (rule 7), because it just scales extensive results.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -147,6 +156,15 @@ def define_kinetic_reaction(flowsheet_id: str, name: str, stoichiometry: dict[st
     mol/[m³·s] (first order → A in 1/s), E in J/mol. Orders per compound (missing → 0); A_reverse=0 → irreversible."""
     return json.dumps(T.define_kinetic_reaction(flowsheet_id, name, stoichiometry, base_compound, direct_orders, A_forward,
                                                 E_forward_J_mol, reverse_orders, A_reverse, E_reverse_J_mol, reaction_set))
+
+
+@beta_tool
+def dof_check(flowsheet_id: str) -> str:
+    """Specification / degrees-of-freedom check BEFORE solve(): feed streams need composition, one flow and two of (T, P,
+    vapor fraction); produced streams must not be specified; each unit kind needs fixed ports and params, and mutually
+    exclusive specs (outlet_T_K + heat_added_kW, adiabatic + polytropic efficiency) are over-specification. Returns ok,
+    plain-words problems and per-stream/per-unit status. Bookkeeping, not physics."""
+    return json.dumps(T.dof_check(flowsheet_id))
 
 
 @beta_tool
@@ -240,7 +258,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 
 
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
-               define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, solve, read_stream, read_unit,
+               define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, hazop_preliminary, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)

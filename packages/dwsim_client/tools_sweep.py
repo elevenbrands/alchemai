@@ -46,6 +46,14 @@ def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> di
         b.WithSplitRatios(v, 1.0 - v)
     else:
         raise ValueError(f"unsupported param {param!r}")
+    rec = s.setdefault("params", {}).setdefault(unit, {})
+    if param == "split_ratio_0":
+        rec["split_ratios"] = [v, 1.0 - v]
+    else:
+        rec[param] = v
+        for a, b2 in (("outlet_T_K", "heat_added_kW"), ("outlet_T_K", "heat_removed_kW"), ("adiabatic_eff_pct", "polytropic_eff_pct")):
+            if param == a: rec.pop(b2, None)
+            if param == b2: rec.pop(a, None)
     return {"ok": True, "unit": unit, "param": param, "value": v}
 
 
@@ -71,6 +79,9 @@ def set_stream_spec(flowsheet_id: str, stream: str, temperature_K: float | None 
     if compound_molar_flows_mol_s:
         for k, v in compound_molar_flows_mol_s.items():
             b.SetCompoundMolarFlow(k, float(v))
+    s.setdefault("stream_specs", {}).setdefault(stream, {}).update(
+        {k: v for k, v in dict(temperature_K=temperature_K, pressure_Pa=pressure_Pa, vapor_fraction=vapor_fraction, molar_flow_mol_s=molar_flow_mol_s,
+                               mass_flow_kg_s=mass_flow_kg_s, mole_fractions=mole_fractions, compound_molar_flows_mol_s=compound_molar_flows_mol_s).items() if v})
     return {"ok": True, "stream": stream}
 
 

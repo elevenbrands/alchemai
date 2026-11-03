@@ -1,0 +1,54 @@
+id: trampa_dof_columna_sin_reflujo
+kind: trap
+version: v1b
+title:
+  es: Columna FUG sin reflujo ni etapas
+  en: FUG column with neither reflux nor stages
+statement:
+  es: 'Depropanizadora FUG (Peng-Robinson): alimentación líquida saturada 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5)
+    a 17 bar; 2 % nC4 en destilado y 2 % C3 en fondo; condensador 16 bar, rehervidor 17.5 bar. Calcular el número
+    de etapas teóricas N y la carga del rehervidor en kW.'
+  en: 'FUG depropanizer (Peng-Robinson): saturated-liquid feed 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) at 17 bar;
+    2 % nC4 in distillate and 2 % C3 in bottoms; condenser 16 bar, reboiler 17.5 bar. Compute the theoretical stages
+    N and the reboiler duty in kW.'
+tags:
+- trampa
+- dof
+- under
+- destilacion
+expected:
+  N:
+    value: null
+    unit: '-'
+    tol: {}
+  Qr_kW:
+    value: null
+    unit: kW
+    tol: {}
+trap:
+  keywords:
+  - under
+  - sub-especific
+  - subespecific
+  - falta
+  - missing
+  - grados de libertad
+  - degrees of freedom
+  - dof
+  - no se da
+  - not given
+  - omit
+  - sin especificar
+  - unspecified
+  - reflujo
+  - reflux
+  - r/rmin
+  - etapas
+  - stages
+  reason:
+    es: 'Sub-especificado: N y la carga del rehervidor dependen del reflujo (o de N dado R); solo N_min y R_min
+      están definidos. Falta R (o R/R_min).'
+    en: 'Under-specified: N and reboiler duty depend on the reflux ratio (or N given R); only N_min and R_min are
+      defined. R (or R/R_min) is missing.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

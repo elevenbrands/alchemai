@@ -112,9 +112,63 @@ TRAPS: list[dict] = [
                  "The FUG minimum reflux for this separation is R_min ≈ 1.28 (DWSIM, Underwood); at R = 0.6 < R_min the separation is impossible (infinite stages / Gilliland out of range).")),
 ]
 
+# ---- v1b: specification traps (under-/over-specified statements). The agent must use dof_check and refuse to invent.
+DOF_KW_UNDER = ["under", "sub-especific", "subespecific", "falta", "missing", "grados de libertad", "degrees of freedom", "dof", "no se da", "not given", "omit", "sin especificar", "unspecified"]
+DOF_KW_OVER = ["over", "sobre-especific", "sobreespecific", "ambos", "both", "contradic", "inconsist", "conflict", "redundan", "no puede fijarse", "cannot be specified", "cannot both", "dos especificaciones"]
+TRAPS += [
+    dict(id="trampa_dof_calentador_doble", tags=["trampa", "dof", "over"],
+         title=("Calentador con temperatura Y carga fijadas", "Heater with both outlet temperature and duty fixed"),
+         statement=("Calentador de agua (IAPWS-IF97): 10 kg/s a 300 K y 2 bar. Especificaciones: temperatura de salida 350 K y carga térmica 500 kW. "
+                    "Calcular la temperatura de salida y la carga en kW.",
+                    "Water heater (IAPWS-IF97): 10 kg/s at 300 K and 2 bar. Specifications: outlet temperature 350 K and heat duty 500 kW. "
+                    "Compute outlet temperature and duty in kW."),
+         quantities={"T_out_K": "K", "Q_kW": "kW"},
+         keywords=DOF_KW_OVER + ["2090", "2 090", "2.09", "2,09"],
+         reason=("Sobre-especificado: un calentador acepta T de salida O carga, no ambas. Además son incompatibles: 10 kg/s × 4.18 kJ/kg·K × 50 K ≈ 2 090 kW, no 500 kW.",
+                 "Over-specified: a heater takes outlet T OR duty, not both. They also disagree: 10 kg/s × 4.18 kJ/kg·K × 50 K ≈ 2 090 kW, not 500 kW.")),
+    dict(id="trampa_dof_flash_sin_presion", tags=["trampa", "dof", "under"],
+         title=("Flash sin presión", "Flash without a pressure"),
+         statement=("Separador flash (Peng-Robinson): gas natural 80/8/4/2/2 % C1/C2/C3/nC4/nC5 + 2 % N₂ + 2 % CO₂, 100 mol/s, a 230 K. "
+                    "Calcular la fracción vapor y la fracción mol de metano en el vapor.",
+                    "Flash separator (Peng-Robinson): natural gas 80/8/4/2/2 % C1/C2/C3/nC4/nC5 + 2 % N₂ + 2 % CO₂, 100 mol/s, at 230 K. "
+                    "Compute the vapor fraction and the methane mole fraction in the vapor."),
+         quantities={"VF": "-", "y_CH4": "-"},
+         keywords=DOF_KW_UNDER + ["presión", "presion", "pressure"],
+         reason=("Sub-especificado: falta la presión del flash; la fracción vapor a 230 K va de ~0.6 a 1 según la presión. No hay respuesta sin ese dato.",
+                 "Under-specified: the flash pressure is missing; at 230 K the vapor fraction ranges from ~0.6 to 1 with pressure. No answer without it.")),
+    dict(id="trampa_dof_compresor_sin_composicion", tags=["trampa", "dof", "under"],
+         title=("Compresor sin composición del gas", "Compressor without the gas composition"),
+         statement=("Compresor adiabático, η 75 %: 'gas de proceso' 100 mol/s a 300 K de 10 a 30 bar (Peng-Robinson). Calcular potencia en kW y T de descarga.",
+                    "Adiabatic compressor, η 75 %: 'process gas' 100 mol/s at 300 K from 10 to 30 bar (Peng-Robinson). Compute power in kW and discharge T."),
+         quantities={"W_kW": "kW", "T_out_K": "K"},
+         keywords=DOF_KW_UNDER + ["composición", "composicion", "composition", "qué gas", "which gas", "cp/cv", "gamma", "κ"],
+         reason=("Sub-especificado: no se da la composición del gas; la potencia y la T de descarga dependen de cp/cv y del peso molecular (H₂ vs CH₄ vs CO₂ difieren en factores de 2 a 10).",
+                 "Under-specified: no gas composition; power and discharge T depend on cp/cv and molecular weight (H₂ vs CH₄ vs CO₂ differ by factors of 2 to 10).")),
+    dict(id="trampa_dof_columna_sin_reflujo", tags=["trampa", "dof", "under", "destilacion"],
+         title=("Columna FUG sin reflujo ni etapas", "FUG column with neither reflux nor stages"),
+         statement=("Depropanizadora FUG (Peng-Robinson): alimentación líquida saturada 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) a 17 bar; 2 % nC4 en destilado y 2 % C3 en fondo; "
+                    "condensador 16 bar, rehervidor 17.5 bar. Calcular el número de etapas teóricas N y la carga del rehervidor en kW.",
+                    "FUG depropanizer (Peng-Robinson): saturated-liquid feed 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) at 17 bar; 2 % nC4 in distillate and 2 % C3 in bottoms; "
+                    "condenser 16 bar, reboiler 17.5 bar. Compute the theoretical stages N and the reboiler duty in kW."),
+         quantities={"N": "-", "Qr_kW": "kW"},
+         keywords=DOF_KW_UNDER + ["reflujo", "reflux", "r/rmin", "etapas", "stages"],
+         reason=("Sub-especificado: N y la carga del rehervidor dependen del reflujo (o de N dado R); solo N_min y R_min están definidos. Falta R (o R/R_min).",
+                 "Under-specified: N and reboiler duty depend on the reflux ratio (or N given R); only N_min and R_min are defined. R (or R/R_min) is missing.")),
+    dict(id="trampa_dof_mezclador_t_fijada", tags=["trampa", "dof", "over"],
+         title=("Mezclador con temperatura de salida impuesta", "Mixer with an imposed outlet temperature"),
+         statement=("Mezclador adiabático (IAPWS-IF97): 100 kg/s de agua a 300 K y 50 kg/s a 350 K, ambas a 2 bar. La corriente de salida debe estar a 340 K. "
+                    "Calcular la T de salida y el flujo del producto en kg/s.",
+                    "Adiabatic mixer (IAPWS-IF97): 100 kg/s water at 300 K and 50 kg/s at 350 K, both at 2 bar. The outlet stream must be at 340 K. "
+                    "Compute the outlet T and the product flow in kg/s."),
+         quantities={"T_out_K": "K", "F_out_kg_s": "kg/s"},
+         keywords=DOF_KW_OVER + ["316", "balance de energía", "energy balance", "adiab", "calculada", "computed", "resultado", "result"],
+         reason=("Sobre-especificado: la T de salida de un mezclador adiabático la fija el balance de energía (≈316.6 K), no puede imponerse en 340 K sin un calentador.",
+                 "Over-specified: an adiabatic mixer's outlet T is set by the energy balance (≈316.6 K); it cannot be imposed at 340 K without a heater.")),
+]
+
 
 def trap_card(t: dict) -> dict:
-    return {"id": t["id"], "kind": "trap", "version": "v1", "title": {"es": t["title"][0], "en": t["title"][1]},
+    return {"id": t["id"], "kind": "trap", "version": "v1b" if "dof" in t["tags"] else "v1", "title": {"es": t["title"][0], "en": t["title"][1]},
             "statement": {"es": t["statement"][0], "en": t["statement"][1]}, "tags": t["tags"],
             "expected": {k: {"value": None, "unit": u, "tol": {}} for k, u in t["quantities"].items()},
             "trap": {"keywords": t["keywords"], "reason": {"es": t["reason"][0], "en": t["reason"][1]}},

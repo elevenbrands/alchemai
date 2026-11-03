@@ -1,0 +1,54 @@
+id: trampa_dof_mezclador_t_fijada
+kind: trap
+version: v1b
+title:
+  es: Mezclador con temperatura de salida impuesta
+  en: Mixer with an imposed outlet temperature
+statement:
+  es: 'Mezclador adiabático (IAPWS-IF97): 100 kg/s de agua a 300 K y 50 kg/s a 350 K, ambas a 2 bar. La corriente
+    de salida debe estar a 340 K. Calcular la T de salida y el flujo del producto en kg/s.'
+  en: 'Adiabatic mixer (IAPWS-IF97): 100 kg/s water at 300 K and 50 kg/s at 350 K, both at 2 bar. The outlet stream
+    must be at 340 K. Compute the outlet T and the product flow in kg/s.'
+tags:
+- trampa
+- dof
+- over
+expected:
+  T_out_K:
+    value: null
+    unit: K
+    tol: {}
+  F_out_kg_s:
+    value: null
+    unit: kg/s
+    tol: {}
+trap:
+  keywords:
+  - over
+  - sobre-especific
+  - sobreespecific
+  - ambos
+  - both
+  - contradic
+  - inconsist
+  - conflict
+  - redundan
+  - no puede fijarse
+  - cannot be specified
+  - cannot both
+  - dos especificaciones
+  - '316'
+  - balance de energía
+  - energy balance
+  - adiab
+  - calculada
+  - computed
+  - resultado
+  - result
+  reason:
+    es: 'Sobre-especificado: la T de salida de un mezclador adiabático la fija el balance de energía (≈316.6 K),
+      no puede imponerse en 340 K sin un calentador.'
+    en: 'Over-specified: an adiabatic mixer''s outlet T is set by the energy balance (≈316.6 K); it cannot be imposed
+      at 340 K without a heater.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

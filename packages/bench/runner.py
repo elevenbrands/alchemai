@@ -41,7 +41,10 @@ CARDS_DIR = Path(__file__).with_name("cards")
 
 def load_cards(ids=None, version=None):
     cards = [yaml.safe_load(p.read_text()) for p in sorted(CARDS_DIR.glob("*.yaml")) if p.name != "index.yaml"]
-    return [c for c in cards if (not ids or c["id"] in ids) and (not version or version == "all" or c.get("version", "v0") == version)]
+    def _v(c):
+        v = c.get("version", "v0")
+        return not version or version == "all" or v == version or (version == "traps" and c["kind"] == "trap")
+    return [c for c in cards if (not ids or c["id"] in ids) and _v(c)]
 
 
 def public_view(card):
@@ -198,7 +201,7 @@ def main():
     ap.add_argument("--agent-cmd", default=None)
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--out", default=None, help="append per-card JSON lines here as cards finish")
-    ap.add_argument("--version", default="all", choices=["v0", "v1", "all"], help="v0 = 20 feasible cards, v1 = 10 traps")
+    ap.add_argument("--version", default="all", choices=["v0", "v1", "v1b", "traps", "all"], help="v0 = 20 feasible, v1 = 10 physics traps, v1b = 5 specification traps, traps = both")
     ap.add_argument("ids", nargs="*")
     a = ap.parse_args()
     cards = load_cards(a.ids, a.version)

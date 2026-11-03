@@ -4,7 +4,7 @@ An AI agent for chemical process design that **never guesses**: it builds the fl
 solves it in a deterministic engine (DWSIM 10 via MCP), reports only verified results
 (closed balances, convergence) and drafts a preliminary HAZOP on the process graph.
 
-Status: phase 2. DWSIM 10 runs headless on macOS via the Fluent API (pythonnet); `packages/dwsim_client/verify.py` closes mass, compound and energy balances per unit; **ChemE Design Bench** has 30 bilingual cards: 20 feasible (v0: 13 simulation, 7 design) + 10 **traps** (v1: infeasible specs the agent must detect, not solve). The AlchemAI agent (Claude + 17 DWSIM tools, kinetic CSTR/PFR included) scores 100 % on v0 and detects 10/10 traps with simulator evidence and 0 false alarms on controls. A rule-based **preliminary HAZOP** plus an LLM proposal layer runs on any solved flowsheet. See `APP.md` (technical truth) and `NEXT_STEP.md` (cursor).
+Status: phase 2. DWSIM 10 runs headless on macOS via the Fluent API (pythonnet); `packages/dwsim_client/verify.py` closes mass, compound and energy balances per unit; **ChemE Design Bench** has 30 bilingual cards: 20 feasible (v0: 13 simulation, 7 design) + 15 **traps** (v1: 10 physically impossible specs, v1b: 5 under-/over-specified statements) the agent must detect, not solve. The AlchemAI agent (Claude + 18 DWSIM tools, kinetic CSTR/PFR and a deterministic `dof_check` included) scores 100 % on v0 and detects 15/15 traps with simulator evidence and 0 false alarms on controls. A rule-based **preliminary HAZOP** plus an LLM proposal layer runs on any solved flowsheet. See `APP.md` (technical truth) and `NEXT_STEP.md` (cursor).
 
 ```bash
 uv sync

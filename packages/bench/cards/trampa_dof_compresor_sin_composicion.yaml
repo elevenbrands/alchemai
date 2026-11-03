@@ -1,0 +1,54 @@
+id: trampa_dof_compresor_sin_composicion
+kind: trap
+version: v1b
+title:
+  es: Compresor sin composición del gas
+  en: Compressor without the gas composition
+statement:
+  es: 'Compresor adiabático, η 75 %: ''gas de proceso'' 100 mol/s a 300 K de 10 a 30 bar (Peng-Robinson). Calcular
+    potencia en kW y T de descarga.'
+  en: 'Adiabatic compressor, η 75 %: ''process gas'' 100 mol/s at 300 K from 10 to 30 bar (Peng-Robinson). Compute
+    power in kW and discharge T.'
+tags:
+- trampa
+- dof
+- under
+expected:
+  W_kW:
+    value: null
+    unit: kW
+    tol: {}
+  T_out_K:
+    value: null
+    unit: K
+    tol: {}
+trap:
+  keywords:
+  - under
+  - sub-especific
+  - subespecific
+  - falta
+  - missing
+  - grados de libertad
+  - degrees of freedom
+  - dof
+  - no se da
+  - not given
+  - omit
+  - sin especificar
+  - unspecified
+  - composición
+  - composicion
+  - composition
+  - qué gas
+  - which gas
+  - cp/cv
+  - gamma
+  - κ
+  reason:
+    es: 'Sub-especificado: no se da la composición del gas; la potencia y la T de descarga dependen de cp/cv y del
+      peso molecular (H₂ vs CH₄ vs CO₂ difieren en factores de 2 a 10).'
+    en: 'Under-specified: no gas composition; power and discharge T depend on cp/cv and molecular weight (H₂ vs
+      CH₄ vs CO₂ differ by factors of 2 to 10).'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

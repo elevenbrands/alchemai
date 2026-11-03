@@ -75,7 +75,7 @@ def new_flowsheet(name: str, compounds: list[str], property_package: str) -> dic
     fs = fs.WithPropertyPackage(getattr(PropertyPackages, property_package))
     fs_id = f"fs{next(_ids)}"
     SESSIONS[fs_id] = {"fs": fs, "streams": {}, "energy": {}, "units": {}, "kinds": {}, "compounds": list(compounds),
-                       "reactions": {}, "column_feeds": {}}
+                       "reactions": {}, "column_feeds": {}, "stream_specs": {}, "params": {}, "conn": {}}
     return {"flowsheet_id": fs_id, "compounds": list(compounds), "property_package": property_package}
 
 
@@ -103,6 +103,9 @@ def add_material_stream(flowsheet_id: str, name: str, temperature_K: float | Non
         for k, v in compound_molar_flows_mol_s.items():
             b = b.SetCompoundMolarFlow(k, float(v))
     s["streams"][name] = b
+    s["stream_specs"][name] = {k: v for k, v in dict(temperature_K=temperature_K, pressure_Pa=pressure_Pa, vapor_fraction=vapor_fraction,
+                                                      molar_flow_mol_s=molar_flow_mol_s, mass_flow_kg_s=mass_flow_kg_s, mole_fractions=mole_fractions,
+                                                      compound_molar_flows_mol_s=compound_molar_flows_mol_s).items() if v}
     return {"ok": True, "stream": name}
 
 
@@ -170,80 +173,84 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
       bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s, top_P_Pa, dP_Pa; *_reactor: reaction_set,
       mode ("isothermal" | "adiabatic"), dP_Pa; cstr / pfr (kinetic reactions): volume_m3, reaction_set,
       mode ("isothermal" at the feed T | "adiabatic"), dP_Pa. Connect streams afterwards with connect()."""
-    s = _s(flowsheet_id)
-    fs, p = s["fs"], dict(params or {})
-    kind = kind.lower()
-    if kind not in UNIT_KINDS:
-        raise ValueError(f"unknown kind {kind!r}; use one of {UNIT_KINDS}")
+    try:
+        s = _s(flowsheet_id)
+        fs, p = s["fs"], dict(params or {})
+        kind = kind.lower()
+        if kind not in UNIT_KINDS:
+            raise ValueError(f"unknown kind {kind!r}; use one of {UNIT_KINDS}")
 
-    if kind == "mixer":
-        b = fs.AddMixer(name)
-    elif kind == "splitter":
-        b = fs.AddSplitter(name).WithSplitRatios(*[float(x) for x in p["split_ratios"]])
-    elif kind == "heater":
-        b = fs.AddHeater(name)
-        if "outlet_T_K" in p:
-            b = b.WithOutletTemperature(Q.Kelvin(float(p["outlet_T_K"])))
-        elif "heat_added_kW" in p:
-            b = b.WithHeatAdded(Q.Kilowatt(float(p["heat_added_kW"])))
-    elif kind == "cooler":
-        b = fs.AddCooler(name)
-        if "outlet_T_K" in p:
-            b = b.WithOutletTemperature(Q.Kelvin(float(p["outlet_T_K"])))
-        elif "heat_removed_kW" in p:
-            b = b.WithHeatRemoved(Q.Kilowatt(float(p["heat_removed_kW"])))
-    elif kind == "valve":
-        b = fs.AddValve(name).WithOutletPressure(Q.Pascal(float(p["outlet_P_Pa"])))
-    elif kind == "pump":
-        b = fs.AddPump(name).WithOutletPressure(Q.Pascal(float(p["outlet_P_Pa"]))).WithEfficiencyPercent(float(p.get("efficiency_pct", 75.0)))
-    elif kind in ("compressor", "expander"):
-        b = (fs.AddCompressor(name) if kind == "compressor" else fs.AddExpander(name)).WithOutletPressure(Q.Pascal(float(p["outlet_P_Pa"])))
-        if "polytropic_eff_pct" in p:
-            from DWSIM.UnitOperations.UnitOperations import Compressor
-            b = b.WithProcessPath(Compressor.ProcessPathType.Polytropic).WithPolytropicEfficiencyPercent(float(p["polytropic_eff_pct"]))
-        else:
-            b = b.WithAdiabaticEfficiencyPercent(float(p.get("adiabatic_eff_pct", 75.0)))
-    elif kind == "separator":
-        b = fs.AddSeparator(name)
-    elif kind == "heat_exchanger":
-        from DWSIM.UnitOperations.UnitOperations import HeatExchangerCalcMode
-        b = (fs.AddHeatExchanger(name).WithCalculationMode(HeatExchangerCalcMode.PinchPoint).WithGlobalUA(float(p["UA_W_K"]))
-             .WithHotSidePressureDrop(Q.Pascal(float(p.get("hot_dP_Pa", 0.0)))).WithColdSidePressureDrop(Q.Pascal(float(p.get("cold_dP_Pa", 0.0)))))
-    elif kind == "shortcut_column":
-        b = (fs.AddShortcutColumn(name).WithKeys(p["light_key"], p["heavy_key"])
-             .WithLightKeyInBottoms(float(p["lk_mole_frac_in_bottoms"])).WithHeavyKeyInDistillate(float(p["hk_mole_frac_in_distillate"]))
-             .WithPressures(Q.Pascal(float(p["condenser_P_Pa"])), Q.Pascal(float(p["reboiler_P_Pa"]))).WithRefluxRatio(float(p["reflux_ratio"])))
-    elif kind == "distillation_column":
-        b = (fs.AddDistillationColumn(name).WithNumberOfStages(int(p["stages"]))
-             .WithCondenserSpec("Reflux Ratio", float(p["reflux_ratio"]), "")
-             .WithTopPressure(Q.Pascal(float(p["top_P_Pa"]))).WithColumnPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0)))))
-        if "bottoms_molar_flow_mol_s" in p:
-            b = b.WithReboilerSpec("Product Molar Flow Rate", float(p["bottoms_molar_flow_mol_s"]), "mol/s")
-        elif "distillate_molar_flow_mol_s" in p:
-            b = b.WithCondenserSpec("Product Molar Flow Rate", float(p["distillate_molar_flow_mol_s"]), "mol/s")
-        s["column_feeds"][name] = int(p.get("feed_stage", max(1, int(p["stages"]) // 2)))
-    elif kind in ("conversion_reactor", "equilibrium_reactor", "gibbs_reactor"):
-        b = {"conversion_reactor": fs.AddConversionReactor, "equilibrium_reactor": fs.AddEquilibriumReactor,
-             "gibbs_reactor": fs.AddGibbsReactor}[kind](name)
-        b = b.Adiabatic() if str(p.get("mode", "isothermal")).lower().startswith("adiab") else b.Isothermal()
-        if "reaction_set" in p:
-            b = b.WithReactionSet(p["reaction_set"])
-        b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
-    elif kind in ("cstr", "pfr"):
-        b = (fs.AddCSTR if kind == "cstr" else fs.AddPFR)(name).WithVolume(Q.CubicMeters(float(p["volume_m3"])))
-        # NOTE: CSTRBuilder.WithIsothermalTemperature breaks the PH flash in DWSIM 10.2.12; Isothermal() = feed T.
-        b = b.Adiabatic() if str(p.get("mode", "isothermal")).lower().startswith("adiab") else b.Isothermal()
-        if "reaction_set" in p:
-            b = b.WithReactionSet(p["reaction_set"])
-        b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
-    elif kind == "recycle":
-        b = fs.AddUnitOperation(ObjectType.OT_Recycle, name)
-        r = b.Object.__implementation__
-        cp = r.ConvergenceParameters
-        cp.VazaoMassica, cp.VazaoMassicaRelativa, cp.Temperatura, cp.Entalpia, cp.Composicao = 1e-6, 1e-8, 1e-4, 1e-4, 1e-7
-        r.MaximumIterations = 500
+        if kind == "mixer":
+            b = fs.AddMixer(name)
+        elif kind == "splitter":
+            b = fs.AddSplitter(name).WithSplitRatios(*[float(x) for x in p["split_ratios"]])
+        elif kind == "heater":
+            b = fs.AddHeater(name)
+            if "outlet_T_K" in p:
+                b = b.WithOutletTemperature(Q.Kelvin(float(p["outlet_T_K"])))
+            elif "heat_added_kW" in p:
+                b = b.WithHeatAdded(Q.Kilowatt(float(p["heat_added_kW"])))
+        elif kind == "cooler":
+            b = fs.AddCooler(name)
+            if "outlet_T_K" in p:
+                b = b.WithOutletTemperature(Q.Kelvin(float(p["outlet_T_K"])))
+            elif "heat_removed_kW" in p:
+                b = b.WithHeatRemoved(Q.Kilowatt(float(p["heat_removed_kW"])))
+        elif kind == "valve":
+            b = fs.AddValve(name).WithOutletPressure(Q.Pascal(float(p["outlet_P_Pa"])))
+        elif kind == "pump":
+            b = fs.AddPump(name).WithOutletPressure(Q.Pascal(float(p["outlet_P_Pa"]))).WithEfficiencyPercent(float(p.get("efficiency_pct", 75.0)))
+        elif kind in ("compressor", "expander"):
+            b = (fs.AddCompressor(name) if kind == "compressor" else fs.AddExpander(name)).WithOutletPressure(Q.Pascal(float(p["outlet_P_Pa"])))
+            if "polytropic_eff_pct" in p:
+                from DWSIM.UnitOperations.UnitOperations import Compressor
+                b = b.WithProcessPath(Compressor.ProcessPathType.Polytropic).WithPolytropicEfficiencyPercent(float(p["polytropic_eff_pct"]))
+            else:
+                b = b.WithAdiabaticEfficiencyPercent(float(p.get("adiabatic_eff_pct", 75.0)))
+        elif kind == "separator":
+            b = fs.AddSeparator(name)
+        elif kind == "heat_exchanger":
+            from DWSIM.UnitOperations.UnitOperations import HeatExchangerCalcMode
+            b = (fs.AddHeatExchanger(name).WithCalculationMode(HeatExchangerCalcMode.PinchPoint).WithGlobalUA(float(p["UA_W_K"]))
+                 .WithHotSidePressureDrop(Q.Pascal(float(p.get("hot_dP_Pa", 0.0)))).WithColdSidePressureDrop(Q.Pascal(float(p.get("cold_dP_Pa", 0.0)))))
+        elif kind == "shortcut_column":
+            b = (fs.AddShortcutColumn(name).WithKeys(p["light_key"], p["heavy_key"])
+                 .WithLightKeyInBottoms(float(p["lk_mole_frac_in_bottoms"])).WithHeavyKeyInDistillate(float(p["hk_mole_frac_in_distillate"]))
+                 .WithPressures(Q.Pascal(float(p["condenser_P_Pa"])), Q.Pascal(float(p["reboiler_P_Pa"]))).WithRefluxRatio(float(p["reflux_ratio"])))
+        elif kind == "distillation_column":
+            b = (fs.AddDistillationColumn(name).WithNumberOfStages(int(p["stages"]))
+                 .WithCondenserSpec("Reflux Ratio", float(p["reflux_ratio"]), "")
+                 .WithTopPressure(Q.Pascal(float(p["top_P_Pa"]))).WithColumnPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0)))))
+            if "bottoms_molar_flow_mol_s" in p:
+                b = b.WithReboilerSpec("Product Molar Flow Rate", float(p["bottoms_molar_flow_mol_s"]), "mol/s")
+            elif "distillate_molar_flow_mol_s" in p:
+                b = b.WithCondenserSpec("Product Molar Flow Rate", float(p["distillate_molar_flow_mol_s"]), "mol/s")
+            s["column_feeds"][name] = int(p.get("feed_stage", max(1, int(p["stages"]) // 2)))
+        elif kind in ("conversion_reactor", "equilibrium_reactor", "gibbs_reactor"):
+            b = {"conversion_reactor": fs.AddConversionReactor, "equilibrium_reactor": fs.AddEquilibriumReactor,
+                 "gibbs_reactor": fs.AddGibbsReactor}[kind](name)
+            b = b.Adiabatic() if str(p.get("mode", "isothermal")).lower().startswith("adiab") else b.Isothermal()
+            if "reaction_set" in p:
+                b = b.WithReactionSet(p["reaction_set"])
+            b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
+        elif kind in ("cstr", "pfr"):
+            b = (fs.AddCSTR if kind == "cstr" else fs.AddPFR)(name).WithVolume(Q.CubicMeters(float(p["volume_m3"])))
+            # NOTE: CSTRBuilder.WithIsothermalTemperature breaks the PH flash in DWSIM 10.2.12; Isothermal() = feed T.
+            b = b.Adiabatic() if str(p.get("mode", "isothermal")).lower().startswith("adiab") else b.Isothermal()
+            if "reaction_set" in p:
+                b = b.WithReactionSet(p["reaction_set"])
+            b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
+        elif kind == "recycle":
+            b = fs.AddUnitOperation(ObjectType.OT_Recycle, name)
+            r = b.Object.__implementation__
+            cp = r.ConvergenceParameters
+            cp.VazaoMassica, cp.VazaoMassicaRelativa, cp.Temperatura, cp.Entalpia, cp.Composicao = 1e-6, 1e-8, 1e-4, 1e-4, 1e-7
+            r.MaximumIterations = 500
+    except KeyError as ex:
+        raise ValueError(f"{kind} {name!r}: missing required param {ex.args[0]!r} (see add_unit docstring); dof_check() lists what each kind needs") from None
     s["units"][name] = b
     s["kinds"][name] = kind
+    s["params"][name] = dict(p)
     return {"ok": True, "unit": name, "kind": kind}
 
 
@@ -260,6 +267,7 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
     st, en = s["streams"], s["energy"]
     feeds, products = feeds or [], products or []
     energy_feeds, energy_products = energy_feeds or [], energy_products or []
+    s["conn"][unit] = {"feeds": list(feeds), "products": list(products), "energy_feeds": list(energy_feeds), "energy_products": list(energy_products)}
 
     if kind == "distillation_column":
         for f in feeds:
@@ -369,9 +377,10 @@ def close_flowsheet(flowsheet_id: str) -> dict:
     return {"ok": True}
 
 
-from packages.dwsim_client.tools_sweep import SWEEP_TOOLS  # noqa: E402  (imports this module; placed last on purpose)
+from packages.dwsim_client.tools_sweep import SWEEP_TOOLS
+from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
-         define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, solve, read_stream, read_unit, *SWEEP_TOOLS,
-         hazop_preliminary, close_flowsheet]
+         define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
+         *SWEEP_TOOLS, hazop_preliminary, close_flowsheet]

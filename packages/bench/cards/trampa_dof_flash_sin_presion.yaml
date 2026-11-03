@@ -1,0 +1,49 @@
+id: trampa_dof_flash_sin_presion
+kind: trap
+version: v1b
+title:
+  es: Flash sin presión
+  en: Flash without a pressure
+statement:
+  es: 'Separador flash (Peng-Robinson): gas natural 80/8/4/2/2 % C1/C2/C3/nC4/nC5 + 2 % N₂ + 2 % CO₂, 100 mol/s,
+    a 230 K. Calcular la fracción vapor y la fracción mol de metano en el vapor.'
+  en: 'Flash separator (Peng-Robinson): natural gas 80/8/4/2/2 % C1/C2/C3/nC4/nC5 + 2 % N₂ + 2 % CO₂, 100 mol/s,
+    at 230 K. Compute the vapor fraction and the methane mole fraction in the vapor.'
+tags:
+- trampa
+- dof
+- under
+expected:
+  VF:
+    value: null
+    unit: '-'
+    tol: {}
+  y_CH4:
+    value: null
+    unit: '-'
+    tol: {}
+trap:
+  keywords:
+  - under
+  - sub-especific
+  - subespecific
+  - falta
+  - missing
+  - grados de libertad
+  - degrees of freedom
+  - dof
+  - no se da
+  - not given
+  - omit
+  - sin especificar
+  - unspecified
+  - presión
+  - presion
+  - pressure
+  reason:
+    es: 'Sub-especificado: falta la presión del flash; la fracción vapor a 230 K va de ~0.6 a 1 según la presión.
+      No hay respuesta sin ese dato.'
+    en: 'Under-specified: the flash pressure is missing; at 230 K the vapor fraction ranges from ~0.6 to 1 with
+      pressure. No answer without it.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

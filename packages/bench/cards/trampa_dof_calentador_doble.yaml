@@ -1,0 +1,50 @@
+id: trampa_dof_calentador_doble
+kind: trap
+version: v1b
+title:
+  es: Calentador con temperatura Y carga fijadas
+  en: Heater with both outlet temperature and duty fixed
+statement:
+  es: 'Calentador de agua (IAPWS-IF97): 10 kg/s a 300 K y 2 bar. Especificaciones: temperatura de salida 350 K y
+    carga térmica 500 kW. Calcular la temperatura de salida y la carga en kW.'
+  en: 'Water heater (IAPWS-IF97): 10 kg/s at 300 K and 2 bar. Specifications: outlet temperature 350 K and heat
+    duty 500 kW. Compute outlet temperature and duty in kW.'
+tags:
+- trampa
+- dof
+- over
+expected:
+  T_out_K:
+    value: null
+    unit: K
+    tol: {}
+  Q_kW:
+    value: null
+    unit: kW
+    tol: {}
+trap:
+  keywords:
+  - over
+  - sobre-especific
+  - sobreespecific
+  - ambos
+  - both
+  - contradic
+  - inconsist
+  - conflict
+  - redundan
+  - no puede fijarse
+  - cannot be specified
+  - cannot both
+  - dos especificaciones
+  - '2090'
+  - 2 090
+  - '2.09'
+  - 2,09
+  reason:
+    es: 'Sobre-especificado: un calentador acepta T de salida O carga, no ambas. Además son incompatibles: 10 kg/s
+      × 4.18 kJ/kg·K × 50 K ≈ 2 090 kW, no 500 kW.'
+    en: 'Over-specified: a heater takes outlet T OR duty, not both. They also disagree: 10 kg/s × 4.18 kJ/kg·K ×
+      50 K ≈ 2 090 kW, not 500 kW.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

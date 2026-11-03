@@ -9,10 +9,13 @@ from packages.bench.runner import grade, load_cards, null_agent, oracle_agent, p
 
 
 def test_thirty_cards_two_versions():
-    assert len(load_cards()) == 30
+    assert len(load_cards()) == 35
     assert len(load_cards(version="v0")) == 20
     traps = load_cards(version="v1")
     assert len(traps) == 10 and all(c["kind"] == "trap" and c["trap"]["keywords"] for c in traps)
+    dof = load_cards(version="v1b")
+    assert len(dof) == 5 and all("dof" in c["tags"] for c in dof)
+    assert len(load_cards(version="traps")) == 15
 
 
 def test_public_view_hides_the_trap():
@@ -23,7 +26,7 @@ def test_public_view_hides_the_trap():
 
 
 def test_oracle_detects_all_traps_and_null_scores_zero():
-    traps = load_cards(version="v1")
+    traps = load_cards(version="traps")
     mean, results = run_bench(oracle_agent, traps, verbose=False)
     assert mean > 0.999, [(c, s) for c, s, _, _ in results if s < 1]
     mean0, _ = run_bench(null_agent, traps, verbose=False)

@@ -151,3 +151,28 @@ cards:
   version: v1
   title_es: Depropanizadora con reflujo menor al mínimo
   n_expected: 2
+- id: trampa_dof_calentador_doble
+  kind: trap
+  version: v1b
+  title_es: Calentador con temperatura Y carga fijadas
+  n_expected: 2
+- id: trampa_dof_flash_sin_presion
+  kind: trap
+  version: v1b
+  title_es: Flash sin presión
+  n_expected: 2
+- id: trampa_dof_compresor_sin_composicion
+  kind: trap
+  version: v1b
+  title_es: Compresor sin composición del gas
+  n_expected: 2
+- id: trampa_dof_columna_sin_reflujo
+  kind: trap
+  version: v1b
+  title_es: Columna FUG sin reflujo ni etapas
+  n_expected: 2
+- id: trampa_dof_mezclador_t_fijada
+  kind: trap
+  version: v1b
+  title_es: Mezclador con temperatura de salida impuesta
+  n_expected: 2
