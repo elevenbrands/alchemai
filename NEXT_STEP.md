@@ -3,24 +3,25 @@
 Actualizado: 2026-11-02
 
 ## Dónde estamos
-**Fase 2, bloque 6 cerrado (2026-11-02)**: capa LLM del HAZOP (`packages/hazop/llm.py`, filas `proposal`
-vía `claude -p`, 12 propuestas / 0 nodos inventados en la compresión de gas) + **Bench v1 con 10 trampas**
-(`packages/bench/trap_cases.py`): el agente detecta 10/10 con evidencia del simulador y 0 falsas alarmas en
-6 controles v0. 40 tests (39 + 1 live skip). Evidencia en `BENCHMARK.md` y `notebooks/bench_runs/v1_*.jsonl`.
+**Fase 2, bloque 7 cerrado (2026-11-02)**: estudio de cinética con Cantera (notebook 03: A→B analítico vs Cantera vs
+DWSIM, llama GRI-Mech vs reactor de conversión +116 K, WSR blow-out, retardo de ignición) y **reactores cinéticos en
+las herramientas** (`define_kinetic_reaction`, `cstr`, `pfr`; 17 tools; PFR/CSTR dentro de 0.03 % del analítico).
+Sección D del notebook = especificación del reactor cinético de Fluxo 1.1. 43 tests + 1 live skip.
 
 ## Siguiente acción exacta
-Bloque 7 (elegir uno, en orden sugerido):
-1. **Estudio semana 3 — cinética y redes de reactores con Cantera** (notebook 03: CSTR/PFR/batch, comparar
-   con DWSIM y con el reactor de conversión; base del reactor cinético de Fluxo 1.1).
-2. **Agente v1 — crítica de grados de libertad** antes de simular: contar especificaciones vs incógnitas por
-   unidad y avisar «sobre/sub-especificado» como herramienta determinista (`dof_check`), con 5 tarjetas más.
-3. **Fluxo 1.2 «Explica mi flowsheet»** con la capa `factory-ai` (gate `app_ai_gate.sh`) — requiere OK del
-   owner para tocar Fluxo mientras 1.0.0 está en App Review.
-4. Barato: medir el bench completo (30) con `ALCHEMAI_CC_MODEL=sonnet` para tener una segunda fila de modelo.
+Bloque 8 (elegir uno):
+1. **Agente v1 — `dof_check`**: herramienta determinista de grados de libertad por unidad (specs vs incógnitas) que avise
+   «sobre/sub-especificado» antes de `solve`, + 5 tarjetas (v1b) que lo exijan; reutiliza el protocolo `infeasible`.
+2. **Fluxo 1.1 — reactor cinético** siguiendo la sección D del notebook 03 (CSTR algebraico + PFR RK4, Arrhenius,
+   validación obligatoria contra X_PFR 0.9807 / X_CSTR 0.7979). Requiere OK del owner para tocar Fluxo mientras 1.0.0
+   está en App Review; se puede preparar en rama `feature/reactor-cinetico` sin enviar.
+3. **Estudio semana 4** — columnas rigurosas (inside-out / Wang-Henke): comparar la columna etanol-agua de DWSIM
+   con la de Fluxo caso a caso y localizar dónde falla Fluxo.
+4. Barato: bench completo (30) con `ALCHEMAI_CC_MODEL=sonnet` como segunda fila de modelo.
 
 ## Bloqueante actual
-Ninguno. Limitación anotada: Peng-Robinson no condensa el 1 % de agua a 280 K / 60 bar (liq = 0 kg/s en V-1);
-para HAZOP de gas húmedo conviene un paquete con agua libre (CPA / SRK con agua) — pendiente de evaluar.
+Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar (HAZOP de gas húmedo → paquete con agua libre);
+`CSTRBuilder.WithIsothermalTemperature` roto en DWSIM 10.2.12 (usar `Isothermal()`).
 
 ## Decisiones pendientes del owner
 - Hacer público el repo (plan: mes 3) y primer post.

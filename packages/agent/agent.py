@@ -139,16 +139,29 @@ def define_equilibrium_reaction(flowsheet_id: str, name: str, stoichiometry: dic
 
 
 @beta_tool
+def define_kinetic_reaction(flowsheet_id: str, name: str, stoichiometry: dict[str, float], base_compound: str,
+                            direct_orders: dict[str, float], A_forward: float, E_forward_J_mol: float,
+                            reverse_orders: dict[str, float] | None = None, A_reverse: float = 0.0, E_reverse_J_mol: float = 0.0,
+                            reaction_set: str = "KIN") -> str:
+    """Arrhenius kinetic reaction for cstr/pfr units: r = A·exp(−E/RT)·Π C_i^order, concentrations in mol/m³, rate in
+    mol/[m³·s] (first order → A in 1/s), E in J/mol. Orders per compound (missing → 0); A_reverse=0 → irreversible."""
+    return json.dumps(T.define_kinetic_reaction(flowsheet_id, name, stoichiometry, base_compound, direct_orders, A_forward,
+                                                E_forward_J_mol, reverse_orders, A_reverse, E_reverse_J_mol, reaction_set))
+
+
+@beta_tool
 def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] | None = None) -> str:
     """Add a unit operation. kind: mixer | splitter | heater | cooler | valve | pump | compressor | expander |
     separator | heat_exchanger | shortcut_column | distillation_column | conversion_reactor |
-    equilibrium_reactor | gibbs_reactor | recycle. params by kind: splitter {split_ratios:[...]};
+    equilibrium_reactor | gibbs_reactor | cstr | pfr | recycle. params by kind: splitter {split_ratios:[...]};
     heater {outlet_T_K | heat_added_kW}; cooler {outlet_T_K | heat_removed_kW}; valve {outlet_P_Pa};
     pump {outlet_P_Pa, efficiency_pct}; compressor/expander {outlet_P_Pa, adiabatic_eff_pct | polytropic_eff_pct};
     heat_exchanger {UA_W_K, hot_dP_Pa, cold_dP_Pa}; shortcut_column {light_key, heavy_key,
     lk_mole_frac_in_bottoms, hk_mole_frac_in_distillate, condenser_P_Pa, reboiler_P_Pa, reflux_ratio};
     distillation_column {stages, feed_stage, reflux_ratio, bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s,
-    top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; recycle {}."""
+    top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; cstr/pfr {volume_m3,
+    reaction_set, mode: "isothermal" (= feed T)|"adiabatic", dP_Pa} — products [outlet], energy_feeds [duty] required;
+    recycle {}."""
     return json.dumps(T.add_unit(flowsheet_id, kind, name, params))
 
 
@@ -227,7 +240,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 
 
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
-               define_equilibrium_reaction, add_unit, connect, solve, read_stream, read_unit,
+               define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, hazop_preliminary, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)

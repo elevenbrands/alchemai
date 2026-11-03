@@ -30,7 +30,7 @@ _ids = itertools.count(1)
 
 UNIT_KINDS = ["mixer", "splitter", "heater", "cooler", "valve", "pump", "compressor", "expander", "separator",
               "heat_exchanger", "shortcut_column", "distillation_column", "conversion_reactor",
-              "equilibrium_reactor", "gibbs_reactor", "recycle"]
+              "equilibrium_reactor", "gibbs_reactor", "cstr", "pfr", "recycle"]
 
 
 def _s(fs_id: str) -> dict:
@@ -136,6 +136,28 @@ def define_equilibrium_reaction(flowsheet_id: str, name: str, stoichiometry: dic
     return {"ok": True, "reaction": name, "reaction_set": reaction_set}
 
 
+def define_kinetic_reaction(flowsheet_id: str, name: str, stoichiometry: dict[str, float], base_compound: str,
+                            direct_orders: dict[str, float], A_forward: float, E_forward_J_mol: float,
+                            reverse_orders: dict[str, float] | None = None, A_reverse: float = 0.0, E_reverse_J_mol: float = 0.0,
+                            reaction_set: str = "KIN") -> dict:
+    """Define an Arrhenius kinetic reaction for CSTR/PFR units: r = A·exp(−E/RT)·Π C_i^order (vapor phase, molar
+    concentration basis in mol/m³, rate in mol/[m³·s]; so for a first-order reaction A_forward is in 1/s). E in
+    J/mol. direct_orders gives the forward orders per compound (compounds not listed get 0); reverse_orders
+    likewise for the reverse rate (A_reverse=0 → irreversible). Add it to a reaction set and bind that set to the
+    reactor via add_unit(kind="cstr"|"pfr", params={"reaction_set": ...}). Validated: first-order PFR/CSTR match
+    the analytic X = 1−e^(−kτ) / kτ/(1+kτ) within 0.05 %."""
+    s = _s(flowsheet_id)
+    comps = list(stoichiometry)
+    fwd = {c: float((direct_orders or {}).get(c, 0.0)) for c in comps}
+    rev = {c: float((reverse_orders or {}).get(c, 0.0)) for c in comps}
+    r = s["fs"].DefineKineticReaction(name, _stoich(stoichiometry), _stoich(fwd), _stoich(rev), base_compound, "Vapor",
+                                      "Molar Concentration", "mol/m3", "mol/[m3.s]", float(A_forward), float(E_forward_J_mol),
+                                      float(A_reverse), float(E_reverse_J_mol), "", "", "")
+    s["fs"].ReactionSet(reaction_set).Add(r)
+    s["reactions"][name] = reaction_set
+    return {"ok": True, "reaction": name, "reaction_set": reaction_set}
+
+
 def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | None = None) -> dict:
     """Add a unit operation. kind ∈ mixer, splitter, heater, cooler, valve, pump, compressor, expander,
     separator, heat_exchanger, shortcut_column, distillation_column, conversion_reactor,
@@ -146,7 +168,8 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
       shortcut_column: light_key, heavy_key, lk_mole_frac_in_bottoms, hk_mole_frac_in_distillate,
       condenser_P_Pa, reboiler_P_Pa, reflux_ratio; distillation_column: stages, feed_stage, reflux_ratio,
       bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s, top_P_Pa, dP_Pa; *_reactor: reaction_set,
-      mode ("isothermal" | "adiabatic"), dP_Pa. Connect streams afterwards with connect()."""
+      mode ("isothermal" | "adiabatic"), dP_Pa; cstr / pfr (kinetic reactions): volume_m3, reaction_set,
+      mode ("isothermal" at the feed T | "adiabatic"), dP_Pa. Connect streams afterwards with connect()."""
     s = _s(flowsheet_id)
     fs, p = s["fs"], dict(params or {})
     kind = kind.lower()
@@ -206,6 +229,13 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
         if "reaction_set" in p:
             b = b.WithReactionSet(p["reaction_set"])
         b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
+    elif kind in ("cstr", "pfr"):
+        b = (fs.AddCSTR if kind == "cstr" else fs.AddPFR)(name).WithVolume(Q.CubicMeters(float(p["volume_m3"])))
+        # NOTE: CSTRBuilder.WithIsothermalTemperature breaks the PH flash in DWSIM 10.2.12; Isothermal() = feed T.
+        b = b.Adiabatic() if str(p.get("mode", "isothermal")).lower().startswith("adiab") else b.Isothermal()
+        if "reaction_set" in p:
+            b = b.WithReactionSet(p["reaction_set"])
+        b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
     elif kind == "recycle":
         b = fs.AddUnitOperation(ObjectType.OT_Recycle, name)
         r = b.Object.__implementation__
@@ -221,8 +251,9 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
             energy_feeds: list[str] | None = None, energy_products: list[str] | None = None) -> dict:
     """Connect streams to a unit, in port order. Conventions: separator products = [vapor, liquid];
     shortcut/distillation column products = [distillate, bottoms], energy_products = [condenser duty],
-    energy_feeds = [reboiler duty]; reactors products = [vapor, liquid] (both required), energy_feeds =
-    [heat duty]; heat_exchanger feeds = [hot_in, cold_in], products = [hot_out, cold_out];
+    energy_feeds = [reboiler duty]; conversion/equilibrium/gibbs reactors products = [vapor, liquid] (both
+    required), energy_feeds = [heat duty]; cstr/pfr products = [outlet], energy_feeds = [heat duty] (required,
+    also in isothermal mode); heat_exchanger feeds = [hot_in, cold_in], products = [hot_out, cold_out];
     recycle feeds = [tear stream], products = [recycled stream]."""
     s = _s(flowsheet_id)
     b, kind = s["units"][unit], s["kinds"][unit]
@@ -252,7 +283,7 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
             b.ConnectEnergyProduct(en[e], 0)
         for e in energy_feeds:
             b.ConnectEnergyFeed(en[e], 1)
-    elif kind.endswith("_reactor"):
+    elif kind.endswith("_reactor") or kind in ("cstr", "pfr"):
         for e in energy_feeds:
             b.ConnectEnergyFeed(en[e], 1)
     else:
@@ -342,5 +373,5 @@ from packages.dwsim_client.tools_sweep import SWEEP_TOOLS  # noqa: E402  (import
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
-         define_equilibrium_reaction, add_unit, connect, solve, read_stream, read_unit, *SWEEP_TOOLS,
+         define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, solve, read_stream, read_unit, *SWEEP_TOOLS,
          hazop_preliminary, close_flowsheet]
