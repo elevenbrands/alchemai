@@ -276,7 +276,8 @@ def b_column():
             .SetCompoundMolarFlow("Water", 50.0).SetCompoundMolarFlow("Ethanol", 50.0))
     dist, bot = fs.AddMaterialStream("dist"), fs.AddMaterialStream("bot")
     cd, rd = fs.AddEnergyStream("cd"), fs.AddEnergyStream("rd")
-    col = (fs.AddDistillationColumn("T-101").WithNumberOfStages(20).WithFeed(feed, 10).WithDistillate(dist).WithBottoms(bot)
+    # WithFeed is 0-based (WithFeed(s, 2) lands on "Stage3"): index 9 = stage 10 of the statement.
+    col = (fs.AddDistillationColumn("T-101").WithNumberOfStages(20).WithFeed(feed, 10 - 1).WithDistillate(dist).WithBottoms(bot)
            .WithCondenserDuty(cd).WithReboilerDuty(rd).WithCondenserSpec("Reflux Ratio", 2.0, "")
            .WithReboilerSpec("Product Molar Flow Rate", 75.0, "mol/s").WithTopPressure(Q.Pascal(101325.0)).WithColumnPressureDrop(Q.Pascal(0.0)))
     fs.AutoLayout()

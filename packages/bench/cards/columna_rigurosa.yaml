@@ -14,24 +14,24 @@ tags:
 - nrtl
 expected:
   x_EtOH_dist:
-    value: 0.8076079300607897
+    value: 0.8039595361142794
     unit: '-'
     tol: &id001
       rel: 0.01
   x_EtOH_bot:
-    value: 0.39746381745485193
+    value: 0.39867992281006204
     unit: '-'
     tol: *id001
   D_mol_s:
-    value: 24.9999999999
+    value: 24.999999999900005
     unit: mol/s
     tol: *id001
   Qc_kW:
-    value: 2955.1200595789587
+    value: 2955.892913501022
     unit: kW
     tol: *id001
   Qr_kW:
-    value: 3488.193428533421
+    value: 3488.9215071053904
     unit: kW
     tol: *id001
 requires:

@@ -169,7 +169,7 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
       valve: outlet_P_Pa; pump: outlet_P_Pa, efficiency_pct; compressor/expander: outlet_P_Pa,
       adiabatic_eff_pct | polytropic_eff_pct; heat_exchanger: UA_W_K (pinch-point mode), hot_dP_Pa, cold_dP_Pa;
       shortcut_column: light_key, heavy_key, lk_mole_frac_in_bottoms, hk_mole_frac_in_distillate,
-      condenser_P_Pa, reboiler_P_Pa, reflux_ratio; distillation_column: stages, feed_stage, reflux_ratio,
+      condenser_P_Pa, reboiler_P_Pa, reflux_ratio; distillation_column: stages, feed_stage (1-based, 1 = condenser), reflux_ratio,
       bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s, top_P_Pa, dP_Pa; *_reactor: reaction_set,
       mode ("isothermal" | "adiabatic"), dP_Pa; cstr / pfr (kinetic reactions): volume_m3, reaction_set,
       mode ("isothermal" at the feed T | "adiabatic"), dP_Pa. Connect streams afterwards with connect()."""
@@ -271,7 +271,8 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
 
     if kind == "distillation_column":
         for f in feeds:
-            b = b.WithFeed(st[f], s["column_feeds"][unit])
+            # DWSIM's WithFeed index is 0-based (2 -> "Stage3"); feed_stage is 1-based like every textbook (1 = condenser).
+            b = b.WithFeed(st[f], s["column_feeds"][unit] - 1)
         if products:
             b = b.WithDistillate(st[products[0]])
         if len(products) > 1:

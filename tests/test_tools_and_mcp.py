@@ -63,7 +63,7 @@ def test_tools_reactor_and_column():
     T.add_unit(fid, "distillation_column", "T-101", {"stages": 20, "feed_stage": 10, "reflux_ratio": 2.0, "bottoms_molar_flow_mol_s": 75, "top_P_Pa": 101325})
     T.connect(fid, "T-101", feeds=["feed"], products=["dist", "bot"], energy_products=["cd"], energy_feeds=["rd"])
     assert T.solve(fid)["ok"]
-    assert T.read_stream(fid, "dist")["mole_fractions"]["Ethanol"] == pytest.approx(0.8076, abs=0.002)
+    assert T.read_stream(fid, "dist")["mole_fractions"]["Ethanol"] == pytest.approx(0.8040, abs=0.002)
 
 
 def test_mcp_server_lists_tools():

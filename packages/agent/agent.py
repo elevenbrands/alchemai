@@ -176,7 +176,7 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] 
     pump {outlet_P_Pa, efficiency_pct}; compressor/expander {outlet_P_Pa, adiabatic_eff_pct | polytropic_eff_pct};
     heat_exchanger {UA_W_K, hot_dP_Pa, cold_dP_Pa}; shortcut_column {light_key, heavy_key,
     lk_mole_frac_in_bottoms, hk_mole_frac_in_distillate, condenser_P_Pa, reboiler_P_Pa, reflux_ratio};
-    distillation_column {stages, feed_stage, reflux_ratio, bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s,
+    distillation_column {stages, feed_stage (1-based, 1 = condenser), reflux_ratio, bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s,
     top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; cstr/pfr {volume_m3,
     reaction_set, mode: "isothermal" (= feed T)|"adiabatic", dP_Pa} — products [outlet], energy_feeds [duty] required;
     recycle {}."""
