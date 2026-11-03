@@ -1,0 +1,42 @@
+id: trampa_divisor_120
+kind: trap
+version: v1
+title:
+  es: Divisor que reparte 120 %
+  en: Splitter that distributes 120 %
+statement:
+  es: 'Divisor de corriente: 100 mol/s de gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂ a 300 K y 50 bar (Peng-Robinson).
+    Enviar 70 % a la salida A y 50 % a la salida B. Calcular el flujo molar de A y de B.'
+  en: 'Stream splitter: 100 mol/s of gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂ at 300 K and 50 bar (Peng-Robinson).
+    Send 70 % to outlet A and 50 % to outlet B. Compute the molar flow of A and B.'
+tags:
+- trampa
+- balance
+expected:
+  A_mol_s:
+    value: null
+    unit: mol/s
+    tol: {}
+  B_mol_s:
+    value: null
+    unit: mol/s
+    tol: {}
+trap:
+  keywords:
+  - '120'
+  - '1.2'
+  - suma
+  - sum
+  - balance
+  - no suman
+  - exceed
+  - más de 100
+  - more than 100
+  - mayor que 1
+  - greater than 1
+  - fracciones
+  reason:
+    es: 'Las fracciones de división suman 120 %: viola el balance de masa (saldrían 120 mol/s de 100).'
+    en: 'The split ratios sum to 120 %: mass balance violated (120 mol/s would leave from 100).'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

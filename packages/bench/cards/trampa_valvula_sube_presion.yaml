@@ -1,0 +1,43 @@
+id: trampa_valvula_sube_presion
+kind: trap
+version: v1
+title:
+  es: Válvula que sube la presión
+  en: Valve that raises pressure
+statement:
+  es: 'Válvula de expansión isoentálpica: 100 mol/s de gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂ (Peng-Robinson) a 300
+    K y 10 bar; presión de salida especificada 20 bar. Calcular la T de salida y ΔT.'
+  en: 'Isenthalpic valve: 100 mol/s of gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂ (Peng-Robinson) at 300 K and 10 bar;
+    specified outlet pressure 20 bar. Compute outlet T and ΔT.'
+tags:
+- trampa
+- valvula
+expected:
+  T_out_K:
+    value: null
+    unit: K
+    tol: {}
+  dT_K:
+    value: null
+    unit: K
+    tol: {}
+trap:
+  keywords:
+  - válvula
+  - valvula
+  - valve
+  - no puede
+  - cannot
+  - subir
+  - aumentar
+  - raise
+  - increase
+  - compresor
+  - compressor
+  - mayor que la entrada
+  - above the inlet
+  reason:
+    es: 'Una válvula solo baja la presión: 10 → 20 bar requiere un compresor. La especificación es imposible.'
+    en: 'A valve can only lower pressure: 10 → 20 bar needs a compressor. The specification is impossible.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

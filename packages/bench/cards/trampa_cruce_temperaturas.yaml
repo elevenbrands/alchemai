@@ -1,0 +1,42 @@
+id: trampa_cruce_temperaturas
+kind: trap
+version: v1
+title:
+  es: Intercambiador con cruce de temperaturas
+  en: Heat exchanger with temperature cross
+statement:
+  es: 'Intercambiador a contracorriente, agua-agua (IAPWS-IF97), 1 bar. Lado caliente: 10 kg/s entran a 350 K y
+    deben salir a 300 K. Lado frío: 8 kg/s entran a 320 K y deben salir a 360 K. Calcular UA y la carga térmica
+    en kW.'
+  en: 'Counter-current water-water exchanger (IAPWS-IF97), 1 bar. Hot side: 10 kg/s in at 350 K, must leave at 300
+    K. Cold side: 8 kg/s in at 320 K, must leave at 360 K. Compute UA and the duty in kW.'
+tags:
+- trampa
+- intercambiador
+expected:
+  UA_W_K:
+    value: null
+    unit: W/K
+    tol: {}
+  Q_kW:
+    value: null
+    unit: kW
+    tol: {}
+trap:
+  keywords:
+  - cruce
+  - segunda ley
+  - cross
+  - second law
+  - '360'
+  - mayor que la entrada caliente
+  - hotter than
+  - above the hot inlet
+  - exceeds the hot
+  reason:
+    es: 'Cruce de temperaturas: la salida fría (360 K) supera la entrada caliente (350 K) y la carga de ambos lados
+      no coincide (2.1 vs 1.3 MW). Viola la segunda ley.'
+    en: 'Temperature cross: the cold outlet (360 K) exceeds the hot inlet (350 K) and the two duties do not match
+      (2.1 vs 1.3 MW). Violates the second law.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

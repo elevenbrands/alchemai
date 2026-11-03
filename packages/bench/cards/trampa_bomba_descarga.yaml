@@ -1,0 +1,43 @@
+id: trampa_bomba_descarga
+kind: trap
+version: v1
+title:
+  es: Bomba con descarga menor que la succión
+  en: Pump with discharge below suction
+statement:
+  es: Bomba centrífuga, agua (IAPWS-IF97), 20 kg/s a 300 K entra a 5 bar; la presión de descarga especificada es
+    3 bar; eficiencia 75 %. Calcular la potencia al eje en kW y la T de salida.
+  en: Centrifugal pump, water (IAPWS-IF97), 20 kg/s at 300 K enters at 5 bar; specified discharge pressure 3 bar;
+    efficiency 75 %. Compute shaft power in kW and outlet T.
+tags:
+- trampa
+- bomba
+expected:
+  W_kW:
+    value: null
+    unit: kW
+    tol: {}
+  T_out_K:
+    value: null
+    unit: K
+    tol: {}
+trap:
+  keywords:
+  - menor
+  - below
+  - lower than
+  - negativ
+  - no puede
+  - cannot
+  - válvula
+  - valvula
+  - valve
+  - expansión
+  - turbina
+  - turbine
+  reason:
+    es: 'Una bomba no reduce la presión: 5 → 3 bar da potencia negativa. Es una caída de presión (válvula), no una
+      bomba.'
+    en: 'A pump cannot lower pressure: 5 → 3 bar gives negative power. This is a pressure drop (valve), not a pump.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

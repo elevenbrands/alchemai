@@ -1,0 +1,45 @@
+id: trampa_compresor_expansion
+kind: trap
+version: v1
+title:
+  es: Compresor que baja la presión
+  en: Compressor that lowers pressure
+statement:
+  es: Compresor adiabático, 100 mol/s de gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂ (Peng-Robinson), entra a 300 K y
+    10 bar; presión de descarga especificada 5 bar; η adiabática 75 %. Calcular la potencia consumida en kW y la
+    T de descarga.
+  en: Adiabatic compressor, 100 mol/s of gas 85/7/4/2 % C1/C2/C3/nC4 + 2 % CO₂ (Peng-Robinson), inlet 300 K and
+    10 bar; specified discharge 5 bar; adiabatic η 75 %. Compute power consumed in kW and discharge T.
+tags:
+- trampa
+- compresor
+expected:
+  W_kW:
+    value: null
+    unit: kW
+    tol: {}
+  T_out_K:
+    value: null
+    unit: K
+    tol: {}
+trap:
+  keywords:
+  - expan
+  - turbina
+  - turbine
+  - menor
+  - below
+  - lower
+  - negativ
+  - no puede
+  - cannot
+  - válvula
+  - valvula
+  - valve
+  reason:
+    es: 'Un compresor no baja la presión: 10 → 5 bar es una expansión (turbina o válvula). La potencia ''consumida''
+      saldría negativa.'
+    en: 'A compressor cannot lower pressure: 10 → 5 bar is an expansion (expander or valve). ''Consumed'' power
+      would come out negative.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

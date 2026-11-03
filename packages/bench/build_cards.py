@@ -1,6 +1,6 @@
 """Generate the ChemE Design Bench v0 cards (yaml) from the Python case definitions.
 
-One card per case, 20 cards: 3 baseline + 10 reference (simulation) + 7 design. The expected
+30 cards: 3 baseline + 10 reference (simulation) + 7 design (v0) + 10 traps (v1, infeasible specs). The expected
 values are DWSIM 10.2.12 results (or analytic oracles) and are the single source of truth for
 grading; regenerate with `uv run python packages/bench/build_cards.py`.
 
@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT))
 from packages.bench.cases_baseline import ALL as BASELINE  # noqa: E402
 from packages.bench.cases_ref import CASES as REF  # noqa: E402
 from packages.bench.design_cases import DESIGN_CASES  # noqa: E402
+from packages.bench.trap_cases import TRAPS, trap_card  # noqa: E402
 from packages.dwsim_client.verify import verify  # noqa: E402
 
 CARDS_DIR = Path(__file__).with_name("cards")
@@ -90,6 +91,7 @@ def build_all():
         assert all(ok for _, ok, _ in checks), f"{d.id}: {[c for c in checks if not c[1]]}"
         exp = {k: v for k, v in a.items() if k in d.tolerances}
         cards.append(_card(d.id, "design", (d.title_es, d.title_en), (d.statement_es, d.statement_en), d.tags, exp, d.units, d.tolerances))
+    cards += [trap_card(t) for t in TRAPS]          # Bench v1: infeasible specs the agent must detect
     return cards
 
 
@@ -105,8 +107,8 @@ def main():
     cards = build_all()
     for c in cards:
         (CARDS_DIR / f"{c['id']}.yaml").write_text(yaml.safe_dump(c, sort_keys=False, allow_unicode=True, width=110))
-    index = [{"id": c["id"], "kind": c["kind"], "title_es": c["title"]["es"], "n_expected": len(c["expected"])} for c in cards]
-    (CARDS_DIR / "index.yaml").write_text(yaml.safe_dump({"version": "v0", "source": SOURCE, "cards": index}, sort_keys=False, allow_unicode=True))
+    index = [{"id": c["id"], "kind": c["kind"], "version": c["version"], "title_es": c["title"]["es"], "n_expected": len(c["expected"])} for c in cards]
+    (CARDS_DIR / "index.yaml").write_text(yaml.safe_dump({"version": "v1", "source": SOURCE, "cards": index}, sort_keys=False, allow_unicode=True))
     print(f"{len(cards)} cards → {CARDS_DIR}")
 
 

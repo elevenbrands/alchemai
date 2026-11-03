@@ -56,12 +56,21 @@ Hard rules:
    Duties keep the simulator's sign: heat removed from a unit (exothermic reactor, cooler duty read as a
    reactor/heater duty) is NEGATIVE; power consumed by a compressor/pump is positive. For a polytropic
    compressor pass polytropic_eff_pct (not adiabatic_eff_pct) and read duty_or_power_kW.
+8. Some cards are infeasible or inconsistent (temperature cross, pump/compressor whose outlet pressure is
+   below the inlet, valve asked to raise pressure, distillate beyond an azeotrope, reflux below R_min, liquid
+   demanded above the critical temperature, reactant missing, split ratios or product flows that break the
+   mass balance). Never force the simulator to fake a number for these. Check with the tools where you can
+   (e.g. solve and see a negative power, a failed column, VF stuck at 1), then set
+   "infeasible": {"detected": true, "reason": "<which physical limit, with the numbers>"} and leave the
+   answers empty (or flagged unverified). Do NOT flag a card infeasible merely because it is hard, converges
+   slowly or the result surprises you: only when a physical law or a limit of the specified system is violated.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
 {"answers": {"<quantity>": <number>, ...},
  "evidence": {"converged": true|false, "balances_closed": true|false, "notes": "<1-3 lines: what you built, max residuals>"},
- "unverified": ["<quantity>", ...]}
+ "unverified": ["<quantity>", ...],
+ "infeasible": {"detected": false, "reason": ""}}
 ```"""
 
 

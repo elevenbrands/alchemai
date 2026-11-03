@@ -49,17 +49,26 @@ def hazop_from_flowsheet(fs, name: str = "flowsheet") -> tuple[list[HazopRow], d
 
 
 # ------------------------------------------------------------------ tool (agent / MCP)
-def hazop_preliminary(flowsheet_id: str, excel_path: str | None = None) -> dict:
+def hazop_preliminary(flowsheet_id: str, excel_path: str | None = None, with_proposals: bool = False) -> dict:
     """Preliminary HAZOP of a SOLVED flowsheet: deterministic deviation rules (CCPS guide words × parameters)
     per unit, instantiated with the solved T, P, phases, duties and hazard flags (flammable, toxic, hydrates).
-    Returns the rows (node, parameter, deviation, causes, consequences, safeguards, severity 1-5, evidence) and
-    a Markdown table; optionally writes an .xlsx. Severity is a preliminary ranking, not a risk assessment.
-    Call solve() first."""
+    Returns the rows (node, parameter, deviation, causes, consequences, safeguards, severity 1-5, evidence,
+    source) and a Markdown table; optionally writes an .xlsx. with_proposals=true appends rows proposed by an
+    LLM review pass (source="proposal", unverified; never alters the rule rows; takes ~1-2 min). Severity is a
+    preliminary ranking, not a risk assessment. Call solve() first."""
     from packages.dwsim_client import tools as T
     s = T._s(flowsheet_id)
     rows, graph = hazop_from_flowsheet(s["fs"], flowsheet_id)
-    out = {"n_rows": len(rows), "rows": [r.to_dict() for r in rows], "markdown": to_markdown(rows),
+    n_rule = len(rows)
+    meta = None
+    if with_proposals:
+        from packages.hazop.llm import propose
+        props, meta = propose(rows, graph)
+        rows = rows + props
+    out = {"n_rows": len(rows), "n_rule": n_rule, "n_proposal": len(rows) - n_rule, "rows": [r.to_dict() for r in rows], "markdown": to_markdown(rows),
            "graph_units": {k: {"kind": v["kind"], "inlets": v["inlets"], "outlets": v["outlets"], "duty_kW": v["duty_kW"]} for k, v in graph["units"].items()}}
+    if meta is not None:
+        out["proposals_meta"] = {k: v for k, v in meta.items() if k != "dropped"} | {"n_dropped": len(meta.get("dropped", []))}
     if excel_path:
         out["excel"] = to_excel(rows, excel_path)
     return out

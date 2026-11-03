@@ -1,0 +1,46 @@
+id: trampa_reactor_sin_oxidante
+kind: trap
+version: v1
+title:
+  es: Combustión de metano sin oxígeno
+  en: Methane combustion without oxygen
+statement:
+  es: 'Reactor de conversión isotérmico a 298.15 K y 1 atm: CH₄ + 2 O₂ → CO₂ + 2 H₂O con 100 % de conversión de
+    metano. Alimentación: 1 mol/s de metano y 9.52 mol/s de nitrógeno puro (sin aire). Calcular el CO₂ producido
+    en mol/s y el calor retirado en kW.'
+  en: 'Isothermal conversion reactor at 298.15 K and 1 atm: CH₄ + 2 O₂ → CO₂ + 2 H₂O with 100 % methane conversion.
+    Feed: 1 mol/s methane and 9.52 mol/s pure nitrogen (no air). Compute CO₂ produced in mol/s and heat removed
+    in kW.'
+tags:
+- trampa
+- reactor
+expected:
+  CO2_mol_s:
+    value: null
+    unit: mol/s
+    tol: {}
+  Q_kW:
+    value: null
+    unit: kW
+    tol: {}
+trap:
+  keywords:
+  - oxígeno
+  - oxigeno
+  - oxygen
+  - oxidante
+  - oxidant
+  - o₂
+  - o2
+  - limitante
+  - limiting
+  - sin aire
+  - no air
+  - negativ
+  reason:
+    es: 'No hay oxígeno en la alimentación: el reactivo limitante es cero, la conversión de metano es 0 % y no se
+      produce CO₂. Una conversión de 100 % daría flujo negativo de O₂.'
+    en: 'No oxygen in the feed: the limiting reactant is zero, methane conversion is 0 % and no CO₂ forms. Forcing
+      100 % conversion gives a negative O₂ flow.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

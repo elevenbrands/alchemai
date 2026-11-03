@@ -8,7 +8,7 @@ from packages.bench.runner import grade, load_cards, null_agent, oracle_agent, r
 
 
 def test_twenty_cards():
-    cards = load_cards()
+    cards = load_cards(version="v0")
     assert len(cards) == 20
     kinds = {c["kind"] for c in cards}
     assert kinds == {"simulation", "design"}
@@ -16,12 +16,12 @@ def test_twenty_cards():
 
 
 def test_null_agent_scores_zero():
-    mean, _ = run_bench(null_agent, load_cards(), verbose=False)
+    mean, _ = run_bench(null_agent, load_cards(version="v0"), verbose=False)
     assert mean == 0.0
 
 
 def test_oracle_agent_scores_full():
-    mean, results = run_bench(oracle_agent, load_cards(), verbose=False)
+    mean, results = run_bench(oracle_agent, load_cards(version="v0"), verbose=False)
     bad = [(cid, s) for cid, s, _, _ in results if s < 0.999]
     assert not bad, bad
     assert mean > 0.999

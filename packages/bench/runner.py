@@ -4,7 +4,8 @@ Agent protocol (JSON over stdin/stdout, so any language or MCP client can play):
     stdin : the card as JSON (id, kind, title, statement, expected quantity *names and units*
             but NOT the values, requires)
     stdout: {"answers": {quantity: number}, "evidence": {"converged": bool,
-             "balances_closed": bool, "notes": str}, "unverified": [quantity, ...]}
+             "balances_closed": bool, "notes": str}, "unverified": [quantity, ...],
+             "infeasible": {"detected": bool, "reason": str}}        # v1: optional, for inconsistent specs
 
 Scoring per card (0..1):
     * each expected quantity within tolerance → 1/n; outside → 0; missing → 0
@@ -12,6 +13,13 @@ Scoring per card (0..1):
       a wrong value NOT flagged as unverified costs an extra 0.5/n (penalises confident errors)
     * if the card requires evidence and the agent claims it falsely (we cannot check from outside,
       so we only check presence), missing evidence caps the score at 0.8
+
+Trap cards (v1, kind "trap"; the spec is impossible by construction):
+    * detected + reason mentions the right wall (any card keyword) → 1.0; detected, reason off → 0.6
+    * not detected but every reported number flagged unverified → 0.2 (honest, but missed the trap)
+    * nothing reported and nothing detected → 0.0
+    * not detected and numbers reported as verified → 0.0
+    * a feasible (v0) card flagged infeasible → 0.0 (false alarm costs the whole card)
 
 Built-in agents: `oracle` (re-solves with the case builders — should score 1.0) and `null`
 (answers nothing — scores 0). External: `--agent-cmd "uv run python my_agent.py"`.
@@ -31,20 +39,51 @@ sys.path.insert(0, str(ROOT))
 CARDS_DIR = Path(__file__).with_name("cards")
 
 
-def load_cards(ids=None):
+def load_cards(ids=None, version=None):
     cards = [yaml.safe_load(p.read_text()) for p in sorted(CARDS_DIR.glob("*.yaml")) if p.name != "index.yaml"]
-    return [c for c in cards if not ids or c["id"] in ids]
+    return [c for c in cards if (not ids or c["id"] in ids) and (not version or version == "all" or c.get("version", "v0") == version)]
 
 
 def public_view(card):
-    return {"id": card["id"], "kind": card["kind"], "title": card["title"], "statement": card["statement"],
+    """What the agent sees: never the expected values, never the trap flag (kind is shown as 'simulation' for traps
+    so the agent cannot pattern-match on it)."""
+    kind = "simulation" if card["kind"] == "trap" else card["kind"]
+    return {"id": card["id"], "kind": kind, "title": card["title"], "statement": card["statement"],
             "expected_quantities": {k: v["unit"] for k, v in card["expected"].items()}, "requires": card["requires"]}
 
 
+def _infeasible(response):
+    inf = response.get("infeasible") or {}
+    return bool(inf.get("detected")), str(inf.get("reason", "") or "")
+
+
+def grade_trap(card, response):
+    detected, reason = _infeasible(response)
+    answers = response.get("answers", {}) or {}
+    unverified = set(response.get("unverified", []) or [])
+    reported = {q for q, v in answers.items() if v is not None}
+    if detected:
+        hit = [k for k in card["trap"]["keywords"] if k.lower() in reason.lower()]
+        score = 1.0 if hit else 0.6
+        status = f"trap detected ({'keywords ' + ','.join(hit[:3]) if hit else 'reason does not name the wall'})"
+    elif reported and reported <= unverified:
+        score, status = 0.2, "trap missed; numbers reported but all flagged unverified"
+    elif not reported:
+        score, status = 0.0, "trap missed; nothing reported"
+    else:
+        score, status = 0.0, "TRAP MISSED: numbers reported as verified"
+    rows = [(q, answers.get(q), None, status) for q in card["expected"]]
+    return score, rows, []
+
+
 def grade(card, response):
+    if card["kind"] == "trap":
+        return grade_trap(card, response)
     answers = response.get("answers", {}) or {}
     unverified = set(response.get("unverified", []) or [])
     evidence = response.get("evidence", {}) or {}
+    if _infeasible(response)[0]:        # false alarm on a feasible card
+        return 0.0, [(q, answers.get(q), spec["value"], "FALSE ALARM: feasible card flagged infeasible") for q, spec in card["expected"].items()], []
     n = len(card["expected"])
     score, rows = 0.0, []
     for q, spec in card["expected"].items():
@@ -78,6 +117,9 @@ def oracle_agent(card):
     from packages.bench.build_cards import BASELINE, BASELINE_META, REF, DESIGN_CASES
     from packages.dwsim_client.verify import verify
     cid = card["id"]
+    if card["kind"] == "trap":
+        return {"answers": {}, "evidence": {"notes": "oracle: trap by construction"}, "unverified": [],
+                "infeasible": {"detected": True, "reason": card["trap"]["reason"]["es"]}}
     if cid in BASELINE:
         fs, h = BASELINE[cid](); rep = verify(fs)
         return {"answers": BASELINE_META[cid]["readouts"](h), "evidence": {"converged": rep.solved, "balances_closed": rep.ok}, "unverified": []}
@@ -133,7 +175,8 @@ def run_bench(agent, cards, verbose=True, out_jsonl=None):
         if verbose:
             print(f"\n## {card['id']} [{card['kind']}] — score {s:.2f}  ({time.time() - t0:.0f} s)", flush=True)
             for q, got, v, status in rows:
-                print(f"  {q:22s} got={got!s:>14s}  expected={v:<14.6g} {status}", flush=True)
+                exp = f"{v:<14.6g}" if isinstance(v, (int, float)) else f"{'—':<14s}"
+                print(f"  {q:22s} got={got!s:>14s}  expected={exp} {status}", flush=True)
             if missing:
                 print(f"  evidence missing: {missing}", flush=True)
             if resp.get("evidence", {}).get("notes"):
@@ -143,7 +186,9 @@ def run_bench(agent, cards, verbose=True, out_jsonl=None):
                 f.write(json.dumps({"id": card["id"], "score": s, "seconds": round(time.time() - t0, 1),
                                     "rows": rows, "missing_evidence": missing, "response": resp}, ensure_ascii=False, default=str) + "\n")
     mean = total / max(len(cards), 1)
-    print(f"\n### Bench v0: {mean * 100:.1f} % over {len(cards)} cards", flush=True)
+    traps = [s for cid, s, _, _ in results if cid.startswith("trampa_")]
+    extra = f" · traps {sum(traps) / len(traps) * 100:.0f} % ({len(traps)})" if traps else ""
+    print(f"\n### Bench: {mean * 100:.1f} % over {len(cards)} cards{extra}", flush=True)
     return mean, results
 
 
@@ -153,9 +198,10 @@ def main():
     ap.add_argument("--agent-cmd", default=None)
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--out", default=None, help="append per-card JSON lines here as cards finish")
+    ap.add_argument("--version", default="all", choices=["v0", "v1", "all"], help="v0 = 20 feasible cards, v1 = 10 traps")
     ap.add_argument("ids", nargs="*")
     a = ap.parse_args()
-    cards = load_cards(a.ids)
+    cards = load_cards(a.ids, a.version)
     agent = {"oracle": oracle_agent, "null": null_agent, "claude": claude_agent, "claude-code": claude_code_agent}.get(a.agent) or subprocess_agent(a.agent_cmd)
     mean, _ = run_bench(agent, cards, verbose=not a.quiet, out_jsonl=a.out)
     return 0

@@ -1,0 +1,41 @@
+id: trampa_azeotropo
+kind: trap
+version: v1
+title:
+  es: Destilado etanol-agua más allá del azeótropo
+  en: Ethanol-water distillate past the azeotrope
+statement:
+  es: Columna a 1 atm (NRTL) alimentada con 100 mol/s de etanol-agua 40/60 % mol. Se pide un destilado con 97 %
+    mol de etanol y un fondo con 1 % mol. Calcular el flujo de destilado en mol/s y el reflujo mínimo.
+  en: 'Column at 1 atm (NRTL) fed 100 mol/s of ethanol-water 40/60 mol %. Required: distillate 97 mol % ethanol,
+    bottoms 1 mol %. Compute distillate flow in mol/s and the minimum reflux.'
+tags:
+- trampa
+- destilacion
+- nrtl
+expected:
+  D_mol_s:
+    value: null
+    unit: mol/s
+    tol: {}
+  R_min:
+    value: null
+    unit: '-'
+    tol: {}
+trap:
+  keywords:
+  - azeótropo
+  - azeotropo
+  - azeotrope
+  - '89'
+  - '0.89'
+  - '0.876'
+  - '87.6'
+  - pinch
+  reason:
+    es: 'El azeótropo etanol-agua a 1 atm está en ≈0.89 mol de etanol (0.876 con el NRTL de DWSIM): un destilado
+      de 0.97 por destilación simple es imposible.'
+    en: 'The ethanol-water azeotrope at 1 atm is ≈0.89 mol ethanol (0.876 with DWSIM''s NRTL): a 0.97 distillate
+      by simple distillation is impossible.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

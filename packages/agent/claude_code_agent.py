@@ -50,34 +50,44 @@ def solve_card(card: dict, log=None, _retry: bool = True) -> dict:
     return ans
 
 
-def _solve_card_once(card: dict, log=None) -> dict:
-    user = ("Card:\n```json\n" + json.dumps(card, ensure_ascii=False, indent=1) + "\n```\n"
-            "Solve it with the alchemai MCP tools only and finish with the JSON block.")
-    cmd = ["claude", "-p", user, "--model", MODEL, "--effort", EFFORT,
-           "--mcp-config", _mcp_config_path(), "--strict-mcp-config",
-           "--tools", "", "--allowedTools", "mcp__alchemai__*",
-           "--append-system-prompt", SYSTEM, "--max-turns", str(MAX_TURNS),
+def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = EFFORT, max_turns: int = MAX_TURNS,
+                 timeout_s: int = TIMEOUT_S, mcp: bool = True, log=None) -> dict:
+    """Run one headless `claude -p` call on the owner's subscription and return claude's JSON envelope
+    (`result`, `num_turns`, `duration_ms`, `is_error`...). With mcp=True the AlchemAI server is attached and
+    only its tools are allowed; with mcp=False the model has no tools at all (pure text, e.g. HAZOP prose).
+    Never raises: timeouts and bad output come back as {"is_error": True, "result": <why>}."""
+    cmd = ["claude", "-p", prompt, "--model", model, "--effort", effort, "--tools", "",
+           "--append-system-prompt", system, "--max-turns", str(max_turns),
            "--output-format", "json", "--no-session-persistence", "--permission-mode", "bypassPermissions"]
+    if mcp:
+        cmd += ["--mcp-config", _mcp_config_path(), "--strict-mcp-config", "--allowedTools", "mcp__alchemai__*"]
     env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_S, cwd=str(ROOT), env=env)
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_s, cwd=str(ROOT), env=env)
     except subprocess.TimeoutExpired:
-        return {"answers": {}, "evidence": {"notes": f"timeout after {TIMEOUT_S} s (card too slow for the agent loop)",
-                                            "model": f"claude-code:{MODEL}"}, "unverified": []}
+        return {"is_error": True, "result": f"timeout after {timeout_s} s", "num_turns": None}
     if log:
         log(f"  claude -p exit={proc.returncode} stderr={proc.stderr.strip()[-300:]}")
     try:
         out = json.loads(proc.stdout)
     except Exception:  # noqa: BLE001
-        return {"answers": {}, "evidence": {"notes": f"claude -p produced no JSON (exit {proc.returncode}): {proc.stdout[-500:]} {proc.stderr[-500:]}"}, "unverified": []}
-    text = out.get("result", "") if isinstance(out, dict) else ""
-    ans = _parse_answer(text)
+        return {"is_error": True, "result": f"claude -p produced no JSON (exit {proc.returncode}): {proc.stdout[-500:]} {proc.stderr[-500:]}", "num_turns": None}
+    return out if isinstance(out, dict) else {"is_error": True, "result": str(out)[:500]}
+
+
+def _solve_card_once(card: dict, log=None) -> dict:
+    user = ("Card:\n```json\n" + json.dumps(card, ensure_ascii=False, indent=1) + "\n```\n"
+            "Solve it with the alchemai MCP tools only and finish with the JSON block.")
+    out = run_claude_p(user, SYSTEM, mcp=True, log=log)
+    if out.get("is_error") and out.get("num_turns") is None:   # timeout / no JSON: nothing to parse
+        return {"answers": {}, "evidence": {"notes": str(out.get("result"))[:600], "model": f"claude-code:{MODEL}"}, "unverified": []}
+    ans = _parse_answer(out.get("result", "") or "")
     ev = ans.setdefault("evidence", {})
     ev["model"] = f"claude-code:{MODEL}"
-    ev["num_turns"] = out.get("num_turns") if isinstance(out, dict) else None
-    ev["cost_usd_reported"] = out.get("total_cost_usd") if isinstance(out, dict) else None
-    ev["duration_s"] = round((out.get("duration_ms") or 0) / 1000, 1) if isinstance(out, dict) else None
-    if isinstance(out, dict) and out.get("is_error"):
+    ev["num_turns"] = out.get("num_turns")
+    ev["cost_usd_reported"] = out.get("total_cost_usd")
+    ev["duration_s"] = round((out.get("duration_ms") or 0) / 1000, 1)
+    if out.get("is_error"):
         ev["notes"] = (ev.get("notes", "") + f" | claude error: {str(out.get('result'))[:300]}").strip(" |")
     return ans
 

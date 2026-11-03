@@ -1,0 +1,43 @@
+id: trampa_flash_supercritico
+kind: trap
+version: v1
+title:
+  es: Líquido de metano a 300 K
+  en: Methane liquid at 300 K
+statement:
+  es: Metano puro (Peng-Robinson), 100 mol/s, a 300 K. Encontrar la presión del separador que deje 30 % mol en fase
+    líquida y reportar la densidad del líquido en kg/m³.
+  en: Pure methane (Peng-Robinson), 100 mol/s, at 300 K. Find the separator pressure that leaves 30 mol % in the
+    liquid phase and report the liquid density in kg/m³.
+tags:
+- trampa
+- termo
+expected:
+  P_bar:
+    value: null
+    unit: bar
+    tol: {}
+  rho_liq_kg_m3:
+    value: null
+    unit: kg/m3
+    tol: {}
+trap:
+  keywords:
+  - supercrít
+  - supercrit
+  - crítica
+  - critica
+  - critical
+  - '190'
+  - tc
+  - no hay líquido
+  - no liquid
+  - no condensa
+  - cannot condense
+  - single phase
+  - una sola fase
+  reason:
+    es: 'Tc del metano = 190.6 K: a 300 K es supercrítico y no existe fase líquida a ninguna presión.'
+    en: 'Methane Tc = 190.6 K: at 300 K it is supercritical and no liquid phase exists at any pressure.'
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

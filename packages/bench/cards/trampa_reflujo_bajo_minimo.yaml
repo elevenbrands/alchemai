@@ -1,0 +1,47 @@
+id: trampa_reflujo_bajo_minimo
+kind: trap
+version: v1
+title:
+  es: Depropanizadora con reflujo menor al mínimo
+  en: Depropanizer with reflux below minimum
+statement:
+  es: 'Depropanizadora FUG (Peng-Robinson): alimentación líquida saturada 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5)
+    a 17 bar; 2 % nC4 en destilado y 2 % C3 en fondo; condensador 16 bar, rehervidor 17.5 bar. Operar con R = 0.6.
+    Calcular el número de etapas N y la carga del condensador en kW.'
+  en: 'FUG depropanizer (Peng-Robinson): saturated-liquid feed 100 mol/s (5/45/40/10 % C2/C3/nC4/nC5) at 17 bar;
+    2 % nC4 in distillate and 2 % C3 in bottoms; condenser 16 bar, reboiler 17.5 bar. Operate at R = 0.6. Compute
+    the number of stages N and the condenser duty in kW.'
+tags:
+- trampa
+- destilacion
+expected:
+  N:
+    value: null
+    unit: '-'
+    tol: {}
+  Qc_kW:
+    value: null
+    unit: kW
+    tol: {}
+trap:
+  keywords:
+  - reflujo mínimo
+  - reflujo minimo
+  - minimum reflux
+  - r_min
+  - rmin
+  - r min
+  - '1.2'
+  - '1.23'
+  - infinit
+  - pinch
+  - menor que el mínimo
+  - below the minimum
+  - below rmin
+  reason:
+    es: El reflujo mínimo FUG de esta separación es R_min ≈ 1.28 (DWSIM, Underwood); con R = 0.6 < R_min la separación
+      es imposible (etapas infinitas / Gilliland fuera de rango).
+    en: The FUG minimum reflux for this separation is R_min ≈ 1.28 (DWSIM, Underwood); at R = 0.6 < R_min the separation
+      is impossible (infinite stages / Gilliland out of range).
+requires: []
+source: Physics / DWSIM 10.2.12 checks (trap cards are infeasible by construction)

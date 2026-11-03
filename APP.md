@@ -48,6 +48,7 @@ packages/dwsim_client/tools.py  registro de 12 herramientas JSON sobre fluent.py
 packages/dwsim_mcp/     servidor MCP propio (MIT, FastMCP, stdio) con las 12 herramientas; smoke_mcp.py
 packages/agent/         agent.py: Claude (`claude-opus-5-5`, effort high) + tool runner del SDK + protocolo del bench
 packages/hazop/         graph.py (grafo del proceso desde el flowsheet resuelto, con banderas inflamable/tóxico/hidratos),
+                        llm.py (capa LLM: Claude propone filas `source=proposal` vía `claude -p` sin herramientas; nunca toca las `rule`),
                         rules.py (reglas deterministas por tipo de equipo, palabras guía × parámetro, severidad 1-5),
                         report.py (Markdown, Excel, herramienta `hazop_preliminary` en MCP y agente)
 notebooks/              estudio semanal, un notebook = un resultado reproducido
@@ -57,6 +58,7 @@ docs/                   plan, decisiones, lecturas
 
 ## Decisiones
 
+- 2026-11-02: **Trampas en el bench (v1).** 10 tarjetas con especificaciones imposibles (cruce de T, azeótropo, bomba/compresor/válvula en sentido contrario, metano supercrítico, divisor 120 %, mezclador que crea masa, reactor sin O₂, R < R_min). El agente las ve como `simulation` (la vista pública oculta el tipo) y debe responder `infeasible: {detected, reason}`; el grader da 1.0 si la razón nombra el muro físico (palabras clave ES/EN), 0.6 si lo detecta sin nombrarlo, 0.2 si da números pero todos `unverified`, 0.0 si da números «verificados» y **0.0 a una tarjeta factible marcada infactible** (la falsa alarma cuesta la tarjeta entera). Regla 8 del agente: comprobar con el simulador (potencia negativa, VF atascada, columna que falla) antes de declarar infactible; nunca por dificultad.
 - 2026-11-02: **HAZOP preliminar = reglas primero, LLM después.** `packages/hazop/` genera filas `source=rule` desde el grafo del flowsheet resuelto (DWSIM nombra al mezclador `NodeIn` y al divisor `NodeOut`); las consecuencias llevan los números del caso (P de diseño, T de descarga, duty exotérmico, hidratos si hay agua + formadores a T < 300 K y P > 10 bar). La severidad es ranking preliminar, no evaluación de riesgo. La capa LLM (causas/consecuencias adicionales marcadas `proposal`) queda para el bloque 6 y nunca sobreescribe una fila `rule`.
 - 2026-11-02: **medición del agente con la suscripción**, no con la API: `claude -p` + `--mcp-config` estricto + `--tools ""` + `--allowedTools mcp__alchemai__*` (`packages/agent/claude_code_agent.py`). Protocolo y grader idénticos; costo marginal cero. La medición formal multi-modelo para el whitepaper sí requerirá llave API.
 - 2026-11-02: **lecciones del bench**: (1) cuatro de seis fallos eran del examen (composición, flujo o signo ausentes en el enunciado), no del agente: cada enunciado debe fijar base, composición, modelo termodinámico y convención de signos; (2) las búsquedas de diseño necesitan `sweep` server-side (un valor por turno agota 10 min; el barrido tarda 0.3 s); (3) el agente, cuando le faltan herramientas, estima a mano y lo marca `unverified` → el grader lo topa en 0.8, como debe ser; se añadió reintento si el MCP no arrancó.
@@ -80,4 +82,4 @@ docs/                   plan, decisiones, lecturas
 ## Gates (adaptados; no es app iOS)
 
 G0 Entorno ✅ · G1 Línea base Fluxo vs DWSIM ✅ (2026-11-02; balances/energía < 0.3 %, FUG N/R y k_ij CO₂ anotados en Fluxo) · G2 verify.py + 10 flowsheets ✅ (2026-11-02) ·
-G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ✅ (2026-11-02: 78.1 % → 97.8 % → **100 % en corrida limpia** tras corregir 4 enunciados y añadir `sweep`; medido con `claude -p` + suscripción, Opus; 554 s las 20 tarjetas) · G5 HAZOP preliminar determinista ✅ (2026-11-02; capa LLM `proposal` ⏳) · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳
+G3 Bench v0 (20 tarjetas, oráculo 100 %) ✅ (2026-11-02) · G4 Agente ≥80 % bench ✅ (2026-11-02: 78.1 % → 97.8 % → **100 % en corrida limpia** tras corregir 4 enunciados y añadir `sweep`; medido con `claude -p` + suscripción, Opus; 554 s las 20 tarjetas) · G5 HAZOP preliminar ✅ (2026-11-02: reglas determinista + capa LLM `proposal` el mismo día; 12 propuestas, 0 nodos inventados) · G5b Bench v1 trampas ✅ (2026-11-02: agente 10/10 detectadas con evidencia del simulador, 0 falsas alarmas en 6 controles) · G6 UI ⏳ · G7 Público/cobro (OK owner) ⏳

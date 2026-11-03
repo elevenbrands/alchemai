@@ -1,83 +1,153 @@
-version: v0
+version: v1
 source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks
 cards:
 - id: flash
   kind: simulation
+  version: v0
   title_es: Flash PT de gas natural
   n_expected: 4
 - id: compresor
   kind: simulation
+  version: v0
   title_es: Compresor adiabático + enfriador
   n_expected: 3
 - id: fug
   kind: simulation
+  version: v0
   title_es: Depropanizadora por FUG
   n_expected: 6
 - id: mezclador
   kind: simulation
+  version: v0
   title_es: Mezclador de dos corrientes de gas
   n_expected: 4
 - id: valvula_jt
   kind: simulation
+  version: v0
   title_es: Válvula Joule-Thomson
   n_expected: 2
 - id: separador
   kind: simulation
+  version: v0
   title_es: Separador bifásico de gas húmedo
   n_expected: 4
 - id: intercambiador
   kind: simulation
+  version: v0
   title_es: Intercambiador agua-agua (UA)
   n_expected: 3
 - id: bomba
   kind: simulation
+  version: v0
   title_es: Bomba de agua
   n_expected: 2
 - id: compresor_politropico
   kind: simulation
+  version: v0
   title_es: Compresor politrópico
   n_expected: 4
 - id: reactor_conversion
   kind: simulation
+  version: v0
   title_es: Combustión de metano (reactor de conversión)
   n_expected: 3
 - id: reactor_equilibrio
   kind: simulation
+  version: v0
   title_es: Water-gas shift en equilibrio
   n_expected: 2
 - id: columna_rigurosa
   kind: simulation
+  version: v0
   title_es: Columna etanol-agua (NRTL)
   n_expected: 5
 - id: reciclo
   kind: simulation
+  version: v0
   title_es: Lazo de reciclo con Wegstein
   n_expected: 3
 - id: diseno_flash_temperatura
   kind: design
+  version: v0
   title_es: Temperatura de separador para VF = 0.5
   n_expected: 2
 - id: diseno_compresor_etapas
   kind: design
+  version: v0
   title_es: Número de etapas de compresión
   n_expected: 3
 - id: diseno_columna_etapas
   kind: design
+  version: v0
   title_es: Etapas de una depropanizadora a 1.5 R_min
   n_expected: 5
 - id: diseno_intercambiador_ua
   kind: design
+  version: v0
   title_es: UA para calentar agua a 330 K
   n_expected: 2
 - id: diseno_bomba_motor
   kind: design
+  version: v0
   title_es: Motor de una bomba de agua
   n_expected: 2
 - id: diseno_aire_exceso
   kind: design
+  version: v0
   title_es: Exceso de aire para 1800 K de flama
   n_expected: 2
 - id: diseno_reciclo_purga
   kind: design
+  version: v0
   title_es: Fracción de purga para un reciclo de 25 kg/s
+  n_expected: 2
+- id: trampa_cruce_temperaturas
+  kind: trap
+  version: v1
+  title_es: Intercambiador con cruce de temperaturas
+  n_expected: 2
+- id: trampa_azeotropo
+  kind: trap
+  version: v1
+  title_es: Destilado etanol-agua más allá del azeótropo
+  n_expected: 2
+- id: trampa_bomba_descarga
+  kind: trap
+  version: v1
+  title_es: Bomba con descarga menor que la succión
+  n_expected: 2
+- id: trampa_reactor_sin_oxidante
+  kind: trap
+  version: v1
+  title_es: Combustión de metano sin oxígeno
+  n_expected: 2
+- id: trampa_compresor_expansion
+  kind: trap
+  version: v1
+  title_es: Compresor que baja la presión
+  n_expected: 2
+- id: trampa_flash_supercritico
+  kind: trap
+  version: v1
+  title_es: Líquido de metano a 300 K
+  n_expected: 2
+- id: trampa_divisor_120
+  kind: trap
+  version: v1
+  title_es: Divisor que reparte 120 %
+  n_expected: 2
+- id: trampa_mezclador_balance
+  kind: trap
+  version: v1
+  title_es: Mezclador con producto mayor que las entradas
+  n_expected: 2
+- id: trampa_valvula_sube_presion
+  kind: trap
+  version: v1
+  title_es: Válvula que sube la presión
+  n_expected: 2
+- id: trampa_reflujo_bajo_minimo
+  kind: trap
+  version: v1
+  title_es: Depropanizadora con reflujo menor al mínimo
   n_expected: 2
