@@ -1,0 +1,32 @@
+id: polar_azeotropo_etanol_agua
+kind: design
+version: v2
+title:
+  es: Azeótropo etanol-agua a 1 atm
+  en: Ethanol-water azeotrope at 1 atm
+statement:
+  es: '¿A qué fracción mol de etanol y a qué temperatura (K) hierve el azeótropo etanol-agua a 1 atm (101325 Pa)?
+    Pista: es el mínimo de la curva de burbuja; búscalo con el simulador variando la composición. Elige tú el paquete
+    termodinámico adecuado para esta mezcla y nómbralo en las notas.'
+  en: 'At what ethanol mole fraction and temperature (K) does the ethanol-water azeotrope boil at 1 atm (101325
+    Pa)? Hint: it is the minimum of the bubble curve; search it with the simulator by varying composition. Choose
+    the thermodynamic property package yourself and name it in the notes.'
+tags:
+- polares
+- diseno
+- equilibrio
+expected:
+  x_az_EtOH:
+    value: 0.8680627794307774
+    unit: '-'
+    tol:
+      abs: 0.02
+  T_az_K:
+    value: 351.5302141563637
+    unit: K
+    tol:
+      abs: 0.5
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

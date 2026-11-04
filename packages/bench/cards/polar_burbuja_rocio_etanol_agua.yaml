@@ -1,0 +1,29 @@
+id: polar_burbuja_rocio_etanol_agua
+kind: simulation
+version: v2
+title:
+  es: Burbuja y rocío de etanol-agua 50/50
+  en: Ethanol-water 50/50 bubble and dew points
+statement:
+  es: Etanol-agua 50/50 % mol a 1 atm (101325 Pa). Temperatura de burbuja y temperatura de rocío en K. Elige tú
+    el paquete termodinámico adecuado para esta mezcla y nómbralo en las notas.
+  en: Ethanol-water 50/50 mol % at 1 atm (101325 Pa). Bubble-point and dew-point temperatures in K. Choose the thermodynamic
+    property package yourself and name it in the notes.
+tags:
+- polares
+- equilibrio
+expected:
+  T_bubble_K:
+    value: 352.97314538540695
+    unit: K
+    tol:
+      abs: 0.5
+  T_dew_K:
+    value: 357.5579306409216
+    unit: K
+    tol:
+      abs: 0.5
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

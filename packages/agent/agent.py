@@ -234,9 +234,10 @@ def set_stream_spec(flowsheet_id: str, stream: str, temperature_K: float | None 
 def sweep(flowsheet_id: str, vary_kind: str, vary_name: str, vary_param: str, values: list[float],
           read_kind: str, read_name: str, read_key: str, target: float | None = None) -> str:
     """Vary one spec over `values` (unit param as in set_unit_param, or stream spec temperature_K / pressure_Pa /
-    vapor_fraction / molar_flow_mol_s / mass_flow_kg_s), re-solve each, read one quantity (read_key as in
-    read_unit/read_stream, e.g. "T_K", "vapor_fraction", "power_kW", "mole_fractions.Ethanol",
-    "energy_streams_kW.Qr") and return the table plus the interpolated crossing of `target`. One call = whole search."""
+    vapor_fraction / molar_flow_mol_s / mass_flow_kg_s / "mole_fraction.<Compound>" with the others sharing the rest),
+    re-solve each, read one quantity (read_key as in read_unit/read_stream, e.g. "T_K", "vapor_fraction", "power_kW",
+    "mole_fractions.Ethanol", "energy_streams_kW.Qr") and return the table, the rows with the minimum/maximum readout
+    and the interpolated crossing of `target`. One call = whole search."""
     return json.dumps(TS.sweep(flowsheet_id, vary_kind, vary_name, vary_param, values, read_kind, read_name, read_key, target), default=float)
 
 

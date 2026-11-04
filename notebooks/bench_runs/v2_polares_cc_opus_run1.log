@@ -1,0 +1,30 @@
+  claude -p exit=0 stderr=
+
+## polar_azeotropo_etanol_agua [design] — score 1.00  (45 s)
+  x_az_EtOH              got=         0.868  expected=0.868063       ok
+  T_az_K                 got=        351.53  expected=351.53         ok
+  notes: Property package: NRTL (ethanol-water). Saturated-liquid feed (VF=0, 101325 Pa, 1 mol/s) into a valve; bubble T swept over x_EtOH 0.70-0.98, then 0.862-0.878 in 0.002 steps; minimum at x=0.868, T=351.5302 K, confirmed by a final solve (ok=true; mass residual 0, energy 3e-7). The curve is very flat (
+  claude -p exit=0 stderr=
+
+## polar_burbuja_rocio_etanol_agua [simulation] — score 1.00  (25 s)
+  T_bubble_K             got=        352.97  expected=352.973        ok
+  T_dew_K                got=        357.56  expected=357.558        ok
+  notes: Property package: NRTL (DWSIM), chosen for the polar, non-ideal, azeotrope-forming ethanol-water liquid. Two 1 mol/s streams of ethanol/water 0.5/0.5 at 101325 Pa: VF=0 gives T_bubble=352.97 K, VF=1 gives T_dew=357.56 K. solve ok=true, no solver errors; no units, so there are no balance residuals.
+  claude -p exit=0 stderr=
+
+## polar_columna_metanol_agua [simulation] — score 1.00  (41 s)
+  x_MeOH_dist            got=       0.99249  expected=0.99249        ok
+  x_MeOH_bot             got=       0.00501  expected=0.00500896     ok
+  Qc_kW                  got=       3548.24  expected=3548.24        ok
+  Qr_kW                  got=       3687.13  expected=3687.13        ok
+  notes: Property package: NRTL (polar, non-ideal methanol-water liquid at low pressure). Rigorous DWSIM column: 20 stages (1 = total condenser), feed at stage 10, R=1.5, B=60 mol/s, 1 atm, dP=0. Residuals: mass 7.4e-7, compound 3.1e-6, energy 1.1e-12. D=40 mol/s at 337.9 K, B at 372.2 K; duties are energy-s
+  claude -p exit=0 stderr=
+
+## polar_flash_metanol_agua [simulation] — score 1.00  (28 s)
+  VF                     got=        0.5367  expected=0.536738       ok
+  y_MeOH                 got=        0.5772  expected=0.577233       ok
+  x_MeOH                 got=        0.1946  expected=0.194639       ok
+  notes: Property package: NRTL (activity model for the polar, non-ideal methanol-water mixture). Built FEED (100 mol/s, 40/60 mol% MeOH/H2O, 355 K, 101325 Pa) -> separator FLASH -> VAP + LIQ; duty 0. Max residuals: mass 4.7e-6, compound 2.0e-5, energy 4.7e-6 (relative). V=53.67 mol/s, L=46.33 mol/s.
+
+### Bench: 100.0 % over 4 cards
+EXIT 0

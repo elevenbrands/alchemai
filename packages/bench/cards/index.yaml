@@ -176,3 +176,23 @@ cards:
   version: v1b
   title_es: Mezclador con temperatura de salida impuesta
   n_expected: 2
+- id: polar_burbuja_rocio_etanol_agua
+  kind: simulation
+  version: v2
+  title_es: Burbuja y rocío de etanol-agua 50/50
+  n_expected: 2
+- id: polar_flash_metanol_agua
+  kind: simulation
+  version: v2
+  title_es: Flash de metanol-agua a 355 K
+  n_expected: 3
+- id: polar_columna_metanol_agua
+  kind: simulation
+  version: v2
+  title_es: Columna metanol-agua
+  n_expected: 4
+- id: polar_azeotropo_etanol_agua
+  kind: design
+  version: v2
+  title_es: Azeótropo etanol-agua a 1 atm
+  n_expected: 2

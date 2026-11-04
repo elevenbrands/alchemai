@@ -85,6 +85,20 @@ def set_stream_spec(flowsheet_id: str, stream: str, temperature_K: float | None 
     return {"ok": True, "stream": stream}
 
 
+def _with_fraction(flowsheet_id: str, stream: str, compound: str, x: float) -> dict[str, float]:
+    """Composition with `compound` set to x and the other compounds scaled to share 1 - x in their
+    current proportions (so a binary just becomes {compound: x, other: 1 - x})."""
+    s = T._s(flowsheet_id)
+    cur = dict(s.get("stream_specs", {}).get(stream, {}).get("mole_fractions") or {})
+    others = [c for c in s["compounds"] if c != compound]
+    if not others:
+        return {compound: 1.0}
+    rest = {c: float(cur.get(c, 0.0)) for c in others}
+    tot = sum(rest.values())
+    share = {c: (rest[c] / tot if tot > 0 else 1.0 / len(others)) for c in others}
+    return {compound: float(x), **{c: (1.0 - x) * share[c] for c in others}}
+
+
 def _readout(flowsheet_id: str, kind: str, name: str, key: str) -> float:
     d = T.read_unit(flowsheet_id, name) if kind == "unit" else T.read_stream(flowsheet_id, name)
     if key.startswith("mole_fractions."):
@@ -99,13 +113,17 @@ def sweep(flowsheet_id: str, vary_kind: str, vary_name: str, vary_param: str, va
     """Vary one spec over `values`, re-solve each time and read one quantity: returns a table and, if `target`
     is given, the value where the readout crosses the target (linear interpolation between the bracketing
     points). vary_kind/read_kind ∈ {"unit", "stream"}; vary_param as in set_unit_param, or a stream spec
-    name (temperature_K, pressure_Pa, vapor_fraction, molar_flow_mol_s, mass_flow_kg_s); read_key as in
-    read_unit/read_stream (e.g. "T_K", "vapor_fraction", "power_kW", "mole_fractions.Ethanol",
-    "energy_streams_kW.Qr"). Only rows with ok=true are trustworthy."""
+    name (temperature_K, pressure_Pa, vapor_fraction, molar_flow_mol_s, mass_flow_kg_s) or
+    "mole_fraction.<Compound>" (the other compounds share the rest); read_key as in read_unit/read_stream
+    (e.g. "T_K", "vapor_fraction", "power_kW", "mole_fractions.Ethanol", "energy_streams_kW.Qr"). The result
+    also gives the rows with the minimum and maximum readout (e.g. the azeotrope = minimum of a bubble
+    curve). Only rows with ok=true are trustworthy."""
     rows: list[dict[str, Any]] = []
     for v in values:
         if vary_kind == "unit":
             set_unit_param(flowsheet_id, vary_name, vary_param, float(v))
+        elif vary_param.startswith("mole_fraction."):
+            set_stream_spec(flowsheet_id, vary_name, mole_fractions=_with_fraction(flowsheet_id, vary_name, vary_param.split(".", 1)[1], float(v)))
         else:
             set_stream_spec(flowsheet_id, vary_name, **{vary_param: float(v)})
         sol = T.solve(flowsheet_id)
@@ -116,6 +134,10 @@ def sweep(flowsheet_id: str, vary_kind: str, vary_name: str, vary_param: str, va
             sol["solver_errors"] = sol.get("solver_errors", []) + [f"readout failed: {ex}"]
         rows.append({"value": float(v), "readout": y, "ok": bool(sol["ok"]), "errors": sol["solver_errors"][:2]})
     out: dict[str, Any] = {"rows": rows}
+    good = [r for r in rows if r["ok"] and r["readout"] is not None]
+    if good:                                   # extrema are handy for azeotropes (min of a bubble curve) and optima
+        out["minimum"] = min(good, key=lambda r: r["readout"])
+        out["maximum"] = max(good, key=lambda r: r["readout"])
     if target is not None:
         good = [r for r in rows if r["ok"] and r["readout"] is not None]
         for a, b in zip(good, good[1:]):

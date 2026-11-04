@@ -1,0 +1,35 @@
+id: polar_flash_metanol_agua
+kind: simulation
+version: v2
+title:
+  es: Flash de metanol-agua a 355 K
+  en: Methanol-water flash at 355 K
+statement:
+  es: 100 mol/s de metanol-agua 40/60 % mol a 355 K y 1 atm en un separador flash. Fracción vapor y fracción mol
+    de metanol en vapor y líquido. Elige tú el paquete termodinámico adecuado para esta mezcla y nómbralo en las
+    notas.
+  en: 100 mol/s methanol-water 40/60 mol % at 355 K and 1 atm in a flash separator. Vapor fraction and methanol
+    mole fraction in vapor and liquid. Choose the thermodynamic property package yourself and name it in the notes.
+tags:
+- polares
+- flash
+expected:
+  VF:
+    value: 0.5367384895205315
+    unit: '-'
+    tol:
+      abs: 0.02
+  y_MeOH:
+    value: 0.5772333618523008
+    unit: '-'
+    tol:
+      abs: 0.01
+  x_MeOH:
+    value: 0.19463885858933602
+    unit: '-'
+    tol:
+      abs: 0.01
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

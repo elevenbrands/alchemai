@@ -1,0 +1,42 @@
+id: polar_columna_metanol_agua
+kind: simulation
+version: v2
+title:
+  es: Columna metanol-agua
+  en: Methanol-water column
+statement:
+  es: 100 mol/s de metanol-agua 40/60 % mol a 340 K y 1 atm, columna de 20 etapas (1 = condensador total), alimentación
+    en la 10, R = 1.5, fondo 60 mol/s, sin caída de presión. Fracción mol de metanol en destilado y fondo, cargas
+    del condensador y rehervidor en kW. Elige tú el paquete termodinámico adecuado para esta mezcla y nómbralo en
+    las notas.
+  en: 100 mol/s methanol-water 40/60 mol % at 340 K and 1 atm, 20-stage column (1 = total condenser), feed at stage
+    10, R = 1.5, bottoms 60 mol/s, no pressure drop. Methanol mole fraction in distillate and bottoms, condenser
+    and reboiler duties in kW. Choose the thermodynamic property package yourself and name it in the notes.
+tags:
+- polares
+- columnas
+expected:
+  x_MeOH_dist:
+    value: 0.992489676556515
+    unit: '-'
+    tol:
+      abs: 0.01
+  x_MeOH_bot:
+    value: 0.005008964140675123
+    unit: '-'
+    tol:
+      abs: 0.01
+  Qc_kW:
+    value: 3548.241978824342
+    unit: kW
+    tol:
+      rel: 0.03
+  Qr_kW:
+    value: 3687.1269338809648
+    unit: kW
+    tol:
+      rel: 0.03
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

@@ -1,6 +1,7 @@
 """Generate the ChemE Design Bench v0 cards (yaml) from the Python case definitions.
 
-30 cards: 3 baseline + 10 reference (simulation) + 7 design (v0) + 10 traps (v1, infeasible specs). The expected
+39 cards: 3 baseline + 10 reference (simulation) + 7 design (v0) + 15 traps (v1/v1b) + 4 polar (v2, the agent
+picks the property package). The expected
 values are DWSIM 10.2.12 results (or analytic oracles) and are the single source of truth for
 grading; regenerate with `uv run python packages/bench/build_cards.py`.
 
@@ -23,6 +24,7 @@ from packages.bench.cases_baseline import ALL as BASELINE  # noqa: E402
 from packages.bench.cases_ref import CASES as REF  # noqa: E402
 from packages.bench.design_cases import DESIGN_CASES  # noqa: E402
 from packages.bench.trap_cases import TRAPS, trap_card  # noqa: E402
+from packages.bench.polar_cases import POLAR_SIM, POLAR_DESIGN, POLAR_TOL  # noqa: E402
 from packages.dwsim_client.verify import verify  # noqa: E402
 
 CARDS_DIR = Path(__file__).with_name("cards")
@@ -60,9 +62,9 @@ def _duty(builder):
     return float(p.GetValue(builder.Object))
 
 
-def _card(cid, kind, title, statement, tags, expected, units, tol):
+def _card(cid, kind, title, statement, tags, expected, units, tol, version="v0"):
     exp = {k: {"value": float(v), "unit": units.get(k, "-"), "tol": tol.get(k, DEFAULT_TOL)} for k, v in expected.items()}
-    return {"id": cid, "kind": kind, "version": "v0", "title": {"es": title[0], "en": title[1]},
+    return {"id": cid, "kind": kind, "version": version, "title": {"es": title[0], "en": title[1]},
             "statement": {"es": statement[0], "en": statement[1]}, "tags": tags, "expected": exp,
             "requires": ["converged", "balances_closed"], "source": SOURCE}
 
@@ -92,6 +94,20 @@ def build_all():
         exp = {k: v for k, v in a.items() if k in d.tolerances}
         cards.append(_card(d.id, "design", (d.title_es, d.title_en), (d.statement_es, d.statement_en), d.tags, exp, d.units, d.tolerances))
     cards += [trap_card(t) for t in TRAPS]          # Bench v1: infeasible specs the agent must detect
+    for c in POLAR_SIM:                             # Bench v2: polar mixtures, the package is the agent's call
+        fs, h = c.build()
+        rep = verify(fs)
+        assert rep.ok, f"{c.id}: {rep.markdown()}"
+        r = c.readouts(h)
+        assert all(ok for _, ok, _ in c.checks(h, rep)), f"{c.id}: {[x for x in c.checks(h, rep) if not x[1]]}"
+        cards.append(_card(c.id, "simulation", (c.title_es, c.title_en), (c.statement_es, c.statement_en), c.tags, r,
+                           {k: _unit_from_name(k) for k in r}, {k: POLAR_TOL.get(k, DEFAULT_TOL) for k in r}, version="v2"))
+    for d in POLAR_DESIGN:
+        a = d.oracle()
+        checks = d.checks(a)
+        assert all(ok for _, ok, _ in checks), f"{d.id}: {[c for c in checks if not c[1]]}"
+        cards.append(_card(d.id, "design", (d.title_es, d.title_en), (d.statement_es, d.statement_en), d.tags,
+                           {k: v for k, v in a.items() if k in d.tolerances}, d.units, d.tolerances, version="v2"))
     return cards
 
 

@@ -117,7 +117,7 @@ def grade(card, response):
 # ----------------------------------------------------------------------------- built-in agents
 def oracle_agent(card):
     """Re-solves the case with our builders/oracles. Upper bound for any agent."""
-    from packages.bench.build_cards import BASELINE, BASELINE_META, REF, DESIGN_CASES
+    from packages.bench.build_cards import BASELINE, BASELINE_META, REF, DESIGN_CASES, POLAR_SIM, POLAR_DESIGN
     from packages.dwsim_client.verify import verify
     cid = card["id"]
     if card["kind"] == "trap":
@@ -126,11 +126,11 @@ def oracle_agent(card):
     if cid in BASELINE:
         fs, h = BASELINE[cid](); rep = verify(fs)
         return {"answers": BASELINE_META[cid]["readouts"](h), "evidence": {"converged": rep.solved, "balances_closed": rep.ok}, "unverified": []}
-    ref = {c.id: c for c in REF}
+    ref = {c.id: c for c in REF + POLAR_SIM}
     if cid in ref:
         fs, h = ref[cid].build(); rep = verify(fs)
         return {"answers": ref[cid].readouts(h), "evidence": {"converged": rep.solved, "balances_closed": rep.ok}, "unverified": []}
-    des = {d.id: d for d in DESIGN_CASES}
+    des = {d.id: d for d in DESIGN_CASES + POLAR_DESIGN}
     if cid in des:
         a = des[cid].oracle()
         return {"answers": a, "evidence": {"converged": True, "balances_closed": True, "notes": "oracle: DWSIM search + analytic checks"}, "unverified": []}
@@ -201,7 +201,7 @@ def main():
     ap.add_argument("--agent-cmd", default=None)
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--out", default=None, help="append per-card JSON lines here as cards finish")
-    ap.add_argument("--version", default="all", choices=["v0", "v1", "v1b", "traps", "all"], help="v0 = 20 feasible, v1 = 10 physics traps, v1b = 5 specification traps, traps = both")
+    ap.add_argument("--version", default="all", choices=["v0", "v1", "v1b", "v2", "traps", "all"], help="v0 = 20 feasible, v1 = 10 physics traps, v1b = 5 specification traps, traps = both, v2 = 4 polar mixtures (package choice)")
     ap.add_argument("ids", nargs="*")
     a = ap.parse_args()
     cards = load_cards(a.ids, a.version)
