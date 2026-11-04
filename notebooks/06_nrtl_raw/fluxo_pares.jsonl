@@ -1,0 +1,16 @@
+{"par":"etanol|agua","dT_dwsim":0.014209443241099962,"dy_dwsim":0.0002467748229978972,"fallos_dwsim":0,"dT_propio":0.3307114609031032,"dy_propio":0.002136213715432045,"fallos_propio":0,"n":11}
+{"par":"metanol|agua","dT_dwsim":0.02690645898320554,"dy_dwsim":0.0005081645540597757,"fallos_dwsim":0,"dT_propio":0.23085612120223686,"dy_propio":0.0062415533987333904,"fallos_propio":0,"n":11}
+{"par":"metanol|etanol","dT_dwsim":0.012987536147647916,"dy_dwsim":0.000109421494296158,"fallos_dwsim":0,"dT_propio":0.3096186066404698,"dy_propio":0.005302822176994404,"fallos_propio":0,"n":11}
+{"par":"etanol|benceno","dT_dwsim":0.026194480023889355,"dy_dwsim":0.000135521404674821,"fallos_dwsim":0,"dT_propio":0.4358758556003295,"dy_propio":0.0013410641885223118,"fallos_propio":0,"n":11}
+{"par":"etanol|tolueno","dT_dwsim":0.04593408519809827,"dy_dwsim":0.0005473368209374385,"fallos_dwsim":0,"dT_propio":0.5468446966932561,"dy_propio":0.005454558204041726,"fallos_propio":0,"n":11}
+{"par":"etanol|n-heptano","dT_dwsim":0.04130869046451835,"dy_dwsim":0.0006891256130768797,"fallos_dwsim":0,"dT_propio":0.575274663567086,"dy_propio":0.0038380310163936837,"fallos_propio":0,"n":11}
+{"par":"etanol|n-octano","dT_dwsim":0.05883645515223179,"dy_dwsim":0.0007557378088642874,"fallos_dwsim":0,"dT_propio":0.5377695188940379,"dy_propio":0.007961171347349527,"fallos_propio":0,"n":11}
+{"par":"n-pentano|etanol","dT_dwsim":0.10152609357857045,"dy_dwsim":0.0015706651927419601,"fallos_dwsim":0,"dT_propio":0.5784072130925892,"dy_propio":0.02326046329984166,"fallos_propio":0,"n":11}
+{"par":"n-hexano|etanol","dT_dwsim":0.0640399091481072,"dy_dwsim":0.0037476986528613976,"fallos_dwsim":0,"dT_propio":0.6713725411117366,"dy_propio":0.00434291702891676,"fallos_propio":0,"n":11}
+{"par":"metanol|benceno","dT_dwsim":0.02492282323288464,"dy_dwsim":0.0003765731318288168,"fallos_dwsim":0,"dT_propio":0.3242215279180982,"dy_propio":0.0036780218244182317,"fallos_propio":0,"n":11}
+{"par":"metanol|tolueno","dT_dwsim":0.05041306258175382,"dy_dwsim":0.0004793461750479677,"fallos_dwsim":0,"dT_propio":0.28620039207675063,"dy_propio":0.010804313987698544,"fallos_propio":0,"n":11}
+{"par":"metanol|n-hexano","dT_dwsim":0.05828400020936897,"dy_dwsim":0.0017234403978381163,"fallos_dwsim":0,"dT_propio":0.601144935310117,"dy_propio":0.007911357226980942,"fallos_propio":0,"n":11}
+{"par":"metanol|n-heptano","dT_dwsim":0.046614039302767196,"dy_dwsim":0.001603020050738868,"fallos_dwsim":0,"dT_propio":0.3895273503804333,"dy_propio":0.008069618028497483,"fallos_propio":0,"n":11}
+{"par":"n-butano|metanol","dT_dwsim":0.1166990847544298,"dy_dwsim":0.000553772924507201,"fallos_dwsim":0,"dT_propio":1.083333018613473,"dy_propio":0.009609299657260317,"fallos_propio":0,"n":11}
+{"par":"metanol|n-octano","dT_dwsim":0.0371276837713026,"dy_dwsim":0.0005940179605175011,"fallos_dwsim":0,"dT_propio":0.2448741689288454,"dy_propio":0.007816659992940456,"fallos_propio":0,"n":11}
+{"par":"benceno|tolueno","dT_dwsim":0.05862938837100273,"dy_dwsim":0.0005185261314934464,"fallos_dwsim":0,"dT_propio":0.2869712203407744,"dy_propio":0.008270103137837936,"fallos_propio":0,"n":11}

@@ -1,0 +1,28 @@
+[11/3/2026 9:33:22 PM] resource pool: create resource pool...
+VP etanol 101 351.8
+VP agua 101 373.15
+VP metanol 101 337.69
+VP benceno 101 353.24
+VP tolueno 101 383.79
+VP n-butano 101 272.66
+VP n-pentano 101 309.22
+VP n-hexano 101 341.88
+VP n-heptano 101 371.57
+VP n-octano 101 398.82
+etanol|agua          11/11 puntos; T 351.55–364.05 K
+metanol|agua         11/11 puntos; T 338.50–365.67 K
+metanol|etanol       11/11 puntos; T 338.33–350.93 K
+etanol|benceno       11/11 puntos; T 341.11–348.44 K
+etanol|tolueno       11/11 puntos; T 350.12–363.73 K
+etanol|n-heptano     11/11 puntos; T 344.60–351.22 K
+etanol|n-octano      11/11 puntos; T 350.14–362.31 K
+n-pentano|etanol     11/11 puntos; T 308.66–334.75 K
+n-hexano|etanol      11/11 puntos; T 331.87–343.93 K
+metanol|benceno      11/11 puntos; T 331.36–339.42 K
+metanol|tolueno      11/11 puntos; T 336.86–353.57 K
+metanol|n-hexano     11/11 puntos; T 322.86–325.48 K
+metanol|n-heptano    11/11 puntos; T 333.05–345.03 K
+metanol|n-octano     11/11 puntos; T 336.15–345.75 K
+n-butano|metanol     11/11 puntos; T 272.66–291.59 K
+benceno|tolueno      11/11 puntos; T 354.33–381.26 K
+written /Users/elevenbrands/Documents/VS Code/alchemai/notebooks/06_nrtl_raw/dwsim_pares.json
