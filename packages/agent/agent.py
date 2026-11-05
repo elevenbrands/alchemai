@@ -25,6 +25,7 @@ from anthropic import beta_tool  # noqa: E402
 from packages.dwsim_client import tools as T  # noqa: E402
 from packages.dwsim_client import tools_sweep as TS  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
+from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -258,6 +259,14 @@ def hazop_preliminary(flowsheet_id: str) -> str:
 
 
 @beta_tool
+def export_flowsheet(flowsheet_id: str) -> str:
+    """Export a SOLVED flowsheet to SFILES 2.0 (one-line topology) and DEXPI Process files (XML + JSON with the
+    solved T, P, mass flow), with round-trip checks. Use only when the card or user asks for SFILES, DEXPI or an
+    exportable/shareable flowsheet model."""
+    return json.dumps(_export(flowsheet_id), ensure_ascii=False, default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -265,7 +274,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-               set_unit_param, set_stream_spec, sweep, hazop_preliminary, close_flowsheet]
+               set_unit_param, set_stream_spec, sweep, hazop_preliminary, export_flowsheet, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

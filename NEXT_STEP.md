@@ -1,24 +1,23 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-04 (bloque 14)
+Actualizado: 2026-11-04 (bloque 15)
 
 ## Dónde estamos
-**Bloque 14 (2026-11-04): bench completo con Sonnet** (`notebooks/08_bench_sonnet.md`): 39 tarjetas con `ALCHEMAI_CC_MODEL=sonnet`.
-Corrida 1: 95.1 % (15/15 trampas, 4/4 polares eligiendo NRTL solo → sin regla 10); los 5 fallos eran del prompt/bench (regla 5 de signo
-ambigua: Sonnet negaba Qc aunque DWSIM lo da positivo; `reciclo` no pedía la T). Regla 5 reescrita + enunciado aclarado → corrida 2/3:
-las 39 al 100 % entre corridas (no en una sola pasada). Arnés: `_kill_group` mata el grupo de procesos al vencer el timeout (antes
-quedaban servidores MCP DWSIM huérfanos al 98 % CPU); `ZERO_ABS_TOL` 1e-4 para esperados = 0. Sonnet ≈ 40 % más lento que Opus.
-Antes: bloque 13 tarjetas polares (v2), bloque 12 pares NRTL, bloque 11 NRTL en FluxoEngine, bloque 10 columnas rigurosas, bloque 9
-reactor cinético. Fluxo: 57 tests / 16 suites, rama `feature/reactor-cinetico`, sin tocar en los bloques 13–14.
+**Bloque 15 (2026-11-04): exportación SFILES 2.0 + DEXPI Process** (`notebooks/09_export_sfiles_dexpi.md`): tool `export_flowsheet`
+(19 tools) escribe el flowsheet resuelto como SFILES (una línea de topología) y DEXPI XML/JSON con T, P y flujo por corriente;
+12/12 flowsheets de referencia con ida y vuelta exacta; 65 tests + 1 skip. Pendiente: XSD oficial de DEXPI y composición en DEXPI.
+Antes: bloque 14 bench completo con Sonnet (39 al 100 % entre corridas, regla 5 de signos, kill del grupo de procesos), bloque 13
+tarjetas polares, bloques 11–12 NRTL en FluxoEngine. Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
-Bloque 15 (elegir uno):
-1. **Fluxo 1.1 — UI en Figma** (gate obligatorio): reactor cinético + selector de modelo (PR/SRK/NRTL) + aviso de pares faltantes
-   y de PR con polares; después `DefinicionCaso`/inspector; merge y envío solo con OK del owner (1.0.0 en App Review).
-2. **Export SFILES2/DEXPI** del flowsheet de la sesión (estudio semana 8 adelantado; abre el camino al HAZOP sobre grafo estándar).
-3. **Estudio semana 6 — Pyomo/IDAES** (modelado orientado a ecuaciones, tutoriales oficiales).
-4. Opcional barato: una pasada única de las 39 con Sonnet y el prompt nuevo (~27 min) para tener la cifra en una sola corrida.
-Recomendación: 1 si el owner abre 1.1 (requiere su participación en Figma); si no, 2.
+Bloque 16 (elegir uno):
+1. **Fluxo 1.1 — UI en Figma** (gate obligatorio; requiere al owner en Figma): reactor cinético + selector PR/SRK/NRTL + avisos.
+   Conviene esperar el veredicto de Apple de 1.0.0 (en App Review desde 2026-10-19).
+2. **HAZOP sobre DEXPI**: que `packages/hazop` lea el modelo DEXPI exportado (no solo el objeto DWSIM) → HAZOP de cualquier
+   flowsheet que llegue en DEXPI, aunque no venga de DWSIM. Es el hueco sin competidor del plan (Fase 2).
+3. **Estudio semana 6 — Pyomo/IDAES** (modelado orientado a ecuaciones).
+4. Pequeño: validar el XML contra el XSD oficial de DEXPI 2.0 y añadir composición por corriente.
+Recomendación: 2 mientras Apple decide 1.0.0; 1 cuando el owner tenga una hora para Figma.
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto

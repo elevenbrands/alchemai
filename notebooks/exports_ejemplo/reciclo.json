@@ -1,0 +1,669 @@
+{
+    "dexpiVersion": "2.0.1",
+    "id": "id_c8b0d2b94b99440ab0d6090516a03b48",
+    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/EngineeringModel",
+    "composition": {
+        "conceptualModel": {
+            "id": "id_740d1c60ed244018aaadf191baad21b8",
+            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/ProcessModel",
+            "composition": {
+                "processConnections": [
+                    {
+                        "id": "id_b868c14caa064f63a7e25624e3e39f41",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
+                        "composition": {
+                            "massFlow": [
+                                {
+                                    "id": "id_00cb36dd96ae41b098f06ae07d14743e",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "MassFlowRateUnit",
+                                                    "name": "KILOGRAMPERSECOND"
+                                                },
+                                                "value": 10.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "pressure": [
+                                {
+                                    "id": "id_4a60f3c2bd304938a024a0d32f25f9a7",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "PressureAbsoluteUnit",
+                                                    "name": "PASCAL"
+                                                },
+                                                "value": 101325.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "temperature": [
+                                {
+                                    "id": "id_35f4f867328d4c8f9c3bfe02662771ad",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "TemperatureUnit",
+                                                    "name": "KELVIN"
+                                                },
+                                                "value": 300.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "reference": {
+                            "source": "id_1eddd49692ad4af89788348e48a3cff1",
+                            "target": "id_61f5b399f5bf4292ab6cb6f133161228"
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "fresh; VF 0.0000; molar flow 555.084351 mol/s"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "S1",
+                            "label": "fresh"
+                        }
+                    },
+                    {
+                        "id": "id_50a0a134ed294ea7b39087b3edf357f0",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
+                        "composition": {
+                            "massFlow": [
+                                {
+                                    "id": "id_143f843875d04c62a932282d7d691179",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "MassFlowRateUnit",
+                                                    "name": "KILOGRAMPERSECOND"
+                                                },
+                                                "value": 49.999998317699344
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "pressure": [
+                                {
+                                    "id": "id_9eafceceb79743acb02fec1bef41551f",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "PressureAbsoluteUnit",
+                                                    "name": "PASCAL"
+                                                },
+                                                "value": 101325.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "temperature": [
+                                {
+                                    "id": "id_599dabfdab754d248b9ee7a53de75b87",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "TemperatureUnit",
+                                                    "name": "KELVIN"
+                                                },
+                                                "value": 373.12430000048056
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "reference": {
+                            "source": "id_6d2120d6beb940a78e6c1580fec7a0f5",
+                            "target": "id_7136bc86e5ff48028a3cd423c63b9a62"
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "mixed; VF 0.7923; molar flow 2775.421660 mol/s"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "S2",
+                            "label": "mixed"
+                        }
+                    },
+                    {
+                        "id": "id_4f6c19d647164eefa02419849c7cdc52",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
+                        "composition": {
+                            "massFlow": [
+                                {
+                                    "id": "id_a5b45ad3453848bfb555da188aaa5c2f",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "MassFlowRateUnit",
+                                                    "name": "KILOGRAMPERSECOND"
+                                                },
+                                                "value": 49.999998317699344
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "pressure": [
+                                {
+                                    "id": "id_71fdeabb6b164273a794696d95f8337a",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "PressureAbsoluteUnit",
+                                                    "name": "PASCAL"
+                                                },
+                                                "value": 101325.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "temperature": [
+                                {
+                                    "id": "id_cb8e30e6f6f444a0b3595f5f76d67d4d",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "TemperatureUnit",
+                                                    "name": "KELVIN"
+                                                },
+                                                "value": 400.00000008802976
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "reference": {
+                            "source": "id_d8aa05329e2748f4be47655b59a1ed0c",
+                            "target": "id_a8eeb073001448e88ec1bdc0da36eb7f"
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "heated; VF 1.0000; molar flow 2775.421660 mol/s"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "S3",
+                            "label": "heated"
+                        }
+                    },
+                    {
+                        "id": "id_342f5c3a7a3c4762bfb81449862dbbdd",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
+                        "composition": {
+                            "massFlow": [
+                                {
+                                    "id": "id_4cd6d24883d1414cae563b96aeaed1ed",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "MassFlowRateUnit",
+                                                    "name": "KILOGRAMPERSECOND"
+                                                },
+                                                "value": 9.99999966353987
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "pressure": [
+                                {
+                                    "id": "id_24b5cb43defb4ac38008804e064707b7",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "PressureAbsoluteUnit",
+                                                    "name": "PASCAL"
+                                                },
+                                                "value": 101325.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "temperature": [
+                                {
+                                    "id": "id_8ed9ec0a2f1f4143888ca918f5bff705",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "TemperatureUnit",
+                                                    "name": "KELVIN"
+                                                },
+                                                "value": 400.00000017605873
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "reference": {
+                            "source": "id_4a5d3e6b91e848e5a11c903868cf4c44",
+                            "target": "id_3468bf299535493586f924ea8070c29d"
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "purge; VF 1.0000; molar flow 555.084332 mol/s"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "S4",
+                            "label": "purge"
+                        }
+                    },
+                    {
+                        "id": "id_0c19e2cdbaae408a9b2b663c8c114d2d",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
+                        "composition": {
+                            "massFlow": [
+                                {
+                                    "id": "id_6cf3de64fd39406d809d232bc6219e5e",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "MassFlowRateUnit",
+                                                    "name": "KILOGRAMPERSECOND"
+                                                },
+                                                "value": 39.99999865415948
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "pressure": [
+                                {
+                                    "id": "id_091322a2d93b4fafae63e11dac6dd0ef",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "PressureAbsoluteUnit",
+                                                    "name": "PASCAL"
+                                                },
+                                                "value": 101325.0
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "temperature": [
+                                {
+                                    "id": "id_622fcaca98c0470d81ed2fe7c05d8d76",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                    "data": {
+                                        "value": {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                            "data": {
+                                                "unit": {
+                                                    "__enum__": "TemperatureUnit",
+                                                    "name": "KELVIN"
+                                                },
+                                                "value": 400.00000017605873
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "reference": {
+                            "source": "id_7f1773e60b68447ebda87da8db8b8203",
+                            "target": "id_71724ba616784c8aa3a889aa5e498d94"
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "recycle -> recycle-in; VF 1.0000; molar flow 2220.337328 mol/s"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "S5",
+                            "label": "recycle"
+                        }
+                    }
+                ],
+                "processSteps": [
+                    {
+                        "id": "id_67182ffff9544e2e95e122c8a55a2264",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Mixing",
+                        "composition": {
+                            "ports": [
+                                {
+                                    "id": "id_61f5b399f5bf4292ab6cb6f133161228",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_b868c14caa064f63a7e25624e3e39f41"
+                                    },
+                                    "data": {
+                                        "identifier": "mix-1.in1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "INLET"
+                                        }
+                                    }
+                                },
+                                {
+                                    "id": "id_71724ba616784c8aa3a889aa5e498d94",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_0c19e2cdbaae408a9b2b663c8c114d2d"
+                                    },
+                                    "data": {
+                                        "identifier": "mix-1.in2",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "INLET"
+                                        }
+                                    }
+                                },
+                                {
+                                    "id": "id_6d2120d6beb940a78e6c1580fec7a0f5",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_50a0a134ed294ea7b39087b3edf357f0"
+                                    },
+                                    "data": {
+                                        "identifier": "mix-1.out1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "OUTLET"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "DWSIM NodeIn MIX-1"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "mix-1"
+                        }
+                    },
+                    {
+                        "id": "id_a71b193d1ea740dc93184981a3d5a47d",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SupplyingThermalEnergy",
+                        "composition": {
+                            "ports": [
+                                {
+                                    "id": "id_7136bc86e5ff48028a3cd423c63b9a62",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_50a0a134ed294ea7b39087b3edf357f0"
+                                    },
+                                    "data": {
+                                        "identifier": "hex-1.in1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "INLET"
+                                        }
+                                    }
+                                },
+                                {
+                                    "id": "id_d8aa05329e2748f4be47655b59a1ed0c",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_4f6c19d647164eefa02419849c7cdc52"
+                                    },
+                                    "data": {
+                                        "identifier": "hex-1.out1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "OUTLET"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "DWSIM Heater H-1, duty 26176.071 kW (DWSIM sign)"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "hex-1"
+                        }
+                    },
+                    {
+                        "id": "id_a762d7059d1a499eb433f8aa3abc7d5f",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SplittingMaterial",
+                        "composition": {
+                            "ports": [
+                                {
+                                    "id": "id_a8eeb073001448e88ec1bdc0da36eb7f",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_4f6c19d647164eefa02419849c7cdc52"
+                                    },
+                                    "data": {
+                                        "identifier": "splt-1.in1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "INLET"
+                                        }
+                                    }
+                                },
+                                {
+                                    "id": "id_4a5d3e6b91e848e5a11c903868cf4c44",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_342f5c3a7a3c4762bfb81449862dbbdd"
+                                    },
+                                    "data": {
+                                        "identifier": "splt-1.out1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "OUTLET"
+                                        }
+                                    }
+                                },
+                                {
+                                    "id": "id_7f1773e60b68447ebda87da8db8b8203",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_0c19e2cdbaae408a9b2b663c8c114d2d"
+                                    },
+                                    "data": {
+                                        "identifier": "splt-1.out2",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "OUTLET"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "DWSIM NodeOut SPL-1"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "splt-1"
+                        }
+                    },
+                    {
+                        "id": "id_e0d28f38867246098858f9b3239129f6",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Source",
+                        "composition": {
+                            "ports": [
+                                {
+                                    "id": "id_1eddd49692ad4af89788348e48a3cff1",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_b868c14caa064f63a7e25624e3e39f41"
+                                    },
+                                    "data": {
+                                        "identifier": "raw-1.out1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "OUTLET"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "data": {
+                            "identifier": "raw-1"
+                        }
+                    },
+                    {
+                        "id": "id_a1670e7da34b4c218a18f56b5137ab64",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Sink",
+                        "composition": {
+                            "ports": [
+                                {
+                                    "id": "id_3468bf299535493586f924ea8070c29d",
+                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
+                                    "reference": {
+                                        "connectorReference": "id_342f5c3a7a3c4762bfb81449862dbbdd"
+                                    },
+                                    "data": {
+                                        "identifier": "prod-1.in1",
+                                        "nominalDirection": {
+                                            "__enum__": "PortDirection",
+                                            "name": "INLET"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "data": {
+                            "identifier": "prod-1"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "data": {
+        "originatingSystemName": "AlchemAI",
+        "originatingSystemVendorName": "AlchemAI (MIT)",
+        "originatingSystemVersion": "0.1"
+    }
+}

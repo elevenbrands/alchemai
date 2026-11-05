@@ -7,3 +7,4 @@ vendor/
 build/
 *.dwxmz.bak
 .DS_Store
+exports/

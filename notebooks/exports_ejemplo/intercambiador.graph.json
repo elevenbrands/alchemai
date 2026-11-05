@@ -1,0 +1,52 @@
+{
+ "nodes": {
+  "hex-1": "E-1 (HeatExchanger)",
+  "raw-1": "raw",
+  "raw-2": "raw",
+  "prod-1": "prod",
+  "prod-2": "prod"
+ },
+ "edges": [
+  {
+   "from": "raw-1",
+   "to": "hex-1",
+   "streams": [
+    "hot-in"
+   ],
+   "T_K": 450.0,
+   "P_Pa": 1000000.0,
+   "mass_flow_kg_s": 5.0
+  },
+  {
+   "from": "raw-2",
+   "to": "hex-1",
+   "streams": [
+    "cold-in"
+   ],
+   "T_K": 298.0,
+   "P_Pa": 1000000.0,
+   "mass_flow_kg_s": 8.0
+  },
+  {
+   "from": "hex-1",
+   "to": "prod-1",
+   "streams": [
+    "hot-out"
+   ],
+   "T_K": 434.108,
+   "P_Pa": 980000.0,
+   "mass_flow_kg_s": 5.0
+  },
+  {
+   "from": "hex-1",
+   "to": "prod-2",
+   "streams": [
+    "cold-out"
+   ],
+   "T_K": 308.383,
+   "P_Pa": 990000.0,
+   "mass_flow_kg_s": 8.0
+  }
+ ],
+ "dropped_logical_blocks": []
+}

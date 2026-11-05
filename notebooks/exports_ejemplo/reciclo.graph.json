@@ -1,0 +1,65 @@
+{
+ "nodes": {
+  "mix-1": "MIX-1 (NodeIn)",
+  "hex-1": "H-1 (Heater)",
+  "splt-1": "SPL-1 (NodeOut)",
+  "raw-1": "raw",
+  "prod-1": "prod"
+ },
+ "edges": [
+  {
+   "from": "raw-1",
+   "to": "mix-1",
+   "streams": [
+    "fresh"
+   ],
+   "T_K": 300.0,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 10.0
+  },
+  {
+   "from": "mix-1",
+   "to": "hex-1",
+   "streams": [
+    "mixed"
+   ],
+   "T_K": 373.124,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 49.999998
+  },
+  {
+   "from": "hex-1",
+   "to": "splt-1",
+   "streams": [
+    "heated"
+   ],
+   "T_K": 400.0,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 49.999998
+  },
+  {
+   "from": "splt-1",
+   "to": "prod-1",
+   "streams": [
+    "purge"
+   ],
+   "T_K": 400.0,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 10.0
+  },
+  {
+   "from": "splt-1",
+   "to": "mix-1",
+   "streams": [
+    "recycle",
+    "recycle-in"
+   ],
+   "T_K": 400.0,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 39.999999
+  }
+ ],
+ "dropped_logical_blocks": [
+  "REC-1"
+ ]
+}

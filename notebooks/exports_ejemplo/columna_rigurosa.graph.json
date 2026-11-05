@@ -1,0 +1,41 @@
+{
+ "nodes": {
+  "dist-1": "T-101 (DistillationColumn)",
+  "raw-1": "raw",
+  "prod-1": "prod",
+  "prod-2": "prod"
+ },
+ "edges": [
+  {
+   "from": "raw-1",
+   "to": "dist-1",
+   "streams": [
+    "feed"
+   ],
+   "T_K": 300.0,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 3.204186
+  },
+  {
+   "from": "dist-1",
+   "to": "prod-1",
+   "streams": [
+    "dist"
+   ],
+   "T_K": 351.586,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 1.014222
+  },
+  {
+   "from": "dist-1",
+   "to": "prod-2",
+   "streams": [
+    "bot"
+   ],
+   "T_K": 353.729,
+   "P_Pa": 101325.0,
+   "mass_flow_kg_s": 2.189963
+  }
+ ],
+ "dropped_logical_blocks": []
+}
