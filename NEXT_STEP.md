@@ -1,19 +1,21 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 21)
+Actualizado: 2026-11-05 (bloque 22)
 
 ## Dónde estamos
-**Bloque 21 (2026-11-05): optimizador genérico** (`notebooks/15_optimizador.md`): tool `optimize_design` (30 tools), una variable,
-objetivo costo anual o suma de lecturas, límites del HAZOP como restricciones duras; reproduce el óptimo del notebook 14 y la
-teoría de compresión en dos etapas (3.007 vs 3.0 bar); con descarga ≤ 440 K el óptimo pasa a 2.885 bar; detecta infactibilidad.
-Bench v3 = 7 tarjetas (46 en total). Bloques 18-20 del mismo día: transporte, costo de compra, costo anual.
+**Bloque 22 (2026-11-05): transferencia de masa** (`notebooks/16_transferencia_de_masa.md`): Kremser, Colburn, Onda 1968
+(verificado contra el artículo), altura de relleno, difusividades; kind `absorption_column`; 33 tools. Kremser = absorbedor
+riguroso de DWSIM dentro de 0.6 puntos en 9 casos. Bench v3 = 8 tarjetas (47 en total). Con esto fenómenos de transporte queda
+cubierto en momento, calor y masa. Bloques 18-21 del mismo día: transporte, costo de compra, costo anual, optimizador.
 Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
-**Bloque 22 — transferencia de masa** (lo que falta de fenómenos de transporte): columna de absorción/relleno con HTU/NTU
-(Colburn para la línea de operación recta, NTU numérico en general), coeficientes kL/kG por correlación (Onda) desde
-propiedades de DWSIM, altura de relleno; validar contra la columna de absorción de DWSIM y contra un ejemplo analítico.
-Alternativas: optimización de dos variables (coordenadas), conjunto apartado de HAZOP, DEXPI nivel P&ID, Fluxo 1.1 UI en Figma.
+Opciones (el owner elige):
+1. **Hidráulica de columnas**: inundación y caída de presión de rellenos (Stichlmair de `fluids`, ya instalado) y diámetro de
+   columna; cierra el dimensionamiento del absorbedor y permite costearlo.
+2. **Optimización de dos variables** (coordenadas) sobre `optimize_design`.
+3. **Conjunto apartado de HAZOP** para medir recall sin sesgo y calificar precisión.
+4. **Fluxo 1.1 UI en Figma** (tras el veredicto de Apple de 1.0.0).
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
 
 ## Bloqueante actual

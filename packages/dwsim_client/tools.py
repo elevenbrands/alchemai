@@ -30,7 +30,7 @@ _ids = itertools.count(1)
 
 UNIT_KINDS = ["mixer", "splitter", "heater", "cooler", "valve", "pump", "compressor", "expander", "separator",
               "heat_exchanger", "shortcut_column", "distillation_column", "conversion_reactor",
-              "equilibrium_reactor", "gibbs_reactor", "cstr", "pfr", "recycle", "pipe"]
+              "equilibrium_reactor", "gibbs_reactor", "cstr", "pfr", "recycle", "pipe", "absorption_column"]
 
 
 def _s(fs_id: str) -> dict:
@@ -173,7 +173,9 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
       bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s, top_P_Pa, dP_Pa; *_reactor: reaction_set,
       mode ("isothermal" | "adiabatic"), dP_Pa; cstr / pfr (kinetic reactions): volume_m3, reaction_set,
       mode ("isothermal" at the feed T | "adiabatic"), dP_Pa; pipe (adiabatic, Beggs-Brill, handles two-phase): length_m,
-      inner_diameter_m, elevation_change_m (outlet minus inlet), increments (default 10); commercial steel.
+      inner_diameter_m, elevation_change_m (outlet minus inlet), increments (default 10); commercial steel;
+      absorption_column (rigorous, equilibrium stages): stages (DWSIM needs ≥ 4), top_P_Pa, dP_Pa — connect feeds [lean_liquid (top stage),
+      gas (bottom stage)], products [treated_gas (top), rich_liquid (bottom)].
       Connect streams afterwards with connect()."""
     try:
         s = _s(flowsheet_id)
@@ -254,6 +256,9 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
             tp = o.ThermalProfile
             tp.TipoPerfil = type(tp.TipoPerfil).Definir_Q
             tp.Calor_trocado = 0.0
+        elif kind == "absorption_column":
+            b = (fs.AddAbsorptionColumn(name).WithNumberOfStages(int(p["stages"])).WithTopPressure(Q.Pascal(float(p["top_P_Pa"])))
+                 .WithColumnPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0)))).WithMaxIterations(int(p.get("max_iterations", 200))))
         elif kind == "recycle":
             b = fs.AddUnitOperation(ObjectType.OT_Recycle, name)
             r = b.Object.__implementation__
@@ -275,7 +280,8 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
     energy_feeds = [reboiler duty]; conversion/equilibrium/gibbs reactors products = [vapor, liquid] (both
     required), energy_feeds = [heat duty]; cstr/pfr products = [outlet], energy_feeds = [heat duty] (required,
     also in isothermal mode); heat_exchanger feeds = [hot_in, cold_in], products = [hot_out, cold_out];
-    recycle feeds = [tear stream], products = [recycled stream]."""
+    recycle feeds = [tear stream], products = [recycled stream]; absorption_column feeds = [lean_liquid, gas],
+    products = [treated_gas, rich_liquid]."""
     s = _s(flowsheet_id)
     b, kind = s["units"][unit], s["kinds"][unit]
     st, en = s["streams"], s["energy"]
@@ -295,6 +301,18 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
             b = b.WithCondenserDuty(en[energy_products[0]])
         if energy_feeds:
             b = b.WithReboilerDuty(en[energy_feeds[0]])
+        return {"ok": True, "unit": unit}
+
+    if kind == "absorption_column":
+        n = int(s["params"][unit]["stages"])
+        b = b.WithFeed(st[feeds[0]], 0)                 # lean liquid on the top stage (0-based index)
+        if len(feeds) > 1:
+            b = b.WithFeed(st[feeds[1]], n - 1)         # gas on the bottom stage
+        if products:
+            b = b.WithTopProduct(st[products[0]])
+        if len(products) > 1:
+            b = b.WithBottoms(st[products[1]])
+        s["units"][unit] = b
         return {"ok": True, "unit": unit}
 
     for i, f in enumerate(feeds):
@@ -404,6 +422,7 @@ from packages.dwsim_client.tools_sweep import SWEEP_TOOLS
 from packages.dwsim_client.tools_transport import TRANSPORT_TOOLS
 from packages.dwsim_client.tools_costing import COSTING_TOOLS
 from packages.dwsim_client.tools_optimize import OPTIMIZE_TOOLS
+from packages.dwsim_client.tools_mass_transfer import MASS_TRANSFER_TOOLS
 from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
@@ -411,4 +430,4 @@ from packages.hazop.dexpi_graph import hazop_from_dexpi  # noqa: E402
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
          define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-         *SWEEP_TOOLS, *TRANSPORT_TOOLS, *COSTING_TOOLS, *OPTIMIZE_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+         *SWEEP_TOOLS, *TRANSPORT_TOOLS, *COSTING_TOOLS, *OPTIMIZE_TOOLS, *MASS_TRANSFER_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]

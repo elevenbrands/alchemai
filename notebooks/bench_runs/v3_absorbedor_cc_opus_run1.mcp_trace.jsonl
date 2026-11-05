@@ -1,0 +1,72 @@
+{"t": 1793887122.985554, "tool": "new_flowsheet", "args": {"name": "absorbedor", "compounds": ["Methane", "Propane", "N-decane"], "property_package": "PengRobinson"}}
+{"tool": "new_flowsheet", "done_s": 1.75, "result": "ok"}
+{"t": 1793887129.218173, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "gas", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 100.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.98, "Propane": 0.02, "N-decane": 0.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.05, "result": "ok"}
+{"t": 1793887130.417921, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "lean", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 120.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.0, "Propane": 0.0, "N-decane": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887130.95348, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "treated", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887131.465291, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "rich", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887132.299851, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "absorption_column", "name": "ABS", "params": {"stages": 4, "top_P_Pa": 1000000, "dP_Pa": 0}}}
+{"tool": "add_unit", "done_s": 0.02, "result": "ok"}
+{"t": 1793887135.8520699, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "ABS", "feeds": ["lean", "gas"], "products": ["treated", "rich"], "energy_feeds": null, "energy_products": null}}
+{"tool": "connect", "done_s": 0.01, "result": "ok"}
+{"t": 1793887139.0049229, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.59, "result": "ok"}
+{"t": 1793887145.8939798, "tool": "read_stream", "args": {"flowsheet_id": "fs1", "name": "treated"}}
+{"tool": "read_stream", "done_s": 0.12, "result": "ok"}
+{"t": 1793887153.8361652, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "ABS", "vary_param": "stages", "values": [4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 15.0], "read_kind": "stream", "read_name": "treated", "read_key": "mole_fractions.Propane", "target": null}}
+{"tool": "sweep", "done_s": 0.02, "result": "ValueError: unsupported param 'stages'"}
+{"t": 1793887154.668252, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "ABS", "vary_param": "stages", "values": [4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 15.0], "read_kind": "stream", "read_name": "treated", "read_key": "molar_flow_mol_s", "target": null}}
+{"tool": "sweep", "done_s": 0.0, "result": "ValueError: unsupported param 'stages'"}
+{"t": 1793887157.583719, "tool": "set_unit_param", "args": {"flowsheet_id": "fs1", "unit": "ABS", "param": "stages", "value": 6.0}}
+{"tool": "set_unit_param", "done_s": 0.0, "result": "ValueError: unsupported param 'stages'"}
+{"t": 1793887161.897581, "tool": "new_flowsheet", "args": {"name": "abs5", "compounds": ["Methane", "Propane", "N-decane"], "property_package": "PengRobinson"}}
+{"tool": "new_flowsheet", "done_s": 0.07, "result": "ok"}
+{"t": 1793887162.6502888, "tool": "new_flowsheet", "args": {"name": "abs6", "compounds": ["Methane", "Propane", "N-decane"], "property_package": "PengRobinson"}}
+{"tool": "new_flowsheet", "done_s": 0.01, "result": "ok"}
+{"t": 1793887163.286431, "tool": "new_flowsheet", "args": {"name": "abs7", "compounds": ["Methane", "Propane", "N-decane"], "property_package": "PengRobinson"}}
+{"tool": "new_flowsheet", "done_s": 0.02, "result": "ok"}
+{"t": 1793887168.290354, "tool": "add_material_stream", "args": {"flowsheet_id": "fs2", "name": "gas", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 100.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.98, "Propane": 0.02, "N-decane": 0.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.02, "result": "ok"}
+{"t": 1793887169.474889, "tool": "add_material_stream", "args": {"flowsheet_id": "fs2", "name": "lean", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 120.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.0, "Propane": 0.0, "N-decane": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887169.977113, "tool": "add_material_stream", "args": {"flowsheet_id": "fs2", "name": "treated", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887170.5297, "tool": "add_material_stream", "args": {"flowsheet_id": "fs2", "name": "rich", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887171.5758588, "tool": "add_unit", "args": {"flowsheet_id": "fs2", "kind": "absorption_column", "name": "ABS", "params": {"stages": 5, "top_P_Pa": 1000000, "dP_Pa": 0}}}
+{"tool": "add_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793887172.977797, "tool": "add_material_stream", "args": {"flowsheet_id": "fs3", "name": "gas", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 100.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.98, "Propane": 0.02, "N-decane": 0.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887174.468283, "tool": "add_material_stream", "args": {"flowsheet_id": "fs3", "name": "lean", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 120.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.0, "Propane": 0.0, "N-decane": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887174.8788009, "tool": "add_material_stream", "args": {"flowsheet_id": "fs3", "name": "treated", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887175.504174, "tool": "add_material_stream", "args": {"flowsheet_id": "fs3", "name": "rich", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887176.448683, "tool": "add_unit", "args": {"flowsheet_id": "fs3", "kind": "absorption_column", "name": "ABS", "params": {"stages": 6, "top_P_Pa": 1000000, "dP_Pa": 0}}}
+{"tool": "add_unit", "done_s": 0.01, "result": "ok"}
+{"t": 1793887177.886112, "tool": "add_material_stream", "args": {"flowsheet_id": "fs4", "name": "gas", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 100.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.98, "Propane": 0.02, "N-decane": 0.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887179.2869709, "tool": "add_material_stream", "args": {"flowsheet_id": "fs4", "name": "lean", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 120.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.0, "Propane": 0.0, "N-decane": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793887179.826985, "tool": "add_material_stream", "args": {"flowsheet_id": "fs4", "name": "treated", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887180.329615, "tool": "add_material_stream", "args": {"flowsheet_id": "fs4", "name": "rich", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793887181.4072802, "tool": "add_unit", "args": {"flowsheet_id": "fs4", "kind": "absorption_column", "name": "ABS", "params": {"stages": 7, "top_P_Pa": 1000000, "dP_Pa": 0}}}
+{"tool": "add_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793887186.0904589, "tool": "connect", "args": {"flowsheet_id": "fs2", "unit": "ABS", "feeds": ["lean", "gas"], "products": ["treated", "rich"], "energy_feeds": null, "energy_products": null}}
+{"tool": "connect", "done_s": 0.01, "result": "ok"}
+{"t": 1793887186.734499, "tool": "connect", "args": {"flowsheet_id": "fs3", "unit": "ABS", "feeds": ["lean", "gas"], "products": ["treated", "rich"], "energy_feeds": null, "energy_products": null}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793887187.638217, "tool": "connect", "args": {"flowsheet_id": "fs4", "unit": "ABS", "feeds": ["lean", "gas"], "products": ["treated", "rich"], "energy_feeds": null, "energy_products": null}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793887191.4415438, "tool": "solve", "args": {"flowsheet_id": "fs2"}}
+{"tool": "solve", "done_s": 0.05, "result": "ok"}
+{"t": 1793887191.758539, "tool": "solve", "args": {"flowsheet_id": "fs3"}}
+{"tool": "solve", "done_s": 0.01, "result": "ok"}
+{"t": 1793887191.97631, "tool": "solve", "args": {"flowsheet_id": "fs4"}}
+{"tool": "solve", "done_s": 0.05, "result": "ok"}

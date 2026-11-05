@@ -27,6 +27,7 @@ from packages.dwsim_client import tools_sweep as TS  # noqa: E402
 from packages.dwsim_client import tools_transport as TT  # noqa: E402
 from packages.dwsim_client import tools_costing as TC  # noqa: E402
 from packages.dwsim_client import tools_optimize as TO  # noqa: E402
+from packages.dwsim_client import tools_mass_transfer as TM  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -181,7 +182,7 @@ def dof_check(flowsheet_id: str) -> str:
 def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] | None = None) -> str:
     """Add a unit operation. kind: mixer | splitter | heater | cooler | valve | pump | compressor | expander |
     separator | heat_exchanger | shortcut_column | distillation_column | conversion_reactor |
-    equilibrium_reactor | gibbs_reactor | cstr | pfr | recycle | pipe. params by kind: splitter {split_ratios:[...]};
+    equilibrium_reactor | gibbs_reactor | cstr | pfr | recycle | pipe | absorption_column. params by kind: splitter {split_ratios:[...]};
     heater {outlet_T_K | heat_added_kW}; cooler {outlet_T_K | heat_removed_kW}; valve {outlet_P_Pa};
     pump {outlet_P_Pa, efficiency_pct}; compressor/expander {outlet_P_Pa, adiabatic_eff_pct | polytropic_eff_pct};
     heat_exchanger {UA_W_K, hot_dP_Pa, cold_dP_Pa}; shortcut_column {light_key, heavy_key,
@@ -189,7 +190,8 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] 
     distillation_column {stages, feed_stage (1-based, 1 = condenser), reflux_ratio, bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s,
     top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; cstr/pfr {volume_m3,
     reaction_set, mode: "isothermal" (= feed T)|"adiabatic", dP_Pa} — products [outlet], energy_feeds [duty] required;
-    recycle {}; pipe {length_m, inner_diameter_m, elevation_change_m, increments} (adiabatic, Beggs-Brill, two-phase OK)."""
+    recycle {}; pipe {length_m, inner_diameter_m, elevation_change_m, increments} (adiabatic, Beggs-Brill, two-phase OK);
+    absorption_column {stages (≥ 4), top_P_Pa, dP_Pa}: feeds [lean liquid, gas], products [treated gas, rich liquid]."""
     return json.dumps(T.add_unit(flowsheet_id, kind, name, params))
 
 
@@ -360,6 +362,32 @@ def optimize_design(flowsheet_id: str, vary_kind: str, vary_name: str, vary_para
 
 
 @beta_tool
+def absorption_stages(gas_flow_mol_s: float, liquid_flow_mol_s: float, K: float, y_in: float, fraction_absorbed: float | None = None,
+                      stages: float | None = None, x_in: float = 0.0) -> str:
+    """Kremser (dilute solute): A = L/(K V); stages needed for fraction_absorbed, or fraction absorbed for stages."""
+    return json.dumps(TM.absorption_stages(gas_flow_mol_s, liquid_flow_mol_s, K, y_in, fraction_absorbed, stages, x_in), default=float)
+
+
+@beta_tool
+def packed_column_height(flowsheet_id: str, gas_stream: str, liquid_stream: str, column_diameter_m: float,
+                         packing_specific_area_m2_m3: float, packing_size_m: float, packing_critical_surface_tension_N_m: float,
+                         K: float, y_in: float, fraction_absorbed: float, D_liquid_m2_s: float, D_gas_m2_s: float, x_in: float = 0.0) -> str:
+    """Packed absorber height Z = H_OG·N_OG (Colburn + Onda 1968 film coefficients), properties from the solved streams."""
+    return json.dumps(TM.packed_column_height(flowsheet_id, gas_stream, liquid_stream, column_diameter_m, packing_specific_area_m2_m3,
+                                              packing_size_m, packing_critical_surface_tension_N_m, K, y_in, fraction_absorbed,
+                                              D_liquid_m2_s, D_gas_m2_s, x_in), default=float)
+
+
+@beta_tool
+def diffusivity_estimate(method: str, T_K: float, P_Pa: float | None = None, M_A: float | None = None, M_B: float | None = None,
+                         sum_v_A: float | None = None, sum_v_B: float | None = None, mu_solvent_cP: float | None = None,
+                         M_solvent: float | None = None, phi_solvent: float | None = None, V_solute_cm3_mol: float | None = None) -> str:
+    """Diffusivity (m²/s): 'fuller' for a gas pair (diffusion volumes as inputs) or 'wilke_chang' for a dilute solute."""
+    return json.dumps(TM.diffusivity_estimate(method, T_K, P_Pa, M_A, M_B, sum_v_A, sum_v_B, mu_solvent_cP, M_solvent, phi_solvent,
+                                              V_solute_cm3_mol), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -368,7 +396,8 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, absorption_stages,
+               packed_column_height, diffusivity_estimate, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

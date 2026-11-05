@@ -104,6 +104,18 @@ def _oracle_two_stage():
     return out
 
 
+
+def _oracle_absorber():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("nb16", Path(__file__).resolve().parents[2] / "notebooks" / "16_transferencia_de_masa.py")
+    nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+    for n in range(4, 16):
+        c = nb.column(120.0, n)
+        if c["frac_dwsim"] >= 0.94:
+            return {"stages": float(n), "fraction_absorbed": c["frac_dwsim"]}
+    raise RuntimeError("no N up to 15 reaches 94 %")
+
+
 TRANSPORT_CASES = [
     DesignCase(
         "transporte_dp_tuberia", "Caída de presión en una línea de agua que sube 15 m", "Pressure drop in a water line rising 15 m",
@@ -195,6 +207,18 @@ TRANSPORT_CASES = [
         _oracle_two_stage, {"P_mid_bar": {"abs": 0.03}, "total_power_kW": {"rel": 0.01}, "T_stage2_out_K": {"abs": 1.5}},
         {"P_mid_bar": "bar", "total_power_kW": "kW", "T_stage2_out_K": "K"},
         lambda a: [("límite activo: P_mid < √(1·9) = 3 bar", a["P_mid_bar"] < 3.0, a["P_mid_bar"])], ["optimizacion", "hazop", "compresion"]),
+    DesignCase(
+        "absorbedor_etapas_minimas", "Etapas mínimas de un absorbedor de propano", "Minimum stages of a propane absorber",
+        "100 mol/s de gas (98 % metano, 2 % propano molar) a 300 K y 10 bar entran por el fondo de un absorbedor; por el domo "
+        "entran 120 mol/s de n-decano puro a 300 K y 10 bar. Peng-Robinson, sin caída de presión. Con una columna de absorción "
+        "rigurosa de etapas de equilibrio, ¿cuál es el número mínimo de etapas teóricas que absorbe al menos 94 % del propano, y "
+        "qué fracción del propano absorbe con ese número?",
+        "100 mol/s of gas (98 % methane, 2 % propane molar) at 300 K and 10 bar enter the bottom of an absorber; 120 mol/s of pure "
+        "n-decane at 300 K and 10 bar enter the top. Peng-Robinson, no pressure drop. With a rigorous equilibrium-stage "
+        "absorption column, what is the minimum number of theoretical stages that absorbs at least 94 % of the propane, and what "
+        "fraction of the propane does it absorb with that number?",
+        _oracle_absorber, {"stages": {"abs": 0.0}, "fraction_absorbed": {"abs": 0.01}}, {"stages": "-", "fraction_absorbed": "-"},
+        lambda a: [("fracción ≥ 0.94", a["fraction_absorbed"] >= 0.94, a["fraction_absorbed"])], ["masa", "absorcion"]),
 ]
 
 
