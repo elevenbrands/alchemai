@@ -1,0 +1,95 @@
+# Referencias para calificar el HAZOP preliminar contra HAZOP publicados.
+# Escrito ANTES de correr AlchemAI sobre estos casos (bloque 17, 2026-11-05): la primera calificación es a ciegas.
+# Las desviaciones están parafraseadas (no copiadas) de la fuente; cada caso dice de dónde sale y qué tan verificada está.
+# alcance: datos  = se puede deducir del proceso (equipos, corrientes, T, P, composición)
+#          fuera  = requiere información que un DEXPI de proceso no trae (materiales, mantenimiento, destino del alivio)
+# match: la fila de AlchemAI cuenta si su nodo está en `nodes`, "parámetro + desviación" cumple `dev`
+#        y causas + consecuencias + salvaguardas cumplen `concept` (minúsculas, sin acentos).
+casos:
+  - id: lawley_dimerizacion
+    titulo: Sección de alimentación de una planta de dimerización de olefinas
+    fuente: >-
+      Lawley, H.G., Chem. Eng. Prog. 70(4):45 (1974), reimpreso en Kletz, «Hazop and Hazan», cap. 2. Proceso verificado en
+      ICI Safety Newsletter 68 (icheme.org/media/10775/ici068.pdf). La tabla HAZOP se reconstruyó de copias de cursos que la
+      reproducen; verificar contra el libro.
+    items:
+      - {id: L1, alcance: datos, desviacion: "No hay flujo", causa: "Tanque intermedio vacío, falla de la bomba, válvula cerrada o rotura de la línea",
+         consecuencia: "Se pierde la alimentación; la bomba se sobrecalienta", match: {nodes: [J-1, LCV-1, T-1], dev: "flow.*(no|less)", concept: "vacio|sobrecalent|dano"}}
+      - {id: L2, alcance: datos, desviacion: "Más flujo", causa: "La válvula de control de nivel falla abierta",
+         consecuencia: "El tanque de asentamiento se llena de más; la separación de agua es incompleta", match: {nodes: [LCV-1, J-1, T-2], dev: "more (flow|level)", concept: "rebose|sobrellen|separacion|arrastre"}}
+      - {id: L3, alcance: datos, desviacion: "Más presión", causa: "Válvula de aislamiento cerrada con la bomba operando",
+         consecuencia: "Sobrepresión de la línea", match: {nodes: [J-1, LCV-1], dev: "more pressure", concept: "cerrad|bloque"}}
+      - {id: L4, alcance: datos, desviacion: "Más presión", causa: "Expansión térmica del líquido en una sección aislada (sol o fuego)",
+         consecuencia: "Fuga en bridas o rotura de la línea; requiere alivio térmico", match: {nodes: [J-1, LCV-1, T-1, T-2], dev: "pressure", concept: "expansion termica|liquido atrapado"}}
+      - {id: L5, alcance: datos, desviacion: "Menos flujo", causa: "Fuga por brida o por una derivación sin tapón",
+         consecuencia: "Pérdida de material inflamable cerca de una vía pública", match: {nodes: [J-1, LCV-1], dev: "flow", concept: "fuga|perdida de contencion"}}
+      - {id: L6, alcance: datos, desviacion: "Más temperatura", causa: "Alta temperatura en el almacenamiento intermedio",
+         consecuencia: "Mayor presión en la línea y en el tanque de asentamiento", match: {nodes: [T-1, T-2], dev: "more temperature", concept: "presion"}}
+      - {id: L7, alcance: datos, desviacion: "Menos temperatura", causa: "Invierno",
+         consecuencia: "Se congelan el sumidero de agua y la válvula de drenaje", match: {nodes: [T-1, T-2], dev: "less temperature", concept: "congel"}}
+      - {id: L8, alcance: datos, desviacion: "Parte de / más agua", causa: "Mucha agua en el almacenamiento intermedio",
+         consecuencia: "El sumidero se llena rápido y pasa agua al reactor", match: {nodes: [T-1, T-2], dev: "composition|water|agua|level", concept: "agua.{0,60}(reactor|aguas abajo)|interfase"}}
+      - {id: L9, alcance: fuera, desviacion: "Además de", causa: "Ácidos orgánicos en la alimentación",
+         consecuencia: "Corrosión del fondo del tanque, el sumidero y el drenaje", match: {nodes: [T-1, T-2, J-1, LCV-1], dev: ".", concept: "corrosi"}}
+      - {id: L10, alcance: fuera, desviacion: "Otro (mantenimiento)", causa: "Hay que vaciar la línea para reparar",
+         consecuencia: "La línea no se puede drenar ni purgar", match: {nodes: [J-1, LCV-1], dev: ".", concept: "purg|drenaje de punto bajo|nitrogeno"}}
+
+  - id: ccps_dap
+    titulo: Sección de reacción de fosfato diamónico (DAP)
+    fuente: >-
+      Ejemplo clásico de CCPS, «Guidelines for Hazard Evaluation Procedures». Proceso y escenarios verificados en el paquete
+      público de la Universidad Tecnológica de Toyohashi (ise.me.tut.ac.jp/lectures/safety/workshops/hazop/DAP-Package-English.pdf).
+    items:
+      - {id: D1, alcance: datos, desviacion: "Menos o nada de ácido fosfórico", causa: "Válvula B cerrada, tanque vacío o línea tapada",
+         consecuencia: "Amoniaco sin reaccionar pasa al tanque de DAP y se libera en el área de trabajo", match: {nodes: [CV-B, R-1], dev: "flow|ratio|composition", concept: "(amoniaco|toxic).{0,100}sin reaccionar|sin reaccionar.{0,100}(amoniaco|toxic)"}}
+      - {id: D2, alcance: datos, desviacion: "Más amoniaco", causa: "Válvula A abierta de más o amoniaco más concentrado (el cambio de planta)",
+         consecuencia: "Amoniaco sin reaccionar pasa al tanque de DAP", match: {nodes: [CV-A, R-1], dev: "more|ratio|composition", concept: "(amoniaco|toxic).{0,100}sin reaccionar|sin reaccionar.{0,100}(amoniaco|toxic)"}}
+      - {id: D3, alcance: datos, desviacion: "Más flujo de ambos reactivos", causa: "Ambos flujos suben",
+         consecuencia: "La energía liberada supera al reactor: sube T y P", match: {nodes: [R-1], dev: "more (temperature|pressure)", concept: "descontrol|runaway|sobrepresion"}}
+      - {id: D4, alcance: datos, desviacion: "Más ácido fosfórico", causa: "Válvula B abierta de más",
+         consecuencia: "Producto fuera de especificación; la reacción es segura", match: {nodes: [R-1, CV-B], dev: "flow|ratio|composition", concept: "fuera de especificacion|baja conversion"}}
+      - {id: D5, alcance: datos, desviacion: "Amoniaco en el tanque abierto de DAP", causa: "Amoniaco residual en el producto",
+         consecuencia: "Se libera en el área de trabajo cerrada y expone al personal", match: {nodes: [T-3], dev: ".", concept: "area de trabajo|personal|exposicion|vapores toxic"}}
+
+  - id: crowl_louvar_reactor
+    titulo: Reactor exotérmico con serpentín de enfriamiento y agitador
+    fuente: >-
+      Crowl y Louvar, «Chemical Process Safety», ejemplo de HAZOP del serpentín de enfriamiento y el agitador. Reconstruido de
+      copias de clase que lo reproducen (ej. slides de Bagajewicz, OU CHE 4253); verificar contra el libro.
+    items:
+      - {id: C1, alcance: datos, desviacion: "No hay enfriamiento", causa: "Falla la válvula del agua de enfriamiento",
+         consecuencia: "Sube la temperatura; posible descontrol", match: {nodes: [R-1], dev: "more temperature", concept: "perdida de enfriamiento|falla.{0,30}enfriamiento"}}
+      - {id: C2, alcance: datos, desviacion: "Flujo inverso del agua de enfriamiento", causa: "Falla de la fuente de agua",
+         consecuencia: "Menos enfriamiento, posible descontrol; poner válvula check", match: {nodes: [R-1], dev: "reverse", concept: "enfriamiento|refrigerante"}}
+      - {id: C3, alcance: datos, desviacion: "Más enfriamiento", causa: "Válvula del agua abierta de más",
+         consecuencia: "El reactor se enfría y se acumula reactivo, que puede descontrolarse al calentarse", match: {nodes: [R-1], dev: "less temperature|more cooling", concept: "acumula"}}
+      - {id: C4, alcance: datos, desviacion: "No hay agitación", causa: "Falla el motor del agitador",
+         consecuencia: "Sin mezcla se acumula reactivo y se descontrola al arrancar; interlock alimentación-agitador", match: {nodes: [R-1], dev: "agitat|agitacion", concept: "acumula|mezcl"}}
+      - {id: C5, alcance: fuera, desviacion: "Además de (agua contaminada)", causa: "Agua de enfriamiento sucia",
+         consecuencia: "Ensuciamiento del serpentín y menos enfriamiento", match: {nodes: [R-1], dev: ".", concept: "ensuciamiento|agua contaminada"}}
+
+  - id: csb_texas_city
+    titulo: Torre separadora de refinado y tambor de purga (BP Texas City, 2005)
+    fuente: >-
+      CSB, Investigation Report 2005-04-I-TX (2007), csb.gov/assets/1/20/CSBFinalReportBP.pdf. Escenarios = lo que el
+      accidente mostró que un HAZOP debía cubrir.
+    items:
+      - {id: B1, alcance: datos, desviacion: "Más nivel en la torre", causa: "Salida de fondos cerrada; el transmisor de nivel marca mal",
+         consecuencia: "La torre se llena y manda líquido a la línea de domo y al alivio", match: {nodes: [T-1], dev: "level", concept: "rebose|llen|liquido.{0,60}(domo|alivio)"}}
+      - {id: B2, alcance: datos, desviacion: "Más presión en la torre", causa: "Llenado de líquido o exceso de calentamiento",
+         consecuencia: "Abren las válvulas de alivio hacia el tambor de purga", match: {nodes: [T-1], dev: "more pressure", concept: "alivio"}}
+      - {id: B3, alcance: datos, desviacion: "Más nivel en el tambor de purga", causa: "Alivio con mucho líquido",
+         consecuencia: "El tambor se rebosa y saca hidrocarburo líquido por la chimenea", match: {nodes: [F-20], dev: "more level", concept: "arrastre|rebose"}}
+      - {id: B4, alcance: fuera, desviacion: "Alivio a la atmósfera", causa: "El tambor de purga ventea a la atmósfera, no a un quemador",
+         consecuencia: "Nube inflamable a nivel de piso", match: {nodes: [F-20, T-1], dev: ".", concept: "atmosfera|quemador|flare|nube"}}
+      - {id: B5, alcance: datos, desviacion: "Más temperatura", causa: "Calentamiento de más en arranque",
+         consecuencia: "Más vapor y presión en la torre", match: {nodes: [T-1], dev: "more temperature", concept: "inundacion|presion|vapor"}}
+
+  - id: csb_williams
+    titulo: Rehervidor de la fraccionadora de propileno (Williams Olefins, Geismar, 2013)
+    fuente: >-
+      CSB, Case Study 2013-03-I-LA (2016), csb.gov. El rehervidor fuera de servicio quedó aislado de su válvula de alivio,
+      lleno de propano líquido, y el agua de quench lo calentó: sobrepresión, ruptura y BLEVE.
+    items:
+      - {id: W1, alcance: datos, desviacion: "Más presión en el lado de proceso aislado", causa: "Lado de propano bloqueado con el agua caliente fluyendo",
+         consecuencia: "El líquido atrapado se calienta, el equipo revienta (BLEVE); la PSV no debe poder aislarse", match: {nodes: [E-B], dev: "pressure", concept: "aislad|bloquead|expansion termica|bleve"}}
