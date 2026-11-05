@@ -1,4 +1,5 @@
-"""Bench v3 — transport phenomena (bloque 18): pipe ΔP with elevation, pipe sizing by velocity, shell-and-tube area.
+"""Bench v3 — transport phenomena (bloque 18: pipe ΔP, line size, shell-and-tube area) and equipment cost (bloque 19:
+exchanger and pump purchase cost by Seider et al. via IDAES, chained to the sizing).
 
 Oracles: DWSIM 10.2.12 for the stream properties, the pipe ΔP (Pipe Segment, Beggs-Brill) and the duty; the area
 uses LMTD·F (Fakheri) from `packages.transport.hydraulics`, cross-checked in notebook 12 against DWSIM's
@@ -60,6 +61,27 @@ def _oracle_area():
     return {"Q_kW": Q, "LMTD_K": a["LMTD_K"], "F": a["F"], "area_m2": a["area_m2"]}
 
 
+def _oracle_cost_hx():
+    from packages.costing.sslw import cost_heat_exchanger
+    a = _oracle_area()
+    c = cost_heat_exchanger(a["area_m2"], shell_pressure_Pa=3e5, hx_type="Utube", material="StainlessSteelStainlessSteel",
+                            tube_length="TwelveFoot", year=2023)
+    return {"area_m2": a["area_m2"], "purchase_cost_usd": c["purchase_cost_usd"]}
+
+
+def _oracle_cost_pump():
+    from packages.dwsim_client.tools_costing import cost_unit
+    fid = T.new_flowsheet("v3_pump", ["Water"], "SteamTables")["flowsheet_id"]
+    T.add_material_stream(fid, "in", temperature_K=298.15, pressure_Pa=1e5, mass_flow_kg_s=50.0, mole_fractions={"Water": 1.0})
+    T.add_material_stream(fid, "out"); T.add_energy_stream(fid, "w")
+    T.add_unit(fid, "pump", "P-1", {"outlet_P_Pa": 6e5, "efficiency_pct": 75})
+    T.connect(fid, "P-1", feeds=["in"], products=["out"], energy_feeds=["w"])
+    assert T.solve(fid)["solved"]
+    c = cost_unit(fid, "P-1", {"pump_type": "Centrifugal", "material": "CastIron", "pump_type_factor": 1.4, "motor_type": "Open"}, 2023)
+    T.close_flowsheet(fid)
+    return {"power_kW": c["size_from_simulation"]["power_W"] / 1e3, "purchase_cost_usd": c["purchase_cost_usd"]}
+
+
 TRANSPORT_CASES = [
     DesignCase(
         "transporte_dp_tuberia", "Caída de presión en una línea de agua que sube 15 m", "Pressure drop in a water line rising 15 m",
@@ -96,6 +118,25 @@ TRANSPORT_CASES = [
         {"Q_kW": "kW", "LMTD_K": "K", "F": "-", "area_m2": "m2"},
         lambda a: [("F entre 0.75 y 1", 0.75 <= a["F"] <= 1.0, a["F"]), ("Q ≈ m·cp·ΔT (±2 %)", abs(a["Q_kW"] / (8 * 4.19 * 40) - 1) < 0.02, a["Q_kW"])],
         ["transporte", "calor", "diseno"]),
+    DesignCase(
+        "costo_intercambiador", "Área y costo de compra de un enfriador 1-2", "Area and purchase cost of a 1-2 cooler",
+        "8 kg/s de agua a 360 K y 3 bar se enfrían a 320 K con agua de enfriamiento de 300 a 315 K en un intercambiador de "
+        "coraza y tubos de tubo en U, una coraza y dos pasos de tubo, acero inoxidable en ambos lados, tubos de 12 ft, "
+        "U = 850 W/m²K, presión de diseño de 3 bar. ¿Área (m²) y costo de compra en USD de 2023 según Seider et al.?",
+        "8 kg/s of water at 360 K and 3 bar are cooled to 320 K with cooling water from 300 to 315 K in a U-tube shell-and-tube "
+        "exchanger, one shell and two tube passes, stainless steel on both sides, 12 ft tubes, U = 850 W/m²K, 3 bar design "
+        "pressure. Area (m²) and purchase cost in 2023 USD per Seider et al.?",
+        _oracle_cost_hx, {"area_m2": {"rel": 0.03}, "purchase_cost_usd": {"rel": 0.05}}, {"area_m2": "m2", "purchase_cost_usd": "USD"},
+        lambda a: [("costo > 0", a["purchase_cost_usd"] > 0, a["purchase_cost_usd"])], ["costo", "calor", "diseno"]),
+    DesignCase(
+        "costo_bomba", "Potencia y costo de compra de una bomba centrífuga", "Power and purchase cost of a centrifugal pump",
+        "Una bomba centrífuga lleva 50 kg/s de agua a 25 °C de 1 a 6 bar con eficiencia de 75 %. Carcasa de hierro fundido, "
+        "motor abierto, factor de tipo de bomba 1.4 (tabla de Seider). ¿Potencia (kW) y costo de compra en USD de 2023 según "
+        "Seider et al.?",
+        "A centrifugal pump moves 50 kg/s of water at 25 °C from 1 to 6 bar at 75 % efficiency. Cast-iron casing, open motor, "
+        "pump type factor 1.4 (Seider's table). Power (kW) and purchase cost in 2023 USD per Seider et al.?",
+        _oracle_cost_pump, {"power_kW": {"rel": 0.02}, "purchase_cost_usd": {"rel": 0.05}}, {"power_kW": "kW", "purchase_cost_usd": "USD"},
+        lambda a: [("potencia ≈ ΔP·Q/η", abs(a["power_kW"] / (5e5 * 50 / 997 / 0.75 / 1e3) - 1) < 0.01, a["power_kW"])], ["costo", "diseno"]),
 ]
 
 

@@ -1,0 +1,30 @@
+id: costo_bomba
+kind: design
+version: v3
+title:
+  es: Potencia y costo de compra de una bomba centrífuga
+  en: Power and purchase cost of a centrifugal pump
+statement:
+  es: Una bomba centrífuga lleva 50 kg/s de agua a 25 °C de 1 a 6 bar con eficiencia de 75 %. Carcasa de hierro
+    fundido, motor abierto, factor de tipo de bomba 1.4 (tabla de Seider). ¿Potencia (kW) y costo de compra en USD
+    de 2023 según Seider et al.?
+  en: A centrifugal pump moves 50 kg/s of water at 25 °C from 1 to 6 bar at 75 % efficiency. Cast-iron casing, open
+    motor, pump type factor 1.4 (Seider's table). Power (kW) and purchase cost in 2023 USD per Seider et al.?
+tags:
+- costo
+- diseno
+expected:
+  power_kW:
+    value: 33.432043601506116
+    unit: kW
+    tol:
+      rel: 0.02
+  purchase_cost_usd:
+    value: 27975.58190213988
+    unit: USD
+    tol:
+      rel: 0.05
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

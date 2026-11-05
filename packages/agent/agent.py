@@ -25,6 +25,7 @@ from anthropic import beta_tool  # noqa: E402
 from packages.dwsim_client import tools as T  # noqa: E402
 from packages.dwsim_client import tools_sweep as TS  # noqa: E402
 from packages.dwsim_client import tools_transport as TT  # noqa: E402
+from packages.dwsim_client import tools_costing as TC  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -313,6 +314,27 @@ def tube_film_coefficient(flowsheet_id: str, stream: str, inner_diameter_m: floa
 
 
 @beta_tool
+def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, object] | None = None, year: int = 2023,
+                   cepci: float | None = None) -> str:
+    """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
+    shell_pressure_Pa} | pump {power_W, deltaP_Pa, density_kg_m3, flow_m3_s} | compressor {power_W} | vessel
+    {diameter_m, length_m, vertical}. options as listed by costing_options. year 2015-2023, else pass cepci."""
+    return json.dumps(TC.equipment_cost(equipment, size, options, year, cepci), default=float)
+
+
+@beta_tool
+def costing_options() -> str:
+    """Valid option names for equipment_cost (types, materials, motors, tube lengths)."""
+    return json.dumps(TC.costing_options())
+
+
+@beta_tool
+def cost_unit(flowsheet_id: str, unit: str, options: dict[str, object] | None = None, year: int = 2023, cepci: float | None = None) -> str:
+    """Purchase cost of a solved DWSIM pump or compressor, sized from the simulation."""
+    return json.dumps(TC.cost_unit(flowsheet_id, unit, options, year, cepci), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -321,7 +343,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

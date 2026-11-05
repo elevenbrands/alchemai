@@ -211,3 +211,13 @@ cards:
   version: v3
   title_es: Área de un enfriador de coraza y tubos 1-2
   n_expected: 4
+- id: costo_intercambiador
+  kind: design
+  version: v3
+  title_es: Área y costo de compra de un enfriador 1-2
+  n_expected: 2
+- id: costo_bomba
+  kind: design
+  version: v3
+  title_es: Potencia y costo de compra de una bomba centrífuga
+  n_expected: 2

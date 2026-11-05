@@ -1,0 +1,34 @@
+{"t": 1793884759.652042, "tool": "new_flowsheet", "args": {"name": "costo_bomba", "compounds": ["Water"], "property_package": "SteamTables"}}
+{"tool": "new_flowsheet", "done_s": 1.4, "result": "ok"}
+{"t": 1793884763.013358, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "feed", "temperature_K": 298.15, "pressure_Pa": 100000.0, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": 50.0, "mole_fractions": {"Water": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.03, "result": "ok"}
+{"t": 1793884763.501997, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "out", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793884764.055252, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "W"}}
+{"tool": "add_energy_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793884764.855169, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "pump", "name": "P1", "params": {"outlet_P_Pa": 600000, "efficiency_pct": 75}}}
+{"tool": "add_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793884766.439056, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "P1", "feeds": ["feed"], "products": ["out"], "energy_feeds": ["W"], "energy_products": null}}
+{"tool": "connect", "done_s": 0.01, "result": "ok"}
+{"t": 1793884767.3797388, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.22, "result": "ok"}
+{"t": 1793884769.18507, "tool": "cost_unit", "args": {"flowsheet_id": "fs1", "unit": "P1", "options": {"pump_type": "Centrifugal", "material": "CastIron", "pump_type_factor": 1.4, "motor_type": "Open"}, "year": 2023, "cepci": null}}
+{"tool": "cost_unit", "done_s": 3.64, "result": "ok"}
+{"t": 1793884784.039642, "tool": "new_flowsheet", "args": {"name": "costo_intercambiador", "compounds": ["Water"], "property_package": "SteamTables"}}
+{"tool": "new_flowsheet", "done_s": 1.35, "result": "ok"}
+{"t": 1793884787.400935, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "hot_in", "temperature_K": 360.0, "pressure_Pa": 300000.0, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": 8.0, "mole_fractions": {"Water": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.02, "result": "ok"}
+{"t": 1793884787.957119, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "hot_out", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793884788.4763598, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "Q"}}
+{"tool": "add_energy_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793884789.213702, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "cooler", "name": "E1", "params": {"outlet_T_K": 320}}}
+{"tool": "add_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793884790.789164, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "E1", "feeds": ["hot_in"], "products": ["hot_out"], "energy_feeds": null, "energy_products": ["Q"]}}
+{"tool": "connect", "done_s": 0.01, "result": "ok"}
+{"t": 1793884791.698563, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.19, "result": "ok"}
+{"t": 1793884793.830167, "tool": "heat_exchanger_area", "args": {"duty_kW": 1339.8869292488753, "hot_in_K": 360.0, "hot_out_K": 320.0, "cold_in_K": 300.0, "cold_out_K": 315.0, "U_W_m2K": 850.0, "shell_passes": 1}}
+{"tool": "heat_exchanger_area", "done_s": 0.37, "result": "ok"}
+{"t": 1793884796.709208, "tool": "equipment_cost", "args": {"equipment": "heat_exchanger", "size": {"area_m2": 58.1476011881339, "shell_pressure_Pa": 300000}, "options": {"hx_type": "Utube", "material": "StainlessSteelStainlessSteel", "tube_length": "TwelveFoot"}, "year": 2023, "cepci": null}}
+{"tool": "equipment_cost", "done_s": 3.34, "result": "ok"}

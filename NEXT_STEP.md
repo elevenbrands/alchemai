@@ -1,20 +1,20 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 18)
+Actualizado: 2026-11-05 (bloque 19)
 
 ## Dónde estamos
-**Bloque 18 (2026-11-05): fenómenos de transporte** (`notebooks/12_fenomenos_transporte.md`): `packages/transport/hydraulics.py`
-+ 5 tools (25 en total) + kind `pipe`. ΔP de tubería = Pipe Segment de DWSIM dentro de 1.4 % en 6 casos; el área de intercambiador
-recupera la de DWSIM a 0.2 %. Bench v3 = 3 tarjetas de transporte (42 tarjetas). Antes: bloque 17 HAZOP vs libro (41 % a ciegas → 22/22),
-16 HAZOP sobre DEXPI, 15 export SFILES2/DEXPI. Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
+**Bloque 19 (2026-11-05): costo de equipos** (`notebooks/13_costo_de_equipos.md`): costeo SSLW de IDAES (Seider) usado tal cual,
+sin ipopt; reproduce los 4 valores de los tests de IDAES; tools `equipment_cost`, `costing_options`, `cost_unit` (28). Bench v3 = 5
+tarjetas (3 transporte + 2 costo; 44 en total). **Bloque 18**: ΔP de tubería ≤ 1.4 % vs DWSIM, área a 0.2 %. Antes: 17 HAZOP vs libro.
+Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
-**Bloque 19 — costo de equipos** (fase 3, ya desbloqueado por el dimensionamiento): costo de compra y de módulo desnudo de bomba,
-compresor, intercambiador, recipiente y columna a partir de área/potencia/volumen, con CEPCI. Usar correlaciones ya implementadas
-en código abierto (costeo de IDAES basado en Seider, o BioSTEAM), no coeficientes de memoria; validar contra un ejemplo publicado.
-Tool `equipment_cost` + tarjeta del bench. Cubre a la vez el estudio de Pyomo/IDAES (semana 5).
-Decisiones del owner que siguen abiertas: repo público + primer post; UI (web vs Mac).
-Después: conjunto apartado de HAZOP (recall independiente y precisión), DEXPI nivel P&ID, Fluxo 1.1 UI en Figma.
+**Bloque 20 — costo instalado y de operación**: factores de módulo desnudo (verificar la fuente antes de usarlos), costo de
+utilidades y electricidad por año, y una tool `flowsheet_cost` que sume CAPEX + OPEX de un flowsheet resuelto. Con eso, el primer
+estudio de optimización (fase 3): barrer una variable de diseño (p. ej. aproximación de T de un intercambiador o reflujo de una
+columna) y encontrar el costo anual mínimo con `sweep`.
+Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
+Después: conjunto apartado de HAZOP, DEXPI nivel P&ID, Fluxo 1.1 UI en Figma.
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto

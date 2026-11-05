@@ -1,0 +1,32 @@
+id: costo_intercambiador
+kind: design
+version: v3
+title:
+  es: Área y costo de compra de un enfriador 1-2
+  en: Area and purchase cost of a 1-2 cooler
+statement:
+  es: 8 kg/s de agua a 360 K y 3 bar se enfrían a 320 K con agua de enfriamiento de 300 a 315 K en un intercambiador
+    de coraza y tubos de tubo en U, una coraza y dos pasos de tubo, acero inoxidable en ambos lados, tubos de 12
+    ft, U = 850 W/m²K, presión de diseño de 3 bar. ¿Área (m²) y costo de compra en USD de 2023 según Seider et al.?
+  en: 8 kg/s of water at 360 K and 3 bar are cooled to 320 K with cooling water from 300 to 315 K in a U-tube shell-and-tube
+    exchanger, one shell and two tube passes, stainless steel on both sides, 12 ft tubes, U = 850 W/m²K, 3 bar design
+    pressure. Area (m²) and purchase cost in 2023 USD per Seider et al.?
+tags:
+- costo
+- calor
+- diseno
+expected:
+  area_m2:
+    value: 58.1476011881339
+    unit: m2
+    tol:
+      rel: 0.03
+  purchase_cost_usd:
+    value: 96164.96558551252
+    unit: USD
+    tol:
+      rel: 0.05
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks
