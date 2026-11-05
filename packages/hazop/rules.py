@@ -110,6 +110,17 @@ def rules_for_unit(g: ProcessGraph, u: UnitNode) -> list[HazopRow]:
                                  [f"Salida por encima de {u.T_out_K:.0f} K; equipo aguas abajo fuera de diseño" if u.T_out_K else "Alta T aguas abajo",
                                   "Mayor presión en recipientes aguas abajo por mayor fracción vapor"],
                                  ["Alarma TAH en salida", "Control de T con válvula en utilidad"], sev, ev))
+            # Overcooling: cold utility at full duty or low process flow drives the outlet below design.
+            lt = ["Condensación de pesados / cambio de fase aguas abajo"]
+            if f["hydrate"]:
+                lt.insert(0, f"Formación de hidratos en la salida (agua + hidrocarburos ligeros/CO₂ a {u.T_out_K:.0f} K y {f['pmax'] / BAR:.0f} bar) → taponamiento del enfriador o del recipiente aguas abajo" if u.T_out_K else "Formación de hidratos en la salida")
+            if u.T_out_K is not None and u.T_out_K < 273.15:
+                lt.append("Congelamiento del agua; T por debajo de la MDMT del material")
+            rows.append(HazopRow(u.name, k, "Temperature", "Less temperature (overcooling)",
+                                 ["Utilidad fría a máxima capacidad (ventiladores/agua sin control)", "Bajo flujo de proceso con enfriamiento constante", "Baja T ambiente"],
+                                 lt,
+                                 (["Inyección de inhibidor (MEG/metanol) o deshidratación aguas arriba", "Control de T de salida con alarma TAL"] if f["hydrate"]
+                                  else ["Control de T de salida con alarma TAL", "Verificar MDMT de materiales"]), sev, ev))
         else:
             rows.append(HazopRow(u.name, k, "Temperature", "More temperature (more heating)",
                                  ["Falla del control de T", "Bajo flujo de proceso con calentamiento constante"],

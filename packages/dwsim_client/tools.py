@@ -382,7 +382,8 @@ from packages.dwsim_client.tools_sweep import SWEEP_TOOLS
 from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
+from packages.hazop.dexpi_graph import hazop_from_dexpi  # noqa: E402
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
          define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-         *SWEEP_TOOLS, hazop_preliminary, export_flowsheet, close_flowsheet]
+         *SWEEP_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]

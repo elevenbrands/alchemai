@@ -26,6 +26,7 @@ from packages.dwsim_client import tools as T  # noqa: E402
 from packages.dwsim_client import tools_sweep as TS  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
+from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -267,6 +268,16 @@ def export_flowsheet(flowsheet_id: str) -> str:
 
 
 @beta_tool
+def hazop_from_dexpi(path: str) -> str:
+    """Preliminary HAZOP of a process given as a DEXPI file (.xml DEXPI XML or .json pyDEXPI JSON), with no
+    simulation: the same deterministic rules as hazop_preliminary, using the T, P, flows and compositions in the
+    file. Returns rows and `missing` (data the file lacked). Use when the user provides a DEXPI file."""
+    out = _hazop_dexpi(path)
+    out.pop("markdown", None)
+    return json.dumps(out, ensure_ascii=False, default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -274,7 +285,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-               set_unit_param, set_stream_spec, sweep, hazop_preliminary, export_flowsheet, close_flowsheet]
+               set_unit_param, set_stream_spec, sweep, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

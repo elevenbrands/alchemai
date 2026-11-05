@@ -208,7 +208,7 @@ def to_dexpi(eg: ExportGraph, compounds: list[str] | None = None):
             cls, enum = "Sink", None
         else:
             _, cls, enum = KINDS.get(a["kind"], UNKNOWN)
-        kw = {"identifier": n}
+        kw = {"identifier": a["dwsim"] or n}       # DEXPI uses the engineering tag (K-1); SFILES keeps comp-1
         if enum is not None:
             kw[enum[0]] = getattr(getattr(pc, enum[1]), enum[2])
         if a["dwsim"] is not None:
@@ -218,24 +218,41 @@ def to_dexpi(eg: ExportGraph, compounds: list[str] | None = None):
             kw["description"] = _text(pc, d)
         steps[n] = getattr(pc, cls)(**kw)
         ports_out[n], ports_in[n] = [], []
+    comp_names = list(compounds or sorted({c for e in eg.edges for c in e.data.mole_fractions}))
+    comps = [pc.PureMaterialComponent(identifier=c, label=c) for c in comp_names]
+    lst = pc.ListOfMaterialComponents(component=comps)
+    tmpl = pc.MaterialTemplate(identifier="MT-1", label="all compounds", listOfComponents=lst, description=_text(pc, "Every compound in the flowsheet, in the order used by each stream's moleFractions"),
+                               numberOfMaterialComponents=len(comps), numberOfPhases=2, phaseLabel=["Vapor", "Liquid"])
+    states = []
     conns = []
+    tag = lambda n: eg.nodes[n]["dwsim"] or n
     for k, e in enumerate(eg.edges, 1):
-        po = _port(pc, D.OUTLET, f"{e.src}.out{len(ports_out[e.src]) + 1}")
-        pi = _port(pc, D.INLET, f"{e.dst}.in{len(ports_in[e.dst]) + 1}")
+        po = _port(pc, D.OUTLET, f"{tag(e.src)}.out{len(ports_out[e.src]) + 1}")
+        pi = _port(pc, D.INLET, f"{tag(e.dst)}.in{len(ports_in[e.dst]) + 1}")
+        po.materialTemplateReference = pi.materialTemplateReference = tmpl
+        x = [float(e.data.mole_fractions.get(c, 0.0)) for c in comp_names]
+        st_type = pc.MaterialStateType(identifier=f"MST-{k}", label=e.streams[0], description=_text(pc, "solved state"),
+                                       composition=pc.Composition(moleFractions=[pc.QualifiedValue(value=v) for v in x],
+                                                                  moleFlow=[qv(v * e.data.molar_flow_mol_s / 1000.0, pc.MoleFlowRateUnit.KILOMOLEPERSECOND) for v in x]),
+                                       massFlow=[qv(e.data.mass_flow_kg_s, pc.MassFlowRateUnit.KILOGRAMPERSECOND)])
+        state = pc.MaterialState(identifier=f"MS-{k}", label=e.streams[0], state=st_type,
+                                 description=f"vapor_fraction={e.data.vapor_fraction:.10g}")
+        states.append(state)
         ports_out[e.src].append(po)
         ports_in[e.dst].append(pi)
         s = pc.Stream(identifier=f"S{k}", label=e.streams[0], source=po, target=pi,
                       description=_text(pc, " -> ".join(e.streams) + f"; VF {e.data.vapor_fraction:.4f}; molar flow {e.data.molar_flow_mol_s:.6f} mol/s"),
                       temperature=[qv(e.data.T_K, pc.TemperatureUnit.KELVIN)],
                       pressure=[qv(e.data.P_Pa, pc.PressureAbsoluteUnit.PASCAL)],
-                      massFlow=[qv(e.data.mass_flow_kg_s, pc.MassFlowRateUnit.KILOGRAMPERSECOND)])
+                      massFlow=[qv(e.data.mass_flow_kg_s, pc.MassFlowRateUnit.KILOGRAMPERSECOND)],
+                      materialStateReference=state)
         po.connectorReference = s
         pi.connectorReference = s
         conns.append(s)
     for n, st in steps.items():
         st.ports = ports_in[n] + ports_out[n]
-    comps = [pc.PureMaterialComponent(identifier=c, label=c) for c in (compounds or [])]
-    pm = pc.ProcessModel(processSteps=list(steps.values()), processConnections=conns, materialComponents=comps)
+    pm = pc.ProcessModel(processSteps=list(steps.values()), processConnections=conns, materialComponents=comps,
+                         listsOfMaterialComponents=[lst], materialTemplates=[tmpl], materialStates=states)
     return pc.EngineeringModel(conceptualModel=pm, originatingSystemName="AlchemAI",
                                originatingSystemVendorName="AlchemAI (MIT)", originatingSystemVersion="0.1")
 

@@ -64,6 +64,17 @@ class ProcessGraph:
                 "units": {k: asdict(v) for k, v in self.units.items()}, "edges": self.edges}
 
 
+def stream_node(name: str, T_K: float, P_Pa: float, vapor_fraction: float, molar_flow_mol_s: float,
+                mass_flow_kg_s: float, mole_fractions: dict[str, float]) -> StreamNode:
+    """StreamNode with the hazard flags derived from composition, T and P (same rule for every source)."""
+    present = {c for c, x in mole_fractions.items() if x > 1e-4}
+    water = "Water" in present
+    return StreamNode(name=name, T_K=T_K, P_Pa=P_Pa, vapor_fraction=vapor_fraction, molar_flow_mol_s=molar_flow_mol_s,
+                      mass_flow_kg_s=mass_flow_kg_s, mole_fractions=mole_fractions,
+                      flammable=bool(present & FLAMMABLE), toxic=bool(present & TOXIC), has_water=water,
+                      hydrate_risk=water and bool(present & HYDRATE_FORMERS) and T_K < 300.0 and P_Pa > 10e5)
+
+
 def _obj_type(o) -> str:
     return str(o.GraphicObject.ObjectType)
 
@@ -78,13 +89,7 @@ def build_graph(fs, name: str = "flowsheet") -> ProcessGraph:
             continue
         v = _stream_view(fs.MaterialStream(o.GraphicObject.Tag).Object)
         fr = {c: (f / v.molar_mol_s if v.molar_mol_s else 0.0) for c, f in v.compounds_mol_s.items()}
-        present = {c for c, x in fr.items() if x > 1e-4}
-        water = "Water" in present
-        streams[v.name] = StreamNode(
-            name=v.name, T_K=v.temperature_k, P_Pa=v.pressure_pa, vapor_fraction=v.vapor_fraction,
-            molar_flow_mol_s=v.molar_mol_s, mass_flow_kg_s=v.mass_kg_s, mole_fractions=fr,
-            flammable=bool(present & FLAMMABLE), toxic=bool(present & TOXIC), has_water=water,
-            hydrate_risk=water and bool(present & HYDRATE_FORMERS) and v.temperature_k < 300.0 and v.pressure_pa > 10e5)
+        streams[v.name] = stream_node(v.name, v.temperature_k, v.pressure_pa, v.vapor_fraction, v.molar_mol_s, v.mass_kg_s, fr)
 
     units: dict[str, UnitNode] = {}
     edges: list[tuple[str, str]] = []

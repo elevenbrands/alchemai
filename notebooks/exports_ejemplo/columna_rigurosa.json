@@ -1,20 +1,412 @@
 {
     "dexpiVersion": "2.0.1",
-    "id": "id_62c49c99d4954ddca2ad2bc13c794667",
+    "id": "id_fa8fc0a598334f999ea7a5f62546de10",
     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/EngineeringModel",
     "composition": {
         "conceptualModel": {
-            "id": "id_c27b8cdcb98544129cfd40b6323e9d88",
+            "id": "id_b1e39f92aa9d44c78e00f10db0625643",
             "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/ProcessModel",
             "composition": {
+                "listsOfMaterialComponents": [
+                    {
+                        "id": "id_708584a9e9c24ad18eed01c4fee889cd",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/ListOfMaterialComponents",
+                        "reference": {
+                            "component": [
+                                "id_4fb2581a9da245ac9b4bf3d250c7e339",
+                                "id_7dc4da0b5bac45268c1c4ef4c55b575b"
+                            ]
+                        }
+                    }
+                ],
+                "materialComponents": [
+                    {
+                        "id": "id_4fb2581a9da245ac9b4bf3d250c7e339",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PureMaterialComponent",
+                        "data": {
+                            "identifier": "Ethanol",
+                            "label": "Ethanol"
+                        }
+                    },
+                    {
+                        "id": "id_7dc4da0b5bac45268c1c4ef4c55b575b",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PureMaterialComponent",
+                        "data": {
+                            "identifier": "Water",
+                            "label": "Water"
+                        }
+                    }
+                ],
+                "materialStates": [
+                    {
+                        "id": "id_fbed618cb510464fbbed1d8be9eb5828",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialState",
+                        "composition": {
+                            "state": {
+                                "id": "id_746b5826d7c94a9b89f05e6e9f7c43e3",
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialStateType",
+                                "composition": {
+                                    "composition": {
+                                        "id": "id_a9b9d3fdc9c14f4d94d3a23b6d1e5a17",
+                                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Composition",
+                                        "composition": {
+                                            "moleFlow": [
+                                                {
+                                                    "id": "id_dd79ebbe6025446ea0067ae12f65dd2a",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": {
+                                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                            "data": {
+                                                                "unit": {
+                                                                    "__enum__": "MoleFlowRateUnit",
+                                                                    "name": "KILOMOLEPERSECOND"
+                                                                },
+                                                                "value": 0.05
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "id": "id_3b52d34b74324e2abcfda6a5607179c7",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": {
+                                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                            "data": {
+                                                                "unit": {
+                                                                    "__enum__": "MoleFlowRateUnit",
+                                                                    "name": "KILOMOLEPERSECOND"
+                                                                },
+                                                                "value": 0.05
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "moleFractions": [
+                                                {
+                                                    "id": "id_52e70c51d1e74223aa656a252ae14deb",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": 0.5
+                                                    }
+                                                },
+                                                {
+                                                    "id": "id_a14b7c9f561840f088a59d43b4379ec3",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": 0.5
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "massFlow": [
+                                        {
+                                            "id": "id_e24a4a2a6008409daa414c41351c5e87",
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                            "data": {
+                                                "value": {
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                    "data": {
+                                                        "unit": {
+                                                            "__enum__": "MassFlowRateUnit",
+                                                            "name": "KILOGRAMPERSECOND"
+                                                        },
+                                                        "value": 3.204186
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                "data": {
+                                    "description": {
+                                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                        "data": {
+                                            "singleLanguageStrings": [
+                                                {
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                                    "data": {
+                                                        "language": "en",
+                                                        "value": "solved state"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "identifier": "MST-1",
+                                    "label": "feed"
+                                }
+                            }
+                        },
+                        "data": {
+                            "description": "vapor_fraction=0",
+                            "identifier": "MS-1",
+                            "label": "feed"
+                        }
+                    },
+                    {
+                        "id": "id_4fbd2e122cbe4a3cab8d433d8c3fecd1",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialState",
+                        "composition": {
+                            "state": {
+                                "id": "id_87c9734e8b394403b8e8ec436ae7a440",
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialStateType",
+                                "composition": {
+                                    "composition": {
+                                        "id": "id_73e4854c3c8d451297a03872a7651c7e",
+                                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Composition",
+                                        "composition": {
+                                            "moleFlow": [
+                                                {
+                                                    "id": "id_66b87c4bad3f4f61886bab2d98554c3d",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": {
+                                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                            "data": {
+                                                                "unit": {
+                                                                    "__enum__": "MoleFlowRateUnit",
+                                                                    "name": "KILOMOLEPERSECOND"
+                                                                },
+                                                                "value": 0.020098988402776595
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "id": "id_483b99c1d1724a8f9b72118cf0d46850",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": {
+                                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                            "data": {
+                                                                "unit": {
+                                                                    "__enum__": "MoleFlowRateUnit",
+                                                                    "name": "KILOMOLEPERSECOND"
+                                                                },
+                                                                "value": 0.004901011597123411
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "moleFractions": [
+                                                {
+                                                    "id": "id_03069ca04ef64babb6f6748a4545e272",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": 0.8039595361142795
+                                                    }
+                                                },
+                                                {
+                                                    "id": "id_7260cfedf3ea406da930c7e1c8b291bf",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": 0.19604046388572055
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "massFlow": [
+                                        {
+                                            "id": "id_6c308cb8c9bc4405a91cd2b253141f13",
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                            "data": {
+                                                "value": {
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                    "data": {
+                                                        "unit": {
+                                                            "__enum__": "MassFlowRateUnit",
+                                                            "name": "KILOGRAMPERSECOND"
+                                                        },
+                                                        "value": 1.0142221374994347
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                "data": {
+                                    "description": {
+                                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                        "data": {
+                                            "singleLanguageStrings": [
+                                                {
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                                    "data": {
+                                                        "language": "en",
+                                                        "value": "solved state"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "identifier": "MST-2",
+                                    "label": "dist"
+                                }
+                            }
+                        },
+                        "data": {
+                            "description": "vapor_fraction=0",
+                            "identifier": "MS-2",
+                            "label": "dist"
+                        }
+                    },
+                    {
+                        "id": "id_3aff40eadfcb4e24b54a068234fd36b2",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialState",
+                        "composition": {
+                            "state": {
+                                "id": "id_b14c64e2970d4923b6bbf72cb98c2b6f",
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialStateType",
+                                "composition": {
+                                    "composition": {
+                                        "id": "id_ac9ce9f9b6434446832242872bea3a49",
+                                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Composition",
+                                        "composition": {
+                                            "moleFlow": [
+                                                {
+                                                    "id": "id_0e01ab1a3f64486ab51cb6492933ee67",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": {
+                                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                            "data": {
+                                                                "unit": {
+                                                                    "__enum__": "MoleFlowRateUnit",
+                                                                    "name": "KILOMOLEPERSECOND"
+                                                                },
+                                                                "value": 0.029900994210754653
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "id": "id_d71efa1d766647d2a4dced8d6ccf543f",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": {
+                                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                            "data": {
+                                                                "unit": {
+                                                                    "__enum__": "MoleFlowRateUnit",
+                                                                    "name": "KILOMOLEPERSECOND"
+                                                                },
+                                                                "value": 0.04509900578924535
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "moleFractions": [
+                                                {
+                                                    "id": "id_0f40418ffad64a1c9f8b0903541eea62",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": 0.39867992281006204
+                                                    }
+                                                },
+                                                {
+                                                    "id": "id_d1357354edc94353bfbaac3c0aad4d91",
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                                    "data": {
+                                                        "value": 0.601320077189938
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "massFlow": [
+                                        {
+                                            "id": "id_2084aafb7f3f4e16926155894bd8a7bc",
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
+                                            "data": {
+                                                "value": {
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/PhysicalQuantity",
+                                                    "data": {
+                                                        "unit": {
+                                                            "__enum__": "MassFlowRateUnit",
+                                                            "name": "KILOGRAMPERSECOND"
+                                                        },
+                                                        "value": 2.189963374753374
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                "data": {
+                                    "description": {
+                                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                        "data": {
+                                            "singleLanguageStrings": [
+                                                {
+                                                    "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                                    "data": {
+                                                        "language": "en",
+                                                        "value": "solved state"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "identifier": "MST-3",
+                                    "label": "bot"
+                                }
+                            }
+                        },
+                        "data": {
+                            "description": "vapor_fraction=0",
+                            "identifier": "MS-3",
+                            "label": "bot"
+                        }
+                    }
+                ],
+                "materialTemplates": [
+                    {
+                        "id": "id_b83bcde79ee94167b72d7b450e623277",
+                        "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialTemplate",
+                        "reference": {
+                            "listOfComponents": "id_708584a9e9c24ad18eed01c4fee889cd"
+                        },
+                        "data": {
+                            "description": {
+                                "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MultiLanguageString",
+                                "data": {
+                                    "singleLanguageStrings": [
+                                        {
+                                            "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/SingleLanguageString",
+                                            "data": {
+                                                "language": "en",
+                                                "value": "Every compound in the flowsheet, in the order used by each stream's moleFractions"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "identifier": "MT-1",
+                            "label": "all compounds",
+                            "numberOfMaterialComponents": 2,
+                            "numberOfPhases": 2,
+                            "phaseLabel": [
+                                "Vapor",
+                                "Liquid"
+                            ]
+                        }
+                    }
+                ],
                 "processConnections": [
                     {
-                        "id": "id_5adb7c01dd3f4b8eb7e6c7c6e14e648c",
+                        "id": "id_a462c2acc5e04664a1572ab505fc13a5",
                         "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
                         "composition": {
                             "massFlow": [
                                 {
-                                    "id": "id_263d0d299e5140f18763bb97f4b4de3d",
+                                    "id": "id_a964e67392634356a295e03290c7981f",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -32,7 +424,7 @@
                             ],
                             "pressure": [
                                 {
-                                    "id": "id_d0324a10b5c7462c98f8207fc0c4b528",
+                                    "id": "id_734e534161b8445f85cdc11c0e507473",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -50,7 +442,7 @@
                             ],
                             "temperature": [
                                 {
-                                    "id": "id_0fc6cce638b44ed8a61f35a7442470c4",
+                                    "id": "id_4d5f4f46094c4fba85087ee5f1563d9c",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -68,8 +460,9 @@
                             ]
                         },
                         "reference": {
-                            "source": "id_07c1abeaa0904524ae5546c60bd8c5a8",
-                            "target": "id_a9bfb89272174db980adf102b4545297"
+                            "source": "id_4826e512956c43329558c524b12c4956",
+                            "target": "id_60cae83179ed4378a14b366ab369b139",
+                            "materialStateReference": "id_fbed618cb510464fbbed1d8be9eb5828"
                         },
                         "data": {
                             "description": {
@@ -91,12 +484,12 @@
                         }
                     },
                     {
-                        "id": "id_ff89c1802f6a41fab27bb673b6087ca4",
+                        "id": "id_4c59c137f0d24eddbe363748ea8fcd30",
                         "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
                         "composition": {
                             "massFlow": [
                                 {
-                                    "id": "id_18df8669018d468689c4d10594a005ef",
+                                    "id": "id_f5961888f4914880afb8f4e36de1129e",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -114,7 +507,7 @@
                             ],
                             "pressure": [
                                 {
-                                    "id": "id_0c9a9fa106ea49f5be06101c402e6cf0",
+                                    "id": "id_55962718ba4d4e9587197d0d138ab91a",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -132,7 +525,7 @@
                             ],
                             "temperature": [
                                 {
-                                    "id": "id_dd99468feb20422f8740af7bb243dd8d",
+                                    "id": "id_c945f1b2d3604d049deffd834c33546b",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -150,8 +543,9 @@
                             ]
                         },
                         "reference": {
-                            "source": "id_7bde4fecec7349a9a7dd689c278f280f",
-                            "target": "id_b4491b4aa82a44b2b8893f614a7f23ab"
+                            "source": "id_eb8be0f270034968918c01e56c860695",
+                            "target": "id_f776ee6971e7427cac530d853b7a50e2",
+                            "materialStateReference": "id_4fbd2e122cbe4a3cab8d433d8c3fecd1"
                         },
                         "data": {
                             "description": {
@@ -173,12 +567,12 @@
                         }
                     },
                     {
-                        "id": "id_cc9d987c863d48b2a3ed94f8fe938142",
+                        "id": "id_ca65a7f472b845ab9e1b0d4b36ff79b1",
                         "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Stream",
                         "composition": {
                             "massFlow": [
                                 {
-                                    "id": "id_99ffd823015f4633ac7e3c4ab04f7ed7",
+                                    "id": "id_4e9fdbd6de374a1db0f1e892e22f6d11",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -196,7 +590,7 @@
                             ],
                             "pressure": [
                                 {
-                                    "id": "id_69885d11d0674923a8ad55a1ae519f3b",
+                                    "id": "id_ef6bed41aea44aaabf749c226937dd72",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -214,7 +608,7 @@
                             ],
                             "temperature": [
                                 {
-                                    "id": "id_f270f40b67ae42ca87fd6f191ff1c7c8",
+                                    "id": "id_3d44bc169990483fb216678f788da182",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/QualifiedValue",
                                     "data": {
                                         "value": {
@@ -232,8 +626,9 @@
                             ]
                         },
                         "reference": {
-                            "source": "id_4a93deb0a82f4cf0b4cd320dadb88f6b",
-                            "target": "id_b0ee868ea6a44232b142d0f2370e9f02"
+                            "source": "id_beb86b14819e462d9bc0aee335a14065",
+                            "target": "id_5f9bdc4136be49eaacb3a233cbcee7dd",
+                            "materialStateReference": "id_3aff40eadfcb4e24b54a068234fd36b2"
                         },
                         "data": {
                             "description": {
@@ -257,18 +652,19 @@
                 ],
                 "processSteps": [
                     {
-                        "id": "id_2e289758c31d475e84b48a5f2973ed63",
+                        "id": "id_42a3ae4b7e2b4856a3ab067e5082e466",
                         "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Distilling",
                         "composition": {
                             "ports": [
                                 {
-                                    "id": "id_a9bfb89272174db980adf102b4545297",
+                                    "id": "id_60cae83179ed4378a14b366ab369b139",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
                                     "reference": {
-                                        "connectorReference": "id_5adb7c01dd3f4b8eb7e6c7c6e14e648c"
+                                        "connectorReference": "id_a462c2acc5e04664a1572ab505fc13a5",
+                                        "materialTemplateReference": "id_b83bcde79ee94167b72d7b450e623277"
                                     },
                                     "data": {
-                                        "identifier": "dist-1.in1",
+                                        "identifier": "T-101.in1",
                                         "nominalDirection": {
                                             "__enum__": "PortDirection",
                                             "name": "INLET"
@@ -276,13 +672,14 @@
                                     }
                                 },
                                 {
-                                    "id": "id_7bde4fecec7349a9a7dd689c278f280f",
+                                    "id": "id_eb8be0f270034968918c01e56c860695",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
                                     "reference": {
-                                        "connectorReference": "id_ff89c1802f6a41fab27bb673b6087ca4"
+                                        "connectorReference": "id_4c59c137f0d24eddbe363748ea8fcd30",
+                                        "materialTemplateReference": "id_b83bcde79ee94167b72d7b450e623277"
                                     },
                                     "data": {
-                                        "identifier": "dist-1.out1",
+                                        "identifier": "T-101.out1",
                                         "nominalDirection": {
                                             "__enum__": "PortDirection",
                                             "name": "OUTLET"
@@ -290,13 +687,14 @@
                                     }
                                 },
                                 {
-                                    "id": "id_4a93deb0a82f4cf0b4cd320dadb88f6b",
+                                    "id": "id_beb86b14819e462d9bc0aee335a14065",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
                                     "reference": {
-                                        "connectorReference": "id_cc9d987c863d48b2a3ed94f8fe938142"
+                                        "connectorReference": "id_ca65a7f472b845ab9e1b0d4b36ff79b1",
+                                        "materialTemplateReference": "id_b83bcde79ee94167b72d7b450e623277"
                                     },
                                     "data": {
-                                        "identifier": "dist-1.out2",
+                                        "identifier": "T-101.out2",
                                         "nominalDirection": {
                                             "__enum__": "PortDirection",
                                             "name": "OUTLET"
@@ -320,19 +718,20 @@
                                     ]
                                 }
                             },
-                            "identifier": "dist-1"
+                            "identifier": "T-101"
                         }
                     },
                     {
-                        "id": "id_70d1843baf024987ba0bcbaee7c97bda",
+                        "id": "id_6dca9423d5bf45428871f2f2ddbd2c7d",
                         "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Source",
                         "composition": {
                             "ports": [
                                 {
-                                    "id": "id_07c1abeaa0904524ae5546c60bd8c5a8",
+                                    "id": "id_4826e512956c43329558c524b12c4956",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
                                     "reference": {
-                                        "connectorReference": "id_5adb7c01dd3f4b8eb7e6c7c6e14e648c"
+                                        "connectorReference": "id_a462c2acc5e04664a1572ab505fc13a5",
+                                        "materialTemplateReference": "id_b83bcde79ee94167b72d7b450e623277"
                                     },
                                     "data": {
                                         "identifier": "raw-1.out1",
@@ -349,15 +748,16 @@
                         }
                     },
                     {
-                        "id": "id_82ce8e8b96ac459fbfb522912ce7bd00",
+                        "id": "id_63c3b7e76a254618976535a55b9efc46",
                         "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Sink",
                         "composition": {
                             "ports": [
                                 {
-                                    "id": "id_b4491b4aa82a44b2b8893f614a7f23ab",
+                                    "id": "id_f776ee6971e7427cac530d853b7a50e2",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
                                     "reference": {
-                                        "connectorReference": "id_ff89c1802f6a41fab27bb673b6087ca4"
+                                        "connectorReference": "id_4c59c137f0d24eddbe363748ea8fcd30",
+                                        "materialTemplateReference": "id_b83bcde79ee94167b72d7b450e623277"
                                     },
                                     "data": {
                                         "identifier": "prod-1.in1",
@@ -374,15 +774,16 @@
                         }
                     },
                     {
-                        "id": "id_a1ca418a928f4bd7807cad28a9255b3a",
+                        "id": "id_5569fdd3b69547b9a23e05aa1bf69b8a",
                         "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/Sink",
                         "composition": {
                             "ports": [
                                 {
-                                    "id": "id_b0ee868ea6a44232b142d0f2370e9f02",
+                                    "id": "id_5f9bdc4136be49eaacb3a233cbcee7dd",
                                     "uri": "https://pyDEXPI.org/schemas/pydexpi_2_0/MaterialPort",
                                     "reference": {
-                                        "connectorReference": "id_cc9d987c863d48b2a3ed94f8fe938142"
+                                        "connectorReference": "id_ca65a7f472b845ab9e1b0d4b36ff79b1",
+                                        "materialTemplateReference": "id_b83bcde79ee94167b72d7b450e623277"
                                     },
                                     "data": {
                                         "identifier": "prod-2.in1",
