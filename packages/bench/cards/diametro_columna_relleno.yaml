@@ -1,0 +1,42 @@
+id: diametro_columna_relleno
+kind: design
+version: v3
+title:
+  es: Diámetro de un absorbedor de relleno estructurado
+  en: Diameter of a structured-packing absorber
+statement:
+  es: El absorbedor de propano recibe 100 mol/s de gas (98 % metano, 2 % propano molar) a 300 K y 10 bar y 120 mol/s
+    de n-decano puro a 300 K y 10 bar (Peng-Robinson; usa las propiedades de esas dos corrientes de entrada). El
+    relleno es estructurado con fracción de huecos 0.98, área específica 250 m²/m³ y constantes de Stichlmair C1
+    = 1, C2 = 1, C3 = 0.32. ¿Qué diámetro (m) da una velocidad del gas de 70 % de la de inundación (modelo de Stichlmair,
+    Bravo y Fair 1989), cuál es esa velocidad de inundación (m/s) y cuál es la caída de presión irrigada por metro
+    de relleno (Pa/m)?
+  en: The propane absorber receives 100 mol/s of gas (98 % methane, 2 % propane molar) at 300 K and 10 bar and 120
+    mol/s of pure n-decane at 300 K and 10 bar (Peng-Robinson; use the properties of those two inlet streams). The
+    packing is structured with voidage 0.98, specific area 250 m²/m³ and Stichlmair constants C1 = 1, C2 = 1, C3
+    = 0.32. Which diameter (m) gives a gas velocity of 70 % of flooding (Stichlmair, Bravo & Fair 1989 model), what
+    is that flooding velocity (m/s), and what is the irrigated pressure drop per metre of packing (Pa/m)?
+tags:
+- hidraulica
+- absorcion
+- diseno
+expected:
+  diameter_m:
+    value: 0.8384377342089921
+    unit: m
+    tol:
+      rel: 0.03
+  flooding_velocity_m_s:
+    value: 0.6316515312374669
+    unit: m/s
+    tol:
+      rel: 0.03
+  dP_wet_Pa_per_m:
+    value: 271.1258769439604
+    unit: Pa/m
+    tol:
+      rel: 0.05
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

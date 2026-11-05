@@ -83,4 +83,28 @@ def diffusivity_estimate(method: str, T_K: float, P_Pa: float | None = None, M_A
     return {"D_m2_s": D, "method": method}
 
 
-MASS_TRANSFER_TOOLS = [absorption_stages, packed_column_height, diffusivity_estimate]
+
+def packing_catalog() -> dict:
+    """Stichlmair constants (voidage, specific area, C1-C3) available by name for packed_column_hydraulics, with their source."""
+    from packages.transport.column_hydraulics import PACKINGS, SOURCE
+    return {"packings": PACKINGS, "source": SOURCE}
+
+
+def packed_column_hydraulics(flowsheet_id: str, gas_stream: str, liquid_stream: str, packing: str | None = None,
+                             packing_constants: dict | None = None, flood_fraction: float = 0.7, packed_height_m: float | None = None) -> dict:
+    """Packed-column diameter at flood_fraction of flooding (Stichlmair, Bravo & Fair 1989, via `fluids`), with the
+    flooding velocity, irrigated pressure drop per metre and F-factor. Gas and liquid volumetric flows, densities and gas
+    viscosity come from the solved streams (gas inlet and lean liquid). packing: a name from packing_catalog, or
+    packing_constants {voidage, specific_area, C1, C2, C3}. Give packed_height_m for the total pressure drop."""
+    from packages.transport.column_hydraulics import size_column
+    g, l = _props(flowsheet_id, gas_stream, 2), _props(flowsheet_id, liquid_stream, 1)
+    pk = packing if packing else packing_constants
+    if pk is None:
+        raise ValueError("give packing (name) or packing_constants")
+    r = size_column(g["mass_kg_s"] / g["rho"], l["mass_kg_s"] / l["rho"], g["rho"], l["rho"], g["mu"], pk, flood_fraction)
+    if packed_height_m is not None:
+        r["dP_total_Pa"] = r["dP_wet_Pa_per_m"] * packed_height_m
+    return r
+
+
+MASS_TRANSFER_TOOLS = [absorption_stages, packed_column_height, diffusivity_estimate, packing_catalog, packed_column_hydraulics]

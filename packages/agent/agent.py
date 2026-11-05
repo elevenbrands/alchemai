@@ -388,6 +388,21 @@ def diffusivity_estimate(method: str, T_K: float, P_Pa: float | None = None, M_A
 
 
 @beta_tool
+def packing_catalog() -> str:
+    """Stichlmair constants available by name for packed_column_hydraulics, with their source."""
+    return json.dumps(TM.packing_catalog())
+
+
+@beta_tool
+def packed_column_hydraulics(flowsheet_id: str, gas_stream: str, liquid_stream: str, packing: str | None = None,
+                             packing_constants: dict[str, float] | None = None, flood_fraction: float = 0.7,
+                             packed_height_m: float | None = None) -> str:
+    """Packed-column diameter at flood_fraction of flooding (Stichlmair 1989), flooding velocity, wet ΔP per m, F-factor."""
+    return json.dumps(TM.packed_column_hydraulics(flowsheet_id, gas_stream, liquid_stream, packing, packing_constants, flood_fraction,
+                                                  packed_height_m), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -397,7 +412,8 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, absorption_stages,
-               packed_column_height, diffusivity_estimate, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+               packed_column_height, diffusivity_estimate, packing_catalog,
+               packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

@@ -236,3 +236,8 @@ cards:
   version: v3
   title_es: Etapas mínimas de un absorbedor de propano
   n_expected: 2
+- id: diametro_columna_relleno
+  kind: design
+  version: v3
+  title_es: Diámetro de un absorbedor de relleno estructurado
+  n_expected: 3

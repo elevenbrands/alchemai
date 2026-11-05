@@ -1,20 +1,19 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 22)
+Actualizado: 2026-11-05 (bloque 23)
 
 ## Dónde estamos
-**Bloque 22 (2026-11-05): transferencia de masa** (`notebooks/16_transferencia_de_masa.md`): Kremser, Colburn, Onda 1968
-(verificado contra el artículo), altura de relleno, difusividades; kind `absorption_column`; 33 tools. Kremser = absorbedor
-riguroso de DWSIM dentro de 0.6 puntos en 9 casos. Bench v3 = 8 tarjetas (47 en total). Con esto fenómenos de transporte queda
-cubierto en momento, calor y masa. Bloques 18-21 del mismo día: transporte, costo de compra, costo anual, optimizador.
+**Bloque 23 (2026-11-05): hidráulica de columnas** (`notebooks/17_hidraulica_columnas.md`): inundación, ΔP y diámetro con
+Stichlmair (reproduce el ejemplo del artículo), catálogo de 6 rellenos (fuente secundaria), 35 tools; primer absorbedor
+dimensionado y costeado de punta a punta (Pall 25 mm: D 1.05 m, Z 5.2 m, casco 107 621 USD 2023). Bench v3 = 9 tarjetas
+(48 en total). Bloques 18-22 del mismo día: transporte, costo de compra, costo anual, optimizador, transferencia de masa.
 Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
 Opciones (el owner elige):
-1. **Hidráulica de columnas**: inundación y caída de presión de rellenos (Stichlmair de `fluids`, ya instalado) y diámetro de
-   columna; cierra el dimensionamiento del absorbedor y permite costearlo.
-2. **Optimización de dos variables** (coordenadas) sobre `optimize_design`.
-3. **Conjunto apartado de HAZOP** para medir recall sin sesgo y calificar precisión.
+1. **Optimización de dos variables** (p. ej. flujo de aceite y etapas del absorbedor contra costo anual).
+2. **Conjunto apartado de HAZOP** para medir recall sin sesgo y calificar precisión.
+3. **Costo de relleno e internos** + absorbedor en `flowsheet_cost` (hoy solo casco).
 4. **Fluxo 1.1 UI en Figma** (tras el veredicto de Apple de 1.0.0).
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
 

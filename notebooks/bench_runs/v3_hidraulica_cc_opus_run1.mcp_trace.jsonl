@@ -1,0 +1,18 @@
+{"t": 1793888097.036333, "tool": "new_flowsheet", "args": {"name": "absorbedor_relleno", "compounds": ["Methane", "Propane", "N-decane"], "property_package": "PengRobinson"}}
+{"tool": "new_flowsheet", "done_s": 9.35, "result": "ok"}
+{"t": 1793888108.905514, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "gas_in", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 100.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.98, "Propane": 0.02, "N-decane": 0.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.07, "result": "ok"}
+{"t": 1793888110.317047, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "lean_oil", "temperature_K": 300.0, "pressure_Pa": 1000000.0, "vapor_fraction": null, "molar_flow_mol_s": 120.0, "mass_flow_kg_s": null, "mole_fractions": {"Methane": 0.0, "Propane": 0.0, "N-decane": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793888110.8371258, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "treated_gas", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793888111.359966, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "rich_oil", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793888112.23186, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "absorption_column", "name": "ABS", "params": {"stages": 6, "top_P_Pa": 1000000, "dP_Pa": 0}}}
+{"tool": "add_unit", "done_s": 0.06, "result": "ok"}
+{"t": 1793888114.820268, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "ABS", "feeds": ["lean_oil", "gas_in"], "products": ["treated_gas", "rich_oil"], "energy_feeds": null, "energy_products": null}}
+{"tool": "connect", "done_s": 0.02, "result": "ok"}
+{"t": 1793888114.866973, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 2.12, "result": "ok"}
+{"t": 1793888119.1021838, "tool": "packed_column_hydraulics", "args": {"flowsheet_id": "fs1", "gas_stream": "gas_in", "liquid_stream": "lean_oil", "packing": null, "packing_constants": {"voidage": 0.98, "specific_area": 250, "C1": 1, "C2": 1, "C3": 0.32}, "flood_fraction": 0.7, "packed_height_m": null}}
+{"tool": "packed_column_hydraulics", "done_s": 0.89, "result": "ok"}

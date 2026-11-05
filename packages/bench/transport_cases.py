@@ -116,6 +116,18 @@ def _oracle_absorber():
     raise RuntimeError("no N up to 15 reaches 94 %")
 
 
+
+def _oracle_column_diameter():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("nb17", Path(__file__).resolve().parents[2] / "notebooks" / "17_hidraulica_columnas.py")
+    nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+    from packages.dwsim_client.tools_mass_transfer import packed_column_hydraulics
+    fid = nb.absorber_flowsheet()
+    r = packed_column_hydraulics(fid, "gas", "oil", packing_constants={"voidage": 0.98, "specific_area": 250.0, "C1": 1.0, "C2": 1.0, "C3": 0.32})
+    T.close_flowsheet(fid)
+    return {"diameter_m": r["diameter_m"], "flooding_velocity_m_s": r["flooding_velocity_m_s"], "dP_wet_Pa_per_m": r["dP_wet_Pa_per_m"]}
+
+
 TRANSPORT_CASES = [
     DesignCase(
         "transporte_dp_tuberia", "Caída de presión en una línea de agua que sube 15 m", "Pressure drop in a water line rising 15 m",
@@ -219,6 +231,21 @@ TRANSPORT_CASES = [
         "fraction of the propane does it absorb with that number?",
         _oracle_absorber, {"stages": {"abs": 0.0}, "fraction_absorbed": {"abs": 0.01}}, {"stages": "-", "fraction_absorbed": "-"},
         lambda a: [("fracción ≥ 0.94", a["fraction_absorbed"] >= 0.94, a["fraction_absorbed"])], ["masa", "absorcion"]),
+    DesignCase(
+        "diametro_columna_relleno", "Diámetro de un absorbedor de relleno estructurado", "Diameter of a structured-packing absorber",
+        "El absorbedor de propano recibe 100 mol/s de gas (98 % metano, 2 % propano molar) a 300 K y 10 bar y 120 mol/s de "
+        "n-decano puro a 300 K y 10 bar (Peng-Robinson; usa las propiedades de esas dos corrientes de entrada). El relleno es "
+        "estructurado con fracción de huecos 0.98, área específica 250 m²/m³ y constantes de Stichlmair C1 = 1, C2 = 1, C3 = 0.32. "
+        "¿Qué diámetro (m) da una velocidad del gas de 70 % de la de inundación (modelo de Stichlmair, Bravo y Fair 1989), cuál es "
+        "esa velocidad de inundación (m/s) y cuál es la caída de presión irrigada por metro de relleno (Pa/m)?",
+        "The propane absorber receives 100 mol/s of gas (98 % methane, 2 % propane molar) at 300 K and 10 bar and 120 mol/s of pure "
+        "n-decane at 300 K and 10 bar (Peng-Robinson; use the properties of those two inlet streams). The packing is structured with "
+        "voidage 0.98, specific area 250 m²/m³ and Stichlmair constants C1 = 1, C2 = 1, C3 = 0.32. Which diameter (m) gives a gas "
+        "velocity of 70 % of flooding (Stichlmair, Bravo & Fair 1989 model), what is that flooding velocity (m/s), and what is the "
+        "irrigated pressure drop per metre of packing (Pa/m)?",
+        _oracle_column_diameter, {"diameter_m": {"rel": 0.03}, "flooding_velocity_m_s": {"rel": 0.03}, "dP_wet_Pa_per_m": {"rel": 0.05}},
+        {"diameter_m": "m", "flooding_velocity_m_s": "m/s", "dP_wet_Pa_per_m": "Pa/m"},
+        lambda a: [("0.3 < D < 3 m", 0.3 < a["diameter_m"] < 3.0, a["diameter_m"])], ["hidraulica", "absorcion", "diseno"]),
 ]
 
 

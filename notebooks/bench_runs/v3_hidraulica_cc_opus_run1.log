@@ -1,0 +1,11 @@
+  claude -p exit=0 stderr=
+  MCP tools were not available to claude -p; retrying once
+  claude -p exit=0 stderr=
+
+## diametro_columna_relleno [design] — score 1.00  (61 s)
+  diameter_m             got=        0.8384  expected=0.838438       ok
+  flooding_velocity_m_s  got=        0.6317  expected=0.631652       ok
+  dP_wet_Pa_per_m        got=        271.13  expected=271.126        ok
+  notes: PR flowsheet: gas_in (100 mol/s, 98% CH4/2% C3, 300 K, 10 bar) + lean_oil (120 mol/s n-decane, 300 K, 10 bar) into 6-stage absorption_column; solve ok, max rel residual 2.1e-8 (energy), mass 1.1e-10. packed_column_hydraulics on gas_in/lean_oil with custom Stichlmair constants (eps 0.98, a 250, C1=1,
+
+### Bench: 100.0 % over 1 cards
