@@ -82,6 +82,13 @@ def _oracle_cost_pump():
     return {"power_kW": c["size_from_simulation"]["power_W"] / 1e3, "purchase_cost_usd": c["purchase_cost_usd"]}
 
 
+
+def _oracle_heat_recovery():
+    from packages.costing.heat_recovery import optimize
+    b = optimize()["best"]
+    return {"area_m2": b["area_E1_m2"], "approach_K": b["approach_K"], "TAC_usd_y": b["TAC_usd_y"]}
+
+
 TRANSPORT_CASES = [
     DesignCase(
         "transporte_dp_tuberia", "Caída de presión en una línea de agua que sube 15 m", "Pressure drop in a water line rising 15 m",
@@ -137,6 +144,28 @@ TRANSPORT_CASES = [
         "pump type factor 1.4 (Seider's table). Power (kW) and purchase cost in 2023 USD per Seider et al.?",
         _oracle_cost_pump, {"power_kW": {"rel": 0.02}, "purchase_cost_usd": {"rel": 0.05}}, {"power_kW": "kW", "purchase_cost_usd": "USD"},
         lambda a: [("potencia ≈ ΔP·Q/η", abs(a["power_kW"] / (5e5 * 50 / 997 / 0.75 / 1e3) - 1) < 0.01, a["power_kW"])], ["costo", "diseno"]),
+    DesignCase(
+        "optimo_recuperacion_calor", "Área óptima de un intercambiador alimentación-producto", "Optimal area of a feed/product exchanger",
+        "Agua de alimentación, 10 kg/s a 300 K y 4 bar, debe llegar a 395 K; agua de producto, 10 kg/s a 400 K y 4 bar, debe salir "
+        "a 305 K (IAPWS). Un intercambiador alimentación-producto E-1 a contracorriente (U = 850 W/m²K) recupera calor; un "
+        "calentador con vapor que condensa a 450 K (U = 1100 W/m²K) completa la alimentación y un enfriador con agua de "
+        "enfriamiento de 290 a 300 K (U = 850 W/m²K) completa el producto, ambos a contracorriente sin corrección F. Los tres son "
+        "de coraza y tubos en U, acero al carbono en ambos lados, tubos de 12 ft, presión de diseño 4 bar; costo de compra de "
+        "Seider et al. en USD de 2023 (si un área queda bajo el mínimo de la correlación, se cotiza al mínimo). Capital fijo = "
+        "compra × 4.74 (Lang, planta de fluidos), anualizado al 10 % a 10 años. Vapor 8 USD/GJ, agua de enfriamiento 0.5 USD/GJ, "
+        "8000 h/año. ¿Qué área de E-1 (m²) minimiza el costo total anual, con qué aproximación de temperatura (K) y cuál es ese "
+        "costo total anual (USD/año)?",
+        "Feed water, 10 kg/s at 300 K and 4 bar, must reach 395 K; product water, 10 kg/s at 400 K and 4 bar, must leave at 305 K "
+        "(IAPWS). A counter-current feed/product exchanger E-1 (U = 850 W/m²K) recovers heat; a heater with steam condensing at "
+        "450 K (U = 1100 W/m²K) finishes the feed and a cooler with cooling water from 290 to 300 K (U = 850 W/m²K) finishes the "
+        "product, both counter-current with no F correction. All three are U-tube shell-and-tube, carbon steel on both sides, "
+        "12 ft tubes, 4 bar design pressure; Seider et al. purchase cost in 2023 USD (an area below the correlation minimum is "
+        "priced at the minimum). Fixed capital = purchase × 4.74 (Lang, fluid plant), annualized at 10 % over 10 years. Steam "
+        "8 USD/GJ, cooling water 0.5 USD/GJ, 8000 h/y. Which E-1 area (m²) minimizes total annual cost, at what temperature "
+        "approach (K), and what is that total annual cost (USD/y)?",
+        _oracle_heat_recovery, {"area_m2": {"rel": 0.20}, "approach_K": {"abs": 1.5}, "TAC_usd_y": {"rel": 0.02}},
+        {"area_m2": "m2", "approach_K": "K", "TAC_usd_y": "USD/y"},
+        lambda a: [("aproximación entre 5 y 15 K", 5.0 < a["approach_K"] < 15.0, a["approach_K"])], ["costo", "optimizacion", "calor"]),
 ]
 
 

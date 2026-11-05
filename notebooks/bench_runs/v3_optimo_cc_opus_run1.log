@@ -1,0 +1,9 @@
+  claude -p exit=0 stderr=
+
+## optimo_recuperacion_calor [design] — score 1.00  (188 s)
+  area_m2                got=         650.0  expected=650.305        ok
+  approach_K             got=           7.0  expected=7.1158         ok
+  TAC_usd_y              got=      130595.0  expected=129992         ok
+  notes: SteamTables flowsheet: E-1 counter-current HX (hot=product 400 K, cold=feed 300 K, 10 kg/s each, 4 bar) + heater to 395 K + cooler to 305 K. UA swept 42.5k-850k W/K; costed TAC (Seider CS/CS U-tube 12 ft, 4 bar, Lang 4.74, CRF 0.1627, steam 8 & CW 0.5 USD/GJ, 8000 h) at 600/650/700 m2 = 131040/13059
+
+### Bench: 100.0 % over 1 cards

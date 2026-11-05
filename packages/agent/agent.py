@@ -335,6 +335,18 @@ def cost_unit(flowsheet_id: str, unit: str, options: dict[str, object] | None = 
 
 
 @beta_tool
+def flowsheet_cost(flowsheet_id: str, prices: dict[str, float], hours_per_year: float, interest: float, years: int,
+                   exchanger_areas_m2: dict[str, float] | None = None, vessel_sizes: dict[str, object] | None = None,
+                   options: dict[str, object] | None = None, lang: str = "lang_1948_fluid", country: str | None = None,
+                   year: int = 2023) -> str:
+    """Total annual cost of a solved flowsheet: Σ purchase (Seider via IDAES) × Lang × location, annualized by
+    CRF(interest, years), + electricity/heating/cooling at the given prices (electricity_usd_kWh, heating_usd_GJ,
+    cooling_usd_GJ). Exchangers need exchanger_areas_m2; vessels need vessel_sizes."""
+    return json.dumps(TC.flowsheet_cost(flowsheet_id, prices, hours_per_year, interest, years, exchanger_areas_m2, vessel_sizes,
+                                        options, lang, country, year), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -343,7 +355,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

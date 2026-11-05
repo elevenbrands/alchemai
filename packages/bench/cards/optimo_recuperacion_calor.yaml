@@ -1,0 +1,49 @@
+id: optimo_recuperacion_calor
+kind: design
+version: v3
+title:
+  es: Área óptima de un intercambiador alimentación-producto
+  en: Optimal area of a feed/product exchanger
+statement:
+  es: Agua de alimentación, 10 kg/s a 300 K y 4 bar, debe llegar a 395 K; agua de producto, 10 kg/s a 400 K y 4
+    bar, debe salir a 305 K (IAPWS). Un intercambiador alimentación-producto E-1 a contracorriente (U = 850 W/m²K)
+    recupera calor; un calentador con vapor que condensa a 450 K (U = 1100 W/m²K) completa la alimentación y un
+    enfriador con agua de enfriamiento de 290 a 300 K (U = 850 W/m²K) completa el producto, ambos a contracorriente
+    sin corrección F. Los tres son de coraza y tubos en U, acero al carbono en ambos lados, tubos de 12 ft, presión
+    de diseño 4 bar; costo de compra de Seider et al. en USD de 2023 (si un área queda bajo el mínimo de la correlación,
+    se cotiza al mínimo). Capital fijo = compra × 4.74 (Lang, planta de fluidos), anualizado al 10 % a 10 años.
+    Vapor 8 USD/GJ, agua de enfriamiento 0.5 USD/GJ, 8000 h/año. ¿Qué área de E-1 (m²) minimiza el costo total anual,
+    con qué aproximación de temperatura (K) y cuál es ese costo total anual (USD/año)?
+  en: Feed water, 10 kg/s at 300 K and 4 bar, must reach 395 K; product water, 10 kg/s at 400 K and 4 bar, must
+    leave at 305 K (IAPWS). A counter-current feed/product exchanger E-1 (U = 850 W/m²K) recovers heat; a heater
+    with steam condensing at 450 K (U = 1100 W/m²K) finishes the feed and a cooler with cooling water from 290 to
+    300 K (U = 850 W/m²K) finishes the product, both counter-current with no F correction. All three are U-tube
+    shell-and-tube, carbon steel on both sides, 12 ft tubes, 4 bar design pressure; Seider et al. purchase cost
+    in 2023 USD (an area below the correlation minimum is priced at the minimum). Fixed capital = purchase × 4.74
+    (Lang, fluid plant), annualized at 10 % over 10 years. Steam 8 USD/GJ, cooling water 0.5 USD/GJ, 8000 h/y. Which
+    E-1 area (m²) minimizes total annual cost, at what temperature approach (K), and what is that total annual cost
+    (USD/y)?
+tags:
+- costo
+- optimizacion
+- calor
+expected:
+  area_m2:
+    value: 650.3045263401427
+    unit: m2
+    tol:
+      rel: 0.2
+  approach_K:
+    value: 7.115796194348434
+    unit: K
+    tol:
+      abs: 1.5
+  TAC_usd_y:
+    value: 129991.67967669474
+    unit: USD/y
+    tol:
+      rel: 0.02
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

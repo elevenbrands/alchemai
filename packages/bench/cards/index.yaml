@@ -221,3 +221,8 @@ cards:
   version: v3
   title_es: Potencia y costo de compra de una bomba centrífuga
   n_expected: 2
+- id: optimo_recuperacion_calor
+  kind: design
+  version: v3
+  title_es: Área óptima de un intercambiador alimentación-producto
+  n_expected: 3

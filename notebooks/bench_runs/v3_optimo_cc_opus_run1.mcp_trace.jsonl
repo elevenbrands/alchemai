@@ -1,0 +1,98 @@
+{"t": 1793885162.451604, "tool": "new_flowsheet", "args": {"name": "opt_hr", "compounds": ["Water"], "property_package": "SteamTables"}}
+{"tool": "new_flowsheet", "done_s": 1.43, "result": "ok"}
+{"t": 1793885167.15574, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "feed", "temperature_K": 300.0, "pressure_Pa": 400000.0, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": 10.0, "mole_fractions": {"Water": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.04, "result": "ok"}
+{"t": 1793885168.223742, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "prod", "temperature_K": 400.0, "pressure_Pa": 400000.0, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": 10.0, "mole_fractions": {"Water": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793885168.8126101, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "feed_hx", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793885169.374906, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "prod_hx", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793885169.920267, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "feed_out", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793885170.4747782, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "prod_out", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793885171.016124, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "Qh"}}
+{"tool": "add_energy_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793885171.563835, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "Qc"}}
+{"tool": "add_energy_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793885172.627452, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "heat_exchanger", "name": "E-1", "params": {"UA_W_K": 85000, "hot_dP_Pa": 0, "cold_dP_Pa": 0}}}
+{"tool": "add_unit", "done_s": 0.01, "result": "ok"}
+{"t": 1793885173.511151, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "heater", "name": "H-1", "params": {"outlet_T_K": 395}}}
+{"tool": "add_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793885174.317972, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "cooler", "name": "C-1", "params": {"outlet_T_K": 305}}}
+{"tool": "add_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793885177.2509198, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "E-1", "feeds": ["prod", "feed"], "products": ["prod_hx", "feed_hx"], "energy_feeds": null, "energy_products": null}}
+{"tool": "connect", "done_s": 0.01, "result": "ok"}
+{"t": 1793885178.327349, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "H-1", "feeds": ["feed_hx"], "products": ["feed_out"], "energy_feeds": ["Qh"], "energy_products": null}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793885179.278411, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "C-1", "feeds": ["prod_hx"], "products": ["prod_out"], "energy_feeds": null, "energy_products": ["Qc"]}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793885181.506311, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.45, "result": "ok"}
+{"t": 1793885194.031115, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "E-1", "vary_param": "UA_W_K", "values": [42500.0, 85000.0, 127500.0, 170000.0, 212500.0, 255000.0, 340000.0, 425000.0, 510000.0, 680000.0, 850000.0], "read_kind": "stream", "read_name": "feed_hx", "read_key": "T_K", "target": null}}
+{"tool": "sweep", "done_s": 0.29, "result": "ok"}
+{"t": 1793885195.602497, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "E-1", "vary_param": "UA_W_K", "values": [42500.0, 85000.0, 127500.0, 170000.0, 212500.0, 255000.0, 340000.0, 425000.0, 510000.0, 680000.0, 850000.0], "read_kind": "stream", "read_name": "prod_hx", "read_key": "T_K", "target": null}}
+{"tool": "sweep", "done_s": 0.21, "result": "ok"}
+{"t": 1793885215.4859278, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "E-1", "vary_param": "UA_W_K", "values": [425000.0, 510000.0, 595000.0, 680000.0, 722500.0, 765000.0, 807500.0], "read_kind": "unit", "read_name": "H-1", "read_key": "duty_kW", "target": null}}
+{"tool": "sweep", "done_s": 0.07, "result": "ok"}
+{"t": 1793885217.005306, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "E-1", "vary_param": "UA_W_K", "values": [425000.0, 510000.0, 595000.0, 680000.0, 722500.0, 765000.0, 807500.0], "read_kind": "unit", "read_name": "C-1", "read_key": "duty_kW", "target": null}}
+{"tool": "sweep", "done_s": 0.09, "result": "ok"}
+{"t": 1793885219.938336, "tool": "read_unit", "args": {"flowsheet_id": "fs1", "name": "H-1"}}
+{"tool": "read_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793885224.4615932, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "E-1", "vary_param": "UA_W_K", "values": [425000.0, 510000.0, 595000.0, 637500.0, 680000.0, 701250.0, 722500.0, 743750.0, 765000.0, 786250.0], "read_kind": "unit", "read_name": "H-1", "read_key": "duty_or_power_kW", "target": 0.0}}
+{"tool": "sweep", "done_s": 0.08, "result": "ok"}
+{"t": 1793885226.0845382, "tool": "sweep", "args": {"flowsheet_id": "fs1", "vary_kind": "unit", "vary_name": "E-1", "vary_param": "UA_W_K", "values": [425000.0, 510000.0, 595000.0, 637500.0, 680000.0, 701250.0, 722500.0, 743750.0, 765000.0, 786250.0], "read_kind": "unit", "read_name": "C-1", "read_key": "duty_or_power_kW", "target": 0.0}}
+{"tool": "sweep", "done_s": 0.06, "result": "ok"}
+{"t": 1793885233.88324, "tool": "equipment_cost", "args": {"equipment": "heat_exchanger", "size": {"area_m2": 1, "shell_pressure_Pa": 400000}, "options": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}, "year": 2023, "cepci": null}}
+{"tool": "equipment_cost", "done_s": 3.5, "result": "ok"}
+{"t": 1793885237.390677, "tool": "equipment_cost", "args": {"equipment": "heat_exchanger", "size": {"area_m2": 800, "shell_pressure_Pa": 400000}, "options": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}, "year": 2023, "cepci": null}}
+{"tool": "equipment_cost", "done_s": 0.0, "result": "ok"}
+{"t": 1793885237.3968399, "tool": "equipment_cost", "args": {"equipment": "heat_exchanger", "size": {"area_m2": 850, "shell_pressure_Pa": 400000}, "options": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}, "year": 2023, "cepci": null}}
+{"tool": "equipment_cost", "done_s": 0.0, "result": "ok"}
+{"t": 1793885249.4202318, "tool": "set_unit_param", "args": {"flowsheet_id": "fs1", "unit": "E-1", "param": "UA_W_K", "value": 595000.0}}
+{"tool": "set_unit_param", "done_s": 0.0, "result": "ok"}
+{"t": 1793885249.617582, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.02, "result": "ok"}
+{"t": 1793885253.139384, "tool": "heat_exchanger_area", "args": {"duty_kW": 65.0137322322513, "hot_in_K": 450.0, "hot_out_K": 450.0, "cold_in_K": 393.46945609076636, "cold_out_K": 395.0, "U_W_m2K": 1100.0, "shell_passes": 0}}
+{"tool": "heat_exchanger_area", "done_s": 0.0, "result": "ok"}
+{"t": 1793885254.314327, "tool": "heat_exchanger_area", "args": {"duty_kW": 68.72532915269886, "hot_in_K": 306.64470805843564, "hot_out_K": 305.0, "cold_in_K": 290.0, "cold_out_K": 300.0, "U_W_m2K": 850.0, "shell_passes": 0}}
+{"tool": "heat_exchanger_area", "done_s": 0.0, "result": "ok"}
+{"t": 1793885255.441005, "tool": "heat_exchanger_area", "args": {"duty_kW": 3923.424555243594, "hot_in_K": 400.0, "hot_out_K": 306.64470805843564, "cold_in_K": 300.0, "cold_out_K": 393.46945609076636, "U_W_m2K": 850.0, "shell_passes": 0}}
+{"tool": "heat_exchanger_area", "done_s": 0.0, "result": "ok"}
+{"t": 1793885260.657742, "tool": "flowsheet_cost", "args": {"flowsheet_id": "fs1", "prices": {"electricity_usd_kWh": 0, "heating_usd_GJ": 8, "cooling_usd_GJ": 0.5}, "hours_per_year": 8000.0, "interest": 0.1, "years": 10, "exchanger_areas_m2": {"E-1": 700, "H-1": 1.0599, "C-1": 7.8792}, "vessel_sizes": null, "options": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}, "lang": "lang_1948_fluid", "country": null, "year": 2023, "cepci": null}}
+{"tool": "flowsheet_cost", "done_s": 0.13, "result": "ok"}
+{"t": 1793885263.624637, "tool": "costing_options", "args": {}}
+{"tool": "costing_options", "done_s": 0.0, "result": "ok"}
+{"t": 1793885269.858156, "tool": "flowsheet_cost", "args": {"flowsheet_id": "fs1", "prices": {"electricity_usd_kWh": 0, "heating_usd_GJ": 8, "cooling_usd_GJ": 0.5}, "hours_per_year": 8000.0, "interest": 0.1, "years": 10, "exchanger_areas_m2": {"E-1": 700, "H-1": 1.0599, "C-1": 7.8792}, "vessel_sizes": null, "options": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}, "lang": "lang_1948_fluid", "country": null, "year": 2023, "cepci": null}}
+{"tool": "flowsheet_cost", "done_s": 0.03, "result": "ok"}
+{"t": 1793885274.1406138, "tool": "flowsheet_cost", "args": {"flowsheet_id": "fs1", "prices": {"electricity_usd_kWh": 0, "heating_usd_GJ": 8, "cooling_usd_GJ": 0.5}, "hours_per_year": 8000.0, "interest": 0.1, "years": 10, "exchanger_areas_m2": {"E-1": 700, "H-1": 1.0599, "C-1": 7.8792}, "vessel_sizes": null, "options": {"heat_exchanger": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}}, "lang": "lang_1948_fluid", "country": null, "year": 2023, "cepci": null}}
+{"tool": "flowsheet_cost", "done_s": 0.04, "result": "ok"}
+{"t": 1793885279.3893702, "tool": "flowsheet_cost", "args": {"flowsheet_id": "fs1", "prices": {"electricity_usd_kWh": 0, "heating_usd_GJ": 8, "cooling_usd_GJ": 0.5}, "hours_per_year": 8000.0, "interest": 0.1, "years": 10, "exchanger_areas_m2": {"E-1": 700, "H-1": 1.0599, "C-1": 7.8792}, "vessel_sizes": null, "options": {"E-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}, "H-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}, "C-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot"}}, "lang": "lang_1948_fluid", "country": null, "year": 2023, "cepci": null}}
+{"tool": "flowsheet_cost", "done_s": 0.12, "result": "ok"}
+{"t": 1793885286.062345, "tool": "flowsheet_cost", "args": {"flowsheet_id": "fs1", "prices": {"electricity_usd_kWh": 0, "heating_usd_GJ": 8, "cooling_usd_GJ": 0.5}, "hours_per_year": 8000.0, "interest": 0.1, "years": 10, "exchanger_areas_m2": {"E-1": 700, "H-1": 1.0599, "C-1": 7.8792}, "vessel_sizes": null, "options": {"E-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}, "H-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}, "C-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}}, "lang": "lang_1948_fluid", "country": null, "year": 2023, "cepci": null}}
+{"tool": "flowsheet_cost", "done_s": 0.02, "result": "ok"}
+{"t": 1793885292.90395, "tool": "set_unit_param", "args": {"flowsheet_id": "fs1", "unit": "E-1", "param": "UA_W_K", "value": 552500.0}}
+{"tool": "set_unit_param", "done_s": 0.0, "result": "ok"}
+{"t": 1793885293.1770492, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.05, "result": "ok"}
+{"t": 1793885297.036627, "tool": "heat_exchanger_area", "args": {"duty_kW": 84.82680079270438, "hot_in_K": 450.0, "hot_out_K": 450.0, "cold_in_K": 393.0028276708299, "cold_out_K": 395.0, "U_W_m2K": 1100.0, "shell_passes": 0}}
+{"tool": "heat_exchanger_area", "done_s": 0.0, "result": "ok"}
+{"t": 1793885297.727093, "tool": "heat_exchanger_area", "args": {"duty_kW": 88.53839758128998, "hot_in_K": 307.11888941380903, "hot_out_K": 305.0, "cold_in_K": 290.0, "cold_out_K": 300.0, "U_W_m2K": 850.0, "shell_passes": 0}}
+{"tool": "heat_exchanger_area", "done_s": 0.0, "result": "ok"}
+{"t": 1793885302.93732, "tool": "flowsheet_cost", "args": {"flowsheet_id": "fs1", "prices": {"electricity_usd_kWh": 0, "heating_usd_GJ": 8, "cooling_usd_GJ": 0.5}, "hours_per_year": 8000.0, "interest": 0.1, "years": 10, "exchanger_areas_m2": {"E-1": 650, "H-1": 1.3772, "C-1": 9.8504}, "vessel_sizes": null, "options": {"E-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}, "H-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}, "C-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}}, "lang": "lang_1948_fluid", "country": null, "year": 2023, "cepci": null}}
+{"tool": "flowsheet_cost", "done_s": 0.03, "result": "ok"}
+{"t": 1793885305.773054, "tool": "set_unit_param", "args": {"flowsheet_id": "fs1", "unit": "E-1", "param": "UA_W_K", "value": 510000.0}}
+{"tool": "set_unit_param", "done_s": 0.0, "result": "ok"}
+{"t": 1793885306.036939, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.03, "result": "ok"}
+{"t": 1793885309.437112, "tool": "heat_exchanger_area", "args": {"duty_kW": 107.69162779854526, "hot_in_K": 450.0, "hot_out_K": 450.0, "cold_in_K": 392.46421537578294, "cold_out_K": 395.0, "U_W_m2K": 1100.0, "shell_passes": 0}}
+{"tool": "heat_exchanger_area", "done_s": 0.0, "result": "ok"}
+{"t": 1793885310.413285, "tool": "heat_exchanger_area", "args": {"duty_kW": 111.40321918780074, "hot_in_K": 307.6661185828479, "hot_out_K": 305.0, "cold_in_K": 290.0, "cold_out_K": 300.0, "U_W_m2K": 850.0, "shell_passes": 0}}
+{"tool": "heat_exchanger_area", "done_s": 0.0, "result": "ok"}
+{"t": 1793885315.653447, "tool": "flowsheet_cost", "args": {"flowsheet_id": "fs1", "prices": {"electricity_usd_kWh": 0, "heating_usd_GJ": 8, "cooling_usd_GJ": 0.5}, "hours_per_year": 8000.0, "interest": 0.1, "years": 10, "exchanger_areas_m2": {"E-1": 600, "H-1": 1.7402, "C-1": 11.9956}, "vessel_sizes": null, "options": {"E-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}, "H-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}, "C-1": {"hx_type": "Utube", "material": "CarbonSteelCarbonSteel", "tube_length": "TwelveFoot", "shell_pressure_Pa": 400000}}, "lang": "lang_1948_fluid", "country": null, "year": 2023, "cepci": null}}
+{"tool": "flowsheet_cost", "done_s": 0.03, "result": "ok"}
+{"t": 1793885323.76637, "tool": "set_unit_param", "args": {"flowsheet_id": "fs1", "unit": "E-1", "param": "UA_W_K", "value": 552500.0}}
+{"tool": "set_unit_param", "done_s": 0.0, "result": "ok"}
+{"t": 1793885324.039979, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.02, "result": "ok"}

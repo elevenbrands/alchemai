@@ -77,6 +77,37 @@ def cost_heat_exchanger(area_m2: float, shell_pressure_Pa: float = 2 * 101325, h
     return _price(_run(build), year, cepci) | {"equipment": "heat_exchanger", "area_m2": area_m2}
 
 
+def cost_heat_exchanger_floored(area_m2: float, **kw) -> dict:
+    """Seider's correlation is quadratic in ln(area): below its minimum (≈10 m² for carbon steel) it rises again and a
+    0.1 m² exchanger would cost more than a 40 m² one. Below the minimum, price at the minimum and say so."""
+    import math
+    key = tuple(sorted((k, v) for k, v in kw.items() if k not in ("year", "cepci")))
+    a_min = _FLOOR.get(key)
+    if a_min is None:
+        lo, hi = math.log(1.0), math.log(100.0)
+        g = (math.sqrt(5) - 1) / 2
+        f = lambda la: cost_heat_exchanger(math.exp(la), **kw)["usd_ce500"]
+        c, d = hi - g * (hi - lo), lo + g * (hi - lo)
+        fc, fd = f(c), f(d)
+        for _ in range(30):
+            if fc < fd:
+                hi, d, fd = d, c, fc
+                c = hi - g * (hi - lo); fc = f(c)
+            else:
+                lo, c, fc = c, d, fd
+                d = lo + g * (hi - lo); fd = f(d)
+        a_min = _FLOOR[key] = math.exp(0.5 * (lo + hi))
+    if area_m2 >= a_min:
+        return cost_heat_exchanger(area_m2, **kw)
+    out = cost_heat_exchanger(a_min, **kw) | {"area_m2": area_m2, "priced_at_area_m2": a_min}
+    out["warning"] = (f"Área {area_m2:.2f} m² bajo el mínimo de la correlación ({a_min:.1f} m²): se cotiza al mínimo; "
+                      "un equipo tan chico suele ser de doble tubo o de placas, no de coraza y tubos")
+    return out
+
+
+_FLOOR: dict = {}
+
+
 def cost_pump(power_W: float, deltaP_Pa: float, density_kg_m3: float, flow_m3_s: float, pump_type: str = "Centrifugal",
               material: str = "CastIron", pump_type_factor: float = 1.4, motor_type: str = "Open", year: int = 2023,
               cepci: float | None = None) -> dict:

@@ -1,20 +1,23 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 19)
+Actualizado: 2026-11-05 (bloque 20)
 
 ## Dónde estamos
-**Bloque 19 (2026-11-05): costo de equipos** (`notebooks/13_costo_de_equipos.md`): costeo SSLW de IDAES (Seider) usado tal cual,
-sin ipopt; reproduce los 4 valores de los tests de IDAES; tools `equipment_cost`, `costing_options`, `cost_unit` (28). Bench v3 = 5
-tarjetas (3 transporte + 2 costo; 44 en total). **Bloque 18**: ΔP de tubería ≤ 1.4 % vs DWSIM, área a 0.2 %. Antes: 17 HAZOP vs libro.
+**Bloque 20 (2026-11-05): costo anual + primera optimización** (`notebooks/14_optimizacion_recuperacion_calor.md`):
+`flowsheet_cost` (29 tools) = compra × Lang (solo valores verificados) × ubicación (IDAES) × CRF + operación con precios del usuario;
+corregido el costo de intercambiadores chicos (la correlación de Seider sube bajo ~9 m²). Óptimo de un intercambiador
+alimentación-producto: 650 m², aproximación 7.1 K (precios ilustrativos). Bench v3 = 6 tarjetas (45 en total).
+Bloques 18-19 del mismo día: transporte (ΔP ≤ 1.4 % vs DWSIM) y costo de compra (Seider vía IDAES, 4/4 tests de IDAES).
 Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
-**Bloque 20 — costo instalado y de operación**: factores de módulo desnudo (verificar la fuente antes de usarlos), costo de
-utilidades y electricidad por año, y una tool `flowsheet_cost` que sume CAPEX + OPEX de un flowsheet resuelto. Con eso, el primer
-estudio de optimización (fase 3): barrer una variable de diseño (p. ej. aproximación de T de un intercambiador o reflujo de una
-columna) y encontrar el costo anual mínimo con `sweep`.
+**Bloque 21 — optimizador genérico para el agente**: tool `optimize_design(flowsheet_id, variable, bounds, objective)` que
+varíe un parámetro de equipo o corriente (sección dorada / barrido) y minimice `flowsheet_cost`, con restricciones del HAZOP
+(p. ej. T máxima, aproximación mínima) y la curva completa como evidencia. Probar con la tarjeta `optimo_recuperacion_calor`
+y con reflujo de columna vs costo.
+Alternativas: transferencia de masa (HTU/NTU, kLa, columnas de relleno: el hueco que queda de fenómenos de transporte),
+conjunto apartado de HAZOP, DEXPI nivel P&ID, Fluxo 1.1 UI en Figma.
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
-Después: conjunto apartado de HAZOP, DEXPI nivel P&ID, Fluxo 1.1 UI en Figma.
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto

@@ -36,3 +36,25 @@ def test_economy_of_scale():
 def test_bad_option_lists_valid_names():
     with pytest.raises(ValueError, match="CarbonSteel"):
         cost_vessel(2, 5, material="Unobtanium")
+
+
+def test_small_exchanger_priced_at_correlation_minimum():
+    from packages.costing.sslw import cost_heat_exchanger_floored
+    kw = {"shell_pressure_Pa": 4e5, "material": "CarbonSteelCarbonSteel"}
+    tiny, at_min, big = (cost_heat_exchanger_floored(a, **kw) for a in (0.1, 9.0, 40.0))
+    assert cost_heat_exchanger(0.1, **kw)["purchase_cost_usd"] > big["purchase_cost_usd"]     # the raw correlation misbehaves
+    assert tiny["purchase_cost_usd"] <= at_min["purchase_cost_usd"] + 1e-6 and "warning" in tiny
+    assert 5.0 < tiny["priced_at_area_m2"] < 15.0 and "warning" not in big
+
+
+def test_annual_cost_crf_and_lang():
+    from packages.costing.annual import LANG, annual_cost, crf, location_factor
+    assert crf(0.10, 10) == pytest.approx(0.162745, rel=1e-5) and crf(0.0, 5) == 0.2
+    r = annual_cost({"E-1": 100_000.0}, {"H-1": ("heating", 1000.0), "P-1": ("electricity", 10.0)},
+                    {"heating_usd_GJ": 8.0, "electricity_usd_kWh": 0.1}, 8000, 0.10, 10, "lang_1948_fluid", 1.0)
+    assert r["fixed_capital_usd"] == pytest.approx(474_000.0)
+    assert r["operating_by_unit_usd_y"]["H-1"] == pytest.approx(1000 * 8000 * 3600 / 1e6 * 8.0)
+    assert r["total_annual_cost_usd_y"] == pytest.approx(474_000 * crf(0.1, 10) + 230_400 + 8_000)
+    assert LANG["peters_2003_fluid_tci"] == 6.0 and 0.84 <= location_factor("Mexico") <= 0.92
+    with pytest.raises(KeyError):
+        annual_cost({}, {"C-1": ("cooling", 5.0)}, {}, 8000, 0.1, 10)
