@@ -5,6 +5,8 @@
 #          fuera  = requiere información que un DEXPI de proceso no trae (materiales, mantenimiento, destino del alivio)
 # match: la fila de AlchemAI cuenta si su nodo está en `nodes`, "parámetro + desviación" cumple `dev`
 #        y causas + consecuencias + salvaguardas cumplen `concept` (minúsculas, sin acentos).
+# Corrección tras la 1.ª corrida (solo endurece el calificador, no toca reglas): L8 «agua» coincidía dentro de «aguas abajo»;
+# D4 aceptaba «menos flujo» cuando la referencia es «más ácido»; L9 (tras las reglas nuevas) coincidía con la fuga de la bomba, se limita al tanque. Línea base a ciegas: 10/22; con el calificador corregido: ver notebook.
 casos:
   - id: lawley_dimerizacion
     titulo: Sección de alimentación de una planta de dimerización de olefinas
@@ -28,9 +30,9 @@ casos:
       - {id: L7, alcance: datos, desviacion: "Menos temperatura", causa: "Invierno",
          consecuencia: "Se congelan el sumidero de agua y la válvula de drenaje", match: {nodes: [T-1, T-2], dev: "less temperature", concept: "congel"}}
       - {id: L8, alcance: datos, desviacion: "Parte de / más agua", causa: "Mucha agua en el almacenamiento intermedio",
-         consecuencia: "El sumidero se llena rápido y pasa agua al reactor", match: {nodes: [T-1, T-2], dev: "composition|water|agua|level", concept: "agua.{0,60}(reactor|aguas abajo)|interfase"}}
+         consecuencia: "El sumidero se llena rápido y pasa agua al reactor", match: {nodes: [T-1, T-2], dev: "composition|water|agua|level", concept: "\\bagua\\b.{0,60}(reactor|aguas abajo)|interfase"}}
       - {id: L9, alcance: fuera, desviacion: "Además de", causa: "Ácidos orgánicos en la alimentación",
-         consecuencia: "Corrosión del fondo del tanque, el sumidero y el drenaje", match: {nodes: [T-1, T-2, J-1, LCV-1], dev: ".", concept: "corrosi"}}
+         consecuencia: "Corrosión del fondo del tanque, el sumidero y el drenaje", match: {nodes: [T-1, T-2], dev: ".", concept: "corrosi"}}
       - {id: L10, alcance: fuera, desviacion: "Otro (mantenimiento)", causa: "Hay que vaciar la línea para reparar",
          consecuencia: "La línea no se puede drenar ni purgar", match: {nodes: [J-1, LCV-1], dev: ".", concept: "purg|drenaje de punto bajo|nitrogeno"}}
 
@@ -47,7 +49,7 @@ casos:
       - {id: D3, alcance: datos, desviacion: "Más flujo de ambos reactivos", causa: "Ambos flujos suben",
          consecuencia: "La energía liberada supera al reactor: sube T y P", match: {nodes: [R-1], dev: "more (temperature|pressure)", concept: "descontrol|runaway|sobrepresion"}}
       - {id: D4, alcance: datos, desviacion: "Más ácido fosfórico", causa: "Válvula B abierta de más",
-         consecuencia: "Producto fuera de especificación; la reacción es segura", match: {nodes: [R-1, CV-B], dev: "flow|ratio|composition", concept: "fuera de especificacion|baja conversion"}}
+         consecuencia: "Producto fuera de especificación; la reacción es segura", match: {nodes: [R-1, CV-B], dev: "more|ratio|composition", concept: "fuera de especificacion|baja conversion"}}
       - {id: D5, alcance: datos, desviacion: "Amoniaco en el tanque abierto de DAP", causa: "Amoniaco residual en el producto",
          consecuencia: "Se libera en el área de trabajo cerrada y expone al personal", match: {nodes: [T-3], dev: ".", concept: "area de trabajo|personal|exposicion|vapores toxic"}}
 

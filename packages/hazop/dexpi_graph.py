@@ -117,6 +117,8 @@ def graph_from_dexpi(model, name: str = "dexpi") -> tuple[ProcessGraph, list[str
         desc = _text(st.description)
         md = _DWSIM.search(desc)
         kind = md.group(1) if md else DEXPI_KIND.get(cls, cls)
+        if not md and kind == "RCT_Generic" and str(getattr(getattr(st, "method", None), "value", "")) == "Tank":
+            kind = "RCT_CSTR"           # stirred tank reactor (DWSIM vocabulary), so agitation rows apply
         mq = _DUTY.search(desc)
         duty = float(mq.group(1)) if mq else None
         inl, outl = dst_of.get(st.identifier, []), src_of.get(st.identifier, [])
@@ -133,7 +135,7 @@ def graph_from_dexpi(model, name: str = "dexpi") -> tuple[ProcessGraph, list[str
             else:
                 u.notes.append("duty not in the DEXPI file: exothermicity not assessed")
                 missing.append(f"{st.identifier}: duty (exothermicity not assessed)")
-        if kind not in DEXPI_KIND.values() and not md:
+        if kind not in DEXPI_KIND.values() and kind != "RCT_CSTR" and not md:
             missing.append(f"{st.identifier}: DEXPI class {cls} has no HAZOP rule set (generic flow rows only)")
         units[u.name] = u
         edges += [(s, u.name) for s in inl] + [(u.name, s) for s in outl]

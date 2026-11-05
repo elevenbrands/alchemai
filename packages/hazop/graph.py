@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from packages.dwsim_client.verify import _prop, _stream_view  # noqa: E402
 
 FLAMMABLE = {"Methane", "Ethane", "Propane", "N-butane", "Isobutane", "N-pentane", "N-hexane", "N-heptane", "N-octane",
-             "Hydrogen", "Carbon monoxide", "Ethanol", "Methanol", "Benzene", "Toluene", "Ethylene", "Propylene", "Ammonia"}
+             "1-Butene", "Isobutene", "Hydrogen", "Carbon monoxide", "Ethanol", "Methanol", "Benzene", "Toluene", "Ethylene", "Propylene", "Ammonia"}
 TOXIC = {"Carbon monoxide", "Hydrogen sulfide", "Ammonia", "Methanol", "Benzene", "Chlorine", "Sulfur dioxide"}
 HYDRATE_FORMERS = {"Methane", "Ethane", "Propane", "Carbon dioxide", "Nitrogen", "Hydrogen sulfide"}
 
