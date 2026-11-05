@@ -50,6 +50,28 @@ def solve_card(card: dict, log=None, _retry: bool = True) -> dict:
     return ans
 
 
+def _kill_group(proc: subprocess.Popen) -> None:
+    """SIGTERM the whole process group of a timed-out `claude -p`, then SIGKILL whatever survives."""
+    import signal
+    import time
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    for _ in range(20):
+        if proc.poll() is not None:
+            break
+        time.sleep(0.1)
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    try:
+        proc.communicate(timeout=5)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = EFFORT, max_turns: int = MAX_TURNS,
                  timeout_s: int = TIMEOUT_S, mcp: bool = True, log=None) -> dict:
     """Run one headless `claude -p` call on the owner's subscription and return claude's JSON envelope
@@ -62,10 +84,16 @@ def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = 
     if mcp:
         cmd += ["--mcp-config", _mcp_config_path(), "--strict-mcp-config", "--allowedTools", "mcp__alchemai__*"]
     env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
+    # Own process group: on timeout we must kill claude AND its MCP server child (a DWSIM solve that never
+    # returns would otherwise keep spinning at 100 % CPU as an orphan; three such orphans were found 2026-11-04).
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(ROOT), env=env,
+                            start_new_session=True)
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_s, cwd=str(ROOT), env=env)
+        stdout, stderr = proc.communicate(timeout=timeout_s)
     except subprocess.TimeoutExpired:
+        _kill_group(proc)
         return {"is_error": True, "result": f"timeout after {timeout_s} s", "num_turns": None}
+    proc.stdout, proc.stderr = stdout, stderr   # keep the attribute shape the code below expects
     if log:
         log(f"  claude -p exit={proc.returncode} stderr={proc.stderr.strip()[-300:]}")
     try:

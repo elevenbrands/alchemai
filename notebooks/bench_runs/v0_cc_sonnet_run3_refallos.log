@@ -1,0 +1,19 @@
+  claude -p exit=0 stderr=
+
+## diseno_columna_etapas [design] — score 1.00  (53 s)
+  R_min                  got=        1.2807  expected=1.28069        ok
+  N_min                  got=         9.161  expected=9.16069        ok
+  N_theoretical          got=         16.91  expected=16.9106        ok
+  feed_stage             got=          8.59  expected=8.58579        ok
+  D_mol_s                got=       50.0005  expected=50.0005        ok
+  notes: Shortcut (FUG) column, feed=100 mol/s sat. liquid at 17 bar, LK=Propane/HK=N-butane, x_nC4,D=0.02, x_C3,B=0.02, Pcond=16 bar, Preb=17.5 bar. First solve at a trial R gave R_min=1.2807; reflux set to 1.5*R_min=1.9210 and re-solved to get N_theoretical/feed_stage via Gilliland. mass_rel_err~4e-6, comp
+  claude -p exit=0 stderr=
+
+## reactor_conversion [simulation] — score 1.00  (34 s)
+  Q_kW                   got=-800.9352563572081  expected=-800.935       ok
+  y_CO2                  got=0.09505703422053229  expected=0.095057       ok
+  y_CH4                  got=4.221380321768657e-17  expected=0              ok
+  notes: Mixer (CH4_feed + stoichiometric air 2 O2:7.52 N2, 9.52 mol/s) feeding an isothermal conversion reactor (CH4+2O2->CO2+2H2O, 100% conversion) at 500K/1atm. mass_rel_err=0, energy_rel_err~1e-11. All reaction occurs in vapor phase (Flue_liquid flow = 0); y_CO2 and y_CH4 read from Flue_vapor.
+
+### Bench: 100.0 % over 2 cards
+EXIT 0

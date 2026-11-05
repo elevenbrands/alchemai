@@ -30,6 +30,7 @@ from packages.dwsim_client.verify import verify  # noqa: E402
 CARDS_DIR = Path(__file__).with_name("cards")
 SOURCE = "DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks"
 DEFAULT_TOL = {"rel": 0.01}
+ZERO_ABS_TOL = 1e-4   # band for quantities whose expected value is exactly 0 (mole fractions, flows)
 
 # Baseline cases: statements and readouts live here (the builders are shared with the tests).
 BASELINE_META = {
@@ -63,7 +64,12 @@ def _duty(builder):
 
 
 def _card(cid, kind, title, statement, tags, expected, units, tol, version="v0"):
-    exp = {k: {"value": float(v), "unit": units.get(k, "-"), "tol": tol.get(k, DEFAULT_TOL)} for k, v in expected.items()}
+    def _tol(k, v):
+        t = tol.get(k, DEFAULT_TOL)
+        # A relative tolerance around an expected 0 is a zero-width band: DWSIM itself leaves ~1e-8 of a fully
+        # converted reactant, so an exact 0 needs an absolute band (found with Sonnet on reactor_conversion y_CH4).
+        return {"abs": ZERO_ABS_TOL} if float(v) == 0.0 and "abs" not in t else t
+    exp = {k: {"value": float(v), "unit": units.get(k, "-"), "tol": _tol(k, v)} for k, v in expected.items()}
     return {"id": cid, "kind": kind, "version": version, "title": {"es": title[0], "en": title[1]},
             "statement": {"es": statement[0], "en": statement[1]}, "tags": tags, "expected": exp,
             "requires": ["converged", "balances_closed"], "source": SOURCE}

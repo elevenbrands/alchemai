@@ -1,0 +1,265 @@
+  claude -p exit=0 stderr=
+
+## bomba [simulation] — score 1.00  (60 s)
+  W_kW                   got=14.328018686359767  expected=14.328         ok
+  T_out_K                got=298.2713321726987  expected=298.271        ok
+  notes: Built Feed(10 kg/s water, 25°C, 1 bar) -> pump P1 (outlet 11 bar, eta=70%) -> Product, energy stream Wshaft on P1 energy_feeds. solve() ok=true, mass_rel_err=0, energy_rel_err=7.6e-10.
+  claude -p exit=0 stderr=
+
+## columna_rigurosa [simulation] — score 0.70  (43 s)
+  x_EtOH_dist            got=         0.804  expected=0.80396        ok
+  x_EtOH_bot             got=        0.3987  expected=0.39868        ok
+  D_mol_s                got=          25.0  expected=25             ok
+  Qc_kW                  got=      -2955.89  expected=2955.89        WRONG, reported as verified
+  Qr_kW                  got=       3488.92  expected=3488.92        ok
+  notes: 20-stage distillation column (NRTL, Ethanol-Water), feed stage 10, R=2, bottoms fixed at 75 mol/s, feed 100 mol/s 50/50 at 300K/1atm. solve() ok=true; mass_rel_err~1.5e-7, compound_max_rel_err~3.5e-7, energy_rel_err~1.3e-12.
+  claude -p exit=0 stderr=
+
+## compresor [simulation] — score 0.50  (34 s)
+  T_out_K                got=        315.76  expected=315.759        ok
+  W_kW                   got=         52.82  expected=52.8199        ok
+  Q_cooler_kW            got=        -79.34  expected=79.3373        WRONG, reported as verified
+  notes: Feed 100 mol/s, 300 K, 50 bar (85/7/4/2% C1/C2/C3/nC4 + 2% CO2, PengRobinson) -> compressor to 60 bar at 75% adiabatic eff -> cooler to 300 K. Mass/compound/energy residuals ~1e-10 to 1e-16.
+  claude -p exit=0 stderr=
+
+## compresor_politropico [simulation] — score 1.00  (47 s)
+  W_kW                   got=53.192491256306226  expected=53.1925        ok
+  T_out_K                got=315.83384448375415  expected=315.834        ok
+  eta_ad                 got=0.7447459219276129  expected=0.744746       ok
+  eta_poly               got=          0.75  expected=0.75           ok
+  notes: Single compressor K1, Peng-Robinson, feed 100 mol/s C1/C2/C3/nC4/CO2 85/7/4/2/2% at 300 K, 50 bar -> 60 bar, polytropic_eff_pct=75. Solve ok=true, mass_rel_err=0, compound_max_rel_err~1.7e-16, energy_rel_err~6.2e-8.
+  claude -p exit=0 stderr=
+
+## diseno_aire_exceso [design] — score 1.00  (95 s)
+  excess_air_pct         got=         48.74  expected=48.7976        ok
+  T_adiabatic_stoich_K   got=       2339.43  expected=2340.04        ok
+  notes: CH4(1 mol/s)+Air(21%O2/79%N2) mixed into an adiabatic conversion reactor (CH4+2O2->CO2+2H2O, 100% conversion), Peng-Robinson. Stoichiometric air flow = 9.5238 mol/s gave T=2339.43K (mass/energy rel. err ~1e-8). Sweep+refine on Air_feed molar flow located T=1800K at air flow=14.1652 mol/s (solved T=1
+  claude -p exit=0 stderr=
+
+## diseno_bomba_motor [design] — score 1.00  (19 s)
+  W_shaft_kW             got=         14.33  expected=14.328         ok
+  motor_kW               got=          18.5  expected=18.5           ok
+  notes: Pump: 10 kg/s water, 25°C, 1→11 bar, eff=70%. Solve ok=true, mass_rel_err=0, energy_rel_err~7.6e-10. Shaft duty=14.328 kW; ×1.15 margin=16.48 kW → next standard IEC motor from list (5.5,7.5,11,15,18.5,22,30) is 18.5 kW.
+  claude -p exit=0 stderr=
+
+## diseno_columna_etapas [design] — score 1.00  (44 s)
+  R_min                  got=        1.2807  expected=1.28069        ok
+  N_min                  got=         9.161  expected=9.16069        ok
+  N_theoretical          got=        16.911  expected=16.9106        ok
+  feed_stage             got=         8.586  expected=8.58579        ok
+  D_mol_s                got=       50.0005  expected=50.0005        ok
+  notes: Shortcut (FUG: Fenske-Underwood-Gilliland/Kirkbride) column, light key Propane, heavy key N-butane, lk_in_bottoms=2%, hk_in_distillate=2%, condenser 16 bar, reboiler 17.5 bar, saturated-liquid feed 100 mol/s. solve() ok=true, mass_rel_err~4.2e-6, compound_max_rel_err~1.0e-5, energy_rel_err~0. R_min 
+  claude -p exit=0 stderr=
+
+## diseno_compresor_etapas [design] — score 1.00  (69 s)
+  N_stages               got=           4.0  expected=4              ok
+  T_stage_out_K          got=         396.0  expected=395.996        ok
+  W_total_kW             got=        145.27  expected=145.271        ok
+  notes: Single compressor stage (Methane, 10 mol/s, 300 K, 1->r bar, 75% adiabatic eff) swept over outlet_P to find r_max=3.3516 giving 420 K; N=3 (r=3.684) solved to 429.9 K (fails), N=4 (r=2.659) solved to 396.0 K (passes). mass_rel_err=0, energy_rel_err~5e-12 at N=4 case.
+  claude -p exit=0 stderr=
+
+## diseno_flash_temperatura [design] — score 1.00  (48 s)
+  T_K                    got=        189.05  expected=189.049        ok
+  VF_at_T                got=           0.5  expected=0.500005       ok
+  notes: Flash of 100 mol/s natural gas feed (80/8/4/2/2% C1-nC5, 2% N2, 2% CO2) at 30 bar, Peng-Robinson, into separator (Vap/Liq). Swept feed T from 180-240 K, located VF=0.5 crossing by interpolation (189.05 K), then re-solved directly at T=189.049 K giving VF=0.500016. Separator mass/energy residuals ~1e
+  claude -p exit=0 stderr=
+
+## diseno_intercambiador_ua [design] — score 1.00  (47 s)
+  UA_W_K                 got=        9647.5  expected=9641.33        ok
+  Q_kW                   got=       1069.98  expected=1069.42        ok
+  notes: Counter-current heat_exchanger (SteamTables), hot: 5 kg/s water 450K/10 bar, cold: 8 kg/s water 298K/1 atm (basis assumed, not stated in card); swept UA to hit ColdOut=330K, verified at UA=9647.5 W/K giving ColdOut=330.000 K, HotOut=400.44 K, energy_rel_err=8.5e-10, mass/compound residuals=0.
+  claude -p exit=0 stderr=
+
+## diseno_reciclo_purga [design] — score 1.00  (56 s)
+  purge_fraction         got=0.2857142857142857  expected=0.285714       ok
+  purge_kg_s             got=          10.0  expected=10             ok
+  notes: Mixer(Fresh 10 kg/s + RecycleStream) -> Heater(400 K) -> Splitter(p/1-p) -> Recycle block closing loop to mixer; solved with split_ratio_0=p=2/7=0.285714, giving RecycleOut=25.0000 kg/s, Purge=10.0000 kg/s. Mass/energy residuals <1e-8 on all units.
+  claude -p exit=0 stderr=
+
+## flash [simulation] — score 1.00  (21 s)
+  VF                     got=        0.8762  expected=0.87625        ok
+  y_CH4                  got=        0.8742  expected=0.874195       ok
+  x_CO2                  got=       0.02643  expected=0.0264344      ok
+  x_C3                   got=        0.2092  expected=0.209236       ok
+  notes: Flash of 1 mol/s NG mix (80 C1/8 C2/4 C3/2 nC4/2 nC5/2 N2/2 CO2 %) at 230 K, 30 bar through a separator (Peng-Robinson). Solve ok=true; mass_rel_err 3.2e-6, compound_max_rel_err 2.4e-5, energy_rel_err 3.2e-6.
+  claude -p exit=0 stderr=
+
+## fug [simulation] — score 0.75  (50 s)
+  D_mol_s                got=       50.0005  expected=50.0005        ok
+  Qc_kW                  got=      -1917.69  expected=1917.66        WRONG, reported as verified
+  Qr_kW                  got=       2122.99  expected=2122.96        ok
+  N_min                  got=         9.161  expected=9.16069        ok
+  R_min                  got=         1.281  expected=1.28069        ok
+  N                      got=        17.518  expected=17.5182        ok
+  notes: Shortcut (FUG) column: feed liquid saturated 100 mol/s at 17 bar (5/45/40/10% C2/C3/nC4/nC5), LK=Propane HK=N-butane, x_HK,D=0.02, x_LK,B=0.02, Pc=16 bar, Pr=17.5 bar, R=1.8404. solve() ok=true; mass_rel_err ~4e-6, compound_max_rel_err ~1e-5, energy_rel_err ~1e-16.
+  claude -p exit=0 stderr=
+
+## intercambiador [simulation] — score 1.00  (33 s)
+  T_hot_out_K            got=       434.108  expected=434.108        ok
+  T_cold_out_K           got=       308.383  expected=308.383        ok
+  Q_kW                   got=       346.936  expected=346.936        ok
+  notes: Built a single heat_exchanger (UA=2500 W/K, hot_dP=0.2 bar, cold_dP=0.1 bar) with SteamTables, hot water 5 kg/s @450K/10bar vs cold water 8 kg/s @298K/10bar. solve() ok=true, mass_rel_err=0, energy_rel_err≈2.8e-11.
+  claude -p exit=0 stderr=
+
+## mezclador [simulation] — score 1.00  (20 s)
+  T_out_K                got=       303.397  expected=303.397        ok
+  P_out_bar              got=          20.0  expected=20             ok
+  x_CH4_out              got=        0.7667  expected=0.766667       ok
+  F_out_mol_s            got=         150.0  expected=150            ok
+  notes: Mixer (PengRobinson, CH4/C2H6/C3H8) combining 100 mol/s @280K/20bar and 50 mol/s @340K/22bar. Mass rel err ~0, energy rel err ~3e-10. Outlet P = min(20,22)=20 bar as set by mixer pressure logic.
+  claude -p exit=0 stderr=
+
+## polar_azeotropo_etanol_agua [design] — score 1.00  (40 s)
+  x_az_EtOH              got=          0.87  expected=0.868063       ok
+  T_az_K                 got=        351.53  expected=351.53         ok
+  notes: NRTL property package (ethanol-water, strongly non-ideal polar pair). Modeled the azeotrope search as a single bubble-point feed stream (P=101325 Pa, vapor_fraction=0, solve for T) and swept Ethanol mole fraction from 0.5 to 0.95, then refined around the minimum in two successive finer sweeps (0.80-
+  claude -p exit=0 stderr=
+
+## polar_burbuja_rocio_etanol_agua [simulation] — score 1.00  (22 s)
+  T_bubble_K             got=      352.9731  expected=352.973        ok
+  T_dew_K                got=      357.5579  expected=357.558        ok
+  notes: Flashed a 0.5/0.5 mol ethanol-water stream at 101325 Pa with NRTL property package: VF=0 gives bubble point, VF=1 gives dew point. Both solves returned ok=true. NRTL chosen for its known good fit to the ethanol-water VLE/azeotrope (consistent with prior validated DWSIM NRTL parameters for this pair)
+  claude -p exit=0 stderr=
+
+## polar_columna_metanol_agua [simulation] — score 0.62  (33 s)
+  x_MeOH_dist            got=        0.9925  expected=0.99249        ok
+  x_MeOH_bot             got=       0.00501  expected=0.00500896     ok
+  Qc_kW                  got=      -3548.24  expected=3548.24        WRONG, reported as verified
+  Qr_kW                  got=       3687.13  expected=3687.13        ok
+  notes: NRTL chosen (polar, strongly non-ideal methanol-water VLE). 20-stage distillation_column, feed stage 10, R=1.5, bottoms=60 mol/s, top P=1 atm, dP=0. solve() ok=true, mass_rel_err~7.4e-7, compound_max_rel_err~3.1e-6, energy_rel_err~1e-12.
+  claude -p exit=0 stderr=
+
+## polar_flash_metanol_agua [simulation] — score 1.00  (25 s)
+  VF                     got=        0.5367  expected=0.536738       ok
+  y_MeOH                 got=        0.5772  expected=0.577233       ok
+  x_MeOH                 got=        0.1946  expected=0.194639       ok
+  notes: Built feed (100 mol/s, 40/60 mol% MeOH/water, 355K, 1 atm) into a separator (flash) with NRTL property package. Solved ok=true, mass_rel_err~4.7e-6, energy_rel_err~4.7e-6.
+  claude -p exit=0 stderr=
+
+## reactor_conversion [simulation] — score 1.00  (31 s)
+  Q_kW                   got=      -800.935  expected=-800.935       ok
+  y_CO2                  got=       0.09506  expected=0.095057       ok
+  y_CH4                  got=           0.0  expected=0              ok
+  notes: Mixer + isothermal conversion_reactor (CH4+2O2->CO2+2H2O, 100% conversion) at 500K/1atm, Peng-Robinson. mass_rel_err=0, energy_rel_err=0 for reactor; all flue gas is vapor (Flue_liq flow=0).
+  claude -p exit=0 stderr=
+
+## reactor_equilibrio [simulation] — score 1.00  (28 s)
+  y_H2                   got=        0.4197  expected=0.419684       ok
+  Q_kW                   got=       -163.09  expected=-163.09        ok
+  notes: Equilibrium reactor (DWSIM, PengRobinson) with WGS reaction lnK=4577.8/T-4.33, feed 10 mol/s equimolar CO/H2O at 600 K, 1 atm, isothermal. Mass rel err 2.4e-16, energy rel err 1.9e-15, all vapor product (no liquid).
+  claude -p exit=0 stderr=
+
+## reciclo [simulation] — score 0.50  (89 s)
+  recycle_kg_s           got=          40.0  expected=40             ok
+  purge_kg_s             got=          10.0  expected=10             ok
+  T_mixed_K              got=         400.0  expected=373.124        WRONG, reported as verified
+  notes: Built Fresh(10 kg/s water)->Mixer->Heater(outlet_T=400K)->Splitter(0.2/0.8)->Recycle unit closing loop to mixer. solve() ok=true; mass_rel_err and energy_rel_err ~1e-8 to 1e-11 on all units. Purge=fresh feed by mass balance, recycle=4x fresh feed, both matching the 20/80 split applied to (fresh+recy
+  claude -p exit=0 stderr=
+
+## separador [simulation] — score 1.00  (20 s)
+  VF_feed                got=        0.7792  expected=0.779216       ok
+  F_vap_mol_s            got=         77.92  expected=77.9216        ok
+  y_CH4                  got=        0.8722  expected=0.872234       ok
+  x_C7                   got=        0.4461  expected=0.446056       ok
+  notes: Separator (Peng-Robinson) fed with 100 mol/s C1/C2/nC5/nC7 70/10/10/10% at 290 K, 20 bar. Vap=77.92 mol/s, Liq=22.08 mol/s. Mass/energy residuals ~2.4e-5, compound residual ~5.8e-5.
+  claude -p exit=0 stderr=
+
+## trampa_azeotropo [trap] — score 1.00  (106 s)
+  D_mol_s                got=          None  expected=—              trap detected (keywords azeotrope,89,pinch)
+  R_min                  got=          None  expected=—              trap detected (keywords azeotrope,89,pinch)
+  notes: Shortcut column 'solved' (mass/compound residuals ~1e-5) but is non-physical here. Verified via NRTL flash: at x_EtOH=0.89 the vapor/liquid compositions coincide (azeotrope, y=0.890 vs x=0.893); at x_EtOH=0.97 relative volatility inverts (y=0.969 < x=0.973), proving the requested 97 mol% distillate 
+  claude -p exit=0 stderr=
+
+## trampa_bomba_descarga [trap] — score 1.00  (46 s)
+  W_kW                   got=          None  expected=—              trap detected (keywords below,negativ,cannot)
+  T_out_K                got=          None  expected=—              trap detected (keywords below,negativ,cannot)
+  notes: Built pump P1 (water, IAPWS-IF97/SteamTables) with S1: 20 kg/s, 300 K, 5 bar -> S2 at outlet_P=3 bar, eff=75%. solve() ok=true, mass/energy residuals ~0, but computed shaft power = -5.3508 kW (negative), i.e. the unit would need to extract energy rather than consume it.
+  claude -p exit=0 stderr=
+
+## trampa_compresor_expansion [trap] — score 1.00  (40 s)
+  W_kW                   got=          None  expected=—              trap detected (keywords expan,below,negativ)
+  T_out_K                got=          None  expected=—              trap detected (keywords expan,below,negativ)
+  notes: Built Feed -> K1 (compressor, outlet 5 bar, adiabatic_eff 75%) -> Discharge in Peng-Robinson. solve() returned ok=true with duty_kW=-207.98 (power produced, not consumed) and T_out=244.1 K, confirming the unit behaves as an expander, not a compressor.
+  claude -p exit=0 stderr=
+
+## trampa_cruce_temperaturas [trap] — score 1.00  (55 s)
+  UA_W_K                 got=          None  expected=—              trap detected (keywords cross,360)
+  Q_kW                   got=          None  expected=—              trap detected (keywords cross,360)
+  notes: Built hot_in(350K,10kg/s)->cooler(300K) and cold_in(320K,8kg/s)->heater(360K) separately, solved ok=true. Duty released by hot side = 2091.15 kW; duty required by cold side = 1340.03 kW — these disagree, and the cold outlet target (360 K) exceeds the hot inlet temperature (350 K), a temperature cros
+  claude -p exit=0 stderr=
+
+## trampa_divisor_120 [trap] — score 1.00  (21 s)
+  A_mol_s                got=          None  expected=—              trap detected (keywords 120,1.2,sum)
+  B_mol_s                got=          None  expected=—              trap detected (keywords 120,1.2,sum)
+  notes: Built a 100 mol/s feed (85/7/4/2/2 % C1/C2/C3/nC4/CO2, 300 K, 50 bar, PR) into a splitter with ratios 0.70 and 0.50. DWSIM's own builder rejected it: 'Split ratios must sum to 1; they sum to 1.2.' A splitter cannot output 120% of its inlet mass/mole flow — mass balance violation.
+  claude -p exit=0 stderr=
+
+## trampa_dof_calentador_doble [trap] — score 1.00  (27 s)
+  T_out_K                got=          None  expected=—              trap detected (keywords over,both,inconsist)
+  Q_kW                   got=          None  expected=—              trap detected (keywords over,both,inconsist)
+  notes: Built Water/SteamTables heater, 10 kg/s, 300K/2bar feed. dof_check flagged H1 as over-specified (outlet_T_K and heat_added_kW both given, mutually exclusive). Solving with only outlet_T_K=350K gives duty=2091.03 kW, far from the stated 500 kW, confirming the two specs are inconsistent as well as str
+  claude -p exit=0 stderr=
+
+## trampa_dof_columna_sin_reflujo [trap] — score 1.00  (37 s)
+  N                      got=          None  expected=—              trap detected (keywords under,missing,reflux)
+  Qr_kW                  got=          None  expected=—              trap detected (keywords under,missing,reflux)
+  notes: Built the Peng-Robinson flowsheet (Feed/Distillate/Bottoms + Qc/Qr) and tried add_unit(shortcut_column) with the key-component splits and both pressures from the card. The tool rejected it: 'missing required param reflux_ratio'. FUG requires Fenske (N_min) + Underwood (R_min) + Gilliland (N vs actua
+  claude -p exit=0 stderr=
+  MCP tools were not available to claude -p; retrying once
+  claude -p exit=0 stderr=
+
+## trampa_dof_compresor_sin_composicion [trap] — score 1.00  (27 s)
+  W_kW                   got=          None  expected=—              trap detected (keywords under,missing,composition)
+  T_out_K                got=          None  expected=—              trap detected (keywords under,missing,composition)
+  notes: No flowsheet solved: the feed stream 'process gas' lacks a composition, which add_material_stream requires and which the compressor's outlet T and power depend on non-linearly (MW, Cp, real-gas Z all vary by gas). This is not a flow-basis omission covered by rule 7.
+  claude -p exit=0 stderr=
+
+## trampa_dof_flash_sin_presion [trap] — score 1.00  (29 s)
+  VF                     got=          None  expected=—              trap detected (keywords under,omit,pressure)
+  y_CH4                  got=          None  expected=—              trap detected (keywords under,omit,pressure)
+  notes: Built feed (100 mol/s, 230 K, given composition) -> separator Flash1 -> Vapor/Liquid in DWSIM with PengRobinson. dof_check() flagged the feed as under-specified: 'missing state: 1 more of (T, P, vapor_fraction)'. No solve attempted since the spec is incomplete and VF/y_CH4 are highly pressure-sensit
+  claude -p exit=0 stderr=
+
+## trampa_dof_mezclador_t_fijada [trap] — score 1.00  (37 s)
+  T_out_K                got=        316.68  expected=—              trap detected (keywords over,conflict,316)
+  F_out_kg_s             got=         150.0  expected=—              trap detected (keywords over,conflict,316)
+  notes: Adiabatic mixer, IAPWS-IF97 (DWSIM SteamTables): Feed1 100 kg/s@300K/2bar + Feed2 50 kg/s@350K/2bar. solve() ok=true, mass_rel_err=0, energy_rel_err~5e-11. Computed outlet T=316.68K from energy balance, not 340K.
+  claude -p exit=0 stderr=
+
+## trampa_flash_supercritico [trap] — score 1.00  (30 s)
+  P_bar                  got=          None  expected=—              trap detected (keywords supercrit,critica,critical)
+  rho_liq_kg_m3          got=          None  expected=—              trap detected (keywords supercrit,critica,critical)
+  notes: Built a Peng-Robinson flash (feed 100 mol/s pure methane at 300 K, separator) and swept pressure from 10 to 800 bar. Vapor fraction stayed exactly 1.0 at every point (all solves ok=true, zero mass/energy residuals) — no VLE split occurs anywhere in that range.
+  claude -p exit=0 stderr=
+
+## trampa_mezclador_balance [trap] — score 1.00  (39 s)
+  T_out_K                got=          None  expected=—              trap detected (keywords 150,balance,conserv)
+  F_out_kg_s             got=          None  expected=—              trap detected (keywords 150,balance,conserv)
+  notes: Built adiabatic mixer with feeds F1 (100 kg/s water, 300 K, 2 bar) and F2 (50 kg/s water, 350 K, 2 bar); solve() converged with mass_rel_err=0, giving a physical outlet of 150 kg/s at T=316.68 K. The card's required product flow of 200 kg/s violates mass conservation (100+50=150≠200).
+  claude -p exit=0 stderr=
+
+## trampa_reactor_sin_oxidante [trap] — score 1.00  (32 s)
+  CO2_mol_s              got=          None  expected=—              trap detected (keywords oxygen,o2,limiting)
+  Q_kW                   got=          None  expected=—              trap detected (keywords oxygen,o2,limiting)
+  notes: Built conversion_reactor (CH4+2O2->CO2+2H2O, 100% CH4 conversion) fed with 1 mol/s CH4 + 9.52 mol/s N2 only (no O2). Solve ok=true, but since O2 feed is 0 mol/s, the reaction cannot proceed: CO2 out ~9.5e-12 mol/s, duty ~0 kW — i.e. no combustion occurs.
+  claude -p exit=0 stderr=
+
+## trampa_reflujo_bajo_minimo [trap] — score 1.00  (41 s)
+  N                      got=          None  expected=—              trap detected (keywords minimum reflux,r_min,1.2)
+  Qc_kW                  got=          None  expected=—              trap detected (keywords minimum reflux,r_min,1.2)
+  notes: Shortcut (FUG) column built with light key Propane, heavy key N-butane, 2% nC4 in distillate, 2% C3 in bottoms, feed 100 mol/s saturated liquid at 17 bar, condenser 16 bar, reboiler 17.5 bar. solve() failed with explicit solver error: R=0.6 is below the calculated R_min=1.2807 for this separation.
+  claude -p exit=0 stderr=
+
+## trampa_valvula_sube_presion [trap] — score 1.00  (41 s)
+  T_out_K                got=          None  expected=—              trap detected (keywords valve,raise,increase)
+  dT_K                   got=          None  expected=—              trap detected (keywords valve,raise,increase)
+  notes: Built Feed -> Valve V1 -> Product in PengRobinson; solve() returned ok=true with mass/energy residuals ~0, giving T_out=305.84 K at 20 bar from 10 bar inlet. However this outlet pressure exceeds the inlet pressure, which a passive isenthalpic valve (no work input) cannot physically produce.
+  claude -p exit=0 stderr=
+
+## valvula_jt [simulation] — score 1.00  (19 s)
+  T_out_K                got=        274.78  expected=274.78         ok
+  dT_K                   got=        -25.22  expected=-25.2204       ok
+  notes: Valve from 50 bar/300K to 10 bar, Peng-Robinson, 85/7/4/2% C1/C2/C3/nC4 + 2% CO2, 100 mol/s. Mass/compound/energy residuals ~0 (<2e-10). Outlet stays single-phase vapor (JT cooling, no condensation).
+
+### Bench: 95.1 % over 39 cards · traps 100 % (15)
+EXIT 0

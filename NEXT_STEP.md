@@ -1,26 +1,28 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-04 (bloque 13)
+Actualizado: 2026-11-04 (bloque 14)
 
 ## Dónde estamos
-**Bloque 13 (2026-11-04): tarjetas polares, bench v2** (`notebooks/07_tarjetas_polares.md`): 4 tarjetas (burbuja/rocío y azeótropo
-etanol-agua, flash y columna metanol-agua) sin paquete en el enunciado; esperado DWSIM-NRTL, PR falla en las 4. `sweep` acepta
-`mole_fraction.<Compuesto>` y devuelve mínimo/máximo. Agente Opus 4/4 al 100 % en 139 s eligiendo NRTL solo (sin regla nueva).
-Bench = 39 tarjetas (`--version v2`), 51 tests + 1 skip. Antes: bloque 12 (16 pares NRTL de Fluxo validados vs DWSIM), bloque 11 NRTL
-en FluxoEngine, bloque 10 columnas rigurosas, bloque 9 reactor cinético. Fluxo: 57 tests / 16 suites, rama `feature/reactor-cinetico`.
+**Bloque 14 (2026-11-04): bench completo con Sonnet** (`notebooks/08_bench_sonnet.md`): 39 tarjetas con `ALCHEMAI_CC_MODEL=sonnet`.
+Corrida 1: 95.1 % (15/15 trampas, 4/4 polares eligiendo NRTL solo → sin regla 10); los 5 fallos eran del prompt/bench (regla 5 de signo
+ambigua: Sonnet negaba Qc aunque DWSIM lo da positivo; `reciclo` no pedía la T). Regla 5 reescrita + enunciado aclarado → corrida 2/3:
+las 39 al 100 % entre corridas (no en una sola pasada). Arnés: `_kill_group` mata el grupo de procesos al vencer el timeout (antes
+quedaban servidores MCP DWSIM huérfanos al 98 % CPU); `ZERO_ABS_TOL` 1e-4 para esperados = 0. Sonnet ≈ 40 % más lento que Opus.
+Antes: bloque 13 tarjetas polares (v2), bloque 12 pares NRTL, bloque 11 NRTL en FluxoEngine, bloque 10 columnas rigurosas, bloque 9
+reactor cinético. Fluxo: 57 tests / 16 suites, rama `feature/reactor-cinetico`, sin tocar en los bloques 13–14.
 
 ## Siguiente acción exacta
-Bloque 14 (elegir uno):
+Bloque 15 (elegir uno):
 1. **Fluxo 1.1 — UI en Figma** (gate obligatorio): reactor cinético + selector de modelo (PR/SRK/NRTL) + aviso de pares faltantes
    y de PR con polares; después `DefinicionCaso`/inspector; merge y envío solo con OK del owner (1.0.0 en App Review).
-2. **Segunda fila de modelo**: bench completo (39) con `ALCHEMAI_CC_MODEL=sonnet` (~25 min); si falla en v2, añadir la regla 10 de paquete.
-3. **Export SFILES2/DEXPI** del flowsheet de la sesión (estudio semana 8 adelantado).
-4. **Estudio semana 6 — Pyomo/IDAES** (modelado orientado a ecuaciones, tutoriales oficiales).
-Recomendación: 1 si el owner abre 1.1 (requiere su participación en Figma); si no, 2 (mide al modelo barato con las trampas y las polares).
+2. **Export SFILES2/DEXPI** del flowsheet de la sesión (estudio semana 8 adelantado; abre el camino al HAZOP sobre grafo estándar).
+3. **Estudio semana 6 — Pyomo/IDAES** (modelado orientado a ecuaciones, tutoriales oficiales).
+4. Opcional barato: una pasada única de las 39 con Sonnet y el prompt nuevo (~27 min) para tener la cifra en una sola corrida.
+Recomendación: 1 si el owner abre 1.1 (requiere su participación en Figma); si no, 2.
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto
-en DWSIM 10.2.12 (usar `Isothermal()`); columna PR con mezcla polar puede no terminar (correr con `WithMaxIterations` o límite de tiempo); en Fluxo usar NRTL para polares (solo motor; la UI aún no lo expone).
+en DWSIM 10.2.12 (usar `Isothermal()`); un `solve()` de DWSIM puede no regresar (columna PR polar; también una vez la columna shortcut con Sonnet): el arnés ya mata el grupo al vencer el timeout, pero el servidor MCP no tiene timeout por llamada; en Fluxo usar NRTL para polares (solo motor; la UI aún no lo expone).
 
 ## Decisiones pendientes del owner
 - Hacer público el repo (plan: mes 3) y primer post.

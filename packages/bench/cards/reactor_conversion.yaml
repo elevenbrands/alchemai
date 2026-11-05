@@ -24,7 +24,8 @@ expected:
   y_CH4:
     value: 0.0
     unit: '-'
-    tol: *id001
+    tol:
+      abs: 0.0001
 requires:
 - converged
 - balances_closed

@@ -369,8 +369,8 @@ CASES: list[Case] = [
          "100 mol/s ethanol-water 50/50 at 300 K, 1 atm, 20 stages, feed at 10, R = 2, bottoms 75 mol/s. Purities and duties.",
          b_column, r_column, c_column, ["columnas", "nrtl"]),
     Case("reciclo", "Lazo de reciclo con Wegstein", "Recycle loop (Wegstein)",
-         "10 kg/s de agua fresca se mezclan con el reciclo, se calientan a 400 K y un divisor purga 20 % y recicla 80 %. Flujos en estado estacionario.",
-         "10 kg/s fresh water mixes with the recycle, is heated to 400 K and a splitter purges 20 % and recycles 80 %. Steady-state flows.",
+         "10 kg/s de agua fresca se mezclan con el reciclo, se calientan a 400 K y un divisor purga 20 % y recicla 80 %. Flujos de reciclo y purga en estado estacionario y temperatura de la corriente mezclada (salida del mezclador, antes del calentador).",
+         "10 kg/s fresh water mixes with the recycle, is heated to 400 K and a splitter purges 20 % and recycles 80 %. Steady-state recycle and purge flows and the temperature of the mixed stream (mixer outlet, before the heater).",
          b_recycle, r_recycle, c_recycle, ["flowsheet", "reciclo"]),
 ]
 

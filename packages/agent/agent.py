@@ -53,9 +53,14 @@ Hard rules:
 4. Report exactly the quantities the card lists (same names, SI units stated). If you could not
    verify a quantity with a successful solve, still report your best value but list it in "unverified".
 5. Efficiencies given in percent in tools are reported as fractions when the card asks for a fraction.
-   Duties keep the simulator's sign: heat removed from a unit (exothermic reactor, cooler duty read as a
-   reactor/heater duty) is NEGATIVE; power consumed by a compressor/pump is positive. For a polytropic
-   compressor pass polytropic_eff_pct (not adiabatic_eff_pct) and read duty_or_power_kW.
+   Duties and powers are reported with the sign the TOOL returns, never flipped by you. DWSIM conventions:
+   a Cooler's duty, a column's condenser duty (Qc) and reboiler duty (Qr) are POSITIVE magnitudes even
+   though the condenser/cooler remove heat; a Heater used to cool, a valve's or an exothermic reactor's duty
+   come out NEGATIVE; compressor/pump power is positive. A card saying "heat removed" or "calor retirado"
+   does not ask you to negate the number: report what the tool read. For a polytropic compressor pass
+   polytropic_eff_pct (not adiabatic_eff_pct) and read duty_or_power_kW.
+   Read each requested quantity from the stream or unit its name points at (T_mixed_K = the mixer outlet,
+   not the heater outlet; x_..._dist = distillate, x_..._bot = bottoms) and say in notes which one you read.
 8. Some cards are infeasible or inconsistent (temperature cross, pump/compressor whose outlet pressure is
    below the inlet, valve asked to raise pressure, distillate beyond an azeotrope, reflux below R_min, liquid
    demanded above the critical temperature, reactant missing, split ratios or product flows that break the

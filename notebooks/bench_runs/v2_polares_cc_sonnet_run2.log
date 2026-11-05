@@ -1,0 +1,30 @@
+  claude -p exit=0 stderr=
+
+## polar_azeotropo_etanol_agua [design] — score 1.00  (40 s)
+  x_az_EtOH              got=         0.868  expected=0.868063       ok
+  T_az_K                 got=        351.53  expected=351.53         ok
+  notes: NRTL property package (ethanol-water is highly non-ideal, forms a minimum-boiling azeotrope; Peng-Robinson would not capture this polar-mixture behavior). Built a single bubble-point stream (vapor_fraction=0, P=101325 Pa) for Ethanol/Water and swept mole_fraction.Ethanol over 0.5-0.95, then refined 
+  claude -p exit=0 stderr=
+
+## polar_burbuja_rocio_etanol_agua [simulation] — score 1.00  (24 s)
+  T_bubble_K             got=352.97314538540695  expected=352.973        ok
+  T_dew_K                got=357.5579306409216  expected=357.558        ok
+  notes: Two standalone feed streams at 101325 Pa, 50/50 mol% ethanol/water, NRTL property package. S_bubble specified at vapor_fraction=0 gives T_bubble; S_dew at vapor_fraction=1 gives T_dew. Both solves ok=true, no units so no balance residuals beyond the single-stream flash itself.
+  claude -p exit=0 stderr=
+
+## polar_columna_metanol_agua [simulation] — score 1.00  (33 s)
+  x_MeOH_dist            got=        0.9925  expected=0.99249        ok
+  x_MeOH_bot             got=       0.00501  expected=0.00500896     ok
+  Qc_kW                  got=       3548.24  expected=3548.24        ok
+  Qr_kW                  got=       3687.13  expected=3687.13        ok
+  notes: 20-stage distillation_column (condenser=stage1), feed stage 10, R=1.5, bottoms=60 mol/s, top P=101325 Pa, dP=0; property package NRTL chosen for methanol-water (strongly polar, non-ideal, H-bonding mixture). mass_rel_err=7.4e-7, compound_max_rel_err=3.1e-6, energy_rel_err=1.1e-12. Qc/Qr read from Co
+  claude -p exit=0 stderr=
+
+## polar_flash_metanol_agua [simulation] — score 1.00  (21 s)
+  VF                     got=        0.5367  expected=0.536738       ok
+  y_MeOH                 got=        0.5772  expected=0.577233       ok
+  x_MeOH                 got=        0.1946  expected=0.194639       ok
+  notes: NRTL property package (polar, non-ideal methanol-water system). Separator Flash fed at 355 K/101325 Pa with feed composition 40/60 mol% MeOH/water, 100 mol/s. Mass_rel_err ~4.7e-6, energy_rel_err ~4.7e-6, compound_max_rel_err ~2.0e-5.
+
+### Bench: 100.0 % over 4 cards
+EXIT 0
