@@ -1,0 +1,36 @@
+id: transporte_dp_tuberia
+kind: design
+version: v3
+title:
+  es: Caída de presión en una línea de agua que sube 15 m
+  en: Pressure drop in a water line rising 15 m
+statement:
+  es: 10 kg/s de agua a 20 °C y 5 bar fluyen por 250 m de tubería de acero comercial de 3 in nominal cédula 40 (diámetro
+    interno 77.93 mm); la salida está 15 m más arriba que la entrada. ¿Presión de salida (bar), caída de presión
+    por fricción (kPa) y velocidad (m/s)?
+  en: 10 kg/s of water at 20 °C and 5 bar flow through 250 m of 3 in nominal schedule 40 commercial steel pipe (inner
+    diameter 77.93 mm); the outlet is 15 m above the inlet. Outlet pressure (bar), frictional pressure drop (kPa)
+    and velocity (m/s)?
+tags:
+- transporte
+- hidraulica
+expected:
+  P_out_bar:
+    value: 2.1425971480552684
+    unit: bar
+    tol:
+      rel: 0.02
+  dP_friction_kPa:
+    value: 138.98714875639814
+    unit: kPa
+    tol:
+      rel: 0.03
+  velocity_m_s:
+    value: 2.0999127328395875
+    unit: m/s
+    tol:
+      rel: 0.02
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

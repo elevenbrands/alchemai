@@ -24,6 +24,7 @@ from anthropic import beta_tool  # noqa: E402
 
 from packages.dwsim_client import tools as T  # noqa: E402
 from packages.dwsim_client import tools_sweep as TS  # noqa: E402
+from packages.dwsim_client import tools_transport as TT  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -178,7 +179,7 @@ def dof_check(flowsheet_id: str) -> str:
 def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] | None = None) -> str:
     """Add a unit operation. kind: mixer | splitter | heater | cooler | valve | pump | compressor | expander |
     separator | heat_exchanger | shortcut_column | distillation_column | conversion_reactor |
-    equilibrium_reactor | gibbs_reactor | cstr | pfr | recycle. params by kind: splitter {split_ratios:[...]};
+    equilibrium_reactor | gibbs_reactor | cstr | pfr | recycle | pipe. params by kind: splitter {split_ratios:[...]};
     heater {outlet_T_K | heat_added_kW}; cooler {outlet_T_K | heat_removed_kW}; valve {outlet_P_Pa};
     pump {outlet_P_Pa, efficiency_pct}; compressor/expander {outlet_P_Pa, adiabatic_eff_pct | polytropic_eff_pct};
     heat_exchanger {UA_W_K, hot_dP_Pa, cold_dP_Pa}; shortcut_column {light_key, heavy_key,
@@ -186,7 +187,7 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] 
     distillation_column {stages, feed_stage (1-based, 1 = condenser), reflux_ratio, bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s,
     top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; cstr/pfr {volume_m3,
     reaction_set, mode: "isothermal" (= feed T)|"adiabatic", dP_Pa} — products [outlet], energy_feeds [duty] required;
-    recycle {}."""
+    recycle {}; pipe {length_m, inner_diameter_m, elevation_change_m, increments} (adiabatic, Beggs-Brill, two-phase OK)."""
     return json.dumps(T.add_unit(flowsheet_id, kind, name, params))
 
 
@@ -278,6 +279,40 @@ def hazop_from_dexpi(path: str) -> str:
 
 
 @beta_tool
+def stream_transport_properties(flowsheet_id: str, stream: str) -> str:
+    """Density, viscosity, thermal conductivity and Cp of a solved single-phase stream (DWSIM property package)."""
+    return json.dumps(TT.stream_transport_properties(flowsheet_id, stream), default=float)
+
+
+@beta_tool
+def pipe_hydraulics(flowsheet_id: str, stream: str, length_m: float, inner_diameter_m: float, roughness_m: float = 4.57e-5,
+                    elevation_change_m: float = 0.0, fittings_K: float = 0.0) -> str:
+    """Pressure drop of a solved single-phase stream in a straight pipe (Darcy-Weisbach, Colebrook; laminar 64/Re):
+    velocity, Re, friction factor, friction + fittings (ΣK) + static (ρ·g·Δz, positive uphill) ΔP and outlet P."""
+    return json.dumps(TT.pipe_hydraulics(flowsheet_id, stream, length_m, inner_diameter_m, roughness_m, elevation_change_m, fittings_K), default=float)
+
+
+@beta_tool
+def size_pipe(flowsheet_id: str, stream: str, max_velocity_m_s: float, schedule: str = "40") -> str:
+    """Smallest common nominal steel pipe (ASME B36.10M) keeping the velocity of a solved single-phase stream at or
+    below max_velocity_m_s; returns NPS, inner diameter, velocity, Re and ΔP per 100 m."""
+    return json.dumps(TT.size_pipe(flowsheet_id, stream, max_velocity_m_s, schedule), default=float)
+
+
+@beta_tool
+def heat_exchanger_area(duty_kW: float, hot_in_K: float, hot_out_K: float, cold_in_K: float, cold_out_K: float,
+                        U_W_m2K: float, shell_passes: int = 0) -> str:
+    """Heat-exchanger area A = Q/(U·F·LMTD); shell_passes = 0 → counter-current (F = 1), N ≥ 1 → 1-N shell-and-tube."""
+    return json.dumps(TT.heat_exchanger_area(duty_kW, hot_in_K, hot_out_K, cold_in_K, cold_out_K, U_W_m2K, shell_passes), default=float)
+
+
+@beta_tool
+def tube_film_coefficient(flowsheet_id: str, stream: str, inner_diameter_m: float, velocity_m_s: float) -> str:
+    """Tube-side film coefficient h (W/m²K) of a solved single-phase stream: Gnielinski if turbulent, Nu = 3.66 laminar."""
+    return json.dumps(TT.tube_film_coefficient(flowsheet_id, stream, inner_diameter_m, velocity_m_s), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -285,7 +320,8 @@ def close_flowsheet(flowsheet_id: str) -> str:
 
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-               set_unit_param, set_stream_spec, sweep, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+               set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
+               heat_exchanger_area, tube_film_coefficient, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

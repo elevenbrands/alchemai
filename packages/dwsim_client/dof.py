@@ -38,6 +38,7 @@ RULES: dict[str, dict[str, Any]] = {
     "cstr":               dict(ports=(1, 99, 1, 1, 0), required=["volume_m3", "reaction_set"], one_of=[], optional=["mode", "dP_Pa"]),
     "pfr":                dict(ports=(1, 99, 1, 1, 0), required=["volume_m3", "reaction_set"], one_of=[], optional=["mode", "dP_Pa"]),
     "recycle":            dict(ports=(1, 1, 1, 0, 0), required=[], one_of=[]),
+    "pipe":               dict(ports=(1, 1, 1, 0, 0), required=["length_m", "inner_diameter_m"], one_of=[], optional=["elevation_change_m", "increments"]),
 }
 STREAM_STATE = ("temperature_K", "pressure_Pa", "vapor_fraction")
 STREAM_FLOW = ("molar_flow_mol_s", "mass_flow_kg_s")

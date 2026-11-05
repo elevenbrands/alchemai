@@ -1,0 +1,37 @@
+id: transporte_diametro
+kind: design
+version: v3
+title:
+  es: Diámetro de una línea de n-hexano por velocidad
+  en: Line size for n-hexane by velocity
+statement:
+  es: 30 kg/s de n-hexano líquido a 300 K y 5 bar (Peng-Robinson). ¿Cuál es el menor diámetro nominal de acero cédula
+    40, entre los tamaños comerciales (sin 1¼, 2½, 3½ ni 5 in), que mantiene la velocidad en 2 m/s o menos? Da el
+    diámetro nominal (in), la velocidad (m/s) y la caída de presión por fricción por cada 100 m (kPa).
+  en: 30 kg/s of liquid n-hexane at 300 K and 5 bar (Peng-Robinson). What is the smallest schedule 40 steel nominal
+    size, among common sizes (no 1¼, 2½, 3½ or 5 in), that keeps the velocity at or below 2 m/s? Give the nominal
+    size (in), the velocity (m/s) and the frictional pressure drop per 100 m (kPa).
+tags:
+- transporte
+- hidraulica
+- diseno
+expected:
+  NPS_in:
+    value: 8.0
+    unit: in
+    tol:
+      abs: 0.0
+  velocity_m_s:
+    value: 1.417291698225318
+    unit: m/s
+    tol:
+      rel: 0.03
+  dP_per_100m_kPa:
+    value: 4.993587262959348
+    unit: kPa
+    tol:
+      rel: 0.05
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

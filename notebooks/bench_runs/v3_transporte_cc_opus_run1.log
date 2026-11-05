@@ -1,0 +1,24 @@
+  claude -p exit=0 stderr=
+
+## transporte_area_intercambiador [design] — score 1.00  (24 s)
+  Q_kW                   got=      1339.887  expected=1339.89        ok
+  LMTD_K                 got=        30.829  expected=30.8288        ok
+  F                      got=        0.8793  expected=0.879348       ok
+  area_m2                got=        58.148  expected=58.1476        ok
+  notes: Water-only flowsheet with SteamTables: feed of 8 kg/s at 360 K and 3 bar into a cooler with outlet 320 K. Q is the cooler duty from DWSIM (positive), energy residual 3.8e-8, mass residual 0. LMTD, F (1 shell, 2 tube passes, Fakheri) and area come from heat_exchanger_area with hot side 360→320 K, col
+  claude -p exit=0 stderr=
+
+## transporte_diametro [design] — score 1.00  (33 s)
+  NPS_in                 got=           8.0  expected=8              ok
+  velocity_m_s           got=         1.417  expected=1.41729        ok
+  dP_per_100m_kPa        got=          4.99  expected=4.99359        ok
+  notes: 30 kg/s n-hexane feed at 300 K / 5 bar (PR) passed through a heater set to 300 K (duty 0); solve ok, mass residual 0, energy residual 4.5e-12. size_pipe on the feed stream, sch 40, vmax 2 m/s: liquid density 655.7 kg/m3, viscosity 2.96e-4 Pa·s, min ID 0.1707 m -> 8 in (ID 0.2027 m), Re 6.36e5, frict
+
+## transporte_dp_tuberia [design] — score 0.00  (601 s)
+  P_out_bar              got=          None  expected=2.1426         missing
+  dP_friction_kPa        got=          None  expected=138.987        missing
+  velocity_m_s           got=          None  expected=2.09991        missing
+  evidence missing: ['converged', 'balances_closed']
+  notes: timeout after 600 s
+
+### Bench: 66.7 % over 3 cards

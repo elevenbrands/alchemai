@@ -1,0 +1,42 @@
+id: transporte_area_intercambiador
+kind: design
+version: v3
+title:
+  es: Área de un enfriador de coraza y tubos 1-2
+  en: Area of a 1-2 shell-and-tube cooler
+statement:
+  es: 8 kg/s de agua a 360 K y 3 bar se enfrían a 320 K con agua de enfriamiento que entra a 300 K y sale a 315
+    K, en un intercambiador de coraza y tubos con una coraza y dos pasos de tubo. U = 850 W/m²K. ¿Carga térmica
+    (kW), LMTD en contracorriente (K), factor de corrección F y área (m²)?
+  en: 8 kg/s of water at 360 K and 3 bar are cooled to 320 K with cooling water entering at 300 K and leaving at
+    315 K, in a shell-and-tube exchanger with one shell and two tube passes. U = 850 W/m²K. Heat duty (kW), counter-current
+    LMTD (K), correction factor F and area (m²)?
+tags:
+- transporte
+- calor
+- diseno
+expected:
+  Q_kW:
+    value: 1339.8869292488753
+    unit: kW
+    tol:
+      rel: 0.02
+  LMTD_K:
+    value: 30.828793279705398
+    unit: K
+    tol:
+      rel: 0.01
+  F:
+    value: 0.879348234727264
+    unit: '-'
+    tol:
+      abs: 0.01
+  area_m2:
+    value: 58.1476011881339
+    unit: m2
+    tol:
+      rel: 0.03
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

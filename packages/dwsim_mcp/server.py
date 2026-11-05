@@ -10,7 +10,11 @@ Claude Desktop config:
 """
 from __future__ import annotations
 
+import functools
+import json
+import os
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -23,8 +27,30 @@ mcp = FastMCP("alchemai", instructions=(
     "units → connect), then ALWAYS call solve(): it returns the balance verification. Report only numbers "
     "from a solve with ok=true; mark everything else as unverified."))
 
+TRACE = os.environ.get("ALCHEMAI_MCP_TRACE")      # optional: append one JSON line per tool call (debugging hangs)
+
+
+def _traced(fn):
+    @functools.wraps(fn)
+    def w(*a, **k):
+        t0 = time.time()
+        with open(TRACE, "a") as f:
+            f.write(json.dumps({"t": t0, "tool": fn.__name__, "args": k}, default=str)[:2000] + "\n")
+        try:
+            out = fn(*a, **k)
+            res = "ok"
+            return out
+        except Exception as ex:
+            res = f"{type(ex).__name__}: {ex}"[:500]
+            raise
+        finally:
+            with open(TRACE, "a") as f:
+                f.write(json.dumps({"tool": fn.__name__, "done_s": round(time.time() - t0, 2), "result": res}) + "\n")
+    return w
+
+
 for fn in T.TOOLS:
-    mcp.tool(fn)
+    mcp.tool(_traced(fn) if TRACE else fn)
 
 if __name__ == "__main__":
     mcp.run()

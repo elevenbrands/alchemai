@@ -1,0 +1,9 @@
+  claude -p exit=0 stderr=Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.
+
+## transporte_dp_tuberia [design] — score 1.00  (33 s)
+  P_out_bar              got=        2.1426  expected=2.1426         ok
+  dP_friction_kPa        got=        138.99  expected=138.987        ok
+  velocity_m_s           got=           2.1  expected=2.09991        ok
+  notes: SteamTables; feed W_in (10 kg/s, 293.15 K, 5 bar) -> DWSIM pipe LINE (250 m, ID 0.07793 m, +15 m, commercial steel, 10 increments) -> W_out. P_out read from solved stream W_out (214258 Pa); dP_friction (138988 Pa) and velocity from unit LINE. Mass residual 0, energy rel err 2.3e-9. pipe_hydraulics c
+
+### Bench: 100.0 % over 1 cards

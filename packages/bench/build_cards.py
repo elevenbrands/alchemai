@@ -1,7 +1,7 @@
 """Generate the ChemE Design Bench v0 cards (yaml) from the Python case definitions.
 
-39 cards: 3 baseline + 10 reference (simulation) + 7 design (v0) + 15 traps (v1/v1b) + 4 polar (v2, the agent
-picks the property package). The expected
+42 cards: 3 baseline + 10 reference (simulation) + 7 design (v0) + 15 traps (v1/v1b) + 4 polar (v2, the agent
+picks the property package) + 3 transport (v3). The expected
 values are DWSIM 10.2.12 results (or analytic oracles) and are the single source of truth for
 grading; regenerate with `uv run python packages/bench/build_cards.py`.
 
@@ -114,6 +114,8 @@ def build_all():
         assert all(ok for _, ok, _ in checks), f"{d.id}: {[c for c in checks if not c[1]]}"
         cards.append(_card(d.id, "design", (d.title_es, d.title_en), (d.statement_es, d.statement_en), d.tags,
                            {k: v for k, v in a.items() if k in d.tolerances}, d.units, d.tolerances, version="v2"))
+    from packages.bench.transport_cases import cards as transport_cards
+    cards += transport_cards()                      # Bench v3: transport phenomena (pipe ΔP, line size, HX area)
     return cards
 
 

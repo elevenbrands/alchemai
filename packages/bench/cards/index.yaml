@@ -196,3 +196,18 @@ cards:
   version: v2
   title_es: Azeótropo etanol-agua a 1 atm
   n_expected: 2
+- id: transporte_dp_tuberia
+  kind: design
+  version: v3
+  title_es: Caída de presión en una línea de agua que sube 15 m
+  n_expected: 3
+- id: transporte_diametro
+  kind: design
+  version: v3
+  title_es: Diámetro de una línea de n-hexano por velocidad
+  n_expected: 3
+- id: transporte_area_intercambiador
+  kind: design
+  version: v3
+  title_es: Área de un enfriador de coraza y tubos 1-2
+  n_expected: 4

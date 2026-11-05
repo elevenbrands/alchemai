@@ -130,7 +130,8 @@ def oracle_agent(card):
     if cid in ref:
         fs, h = ref[cid].build(); rep = verify(fs)
         return {"answers": ref[cid].readouts(h), "evidence": {"converged": rep.solved, "balances_closed": rep.ok}, "unverified": []}
-    des = {d.id: d for d in DESIGN_CASES + POLAR_DESIGN}
+    from packages.bench.transport_cases import TRANSPORT_CASES
+    des = {d.id: d for d in DESIGN_CASES + POLAR_DESIGN + TRANSPORT_CASES}
     if cid in des:
         a = des[cid].oracle()
         return {"answers": a, "evidence": {"converged": True, "balances_closed": True, "notes": "oracle: DWSIM search + analytic checks"}, "unverified": []}
@@ -201,7 +202,7 @@ def main():
     ap.add_argument("--agent-cmd", default=None)
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--out", default=None, help="append per-card JSON lines here as cards finish")
-    ap.add_argument("--version", default="all", choices=["v0", "v1", "v1b", "v2", "traps", "all"], help="v0 = 20 feasible, v1 = 10 physics traps, v1b = 5 specification traps, traps = both, v2 = 4 polar mixtures (package choice)")
+    ap.add_argument("--version", default="all", choices=["v0", "v1", "v1b", "v2", "v3", "traps", "all"], help="v0 = 20 feasible, v1 = 10 physics traps, v1b = 5 specification traps, traps = both, v2 = 4 polar mixtures (package choice), v3 = 3 transport phenomena")
     ap.add_argument("ids", nargs="*")
     a = ap.parse_args()
     cards = load_cards(a.ids, a.version)

@@ -30,7 +30,7 @@ _ids = itertools.count(1)
 
 UNIT_KINDS = ["mixer", "splitter", "heater", "cooler", "valve", "pump", "compressor", "expander", "separator",
               "heat_exchanger", "shortcut_column", "distillation_column", "conversion_reactor",
-              "equilibrium_reactor", "gibbs_reactor", "cstr", "pfr", "recycle"]
+              "equilibrium_reactor", "gibbs_reactor", "cstr", "pfr", "recycle", "pipe"]
 
 
 def _s(fs_id: str) -> dict:
@@ -172,7 +172,9 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
       condenser_P_Pa, reboiler_P_Pa, reflux_ratio; distillation_column: stages, feed_stage (1-based, 1 = condenser), reflux_ratio,
       bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s, top_P_Pa, dP_Pa; *_reactor: reaction_set,
       mode ("isothermal" | "adiabatic"), dP_Pa; cstr / pfr (kinetic reactions): volume_m3, reaction_set,
-      mode ("isothermal" at the feed T | "adiabatic"), dP_Pa. Connect streams afterwards with connect()."""
+      mode ("isothermal" at the feed T | "adiabatic"), dP_Pa; pipe (adiabatic, Beggs-Brill, handles two-phase): length_m,
+      inner_diameter_m, elevation_change_m (outlet minus inlet), increments (default 10); commercial steel.
+      Connect streams afterwards with connect()."""
     try:
         s = _s(flowsheet_id)
         fs, p = s["fs"], dict(params or {})
@@ -240,6 +242,18 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
             if "reaction_set" in p:
                 b = b.WithReactionSet(p["reaction_set"])
             b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
+        elif kind == "pipe":
+            import DWSIM.UnitOperations.UnitOperations.Auxiliary.Pipe as AP
+            b = fs.AddPipe(name)
+            o = getattr(b.Object, "__implementation__", b.Object)
+            di_in = float(p["inner_diameter_m"]) / 0.0254          # DWSIM pipe sections take diameters in inches
+            sec = AP.PipeSection(1, "Tubulaosimples", 1, int(p.get("increments", 10)), "Aço Comum", float(p["length_m"]),
+                                 float(p.get("elevation_change_m", 0.0)), di_in * 1.12, di_in)
+            o.Profile.Sections.Add(1, sec)
+            o.Profile.Status = type(o.Profile.Status).OK
+            tp = o.ThermalProfile
+            tp.TipoPerfil = type(tp.TipoPerfil).Definir_Q
+            tp.Calor_trocado = 0.0
         elif kind == "recycle":
             b = fs.AddUnitOperation(ObjectType.OT_Recycle, name)
             r = b.Object.__implementation__
@@ -365,6 +379,14 @@ def read_unit(flowsheet_id: str, name: str) -> dict:
         out["power_kW"] = b.PowerKW
     if kind == "cooler":
         out["heat_removed_kW"] = b.HeatRemovedKW
+    if kind == "pipe":
+        r = getattr(o, "__implementation__", o)
+        sec = list(r.Profile.Sections.Values)[0]
+        res = list(sec.Results)
+        out.update(dP_friction_Pa=float(r.PressureDrop_Friction), dP_static_Pa=float(r.PressureDrop_Static),
+                   outlet_P_Pa=float(r.OutletPressure) if r.OutletPressure else None,
+                   liquid_velocity_m_s=float(res[0].LiqVel) if res else None, liquid_Re=float(res[0].LiqRe) if res else None,
+                   flow_regime=str(res[-1].FlowRegime) if res else None)
     if kind == "recycle":
         r = o.__implementation__
         out.update(converged=bool(r.Converged), iterations=int(r.IterationsTaken))
@@ -379,6 +401,7 @@ def close_flowsheet(flowsheet_id: str) -> dict:
 
 
 from packages.dwsim_client.tools_sweep import SWEEP_TOOLS
+from packages.dwsim_client.tools_transport import TRANSPORT_TOOLS
 from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
@@ -386,4 +409,4 @@ from packages.hazop.dexpi_graph import hazop_from_dexpi  # noqa: E402
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
          define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-         *SWEEP_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+         *SWEEP_TOOLS, *TRANSPORT_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]

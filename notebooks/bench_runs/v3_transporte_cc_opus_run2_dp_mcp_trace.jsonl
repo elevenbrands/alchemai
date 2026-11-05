@@ -1,0 +1,16 @@
+{"t": 1793884432.28163, "tool": "new_flowsheet", "args": {"name": "dp_tuberia", "compounds": ["Water"], "property_package": "SteamTables"}}
+{"tool": "new_flowsheet", "done_s": 1.33, "result": "ok"}
+{"t": 1793884437.9488032, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "W_in", "temperature_K": 293.15, "pressure_Pa": 500000.0, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": 10.0, "mole_fractions": {"Water": 1.0}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.03, "result": "ok"}
+{"t": 1793884439.071638, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "pipe", "name": "LINE", "params": {"length_m": 250, "inner_diameter_m": 0.07793, "elevation_change_m": 15, "increments": 10}}}
+{"tool": "add_unit", "done_s": 0.03, "result": "ok"}
+{"t": 1793884439.4214962, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "W_out", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793884442.010701, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "LINE", "feeds": ["W_in"], "products": ["W_out"], "energy_feeds": null, "energy_products": null}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793884443.615626, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.23, "result": "ok"}
+{"t": 1793884446.14609, "tool": "pipe_hydraulics", "args": {"flowsheet_id": "fs1", "stream": "W_in", "length_m": 250.0, "inner_diameter_m": 0.07793, "roughness_m": 4.57e-05, "elevation_change_m": 15.0, "fittings_K": 0.0}}
+{"tool": "pipe_hydraulics", "done_s": 0.32, "result": "ok"}
+{"t": 1793884446.499089, "tool": "read_unit", "args": {"flowsheet_id": "fs1", "name": "LINE"}}
+{"tool": "read_unit", "done_s": 0.0, "result": "ok"}
