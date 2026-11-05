@@ -1,22 +1,19 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 20)
+Actualizado: 2026-11-05 (bloque 21)
 
 ## Dónde estamos
-**Bloque 20 (2026-11-05): costo anual + primera optimización** (`notebooks/14_optimizacion_recuperacion_calor.md`):
-`flowsheet_cost` (29 tools) = compra × Lang (solo valores verificados) × ubicación (IDAES) × CRF + operación con precios del usuario;
-corregido el costo de intercambiadores chicos (la correlación de Seider sube bajo ~9 m²). Óptimo de un intercambiador
-alimentación-producto: 650 m², aproximación 7.1 K (precios ilustrativos). Bench v3 = 6 tarjetas (45 en total).
-Bloques 18-19 del mismo día: transporte (ΔP ≤ 1.4 % vs DWSIM) y costo de compra (Seider vía IDAES, 4/4 tests de IDAES).
+**Bloque 21 (2026-11-05): optimizador genérico** (`notebooks/15_optimizador.md`): tool `optimize_design` (30 tools), una variable,
+objetivo costo anual o suma de lecturas, límites del HAZOP como restricciones duras; reproduce el óptimo del notebook 14 y la
+teoría de compresión en dos etapas (3.007 vs 3.0 bar); con descarga ≤ 440 K el óptimo pasa a 2.885 bar; detecta infactibilidad.
+Bench v3 = 7 tarjetas (46 en total). Bloques 18-20 del mismo día: transporte, costo de compra, costo anual.
 Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
-**Bloque 21 — optimizador genérico para el agente**: tool `optimize_design(flowsheet_id, variable, bounds, objective)` que
-varíe un parámetro de equipo o corriente (sección dorada / barrido) y minimice `flowsheet_cost`, con restricciones del HAZOP
-(p. ej. T máxima, aproximación mínima) y la curva completa como evidencia. Probar con la tarjeta `optimo_recuperacion_calor`
-y con reflujo de columna vs costo.
-Alternativas: transferencia de masa (HTU/NTU, kLa, columnas de relleno: el hueco que queda de fenómenos de transporte),
-conjunto apartado de HAZOP, DEXPI nivel P&ID, Fluxo 1.1 UI en Figma.
+**Bloque 22 — transferencia de masa** (lo que falta de fenómenos de transporte): columna de absorción/relleno con HTU/NTU
+(Colburn para la línea de operación recta, NTU numérico en general), coeficientes kL/kG por correlación (Onda) desde
+propiedades de DWSIM, altura de relleno; validar contra la columna de absorción de DWSIM y contra un ejemplo analítico.
+Alternativas: optimización de dos variables (coordenadas), conjunto apartado de HAZOP, DEXPI nivel P&ID, Fluxo 1.1 UI en Figma.
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
 
 ## Bloqueante actual

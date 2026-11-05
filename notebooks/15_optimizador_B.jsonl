@@ -1,0 +1,3 @@
+{"case": "B compresión 2 etapas, sin límite", "feasible": true, "P_mid_bar": 3.0065778087482125, "total_power_kW": 594.5280205165478, "T_k1_out_K": 446.30630411327303, "T_k2_out_K": 445.6879923202504, "active_constraint": null, "n_eval": 27, "theory_P_mid_bar": 3.0}
+{"case": "B compresión 2 etapas, T descarga K-1 ≤ 440 K (HAZOP)", "feasible": true, "P_mid_bar": 2.8847050625473187, "total_power_kW": 594.6740929457303, "T_k1_out_K": 439.9949016242102, "T_k2_out_K": 452.05820352806427, "active_constraint": ["k1_out.T_K = 440 > 440.0"], "n_eval": 27, "theory_P_mid_bar": 3.0}
+{"case": "B compresión 2 etapas, ambas descargas ≤ 440 K", "feasible": false, "note": "no feasible point in the range: widen the bounds or relax a limit"}

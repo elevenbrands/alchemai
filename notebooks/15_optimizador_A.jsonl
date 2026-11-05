@@ -1,0 +1,1 @@
+{"case": "A recuperación de calor", "UA_opt_W_K": 552822.9791284469, "area_opt_m2": 650.3799754452316, "TAC_usd_y": 129991.67502307556, "approach_K": 7.115030238052441, "flat_range_m2": [597.8388027121815, 741.9311176516442], "n_eval": 27, "at_bound": false, "reference_nb14": {"area_m2": 650.3, "TAC_usd_y": 129991.7, "approach_K": 7.12}}

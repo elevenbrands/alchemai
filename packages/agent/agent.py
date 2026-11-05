@@ -26,6 +26,7 @@ from packages.dwsim_client import tools as T  # noqa: E402
 from packages.dwsim_client import tools_sweep as TS  # noqa: E402
 from packages.dwsim_client import tools_transport as TT  # noqa: E402
 from packages.dwsim_client import tools_costing as TC  # noqa: E402
+from packages.dwsim_client import tools_optimize as TO  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -347,6 +348,18 @@ def flowsheet_cost(flowsheet_id: str, prices: dict[str, float], hours_per_year: 
 
 
 @beta_tool
+def optimize_design(flowsheet_id: str, vary_kind: str, vary_name: str, vary_param: str, lower: float, upper: float,
+                    objective: dict[str, object], constraints: list[dict[str, object]] | None = None, maximize: bool = False,
+                    log_scale: bool = False, n_scan: int = 9, refine_iterations: int = 12) -> str:
+    """Optimize ONE design variable in one call: scan + golden section, re-solving DWSIM each point. objective
+    {"type": "total_annual_cost", <flowsheet_cost args incl. exchanger_specs>} or {"type": "sum", "terms": [{kind, name,
+    key, weight}]}; constraints [{kind, name, key, max|min}] are hard limits (e.g. HAZOP discharge T). Returns best,
+    curve, active_constraint, flat_range; leaves the flowsheet solved at the optimum."""
+    return json.dumps(TO.optimize_design(flowsheet_id, vary_kind, vary_name, vary_param, lower, upper, objective, constraints,
+                                         maximize, log_scale, n_scan, refine_iterations), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -355,7 +368,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

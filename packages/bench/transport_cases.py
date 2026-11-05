@@ -89,6 +89,21 @@ def _oracle_heat_recovery():
     return {"area_m2": b["area_E1_m2"], "approach_K": b["approach_K"], "TAC_usd_y": b["TAC_usd_y"]}
 
 
+
+def _oracle_two_stage():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("nb15", Path(__file__).resolve().parents[2] / "notebooks" / "15_optimizador.py")
+    nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+    from packages.dwsim_client.tools_optimize import optimize_design
+    fid = nb._compression()
+    obj = {"type": "sum", "terms": [{"kind": "unit", "name": "K-1", "key": "duty_or_power_kW"}, {"kind": "unit", "name": "K-2", "key": "duty_or_power_kW"}]}
+    r = optimize_design(fid, "unit", "K-1", "outlet_P_Pa", 1.5e5, 6e5, obj,
+                        constraints=[{"kind": "stream", "name": "k1_out", "key": "T_K", "max": 440.0}], n_scan=10, refine_iterations=14)
+    out = {"P_mid_bar": r["best"]["x"] / 1e5, "total_power_kW": r["best"]["objective"], "T_stage2_out_K": T.read_stream(fid, "k2_out")["T_K"]}
+    T.close_flowsheet(fid)
+    return out
+
+
 TRANSPORT_CASES = [
     DesignCase(
         "transporte_dp_tuberia", "Caída de presión en una línea de agua que sube 15 m", "Pressure drop in a water line rising 15 m",
@@ -166,6 +181,20 @@ TRANSPORT_CASES = [
         _oracle_heat_recovery, {"area_m2": {"rel": 0.20}, "approach_K": {"abs": 1.5}, "TAC_usd_y": {"rel": 0.02}},
         {"area_m2": "m2", "approach_K": "K", "TAC_usd_y": "USD/y"},
         lambda a: [("aproximación entre 5 y 15 K", 5.0 < a["approach_K"] < 15.0, a["approach_K"])], ["costo", "optimizacion", "calor"]),
+    DesignCase(
+        "optimo_compresion_dos_etapas", "Presión intermedia óptima con límite de temperatura de descarga",
+        "Optimal intermediate pressure with a discharge-temperature limit",
+        "2 kg/s de aire (79 % N₂, 21 % O₂ molar, Peng-Robinson) a 300 K y 1 bar se comprimen a 9 bar en dos etapas adiabáticas "
+        "con eficiencia de 75 % e interenfriamiento a 300 K (sin caída de presión). El HAZOP fija que la descarga de la primera "
+        "etapa no pase de 440 K. ¿Qué presión intermedia (bar) minimiza la potencia total cumpliendo el límite, cuánta potencia "
+        "total requiere (kW) y a qué temperatura descarga la segunda etapa (K)?",
+        "2 kg/s of air (79 % N₂, 21 % O₂ molar, Peng-Robinson) at 300 K and 1 bar are compressed to 9 bar in two adiabatic stages "
+        "at 75 % efficiency with intercooling to 300 K (no pressure drop). The HAZOP requires the first-stage discharge to stay at "
+        "or below 440 K. Which intermediate pressure (bar) minimizes total power while meeting the limit, how much total power is "
+        "needed (kW), and at what temperature does the second stage discharge (K)?",
+        _oracle_two_stage, {"P_mid_bar": {"abs": 0.03}, "total_power_kW": {"rel": 0.01}, "T_stage2_out_K": {"abs": 1.5}},
+        {"P_mid_bar": "bar", "total_power_kW": "kW", "T_stage2_out_K": "K"},
+        lambda a: [("límite activo: P_mid < √(1·9) = 3 bar", a["P_mid_bar"] < 3.0, a["P_mid_bar"])], ["optimizacion", "hazop", "compresion"]),
 ]
 
 

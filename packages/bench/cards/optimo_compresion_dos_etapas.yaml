@@ -1,0 +1,39 @@
+id: optimo_compresion_dos_etapas
+kind: design
+version: v3
+title:
+  es: Presión intermedia óptima con límite de temperatura de descarga
+  en: Optimal intermediate pressure with a discharge-temperature limit
+statement:
+  es: 2 kg/s de aire (79 % N₂, 21 % O₂ molar, Peng-Robinson) a 300 K y 1 bar se comprimen a 9 bar en dos etapas
+    adiabáticas con eficiencia de 75 % e interenfriamiento a 300 K (sin caída de presión). El HAZOP fija que la
+    descarga de la primera etapa no pase de 440 K. ¿Qué presión intermedia (bar) minimiza la potencia total cumpliendo
+    el límite, cuánta potencia total requiere (kW) y a qué temperatura descarga la segunda etapa (K)?
+  en: 2 kg/s of air (79 % N₂, 21 % O₂ molar, Peng-Robinson) at 300 K and 1 bar are compressed to 9 bar in two adiabatic
+    stages at 75 % efficiency with intercooling to 300 K (no pressure drop). The HAZOP requires the first-stage
+    discharge to stay at or below 440 K. Which intermediate pressure (bar) minimizes total power while meeting the
+    limit, how much total power is needed (kW), and at what temperature does the second stage discharge (K)?
+tags:
+- optimizacion
+- hazop
+- compresion
+expected:
+  P_mid_bar:
+    value: 2.8847050625473187
+    unit: bar
+    tol:
+      abs: 0.03
+  total_power_kW:
+    value: 594.6740929457303
+    unit: kW
+    tol:
+      rel: 0.01
+  T_stage2_out_K:
+    value: 452.05820352806427
+    unit: K
+    tol:
+      abs: 1.5
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

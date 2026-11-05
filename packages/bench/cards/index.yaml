@@ -226,3 +226,8 @@ cards:
   version: v3
   title_es: Área óptima de un intercambiador alimentación-producto
   n_expected: 3
+- id: optimo_compresion_dos_etapas
+  kind: design
+  version: v3
+  title_es: Presión intermedia óptima con límite de temperatura de descarga
+  n_expected: 3

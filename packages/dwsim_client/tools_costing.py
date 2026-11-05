@@ -58,7 +58,7 @@ def cost_unit(flowsheet_id: str, unit: str, options: dict | None = None, year: i
 def flowsheet_cost(flowsheet_id: str, prices: dict, hours_per_year: float, interest: float, years: int,
                    exchanger_areas_m2: dict | None = None, vessel_sizes: dict | None = None, options: dict | None = None,
                    lang: str | float = "lang_1948_fluid", country: str | None = None, year: int = 2023,
-                   cepci: float | None = None) -> dict:
+                   cepci: float | None = None, exchanger_specs: dict | None = None) -> dict:
     """Total annual cost (USD/y) of a SOLVED flowsheet = annualized fixed capital + operating cost.
     Capital: pumps and compressors are sized from the simulation; heaters, coolers and heat exchangers need their area
     in exchanger_areas_m2 {unit: m2} (compute it with heat_exchanger_area); vessels need vessel_sizes {unit: {diameter_m,
@@ -67,11 +67,15 @@ def flowsheet_cost(flowsheet_id: str, prices: dict, hours_per_year: float, inter
     peters_2003_fluid_tci (6.0) | a number. country: IDAES location factor (e.g. "Mexico" → mid of 0.84-0.92).
     Operating: pump/compressor electricity, heater duty × heating price, cooler duty × cooling price.
     prices (required for what the flowsheet uses): electricity_usd_kWh, heating_usd_GJ, cooling_usd_GJ.
-    Annualized capital = FCI × i(1+i)^n/((1+i)^n − 1) with interest (fraction) and years."""
+    Annualized capital = FCI × i(1+i)^n/((1+i)^n − 1) with interest (fraction) and years.
+    exchanger_specs {unit: {U_W_m2K, utility_in_K, utility_out_K, shell_passes}} sizes exchangers automatically from the
+    solved duty and stream temperatures (heater: utility is the hot side, e.g. condensing steam in = out; cooler: utility
+    is the cold side; heat_exchanger: only U, area = UA/U). Use it inside optimize_design, where duties change."""
     from packages.costing.annual import annual_cost, location_factor
     s = _s(flowsheet_id)
     opts = options or {}
-    areas, vessels = exchanger_areas_m2 or {}, vessel_sizes or {}
+    areas, vessels = dict(exchanger_areas_m2 or {}), vessel_sizes or {}
+    sized = _auto_areas(flowsheet_id, exchanger_specs or {}, areas)
     purchase, energy, not_costed, notes = {}, {}, [], {}
     for unit, kind in s["kinds"].items():
         u = read_unit(flowsheet_id, unit)
@@ -84,7 +88,9 @@ def flowsheet_cost(flowsheet_id: str, prices: dict, hours_per_year: float, inter
                 energy[unit] = ("heating", float(u.get("duty_or_power_kW") or 0.0))
             elif kind == "cooler":
                 energy[unit] = ("cooling", float(u.get("heat_removed_kW") or u.get("duty_or_power_kW") or 0.0))
-            if unit in areas:
+            if unit in areas and areas[unit] <= 0.0:
+                pass                                   # duty ≈ 0: no exchanger to buy
+            elif unit in areas:
                 purchase[unit] = equipment_cost("heat_exchanger", {"area_m2": float(areas[unit])}, opts.get(unit), year, cepci)["purchase_cost_usd"]
             else:
                 not_costed.append(unit)
@@ -98,9 +104,43 @@ def flowsheet_cost(flowsheet_id: str, prices: dict, hours_per_year: float, inter
             notes[unit] = f"{kind}: no cost correlation exposed yet"
     loc = location_factor(country) if country else 1.0
     out = annual_cost(purchase, energy, prices, hours_per_year, interest, years, lang, loc)
-    return out | {"not_costed": not_costed, "notes": notes, "year": year,
+    return out | {"not_costed": not_costed, "notes": notes, "year": year, "areas_m2": areas, "auto_sized": sized,
                   "warning": "Estimado de orden de magnitud: compra de Seider vía IDAES y capital por factor de Lang" if purchase else
                   "Sin equipos costeados: solo costo de operación"}
+
+
+def _auto_areas(flowsheet_id: str, specs: dict, areas: dict) -> dict:
+    """Fill `areas` for units in specs from the solved flowsheet; returns {unit: {area_m2, LMTD_K, F}}."""
+    from packages.transport.hydraulics import hx_area
+    s = _s(flowsheet_id)
+    done = {}
+    for unit, sp in specs.items():
+        if unit in areas:
+            continue
+        kind = s["kinds"][unit]
+        U = float(sp["U_W_m2K"])
+        if kind == "heat_exchanger" and "UA_W_K" in s["params"].get(unit, {}):
+            areas[unit] = float(s["params"][unit]["UA_W_K"]) / U
+            done[unit] = {"area_m2": areas[unit], "from": "UA/U"}
+            continue
+        c = s["conn"][unit]
+        tin = s["streams"][c["feeds"][0]].TemperatureK
+        tout = s["streams"][c["products"][0]].TemperatureK
+        u = read_unit(flowsheet_id, unit)
+        q = abs(float(u.get("heat_removed_kW") if kind == "cooler" else u.get("duty_or_power_kW") or 0.0))
+        if q < 1e-3:
+            done[unit] = {"area_m2": 0.0, "note": "duty ≈ 0: no exchanger needed"}
+            continue
+        ui, uo = float(sp["utility_in_K"]), float(sp.get("utility_out_K", sp["utility_in_K"]))
+        if kind == "heater":
+            r = hx_area(q * 1e3, ui, uo, tin, tout, U, int(sp.get("shell_passes", 0)))
+        elif kind == "cooler":
+            r = hx_area(q * 1e3, tin, tout, ui, uo, U, int(sp.get("shell_passes", 0)))
+        else:
+            raise ValueError(f"{unit}: exchanger_specs for {kind} needs UA_W_K in its params")
+        areas[unit] = r["area_m2"]
+        done[unit] = {"area_m2": r["area_m2"], "LMTD_K": r["LMTD_K"], "F": r["F"]}
+    return done
 
 
 COSTING_TOOLS = [equipment_cost, costing_options, cost_unit, flowsheet_cost]

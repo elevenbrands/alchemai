@@ -202,7 +202,7 @@ def main():
     ap.add_argument("--agent-cmd", default=None)
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--out", default=None, help="append per-card JSON lines here as cards finish")
-    ap.add_argument("--version", default="all", choices=["v0", "v1", "v1b", "v2", "v3", "traps", "all"], help="v0 = 20 feasible, v1 = 10 physics traps, v1b = 5 specification traps, traps = both, v2 = 4 polar mixtures (package choice), v3 = 6 transport phenomena + cost + optimization")
+    ap.add_argument("--version", default="all", choices=["v0", "v1", "v1b", "v2", "v3", "traps", "all"], help="v0 = 20 feasible, v1 = 10 physics traps, v1b = 5 specification traps, traps = both, v2 = 4 polar mixtures (package choice), v3 = 7 transport phenomena + cost + optimization")
     ap.add_argument("ids", nargs="*")
     a = ap.parse_args()
     cards = load_cards(a.ids, a.version)

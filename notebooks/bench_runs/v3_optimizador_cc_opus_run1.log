@@ -1,0 +1,16 @@
+  claude -p exit=0 stderr=
+
+## optimo_compresion_dos_etapas [design] — score 1.00  (45 s)
+  P_mid_bar              got=         2.885  expected=2.88471        ok
+  total_power_kW         got=        594.67  expected=594.674        ok
+  T_stage2_out_K         got=        452.05  expected=452.058        ok
+  notes: feed(2 kg/s air, 300 K, 1 bar, PR) -> C1 (adiabatic 75 %) -> s1 -> cooler IC to 300 K -> s2 -> C2 (adiabatic 75 %, 9 bar) -> s3. optimize_design on C1 outlet_P_Pa (2-4.5 bar) minimizing C1+C2 power with constraint s1.T_K <= 440: optimum is on the limit at 288480 Pa (s1 = 439.9999 K); C1 = 284.999 kW
+  claude -p exit=0 stderr=
+
+## optimo_recuperacion_calor [design] — score 1.00  (111 s)
+  area_m2                got=         648.9  expected=650.305        ok
+  approach_K             got=          7.01  expected=7.1158         ok
+  TAC_usd_y              got=      130595.0  expected=129992         ok
+  notes: SteamTables: E-1 counter-current HX (feed/product), H-1 heater to 395 K, C-1 cooler to 305 K; optimize_design on E-1 UA (log 2e4-3e6 W/K) with TAC objective, per-unit options CarbonSteelCarbonSteel/Utube/TwelveFoot/4 bar (the global options key was ignored; checked against equipment_cost), H-1 price
+
+### Bench: 100.0 % over 2 cards
