@@ -1,20 +1,20 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 23)
+Actualizado: 2026-11-05 (bloque 24)
 
 ## Dónde estamos
-**Bloque 23 (2026-11-05): hidráulica de columnas** (`notebooks/17_hidraulica_columnas.md`): inundación, ΔP y diámetro con
-Stichlmair (reproduce el ejemplo del artículo), catálogo de 6 rellenos (fuente secundaria), 35 tools; primer absorbedor
-dimensionado y costeado de punta a punta (Pall 25 mm: D 1.05 m, Z 5.2 m, casco 107 621 USD 2023). Bench v3 = 9 tarjetas
-(48 en total). Bloques 18-22 del mismo día: transporte, costo de compra, costo anual, optimizador, transferencia de masa.
+**Bloque 24 (2026-11-05): optimización multivariable** (`notebooks/18_optimizacion_multivariable.md`): `optimize_design_multi`
+(36 tools), malla + Nelder-Mead; compresión 3 etapas 3.021/9.087 bar vs teoría 3/9; con límite del HAZOP 2.699/8.591 bar;
+absorbedor aceite + enfriamiento con óptimo de esquina sensible al precio. Bench v3 = 10 tarjetas (49 en total).
+Bloques 18-23 del mismo día: transporte, costo, costo anual, optimizador 1D, masa, hidráulica.
 Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
 Opciones (el owner elige):
-1. **Optimización de dos variables** (p. ej. flujo de aceite y etapas del absorbedor contra costo anual).
-2. **Conjunto apartado de HAZOP** para medir recall sin sesgo y calificar precisión.
-3. **Costo de relleno e internos** + absorbedor en `flowsheet_cost` (hoy solo casco).
-4. **Fluxo 1.1 UI en Figma** (tras el veredicto de Apple de 1.0.0).
+1. **Conjunto apartado de HAZOP** para medir recall sin sesgo y calificar precisión.
+2. **Variables enteras** (número de etapas) en la optimización + costo de relleno e internos.
+3. **Fluxo 1.1 UI en Figma** (tras el veredicto de Apple de 1.0.0).
+4. **Repo público + primer post** (decisión del owner) con la evidencia de los bloques 13-24.
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
 
 ## Bloqueante actual

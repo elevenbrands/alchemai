@@ -1,0 +1,52 @@
+{"t": 1793891468.082431, "tool": "new_flowsheet", "args": {"name": "comp3", "compounds": ["Nitrogen", "Oxygen"], "property_package": "PengRobinson"}}
+{"tool": "new_flowsheet", "done_s": 14.04, "result": "ok"}
+{"t": 1793891496.546179, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "S1", "temperature_K": 300.0, "pressure_Pa": 100000.0, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": 2.0, "mole_fractions": {"Nitrogen": 0.79, "Oxygen": 0.21}, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.55, "result": "ok"}
+{"t": 1793891498.789322, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "S2", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793891498.9065092, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "S3", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793891498.961802, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "S4", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793891498.9687319, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "S5", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793891499.0130439, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "S6", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793891499.173565, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "W1"}}
+{"tool": "add_energy_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793891499.220611, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "W2"}}
+{"tool": "add_energy_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793891499.2348878, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "W3"}}
+{"tool": "add_energy_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793891499.258185, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "Q1"}}
+{"tool": "add_energy_stream", "done_s": 0.0, "result": "ok"}
+{"t": 1793891499.6701922, "tool": "add_energy_stream", "args": {"flowsheet_id": "fs1", "name": "Q2"}}
+{"tool": "add_energy_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793891500.009561, "tool": "add_material_stream", "args": {"flowsheet_id": "fs1", "name": "S7", "temperature_K": null, "pressure_Pa": null, "vapor_fraction": null, "molar_flow_mol_s": null, "mass_flow_kg_s": null, "mole_fractions": null, "compound_molar_flows_mol_s": null}}
+{"tool": "add_material_stream", "done_s": 0.01, "result": "ok"}
+{"t": 1793891506.245482, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "compressor", "name": "C1", "params": {"outlet_P_Pa": 250000, "adiabatic_eff_pct": 75}}}
+{"tool": "add_unit", "done_s": 0.47, "result": "ok"}
+{"t": 1793891508.112135, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "cooler", "name": "E1", "params": {"outlet_T_K": 300}}}
+{"tool": "add_unit", "done_s": 0.63, "result": "ok"}
+{"t": 1793891510.666208, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "compressor", "name": "C2", "params": {"outlet_P_Pa": 800000, "adiabatic_eff_pct": 75}}}
+{"tool": "add_unit", "done_s": 0.34, "result": "ok"}
+{"t": 1793891512.290029, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "cooler", "name": "E2", "params": {"outlet_T_K": 300}}}
+{"tool": "add_unit", "done_s": 0.02, "result": "ok"}
+{"t": 1793891512.336025, "tool": "add_unit", "args": {"flowsheet_id": "fs1", "kind": "compressor", "name": "C3", "params": {"outlet_P_Pa": 2700000, "adiabatic_eff_pct": 75}}}
+{"tool": "add_unit", "done_s": 0.0, "result": "ok"}
+{"t": 1793891522.0381, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "C1", "feeds": ["S1"], "products": ["S2"], "energy_feeds": ["W1"], "energy_products": null}}
+{"tool": "connect", "done_s": 0.11, "result": "ok"}
+{"t": 1793891522.635467, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "E1", "feeds": ["S2"], "products": ["S3"], "energy_feeds": null, "energy_products": ["Q1"]}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793891522.718624, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "C2", "feeds": ["S3"], "products": ["S4"], "energy_feeds": ["W2"], "energy_products": null}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793891523.1367931, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "E2", "feeds": ["S4"], "products": ["S5"], "energy_feeds": null, "energy_products": ["Q2"]}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793891524.2700999, "tool": "connect", "args": {"flowsheet_id": "fs1", "unit": "C3", "feeds": ["S5"], "products": ["S6"], "energy_feeds": ["W3"], "energy_products": null}}
+{"tool": "connect", "done_s": 0.0, "result": "ok"}
+{"t": 1793891526.719166, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 3.11, "result": "ok"}
+{"t": 1793891536.668263, "tool": "optimize_design_multi", "args": {"flowsheet_id": "fs1", "variables": [{"kind": "unit", "name": "C1", "param": "outlet_P_Pa", "lower": 150000, "upper": 500000}, {"kind": "unit", "name": "C2", "param": "outlet_P_Pa", "lower": 400000, "upper": 1600000}], "objective": {"type": "sum", "terms": [{"kind": "unit", "name": "C1", "key": "duty_or_power_kW", "weight": 1}, {"kind": "unit", "name": "C2", "key": "duty_or_power_kW", "weight": 1}, {"kind": "unit", "name": "C3", "key": "duty_or_power_kW", "weight": 1}]}, "constraints": [{"kind": "stream", "name": "S2", "key": "T_K", "max": 430}], "maximize": false, "grid_points": 7, "max_evaluations": 200, "tolerance": 1e-06}}
+{"tool": "optimize_design_multi", "done_s": 12.8, "result": "ok"}
+{"t": 1793891553.515676, "tool": "solve", "args": {"flowsheet_id": "fs1"}}
+{"tool": "solve", "done_s": 0.02, "result": "ok"}

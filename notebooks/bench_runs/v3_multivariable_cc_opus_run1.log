@@ -1,0 +1,11 @@
+  claude -p exit=0 stderr=
+  MCP tools were not available to claude -p; retrying once
+  claude -p exit=0 stderr=
+
+## optimo_compresion_tres_etapas [design] — score 1.00  (227 s)
+  P1_bar                 got=         2.699  expected=2.69921        ok
+  P2_bar                 got=         8.595  expected=8.59079        ok
+  total_power_kW         got=        892.68  expected=892.676        ok
+  notes: Air (N2 0.79/O2 0.21, PR) 2 kg/s at 300 K, 1 bar: C1 (75% adiabatic) -> cooler to 300 K -> C2 -> cooler to 300 K -> C3 to 27 bar. Two-variable optimizer on C1 and C2 outlet pressures, minimizing C1+C2+C3 power with constraint T(S2, C1 outlet) <= 430 K (active, 430.0 K). P1=269921 Pa, P2=859508 Pa; p
+
+### Bench: 100.0 % over 1 cards

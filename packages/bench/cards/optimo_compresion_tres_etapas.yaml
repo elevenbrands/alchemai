@@ -1,0 +1,41 @@
+id: optimo_compresion_tres_etapas
+kind: design
+version: v3
+title:
+  es: Dos presiones intermedias óptimas con límite del HAZOP
+  en: Two optimal intermediate pressures with a HAZOP limit
+statement:
+  es: 2 kg/s de aire (79 % N₂, 21 % O₂ molar, Peng-Robinson) a 300 K y 1 bar se comprimen a 27 bar en tres etapas
+    adiabáticas con eficiencia de 75 % e interenfriamiento a 300 K después de la primera y de la segunda etapa (sin
+    caídas de presión). El HAZOP fija que la descarga de la primera etapa no pase de 430 K. ¿Qué presiones intermedias
+    (bar, salida de la etapa 1 y de la etapa 2) minimizan la potencia total cumpliendo el límite, y cuánta potencia
+    total requieren (kW)?
+  en: 2 kg/s of air (79 % N₂, 21 % O₂ molar, Peng-Robinson) at 300 K and 1 bar are compressed to 27 bar in three
+    adiabatic stages at 75 % efficiency with intercooling to 300 K after the first and second stages (no pressure
+    drops). The HAZOP requires the first-stage discharge to stay at or below 430 K. Which intermediate pressures
+    (bar, outlet of stage 1 and of stage 2) minimize total power while meeting the limit, and how much total power
+    do they need (kW)?
+tags:
+- optimizacion
+- hazop
+- compresion
+expected:
+  P1_bar:
+    value: 2.6992053190117957
+    unit: bar
+    tol:
+      abs: 0.05
+  P2_bar:
+    value: 8.590790236710218
+    unit: bar
+    tol:
+      rel: 0.03
+  total_power_kW:
+    value: 892.6764509728638
+    unit: kW
+    tol:
+      rel: 0.005
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

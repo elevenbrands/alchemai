@@ -35,3 +35,18 @@ def test_two_stage_optimum_and_hazop_limit():
                                         {"kind": "stream", "name": "k2_out", "key": "T_K", "max": 440.0}])
     assert both["feasible"] is False
     T.close_flowsheet(fid)
+
+
+def test_three_stage_two_variables_reach_equal_ratios():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("nb18", ROOT / "notebooks" / "18_optimizacion_multivariable.py")
+    nb = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(nb)
+    from packages.dwsim_client import tools as T
+    from packages.dwsim_client.tools_optimize import optimize_design_multi
+    fid = nb.three_stage()
+    r = optimize_design_multi(fid, nb.VARS_K, nb.OBJ_K, max_evaluations=90)
+    v = r["best"]["values"]
+    assert v["K-1.outlet_P_Pa"] / 1e5 == pytest.approx(3.0, rel=0.03) and v["K-2.outlet_P_Pa"] / 1e5 == pytest.approx(9.0, rel=0.03)
+    assert r["active_constraints"] is None and r["variables_at_bound"] is None
+    T.close_flowsheet(fid)

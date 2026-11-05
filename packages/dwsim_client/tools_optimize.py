@@ -25,8 +25,27 @@ def _set(fid: str, kind: str, name: str, param: str, v: float):
         set_stream_spec(fid, name, **{param: v})
 
 
-def _eval(fid: str, x: float, var: dict, objective: dict, constraints: list[dict]) -> dict:
-    _set(fid, var["kind"], var["name"], var["param"], x)
+def _eval_current(fid: str, objective: dict, constraints: list[dict]) -> dict:
+    """Solve at the current specs; objective, constraint values and a relative violation measure."""
+    r = _eval(fid, None, None, objective, constraints)
+    viol = 0.0
+    for c in constraints:
+        v = (r.get("constraints") or {}).get(f"{c['name']}.{c['key']}")
+        if v is None:
+            continue
+        if "max" in c and v > c["max"]:
+            viol += (v - c["max"]) / max(abs(c["max"]), 1e-9)
+        if "min" in c and v < c["min"]:
+            viol += (c["min"] - v) / max(abs(c["min"]), 1e-9)
+    if not r["solved_ok"]:
+        viol += 1.0
+    r["violation"] = viol
+    return r
+
+
+def _eval(fid: str, x: float | None, var: dict | None, objective: dict, constraints: list[dict]) -> dict:
+    if var is not None:
+        _set(fid, var["kind"], var["name"], var["param"], x)
     sol = T.solve(fid)
     row: dict[str, Any] = {"x": x, "solved_ok": bool(sol["ok"]), "feasible": False, "objective": None, "violations": []}
     if not sol["ok"]:
@@ -122,4 +141,74 @@ def optimize_design(flowsheet_id: str, vary_kind: str, vary_name: str, vary_para
                      "re-check the optimum with solve() and report the curve; inside flat_range the choice is not sensitive")}
 
 
-OPTIMIZE_TOOLS = [optimize_design]
+def optimize_design_multi(flowsheet_id: str, variables: list[dict], objective: dict, constraints: list[dict] | None = None,
+                          maximize: bool = False, grid_points: int = 5, max_evaluations: int = 150, tolerance: float = 1e-4) -> dict:
+    """Optimize 2-4 design variables together (they may interact, like the intermediate pressures of a multistage
+    compressor). variables: [{"kind": "unit"|"stream", "name", "param", "lower", "upper", "log_scale": bool}] with params as
+    in optimize_design. objective and constraints exactly as in optimize_design. Method: a coarse grid (grid_points per
+    variable, fewer when there are more variables) picks the start, then Nelder-Mead in normalized coordinates; constraint
+    violations and unsolved points are penalized, and the reported optimum is always a feasible evaluated point.
+    Returns best values, objective, active constraints, the path and how many solves it took; leaves the flowsheet solved
+    at the optimum."""
+    import itertools
+    from scipy.optimize import minimize
+    cons = constraints or []
+    if not 1 <= len(variables) <= 4:
+        raise ValueError("1 to 4 variables")
+    sgn = -1.0 if maximize else 1.0
+    lo = [float(v["lower"]) for v in variables]
+    hi = [float(v["upper"]) for v in variables]
+    logs = [bool(v.get("log_scale")) for v in variables]
+    to_x = lambda z: [math.exp(math.log(l) + zi * (math.log(h) - math.log(l))) if lg else l + zi * (h - l)
+                      for zi, l, h, lg in zip(z, lo, hi, logs)]
+    evals: list[dict] = []
+    ref = {"scale": None}
+
+    def run(z):
+        z = [min(1.0, max(0.0, float(v))) for v in z]
+        xs = to_x(z)
+        for v, x in zip(variables, xs):
+            _set(flowsheet_id, v["kind"], v["name"], v["param"], x)
+        r = _eval_current(flowsheet_id, objective, cons)
+        r["x"] = xs
+        evals.append(r)
+        return r
+
+    def f(z):
+        r = run(z)
+        if r["objective"] is None:
+            return 1e12
+        y = sgn * r["objective"]
+        if ref["scale"] is None:
+            ref["scale"] = abs(y) + 1.0
+        return y + 10.0 * ref["scale"] * r["violation"]
+
+    n = len(variables)
+    gp = max(3, grid_points if n <= 2 else 3)
+    grid = [[i / (gp - 1) for i in range(gp)] for _ in range(n)]
+    starts = [(f(list(z)), list(z)) for z in itertools.product(*grid)]
+    z0 = min(starts)[1]
+    budget = max(20, max_evaluations - len(starts))
+    res = minimize(f, z0, method="Nelder-Mead", bounds=[(0.0, 1.0)] * n,
+                   options={"maxfev": budget, "xatol": tolerance, "fatol": tolerance * ref["scale"] if ref["scale"] else 1e-8})
+    feas = [r for r in evals if r["feasible"]]
+    if not feas:
+        return {"feasible": False, "n_evaluations": len(evals), "note": "no feasible point found: widen bounds or relax a limit"}
+    best = min(feas, key=lambda r: sgn * r["objective"])
+    for v, x in zip(variables, best["x"]):
+        _set(flowsheet_id, v["kind"], v["name"], v["param"], x)
+    final = _eval_current(flowsheet_id, objective, cons)
+    final["x"] = best["x"]
+    near = [r for r in evals if not r["feasible"] and r["objective"] is not None
+            and all(abs(a - b) <= 0.02 * abs(h - l) for a, b, l, h in zip(r["x"], best["x"], lo, hi))]
+    at_bound = [v["name"] + "." + v["param"] for v, x, l, h in zip(variables, best["x"], lo, hi) if min(x - l, h - x) <= 1e-3 * (h - l)]
+    return {"feasible": True, "best": {"values": {f"{v['name']}.{v['param']}": x for v, x in zip(variables, best["x"])},
+                                       "objective": final["objective"], "constraints": final.get("constraints"), "terms": final.get("terms")},
+            "active_constraints": sorted({m.split(" (vecino")[0] for r in near for m in r["violations"]}) or None,
+            "variables_at_bound": at_bound or None,
+            "n_evaluations": len(evals) + 1, "optimizer_message": str(res.message),
+            "path": [{"x": r["x"], "objective": r["objective"], "feasible": r["feasible"]} for r in evals[:: max(1, len(evals) // 40)]],
+            "note": "variables at a bound: widen the range" if at_bound else "verify the optimum with solve() and report it with the path"}
+
+
+OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi]

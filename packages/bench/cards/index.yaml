@@ -241,3 +241,8 @@ cards:
   version: v3
   title_es: Diámetro de un absorbedor de relleno estructurado
   n_expected: 3
+- id: optimo_compresion_tres_etapas
+  kind: design
+  version: v3
+  title_es: Dos presiones intermedias óptimas con límite del HAZOP
+  n_expected: 3

@@ -403,6 +403,17 @@ def packed_column_hydraulics(flowsheet_id: str, gas_stream: str, liquid_stream: 
 
 
 @beta_tool
+def optimize_design_multi(flowsheet_id: str, variables: list[dict[str, object]], objective: dict[str, object],
+                          constraints: list[dict[str, object]] | None = None, maximize: bool = False, grid_points: int = 5,
+                          max_evaluations: int = 150, tolerance: float = 1e-4) -> str:
+    """Optimize 2-4 interacting design variables together: coarse grid + Nelder-Mead in normalized coordinates, penalties
+    for constraint violations; variables [{kind, name, param, lower, upper, log_scale}], objective/constraints as in
+    optimize_design. Returns best values, objective, active constraints, variables at a bound, path."""
+    return json.dumps(TO.optimize_design_multi(flowsheet_id, variables, objective, constraints, maximize, grid_points,
+                                               max_evaluations, tolerance), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -411,7 +422,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, absorption_stages,
+               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

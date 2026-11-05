@@ -128,6 +128,15 @@ def _oracle_column_diameter():
     return {"diameter_m": r["diameter_m"], "flooding_velocity_m_s": r["flooding_velocity_m_s"], "dP_wet_Pa_per_m": r["dP_wet_Pa_per_m"]}
 
 
+
+def _oracle_three_stage():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("nb18", Path(__file__).resolve().parents[2] / "notebooks" / "18_optimizacion_multivariable.py")
+    nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+    r = nb.case([{"kind": "stream", "name": "s1", "key": "T_K", "max": 430.0}])
+    return {"P1_bar": r["P1_bar"], "P2_bar": r["P2_bar"], "total_power_kW": r["total_kW"]}
+
+
 TRANSPORT_CASES = [
     DesignCase(
         "transporte_dp_tuberia", "Caída de presión en una línea de agua que sube 15 m", "Pressure drop in a water line rising 15 m",
@@ -246,6 +255,20 @@ TRANSPORT_CASES = [
         _oracle_column_diameter, {"diameter_m": {"rel": 0.03}, "flooding_velocity_m_s": {"rel": 0.03}, "dP_wet_Pa_per_m": {"rel": 0.05}},
         {"diameter_m": "m", "flooding_velocity_m_s": "m/s", "dP_wet_Pa_per_m": "Pa/m"},
         lambda a: [("0.3 < D < 3 m", 0.3 < a["diameter_m"] < 3.0, a["diameter_m"])], ["hidraulica", "absorcion", "diseno"]),
+    DesignCase(
+        "optimo_compresion_tres_etapas", "Dos presiones intermedias óptimas con límite del HAZOP",
+        "Two optimal intermediate pressures with a HAZOP limit",
+        "2 kg/s de aire (79 % N₂, 21 % O₂ molar, Peng-Robinson) a 300 K y 1 bar se comprimen a 27 bar en tres etapas adiabáticas "
+        "con eficiencia de 75 % e interenfriamiento a 300 K después de la primera y de la segunda etapa (sin caídas de presión). "
+        "El HAZOP fija que la descarga de la primera etapa no pase de 430 K. ¿Qué presiones intermedias (bar, salida de la etapa 1 "
+        "y de la etapa 2) minimizan la potencia total cumpliendo el límite, y cuánta potencia total requieren (kW)?",
+        "2 kg/s of air (79 % N₂, 21 % O₂ molar, Peng-Robinson) at 300 K and 1 bar are compressed to 27 bar in three adiabatic stages "
+        "at 75 % efficiency with intercooling to 300 K after the first and second stages (no pressure drops). The HAZOP requires "
+        "the first-stage discharge to stay at or below 430 K. Which intermediate pressures (bar, outlet of stage 1 and of stage 2) "
+        "minimize total power while meeting the limit, and how much total power do they need (kW)?",
+        _oracle_three_stage, {"P1_bar": {"abs": 0.05}, "P2_bar": {"rel": 0.03}, "total_power_kW": {"rel": 0.005}},
+        {"P1_bar": "bar", "P2_bar": "bar", "total_power_kW": "kW"},
+        lambda a: [("límite activo: P1 < 3 bar", a["P1_bar"] < 3.0, a["P1_bar"])], ["optimizacion", "hazop", "compresion"]),
 ]
 
 

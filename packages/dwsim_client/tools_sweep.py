@@ -103,6 +103,8 @@ def _readout(flowsheet_id: str, kind: str, name: str, key: str) -> float:
     d = T.read_unit(flowsheet_id, name) if kind == "unit" else T.read_stream(flowsheet_id, name)
     if key.startswith("mole_fractions."):
         return float(d["mole_fractions"][key.split(".", 1)[1]])
+    if key.startswith("component_flow."):                 # molar flow of one compound in a stream, mol/s
+        return float(d["molar_flow_mol_s"]) * float(d["mole_fractions"][key.split(".", 1)[1]])
     if key.startswith("energy_streams_kW."):
         return float(d["energy_streams_kW"][key.split(".", 1)[1]])
     return float(d[key])
@@ -115,7 +117,8 @@ def sweep(flowsheet_id: str, vary_kind: str, vary_name: str, vary_param: str, va
     points). vary_kind/read_kind ∈ {"unit", "stream"}; vary_param as in set_unit_param, or a stream spec
     name (temperature_K, pressure_Pa, vapor_fraction, molar_flow_mol_s, mass_flow_kg_s) or
     "mole_fraction.<Compound>" (the other compounds share the rest); read_key as in read_unit/read_stream
-    (e.g. "T_K", "vapor_fraction", "power_kW", "mole_fractions.Ethanol", "energy_streams_kW.Qr"). The result
+    (e.g. "T_K", "vapor_fraction", "power_kW", "mole_fractions.Ethanol", "component_flow.Propane" (mol/s),
+    "energy_streams_kW.Qr"). The result
     also gives the rows with the minimum and maximum readout (e.g. the azeotrope = minimum of a bubble
     curve). Only rows with ok=true are trustworthy."""
     rows: list[dict[str, Any]] = []
