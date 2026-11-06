@@ -33,7 +33,9 @@ Siguiente (plan mes 2):
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.
-Decisión del owner abierta: UI (web vs Mac).
+**Decisión del owner 2026-11-06: la UI es una app de Mac en SwiftUI** («App Mac Swift»). Estructura en `docs/MAC_APP_ESTRUCTURA.md`
+(agente en Python como proceso hijo, DWSIM aparte por GPL, Developer ID fuera de la App Store, repo privado `apps/alchemai-mac`).
+**Bloqueante de diseño:** el owner elige la plantilla de Figma Community (5 propuestas el 2026-11-06). Sin esa elección no se toca Figma.
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto
@@ -41,5 +43,5 @@ en DWSIM 10.2.12 (usar `Isothermal()`); un `solve()` de DWSIM puede no regresar 
 
 ## Decisiones pendientes del owner
 - Publicar el post de lanzamiento en LinkedIn (lo hace el owner; repo ya público).
-- UI en mes 6: web (Supabase + Stripe) vs app Mac (SwiftUI + FluxoEngine).
+- App de Mac: plantilla de Figma (bloqueante), distribución fuera de la App Store (recomendada), cobro y precio.
 - Fluxo 1.1/1.2: cuándo tocarlas (1.0.0 en App Review desde 2026-10-19).
