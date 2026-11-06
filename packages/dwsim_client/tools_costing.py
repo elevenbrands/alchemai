@@ -11,16 +11,18 @@ from packages.dwsim_client.tools import _s, read_unit
 def equipment_cost(equipment: str, size: dict, options: dict | None = None, year: int = 2023, cepci: float | None = None) -> dict:
     """Purchase cost (USD, f.o.b., NOT installed) by Seider et al. as implemented in IDAES. equipment and size keys:
       heat_exchanger {area_m2, shell_pressure_Pa}; pump {power_W, deltaP_Pa, density_kg_m3, flow_m3_s};
-      compressor {power_W}; vessel {diameter_m, length_m, vertical (bool)}.
+      compressor {power_W}; vessel {diameter_m, length_m, vertical (bool), number_of_trays (optional: adds Seider's tray
+      cost; tray_type Sieve|Valve|BubbleCap, tray_material)}; packing {volume_m3, price_usd_per_m3} (unit price is YOUR input:
+      there is no verified public price table).
     options (optional, names exactly as listed by costing_options): heat_exchanger hx_type (default Utube), material
     (StainlessSteelStainlessSteel), tube_length (TwelveFoot); pump pump_type (Centrifugal), material (CastIron),
     pump_type_factor (1.4), motor_type (Open); compressor compressor_type (Centrifugal), drive_type (ElectricMotor),
     material (CarbonSteel); vessel material (CarbonSteel), include_platforms_ladders (true).
     year: 2015-2023 uses IDAES's CEPCI table; for another year pass cepci (the index value)."""
     fn = {"heat_exchanger": sslw.cost_heat_exchanger_floored, "pump": sslw.cost_pump, "compressor": sslw.cost_compressor,
-          "vessel": sslw.cost_vessel}.get(equipment)
+          "vessel": sslw.cost_vessel, "packing": sslw.cost_packing}.get(equipment)
     if fn is None:
-        raise ValueError("equipment must be heat_exchanger, pump, compressor or vessel")
+        raise ValueError("equipment must be heat_exchanger, pump, compressor, vessel or packing")
     return fn(**size, **(options or {}), year=year, cepci=cepci)
 
 
@@ -62,7 +64,10 @@ def flowsheet_cost(flowsheet_id: str, prices: dict, hours_per_year: float, inter
     """Total annual cost (USD/y) of a SOLVED flowsheet = annualized fixed capital + operating cost.
     Capital: pumps and compressors are sized from the simulation; heaters, coolers and heat exchangers need their area
     in exchanger_areas_m2 {unit: m2} (compute it with heat_exchanger_area); vessels need vessel_sizes {unit: {diameter_m,
-    length_m}}; units without a size are listed in `not_costed`. Fixed capital = Σ purchase × Lang factor × location
+    length_m}}; columns (distillation_column, absorption_column) take vessel_sizes {unit: {diameter_m, tray_spacing_m (default 0.6),
+    extra_height_m (default 3.0: sump + top), tray_type}} → shell with stages−2 trays and height = (stages−2)·spacing + extra,
+    or {diameter_m, packed_height_m, packing_price_usd_per_m3, extra_height_m} → shell + packing; their condenser duty counts
+    as cooling and the reboiler duty as heating. Units without a size are listed in `not_costed`. Fixed capital = Σ purchase × Lang factor × location
     factor; lang: lang_1948_fluid (4.74, default) | lang_1948_solid (3.10) | peters_2003_fluid_fci (5.0) |
     peters_2003_fluid_tci (6.0) | a number. country: IDAES location factor (e.g. "Mexico" → mid of 0.84-0.92).
     Operating: pump/compressor electricity, heater duty × heating price, cooler duty × cooling price.
@@ -94,6 +99,18 @@ def flowsheet_cost(flowsheet_id: str, prices: dict, hours_per_year: float, inter
                 purchase[unit] = equipment_cost("heat_exchanger", {"area_m2": float(areas[unit])}, opts.get(unit), year, cepci)["purchase_cost_usd"]
             else:
                 not_costed.append(unit)
+        elif kind in ("distillation_column", "absorption_column", "shortcut_column"):
+            c = s["conn"].get(unit) or {}
+            if c.get("energy_products"):
+                energy[unit + ".condenser"] = ("cooling", abs(float(u["energy_streams_kW"].get(c["energy_products"][0], 0.0))))
+            if c.get("energy_feeds"):
+                energy[unit + ".reboiler"] = ("heating", abs(float(u["energy_streams_kW"].get(c["energy_feeds"][0], 0.0))))
+            if unit in vessels:
+                cc = _column_cost(s, unit, kind, dict(vessels[unit]), opts.get(unit), year, cepci)
+                purchase[unit] = cc["purchase_cost_usd"]
+                notes[unit] = cc["note"]
+            else:
+                not_costed.append(unit)
         elif kind == "separator" or unit in vessels:
             if unit in vessels:
                 purchase[unit] = equipment_cost("vessel", dict(vessels[unit]), opts.get(unit), year, cepci)["purchase_cost_usd"]
@@ -107,6 +124,27 @@ def flowsheet_cost(flowsheet_id: str, prices: dict, hours_per_year: float, inter
     return out | {"not_costed": not_costed, "notes": notes, "year": year, "areas_m2": areas, "auto_sized": sized,
                   "warning": "Estimado de orden de magnitud: compra de Seider vía IDAES y capital por factor de Lang" if purchase else
                   "Sin equipos costeados: solo costo de operación"}
+
+
+def _column_cost(s: dict, unit: str, kind: str, size: dict, opts: dict | None, year: int, cepci: float | None) -> dict:
+    """Shell (+ trays or packing) of a column from its stage count and the user's diameter."""
+    n = int(s["params"][unit].get("stages", 0))
+    extra = float(size.pop("extra_height_m", 3.0))
+    D = float(size.pop("diameter_m"))
+    o = dict(opts or {})
+    if "packed_height_m" in size:
+        Z = float(size.pop("packed_height_m"))
+        price = float(size.pop("packing_price_usd_per_m3"))
+        shell = equipment_cost("vessel", {"diameter_m": D, "length_m": Z + extra}, o, year, cepci)
+        pack = equipment_cost("packing", {"volume_m3": 3.141592653589793 / 4 * D**2 * Z, "price_usd_per_m3": price}, None, year, cepci)
+        return {"purchase_cost_usd": shell["purchase_cost_usd"] + pack["purchase_cost_usd"],
+                "note": f"coraza {shell['purchase_cost_usd']:.0f} + relleno {pack['purchase_cost_usd']:.0f} USD (precio del relleno = dato de entrada)"}
+    spacing = float(size.pop("tray_spacing_m", 0.6))
+    trays = max(1, n - 2) if kind != "shortcut_column" else max(1, n)
+    o.setdefault("tray_type", size.pop("tray_type", "Sieve"))
+    r = equipment_cost("vessel", {"diameter_m": D, "length_m": trays * spacing + extra, "number_of_trays": trays}, o, year, cepci)
+    return {"purchase_cost_usd": r["purchase_cost_usd"],
+            "note": f"{trays} platos {o['tray_type']} ({r['trays_purchase_cost_usd']:.0f} USD) + coraza, altura {trays * spacing + extra:.1f} m"}
 
 
 def _auto_areas(flowsheet_id: str, specs: dict, areas: dict) -> dict:

@@ -1,0 +1,45 @@
+id: optimo_etapas_reflujo
+kind: design
+version: v3
+title:
+  es: Número de etapas y reflujo de costo mínimo
+  en: Minimum-cost stage count and reflux
+statement:
+  es: 'Columna de destilación etanol-agua (NRTL): alimentación de 100 mol/s, 50 % molar de etanol, a 300 K y 1 atm;
+    condensador total, 1 atm sin caída de presión, fondos fijos en 75 mol/s, alimentación a la mitad de la columna.
+    El destilado debe tener al menos 80 % molar de etanol. Costo anual total = capital anualizado (coraza vertical
+    de acero al carbono de 1.2 m de diámetro con platos perforados, espaciamiento 0.6 m, 3 m adicionales de altura;
+    factor de Lang 4.74; 10 % de interés a 10 años) + vapor del rehervidor a 8 USD/GJ + agua de enfriamiento del
+    condensador a 0.5 USD/GJ, 8000 h/año. ¿Qué número total de etapas (incluyendo condensador y rehervidor, entre
+    8 y 60) y qué relación de reflujo minimizan el costo anual total, y cuánto es (USD/año)?'
+  en: 'Ethanol-water distillation column (NRTL): 100 mol/s feed, 50 mol % ethanol, at 300 K and 1 atm; total condenser,
+    1 atm with no pressure drop, bottoms fixed at 75 mol/s, feed at mid-column. The distillate must be at least
+    80 mol % ethanol. Total annual cost = annualized capital (vertical carbon-steel shell 1.2 m in diameter with
+    sieve trays, 0.6 m spacing, 3 m extra height; Lang factor 4.74; 10 % interest over 10 years) + reboiler steam
+    at 8 USD/GJ + condenser cooling water at 0.5 USD/GJ, 8000 h/y. Which total stage count (condenser and reboiler
+    included, between 8 and 60) and reflux ratio minimize the total annual cost, and what is it (USD/y)?'
+tags:
+- optimizacion
+- entero
+- columna
+- costo
+expected:
+  stages:
+    value: 32.0
+    unit: etapas
+    tol:
+      abs: 3
+  reflux_ratio:
+    value: 1.2665000000000002
+    unit: '-'
+    tol:
+      rel: 0.08
+  TAC_usd_y:
+    value: 866991.953320777
+    unit: USD/año
+    tol:
+      rel: 0.01
+requires:
+- converged
+- balances_closed
+source: DWSIM 10.2.12 (Peng-Robinson / NRTL / IAPWS-IF97) + analytic checks

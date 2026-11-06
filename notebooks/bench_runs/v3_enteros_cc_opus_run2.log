@@ -1,0 +1,9 @@
+  claude -p exit=0 stderr=
+
+## optimo_etapas_reflujo [design] — score 1.00  (173 s)
+  stages                 got=          31.0  expected=32             ok
+  reflux_ratio           got=         1.284  expected=1.2665         ok
+  TAC_usd_y              got=      867009.0  expected=866992         ok
+  notes: Rigorous DWSIM distillation_column (NRTL), 1 atm, B=75 mol/s, feed mid-column; optimize_design_multi over stages 8-60 (integer) x R 0.3-6 with x_EtOH,D >= 0.8 (active, 0.8009). Re-solved at optimum: mass rel err 1.4e-7, compound 3.1e-7, energy 1.6e-12. TAC from flowsheet_cost: capital 193,174 + stea
+
+### Bench: 100.0 % over 1 cards

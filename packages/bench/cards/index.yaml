@@ -246,3 +246,8 @@ cards:
   version: v3
   title_es: Dos presiones intermedias óptimas con límite del HAZOP
   n_expected: 3
+- id: optimo_etapas_reflujo
+  kind: design
+  version: v3
+  title_es: Número de etapas y reflujo de costo mínimo
+  n_expected: 3

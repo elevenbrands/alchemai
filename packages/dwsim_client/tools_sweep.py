@@ -17,13 +17,42 @@ from packages.dwsim_client import tools as T  # noqa: E402
 Q = T.Q
 
 
+def _rebuild_column(flowsheet_id: str, unit: str, new: dict) -> dict:
+    """DWSIM cannot renumber the stages of a connected column (the feed keeps its old stage key), so the column is
+    deleted and re-created with the same name, params and connections. feed_stage keeps its relative position unless
+    given. Integer values only; the optimizer rounds."""
+    s = T._s(flowsheet_id)
+    kind, params, conn = s["kinds"][unit], dict(s["params"][unit]), dict(s["conn"].get(unit) or {})
+    old_n = int(params["stages"])
+    params.update(new)
+    n = int(params["stages"])
+    if kind == "distillation_column" and "feed_stage" not in new:
+        old_feed = int(s["column_feeds"].get(unit, params.get("feed_stage", max(1, old_n // 2))))
+        params["feed_stage"] = min(n - 1, max(2, int(round(old_feed * (n - 1) / (old_n - 1)))))   # same relative position, never condenser/reboiler
+    if kind == "absorption_column" and n < 4:
+        raise ValueError("DWSIM needs at least 4 stages in an absorption column")
+    inner = s["fs"].Inner
+    getattr(inner, "__implementation__", inner).DeleteObject(unit, False)
+    for key in ("units", "kinds", "params", "conn"):
+        s[key].pop(unit, None)
+    s["column_feeds"].pop(unit, None)
+    T.add_unit(flowsheet_id, kind, unit, params)
+    if conn:
+        T.connect(flowsheet_id, unit, conn.get("feeds"), conn.get("products"), conn.get("energy_feeds"), conn.get("energy_products"))
+    return {"ok": True, "unit": unit, "param": list(new)[0], "value": list(new.values())[0], "stages": n,
+            "feed_stage": s["column_feeds"].get(unit), "rebuilt": True}
+
+
 def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> dict:
     """Re-specify one numeric parameter of an existing unit (same names as add_unit params: outlet_T_K,
     outlet_P_Pa, UA_W_K, reflux_ratio, adiabatic_eff_pct, efficiency_pct, heat_added_kW, heat_removed_kW,
-    split_ratio_0 (first ratio; the second becomes 1-x)). Call solve() afterwards."""
+    split_ratio_0 (first ratio; the second becomes 1-x); columns also accept stages and feed_stage (integers; the
+    column is rebuilt with the same connections, feed_stage keeps its relative position). Call solve() afterwards."""
     s = T._s(flowsheet_id)
     b, kind = s["units"][unit], s["kinds"][unit]
     v = float(value)
+    if param in ("stages", "feed_stage"):
+        return _rebuild_column(flowsheet_id, unit, {param: int(round(v))})
     if param == "outlet_T_K":
         b.WithOutletTemperature(Q.Kelvin(v))
     elif param == "outlet_P_Pa":

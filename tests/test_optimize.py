@@ -50,3 +50,29 @@ def test_three_stage_two_variables_reach_equal_ratios():
     assert v["K-1.outlet_P_Pa"] / 1e5 == pytest.approx(3.0, rel=0.03) and v["K-2.outlet_P_Pa"] / 1e5 == pytest.approx(9.0, rel=0.03)
     assert r["active_constraints"] is None and r["variables_at_bound"] is None
     T.close_flowsheet(fid)
+
+
+def test_integer_stages_rebuild_and_enumeration():
+    """Bloque 26: a column's stage count is a re-specifiable integer (the column is rebuilt with its connections) and
+    optimize_design_multi enumerates it; with a purity constraint, more stages need less reflux (monotone curve)."""
+    from packages.dwsim_client import tools as T
+    from packages.dwsim_client.tools_optimize import optimize_design_multi
+    from packages.dwsim_client.tools_sweep import set_unit_param
+    spec = importlib.util.spec_from_file_location("nb20", ROOT / "notebooks" / "20_variables_enteras.py")
+    nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+    fid = nb.column(20, 2.0)
+    assert T.solve(fid)["ok"]
+    x20 = T.read_stream(fid, "dist")["mole_fractions"]["Ethanol"]
+    r = set_unit_param(fid, "T-101", "stages", 14)
+    assert r["rebuilt"] and r["stages"] == 14 and r["feed_stage"] == 7
+    assert T.solve(fid)["ok"]
+    assert T.read_stream(fid, "dist")["mole_fractions"]["Ethanol"] < x20          # fewer stages, same reflux: less pure
+    res = optimize_design_multi(fid, [{"kind": "unit", "name": "T-101", "param": "stages", "lower": 16, "upper": 20, "integer": True},
+                                      {"kind": "unit", "name": "T-101", "param": "reflux_ratio", "lower": 1.0, "upper": 4.0}],
+                                nb.COST, [{"kind": "stream", "name": "dist", "key": "mole_fractions.Ethanol", "min": 0.80}], grid_points=3, max_evaluations=60)
+    assert res["feasible"] and 16 <= res["best"]["values"]["T-101.stages"] <= 20
+    curve = [d for d in res["integer_curve"] if d["feasible"]]
+    assert len(curve) == 5
+    refl = [d["continuous"]["T-101.reflux_ratio"] for d in curve]
+    assert all(a >= b - 1e-3 for a, b in zip(refl, refl[1:])), refl                # R needed falls as N grows
+    T.close_flowsheet(fid)

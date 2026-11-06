@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 25)
+Actualizado: 2026-11-05 (bloque 26)
 
 ## Dónde estamos
+**Bloque 26 (2026-11-05): variables enteras + costo de platos/relleno** (`notebooks/20_variables_enteras.md`): etapas enteras × reflujo en la
+columna etanol-agua → 32 etapas, R 1.267, R/R_min riguroso 1.12; platos de Seider exactos; tarjeta `optimo_etapas_reflujo` (50 tarjetas).
 **Bloque 25 (2026-11-05): conjunto apartado de HAZOP** (`notebooks/19_hazop_apartado.md`): 5 HAZOP publicados nuevos; recall a ciegas
 25/30 = 83 % → 30/30 con reglas de sustancia/régimen térmico; precisión útil 69 % → 76 %, espurias 2.6 % → 0 (revisor independiente,
 rúbrica previa). El owner pidió seguir en orden: 26 variables enteras + costo de relleno, 27 Fluxo 1.1 UI Figma, 28 repo público + post.
@@ -15,7 +17,7 @@ Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 ## Siguiente acción exacta
 Orden fijado por el owner (2026-11-05, «sigue con esos 4 en orden»):
 1. ✅ Conjunto apartado de HAZOP (bloque 25).
-2. **Bloque 26: variables enteras** (número de etapas / platos) en `optimize_design_multi` + costo de relleno e internos de columnas (platos SSLW de IDAES `_cost_distillation_trays`; relleno = precio por m³ como dato de entrada, sin tabla verificada).
+2. ✅ Bloque 26: variables enteras + costo de platos y relleno.
 3. **Bloque 27: Fluxo 1.1 UI en Figma** (reactor cinético + NRTL); necesita al owner una hora y conviene esperar el veredicto de Apple de 1.0.0 (4).
 4. **Bloque 28: repo público + primer post**; el OK explícito del owner sigue siendo obligatorio antes de publicar.
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).

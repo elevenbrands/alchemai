@@ -58,3 +58,17 @@ def test_annual_cost_crf_and_lang():
     assert LANG["peters_2003_fluid_tci"] == 6.0 and 0.84 <= location_factor("Mexico") <= 0.92
     with pytest.raises(KeyError):
         annual_cost({}, {"C-1": ("cooling", 5.0)}, {}, 8000, 0.1, 10)
+
+
+def test_vessel_trays_match_seider_formula():
+    """Bloque 26: IDAES's tray cost reproduces Seider's C_BT·F_NT·F_TT·F_TM by hand (CE500 basis)."""
+    import math
+    from packages.costing.sslw import cost_packing, cost_vessel
+    D_ft = 1.5 / 0.3048
+    r = cost_vessel(1.5, 12.0, number_of_trays=10)
+    assert r["detail"]["base_cost_trays"] == pytest.approx(10 * (2.25 / 1.0414**10) * 468 * math.exp(0.1739 * D_ft), rel=1e-4)
+    r2 = cost_vessel(1.5, 12.0, number_of_trays=30, tray_type="Valve", tray_material="StainlessSteel316")
+    assert r2["detail"]["base_cost_trays"] == pytest.approx(30 * 1.0 * 1.18 * (1.401 + 0.0724 * D_ft) * 468 * math.exp(0.1739 * D_ft), rel=1e-4)
+    assert r["purchase_cost_usd"] > cost_vessel(1.5, 12.0)["purchase_cost_usd"] and r["trays_purchase_cost_usd"] > 0
+    p = cost_packing(3.2, 1500.0)
+    assert p["purchase_cost_usd"] == pytest.approx(4800.0) and "entrada" in p["note"]

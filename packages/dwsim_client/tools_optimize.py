@@ -143,11 +143,14 @@ def optimize_design(flowsheet_id: str, vary_kind: str, vary_name: str, vary_para
 
 def optimize_design_multi(flowsheet_id: str, variables: list[dict], objective: dict, constraints: list[dict] | None = None,
                           maximize: bool = False, grid_points: int = 5, max_evaluations: int = 150, tolerance: float = 1e-4) -> dict:
-    """Optimize 2-4 design variables together (they may interact, like the intermediate pressures of a multistage
-    compressor). variables: [{"kind": "unit"|"stream", "name", "param", "lower", "upper", "log_scale": bool}] with params as
-    in optimize_design. objective and constraints exactly as in optimize_design. Method: a coarse grid (grid_points per
-    variable, fewer when there are more variables) picks the start, then Nelder-Mead in normalized coordinates; constraint
-    violations and unsolved points are penalized, and the reported optimum is always a feasible evaluated point.
+    """Optimize 1-4 design variables together (they may interact, like the intermediate pressures of a multistage
+    compressor). variables: [{"kind": "unit"|"stream", "name", "param", "lower", "upper", "log_scale": bool, "integer": bool}]
+    with params as in optimize_design; "integer": true for counts (column stages: the column is rebuilt at each value).
+    objective and constraints exactly as in optimize_design. Method: a coarse grid (grid_points per variable, fewer when
+    there are more variables) picks the start, then Nelder-Mead in normalized coordinates over the continuous variables;
+    with integer variables, every integer value in range (up to 12, else a coarse set) gets its own continuous
+    sub-optimization and the best feasible wins. Constraint violations and unsolved points are penalized, and the
+    reported optimum is always a feasible evaluated point.
     Returns best values, objective, active constraints, the path and how many solves it took; leaves the flowsheet solved
     at the optimum."""
     import itertools
@@ -156,6 +159,9 @@ def optimize_design_multi(flowsheet_id: str, variables: list[dict], objective: d
     if not 1 <= len(variables) <= 4:
         raise ValueError("1 to 4 variables")
     sgn = -1.0 if maximize else 1.0
+    ints = [i for i, v in enumerate(variables) if v.get("integer")]
+    if ints:
+        return _optimize_with_integers(flowsheet_id, variables, objective, cons, maximize, grid_points, max_evaluations, tolerance, ints)
     lo = [float(v["lower"]) for v in variables]
     hi = [float(v["upper"]) for v in variables]
     logs = [bool(v.get("log_scale")) for v in variables]
@@ -209,6 +215,81 @@ def optimize_design_multi(flowsheet_id: str, variables: list[dict], objective: d
             "n_evaluations": len(evals) + 1, "optimizer_message": str(res.message),
             "path": [{"x": r["x"], "objective": r["objective"], "feasible": r["feasible"]} for r in evals[:: max(1, len(evals) // 40)]],
             "note": "variables at a bound: widen the range" if at_bound else "verify the optimum with solve() and report it with the path"}
+
+
+def _optimize_with_integers(fid, variables, objective, cons, maximize, grid_points, max_evaluations, tolerance, ints) -> dict:
+    """Enumerate the integer variables (full range when ≤ 12 values per variable, else ~6 evenly spaced values and a
+    refinement around the best), optimizing the continuous ones at each combination."""
+    import itertools
+    sgn = -1.0 if maximize else 1.0
+    cont = [v for i, v in enumerate(variables) if i not in ints]
+
+    def int_values(v):
+        lo, hi = int(round(v["lower"])), int(round(v["upper"]))
+        vals = list(range(lo, hi + 1))
+        if len(vals) > 12:
+            step = max(1, (hi - lo) // 5)
+            vals = sorted({lo + k * step for k in range(6)} | {hi})
+        return vals
+
+    combos = list(itertools.product(*[int_values(variables[i]) for i in ints]))
+    per = max(8, max_evaluations // max(1, len(combos)))
+    results, n_evals = [], 0
+
+    def run_combo(c):
+        nonlocal n_evals
+        for i, val in zip(ints, c):
+            _set(fid, variables[i]["kind"], variables[i]["name"], variables[i]["param"], float(val))
+        if cont:
+            r = optimize_design_multi(fid, cont, objective, cons, maximize, grid_points, per, tolerance)
+            n_evals += r.get("n_evaluations", 0)
+        else:
+            e = _eval_current(fid, objective, cons)
+            n_evals += 1
+            r = ({"feasible": True, "best": {"values": {}, "objective": e["objective"], "constraints": e.get("constraints"), "terms": e.get("terms")},
+                  "active_constraints": None, "variables_at_bound": None} if e["feasible"] else {"feasible": False})
+        r["integers"] = {f"{variables[i]['name']}.{variables[i]['param']}": val for i, val in zip(ints, c)}
+        return r
+
+    for c in combos:
+        results.append(run_combo(c))
+    feas = [r for r in results if r["feasible"]]
+    full = len(list(itertools.product(*[range(int(round(variables[i]["lower"])), int(round(variables[i]["upper"])) + 1) for i in ints])))
+    rounds = 0
+    while feas and len(combos) < full and rounds < 8:          # refine ±2 around the best until it is interior
+        rounds += 1
+        best = min(feas, key=lambda r: sgn * r["best"]["objective"])
+        bc = tuple(best["integers"].values())
+        seen = {tuple(r["integers"].values()) for r in results}
+        new = [c for c in itertools.product(*[range(int(b) - 2, int(b) + 3) for b in bc])
+               if c not in seen and all(variables[i]["lower"] <= val <= variables[i]["upper"] for i, val in zip(ints, c))]
+        if not new:
+            break
+        for c in new:
+            results.append(run_combo(c))
+        feas = [r for r in results if r["feasible"]]
+    if not feas:
+        return {"feasible": False, "n_evaluations": n_evals, "note": "no feasible point found: widen bounds or relax a limit"}
+    best = min(feas, key=lambda r: sgn * r["best"]["objective"])
+    for i, val in best["integers"].items():
+        name, param = i.rsplit(".", 1)
+        kind = next(v["kind"] for v in variables if v["name"] == name and v["param"] == param)
+        _set(fid, kind, name, param, float(val))
+    for k, x in best["best"]["values"].items():
+        name, param = k.rsplit(".", 1)
+        kind = next(v["kind"] for v in variables if v["name"] == name and v["param"] == param)
+        _set(fid, kind, name, param, x)
+    final = _eval_current(fid, objective, cons)
+    curve = sorted(({"integers": r["integers"], "objective": r["best"]["objective"] if r["feasible"] else None,
+                     "continuous": r["best"]["values"] if r["feasible"] else None, "feasible": r["feasible"]} for r in results),
+                   key=lambda d: tuple(d["integers"].values()))
+    ilo = [variables[i]["lower"] for i in ints]; ihi = [variables[i]["upper"] for i in ints]
+    at_bound = [k for (k, val), l, h in zip(best["integers"].items(), ilo, ihi) if val in (int(round(l)), int(round(h)))] + (best.get("variables_at_bound") or [])
+    return {"feasible": True, "best": {"values": best["integers"] | best["best"]["values"], "objective": final["objective"],
+                                       "constraints": final.get("constraints"), "terms": final.get("terms")},
+            "active_constraints": best.get("active_constraints"), "variables_at_bound": at_bound or None,
+            "n_evaluations": n_evals + 1, "integer_curve": curve,
+            "note": "integer variable at a bound: widen the range" if at_bound else "integer_curve shows the objective at each stage count; report how flat it is"}
 
 
 OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi]

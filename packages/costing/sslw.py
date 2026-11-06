@@ -152,20 +152,40 @@ def cost_compressor(power_W: float, compressor_type: str = "Centrifugal", drive_
 
 def cost_vessel(diameter_m: float, length_m: float, vertical: bool = True, material: str = "CarbonSteel",
                 include_platforms_ladders: bool = True, weight_limit: int = 1, aspect_ratio_range: int = 1,
+                number_of_trays: int | None = None, tray_type: str = "Sieve", tray_material: str = "CarbonSteel",
                 year: int = 2023, cepci: float | None = None) -> dict:
-    """Pressure vessel shell (Seider): weight from diameter, length and the default shell thickness of IDAES."""
-    from idaes.models.costing.SSLW import SSLWCostingData, VesselMaterial
+    """Pressure vessel shell (Seider): weight from diameter, length and the default shell thickness of IDAES.
+    number_of_trays (vertical only) adds Seider's tray cost: C_BT = 468·exp(0.1739·D_ft) per tray × F_NT (= 2.25/1.0414^N,
+    at least 1) × F_TT (Sieve 1, Valve 1.18, BubbleCap 1.87) × F_TM (material, grows with D); valid for D of 2-16 ft."""
+    from idaes.models.costing.SSLW import SSLWCostingData, TrayMaterial, TrayType, VesselMaterial
     from idaes.core import UnitModelCostingBlock
     from pyomo.environ import Param, units as u
 
     def build(m):
         m.fs.unit.length = Param(initialize=length_m, units=u.m)
         m.fs.unit.diameter = Param(initialize=diameter_m, units=u.m)
+        args = {"vertical": vertical, "material_type": _enum(VesselMaterial, material), "weight_limit": weight_limit,
+                "aspect_ratio_range": aspect_ratio_range, "include_platforms_ladders": include_platforms_ladders}
+        if number_of_trays is not None:
+            args |= {"number_of_trays": int(number_of_trays), "tray_type": _enum(TrayType, tray_type), "tray_material": _enum(TrayMaterial, tray_material)}
         m.fs.unit.costing = UnitModelCostingBlock(flowsheet_costing_block=m.fs.costing, costing_method=SSLWCostingData.cost_vessel,
-                                                  costing_method_arguments={"vertical": vertical, "material_type": _enum(VesselMaterial, material),
-                                                                            "weight_limit": weight_limit, "aspect_ratio_range": aspect_ratio_range,
-                                                                            "include_platforms_ladders": include_platforms_ladders})
-    return _price(_run(build), year, cepci) | {"equipment": "vessel", "diameter_m": diameter_m, "length_m": length_m}
+                                                  costing_method_arguments=args)
+
+    r = _run(build)
+    out = _price(r, year, cepci) | {"equipment": "vessel", "diameter_m": diameter_m, "length_m": length_m}
+    if number_of_trays is not None:
+        out |= {"number_of_trays": int(number_of_trays), "tray_type": tray_type,
+                "trays_purchase_cost_usd": r["detail"]["base_cost_trays"] * out["purchase_cost_usd"] / r["usd_ce500"]}
+    return out
+
+
+def cost_packing(volume_m3: float, price_usd_per_m3: float, year: int = 2023, cepci: float | None = None) -> dict:
+    """Packing purchase cost = volume × unit price. There is no verified public price table (vendor quotes, strongly
+    dependent on material and size), so the unit price is an INPUT and the result says so; the CEPCI scaling uses the
+    year the price refers to (`year`)."""
+    return {"equipment": "packing", "volume_m3": volume_m3, "price_usd_per_m3": price_usd_per_m3,
+            "purchase_cost_usd": volume_m3 * price_usd_per_m3, "year": year,
+            "note": "precio unitario del relleno = dato de entrada del usuario (sin tabla pública verificada)"}
 
 
 def options() -> dict[str, Any]:

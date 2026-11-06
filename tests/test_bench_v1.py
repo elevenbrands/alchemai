@@ -9,8 +9,8 @@ from packages.bench.runner import grade, load_cards, null_agent, oracle_agent, p
 
 
 def test_thirty_cards_two_versions():
-    assert len(load_cards()) == 49
-    assert len(load_cards(version="v3")) == 10
+    assert len(load_cards()) == 50
+    assert len(load_cards(version="v3")) == 11
     assert len(load_cards(version="v0")) == 20
     traps = load_cards(version="v1")
     assert len(traps) == 10 and all(c["kind"] == "trap" and c["trap"]["keywords"] for c in traps)

@@ -228,7 +228,8 @@ def read_unit(flowsheet_id: str, name: str) -> str:
 @beta_tool
 def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> str:
     """Re-specify one numeric parameter of an existing unit (outlet_T_K, outlet_P_Pa, UA_W_K, reflux_ratio,
-    adiabatic_eff_pct, polytropic_eff_pct, efficiency_pct, heat_added_kW, heat_removed_kW, split_ratio_0). Then solve()."""
+    adiabatic_eff_pct, polytropic_eff_pct, efficiency_pct, heat_added_kW, heat_removed_kW, split_ratio_0; columns also
+    stages and feed_stage, integers: the column is rebuilt with its connections). Then solve()."""
     return json.dumps(TS.set_unit_param(flowsheet_id, unit, param, value))
 
 
@@ -321,7 +322,9 @@ def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, o
                    cepci: float | None = None) -> str:
     """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
     shell_pressure_Pa} | pump {power_W, deltaP_Pa, density_kg_m3, flow_m3_s} | compressor {power_W} | vessel
-    {diameter_m, length_m, vertical}. options as listed by costing_options. year 2015-2023, else pass cepci."""
+    {diameter_m, length_m, vertical, number_of_trays (optional, Seider tray cost; tray_type Sieve|Valve|BubbleCap)} |
+    packing {volume_m3, price_usd_per_m3 (your input; no verified public table)}. options as listed by costing_options.
+    year 2015-2023, else pass cepci."""
     return json.dumps(TC.equipment_cost(equipment, size, options, year, cepci), default=float)
 
 
@@ -344,7 +347,9 @@ def flowsheet_cost(flowsheet_id: str, prices: dict[str, float], hours_per_year: 
                    year: int = 2023) -> str:
     """Total annual cost of a solved flowsheet: Σ purchase (Seider via IDAES) × Lang × location, annualized by
     CRF(interest, years), + electricity/heating/cooling at the given prices (electricity_usd_kWh, heating_usd_GJ,
-    cooling_usd_GJ). Exchangers need exchanger_areas_m2; vessels need vessel_sizes."""
+    cooling_usd_GJ). Exchangers need exchanger_areas_m2; vessels need vessel_sizes; columns take vessel_sizes {unit:
+    {diameter_m, tray_spacing_m, extra_height_m}} (shell + stages−2 trays) or {diameter_m, packed_height_m,
+    packing_price_usd_per_m3} (shell + packing), and their condenser/reboiler duties count as cooling/heating."""
     return json.dumps(TC.flowsheet_cost(flowsheet_id, prices, hours_per_year, interest, years, exchanger_areas_m2, vessel_sizes,
                                         options, lang, country, year), default=float)
 
@@ -406,9 +411,11 @@ def packed_column_hydraulics(flowsheet_id: str, gas_stream: str, liquid_stream: 
 def optimize_design_multi(flowsheet_id: str, variables: list[dict[str, object]], objective: dict[str, object],
                           constraints: list[dict[str, object]] | None = None, maximize: bool = False, grid_points: int = 5,
                           max_evaluations: int = 150, tolerance: float = 1e-4) -> str:
-    """Optimize 2-4 interacting design variables together: coarse grid + Nelder-Mead in normalized coordinates, penalties
-    for constraint violations; variables [{kind, name, param, lower, upper, log_scale}], objective/constraints as in
-    optimize_design. Returns best values, objective, active constraints, variables at a bound, path."""
+    """Optimize 1-4 interacting design variables together: coarse grid + Nelder-Mead in normalized coordinates, penalties
+    for constraint violations; variables [{kind, name, param, lower, upper, log_scale, integer}] ("integer": true for
+    counts such as column stages: each value is enumerated with its own continuous sub-optimization and the result
+    carries integer_curve), objective/constraints as in optimize_design. Returns best values, objective, active
+    constraints, variables at a bound, path."""
     return json.dumps(TO.optimize_design_multi(flowsheet_id, variables, objective, constraints, maximize, grid_points,
                                                max_evaluations, tolerance), default=float)
 

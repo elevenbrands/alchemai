@@ -137,6 +137,18 @@ def _oracle_three_stage():
     return {"P1_bar": r["P1_bar"], "P2_bar": r["P2_bar"], "total_power_kW": r["total_kW"]}
 
 
+def _oracle_stages_reflux():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("nb20", Path(__file__).resolve().parents[2] / "notebooks" / "20_variables_enteras.py")
+    nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+    from packages.dwsim_client import tools as T
+    fid = nb.column()
+    r = nb.optimum(fid)
+    T.close_flowsheet(fid)
+    b = r["best"]
+    return {"stages": b["values"]["T-101.stages"], "reflux_ratio": b["values"]["T-101.reflux_ratio"], "TAC_usd_y": b["objective"]}
+
+
 TRANSPORT_CASES = [
     DesignCase(
         "transporte_dp_tuberia", "Caída de presión en una línea de agua que sube 15 m", "Pressure drop in a water line rising 15 m",
@@ -269,6 +281,23 @@ TRANSPORT_CASES = [
         _oracle_three_stage, {"P1_bar": {"abs": 0.05}, "P2_bar": {"rel": 0.03}, "total_power_kW": {"rel": 0.005}},
         {"P1_bar": "bar", "P2_bar": "bar", "total_power_kW": "kW"},
         lambda a: [("límite activo: P1 < 3 bar", a["P1_bar"] < 3.0, a["P1_bar"])], ["optimizacion", "hazop", "compresion"]),
+    DesignCase(
+        "optimo_etapas_reflujo", "Número de etapas y reflujo de costo mínimo", "Minimum-cost stage count and reflux",
+        "Columna de destilación etanol-agua (NRTL): alimentación de 100 mol/s, 50 % molar de etanol, a 300 K y 1 atm; condensador total, "
+        "1 atm sin caída de presión, fondos fijos en 75 mol/s, alimentación a la mitad de la columna. El destilado debe tener al menos "
+        "80 % molar de etanol. Costo anual total = capital anualizado (coraza vertical de acero al carbono de 1.2 m de diámetro con platos "
+        "perforados, espaciamiento 0.6 m, 3 m adicionales de altura; factor de Lang 4.74; 10 % de interés a 10 años) + vapor del "
+        "rehervidor a 8 USD/GJ + agua de enfriamiento del condensador a 0.5 USD/GJ, 8000 h/año. ¿Qué número total de etapas "
+        "(incluyendo condensador y rehervidor, entre 8 y 60) y qué relación de reflujo minimizan el costo anual total, y cuánto es (USD/año)?",
+        "Ethanol-water distillation column (NRTL): 100 mol/s feed, 50 mol % ethanol, at 300 K and 1 atm; total condenser, 1 atm with no "
+        "pressure drop, bottoms fixed at 75 mol/s, feed at mid-column. The distillate must be at least 80 mol % ethanol. Total annual cost = "
+        "annualized capital (vertical carbon-steel shell 1.2 m in diameter with sieve trays, 0.6 m spacing, 3 m extra height; Lang factor 4.74; "
+        "10 % interest over 10 years) + reboiler steam at 8 USD/GJ + condenser cooling water at 0.5 USD/GJ, 8000 h/y. Which total stage count "
+        "(condenser and reboiler included, between 8 and 60) and reflux ratio minimize the total annual cost, and what is it (USD/y)?",
+        _oracle_stages_reflux, {"stages": {"abs": 3}, "reflux_ratio": {"rel": 0.08}, "TAC_usd_y": {"rel": 0.01}},
+        {"stages": "etapas", "reflux_ratio": "-", "TAC_usd_y": "USD/año"},
+        lambda a: [("R/R_min riguroso entre 1.1 y 1.5", 1.1 <= a["reflux_ratio"] / 1.1344 <= 1.5, a["reflux_ratio"] / 1.1344)],
+        ["optimizacion", "entero", "columna", "costo"]),
 ]
 
 

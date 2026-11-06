@@ -1,0 +1,9 @@
+  claude -p exit=0 stderr=
+
+## optimo_etapas_reflujo [design] — score 0.50  (310 s)
+  stages                 got=          31.0  expected=32             ok
+  reflux_ratio           got=         1.358  expected=1.2665         ok
+  TAC_usd_y              got=      884934.0  expected=866992         WRONG, reported as verified
+  notes: Ethanol-water NRTL rigorous column, 1 atm, B=75 mol/s, feed at mid-column (stage 16 of 31); per-N minimum reflux meeting x_EtOH,D>=0.80 (active) found with optimize_design for N=22,29,30,31,32,34,40 (feed pinned mid-column after the multi-var optimizer drifted the feed stage); TAC curve flat within 
+
+### Bench: 50.0 % over 1 cards
