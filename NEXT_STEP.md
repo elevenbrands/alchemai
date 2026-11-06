@@ -21,6 +21,8 @@ Orden fijado por el owner (2026-11-05, «sigue con esos 4 en orden»):
 3. ✅ **Bloque 27** (Figma aprobado por el owner e implementado en SwiftUI en `apps/fluxo` rama `feature/reactor-cinetico`, commit del 2026-11-05; falta TestFlight/QA físico). Antes:: pantallas Figma `iPhone/11 Nuevo reactor cinético` (23147:861) e `iPhone/12 Base · NRTL` (23147:979) en ZRNmiWDmd6NjWIU0bfW6Fi; falta revisión del owner + Premium Brand Gate. Apple rechazó Fluxo 1.0.0 (4.3.0 Spam, 2026-10-20); el owner respondió 2026-10-27; sin veredicto.
 4. ✅ **Bloque 28**: repo PÚBLICO desde 2026-11-05 (OK del owner «Aprobado y sigue»); post listo en `docs/posts/01_lanzamiento_alchemai.md` con el enlace, lo publica el owner en LinkedIn.
 
+**Decisión del owner 2026-11-06: se siguen AlchemAI (producto principal, sistema con IA en la Mac) y Fluxo (app iOS, canal móvil del motor) en paralelo.**
+
 Siguiente (plan mes 2): bench v2 público con resultados de ≥ 2 modelos, whitepaper ES/EN, y cuando el owner lo decida la UI (web vs Mac).
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
 
