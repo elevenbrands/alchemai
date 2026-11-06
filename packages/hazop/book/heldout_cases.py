@@ -22,8 +22,8 @@ def marhavilas_estabilizadora():
              ("SRC-STM", "Source", "", {}), ("FV-110", "RegulatingFlow", "Steam flow control valve to reboiler", {}),
              ("E-101", "ExchangingThermalEnergy", "Steam-heated reboiler", HX), ("SNK-COND", "Sink", "", {}),
              ("P-101", "Pumping", "Stabilised crude pump (spare installed)", {}),
-             ("E-103", "RemovingThermalEnergy", "Seawater cooler", {}), ("SNK-STORAGE", "Sink", "", {}),
-             ("V-103", "SeparatingByFlash", "Overhead gas scrubber", {}), ("C-101", "Compressing", "Two-stage reciprocating compressor", {}),
+             ("E-103", "RemovingThermalEnergy", "Seawater cooler", HX), ("SNK-STORAGE", "Sink", "", {}),
+             ("V-103", "SeparatingByFlash", "Overhead gas scrubber", {}), ("C-101", "Compressing", "Two-stage reciprocating compressor", {"method": ("CompressionMethod", "RECIPROCATINGMOTION")}),
              ("SNK-GAS", "Sink", "", {}), ("SNK-H2O", "Sink", "", {}), ("SNK-LIQ", "Sink", "", {})]
     conns = [("1", "SRC-1", "V-101", 20, 20.0, 85000, feed, 0.15), ("2", "V-101", "E-102", 20, 19.0, 80000, feed, 0.0),
              ("2w", "V-101", "SNK-H2O", 20, 19.0, 3000, [0.001, 0.0, 0.0, 0.0, 0.0, 0.999], 0.0),
