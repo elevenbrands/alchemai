@@ -1,8 +1,12 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloques 27-28 preparados)
+Actualizado: 2026-11-06 (bloques 29-30 cerrados, mes 2)
 
 ## Dónde estamos
+**Bloque 29 (2026-11-06): bench completo con tres modelos** (`notebooks/22_bench_tres_modelos.md`): una pasada de las 50 tarjetas
+por modelo: Opus 97.0 % (99.0 % con `reciclo` corregida), Sonnet 94.0 %, Haiku 92.4 %; trampas 15/15 · 14/15 · 15/15; la brecha está en v3
+(95/82/77 %). Opus detectó que `reciclo` no daba T ni P del agua fresca: corregido. Datos en `notebooks/bench_runs/m2/`.
+**Bloque 30 (2026-11-06): constantes de Fluxo** (`notebooks/21_fluxo_constantes.md`): 166/167 dentro de tolerancia; ω H₂S 0.090 → 0.100.
 **Bloque 26 (2026-11-05): variables enteras + costo de platos/relleno** (`notebooks/20_variables_enteras.md`): etapas enteras × reflujo en la
 columna etanol-agua → 32 etapas, R 1.267, R/R_min riguroso 1.12; platos de Seider exactos; tarjeta `optimo_etapas_reflujo` (50 tarjetas).
 **Bloque 25 (2026-11-05): conjunto apartado de HAZOP** (`notebooks/19_hazop_apartado.md`): 5 HAZOP publicados nuevos; recall a ciegas
@@ -23,14 +27,19 @@ Orden fijado por el owner (2026-11-05, «sigue con esos 4 en orden»):
 
 **Decisión del owner 2026-11-06: se siguen AlchemAI (producto principal, sistema con IA en la Mac) y Fluxo (app iOS, canal móvil del motor) en paralelo.**
 
-Siguiente (plan mes 2): bench v2 público con resultados de ≥ 2 modelos, whitepaper ES/EN, y cuando el owner lo decida la UI (web vs Mac).
-Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
+Siguiente (plan mes 2):
+1. ✅ Bloque 29: tabla de tres modelos.
+2. ✅ Bloque 30: constantes de Fluxo.
+3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
+4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
+5. Fluxo: exportar casos a JSON/SFILES.
+Decisión del owner abierta: UI (web vs Mac).
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto
 en DWSIM 10.2.12 (usar `Isothermal()`); un `solve()` de DWSIM puede no regresar (columna PR polar; también una vez la columna shortcut con Sonnet): el arnés ya mata el grupo al vencer el timeout, pero el servidor MCP no tiene timeout por llamada; en Fluxo usar NRTL para polares (solo motor; la UI aún no lo expone).
 
 ## Decisiones pendientes del owner
-- Hacer público el repo (plan: mes 3) y primer post.
+- Publicar el post de lanzamiento en LinkedIn (lo hace el owner; repo ya público).
 - UI en mes 6: web (Supabase + Stripe) vs app Mac (SwiftUI + FluxoEngine).
 - Fluxo 1.1/1.2: cuándo tocarlas (1.0.0 en App Review desde 2026-10-19).
