@@ -1,0 +1,1321 @@
+[
+ {
+  "id": "metano",
+  "cas": "74-82-8",
+  "MW": {
+   "fluxo": 16.043,
+   "ref": 16.04246,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00054,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 190.56,
+   "ref": 190.564,
+   "src": "IUPAC",
+   "dev": -2e-05,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 45.99,
+   "ref": 45.99,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.011,
+   "ref": 0.01142,
+   "src": "HEOS",
+   "dev": -0.00042,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 111.66,
+   "ref": 111.66721,
+   "src": "HEOS",
+   "dev": -0.00721,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -74.52,
+   "ref": -74.534,
+   "src": "ATCT_G",
+   "dev": 0.014,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    -0.002,
+    0.0094,
+    -0.0121
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "etano",
+  "cas": "74-84-0",
+  "MW": {
+   "fluxo": 30.07,
+   "ref": 30.06904,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00096,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 305.32,
+   "ref": 305.32,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 48.72,
+   "ref": 48.72,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.099,
+   "ref": 0.0995,
+   "src": "HEOS",
+   "dev": -0.0005,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 184.55,
+   "ref": 184.56859,
+   "src": "HEOS",
+   "dev": -0.01859,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -83.82,
+   "ref": -83.78,
+   "src": "ATCT_G",
+   "dev": -0.04,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0019,
+    0.0036,
+    -0.001
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "propano",
+  "cas": "74-98-6",
+  "MW": {
+   "fluxo": 44.097,
+   "ref": 44.09562,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00138,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 369.83,
+   "ref": 369.83,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 42.48,
+   "ref": 42.48,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.152,
+   "ref": 0.1521,
+   "src": "HEOS",
+   "dev": -0.0001,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 231.02,
+   "ref": 231.03625,
+   "src": "HEOS",
+   "dev": -0.01625,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -104.68,
+   "ref": -104.39,
+   "src": "ATCT_G",
+   "dev": -0.29,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0037,
+    0.0071,
+    0.0059
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "n-butano",
+  "cas": "106-97-8",
+  "MW": {
+   "fluxo": 58.123,
+   "ref": 58.1222,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.0008,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 425.12,
+   "ref": 425.12,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 37.96,
+   "ref": 37.96,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.2,
+   "ref": 0.201,
+   "src": "HEOS",
+   "dev": -0.001,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 272.66,
+   "ref": 272.6599,
+   "src": "HEOS",
+   "dev": 0.0001,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -125.79,
+   "ref": -125.85,
+   "src": "ATCT_G",
+   "dev": 0.06,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    -0.0021,
+    -0.0094,
+    -0.0019
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "i-butano",
+  "cas": "75-28-5",
+  "MW": {
+   "fluxo": 58.123,
+   "ref": 58.1222,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.0008,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 407.85,
+   "ref": 407.8,
+   "src": "IUPAC",
+   "dev": 0.00012,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 36.4,
+   "ref": 36.4,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.186,
+   "ref": 0.184,
+   "src": "HEOS",
+   "dev": 0.002,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 261.34,
+   "ref": 261.40101,
+   "src": "HEOS",
+   "dev": -0.06101,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -134.99,
+   "ref": -135.36,
+   "src": "ATCT_G",
+   "dev": 0.37,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0102,
+    -0.0047,
+    -0.0035
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "n-pentano",
+  "cas": "109-66-0",
+  "MW": {
+   "fluxo": 72.15,
+   "ref": 72.14878,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00122,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 469.7,
+   "ref": 469.7,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 33.7,
+   "ref": 33.7,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.252,
+   "ref": 0.251,
+   "src": "HEOS",
+   "dev": 0.001,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 309.22,
+   "ref": 309.20935,
+   "src": "HEOS",
+   "dev": 0.01065,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -146.76,
+   "ref": -146.92234,
+   "src": "WEBBOOK",
+   "dev": 0.16234,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0009,
+    -0.0021,
+    -0.0095
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "n-hexano",
+  "cas": "110-54-3",
+  "MW": {
+   "fluxo": 86.177,
+   "ref": 86.17536,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00164,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 507.6,
+   "ref": 507.6,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 30.25,
+   "ref": 30.25,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.3,
+   "ref": 0.3,
+   "src": "HEOS",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 341.88,
+   "ref": 341.86562,
+   "src": "HEOS",
+   "dev": 0.01438,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -166.92,
+   "ref": -166.94,
+   "src": "ATCT_G",
+   "dev": 0.02,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.004,
+    -0.0024,
+    -0.0048
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "n-heptano",
+  "cas": "142-82-5",
+  "MW": {
+   "fluxo": 100.204,
+   "ref": 100.20194,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00206,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 540.2,
+   "ref": 540.2,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 27.4,
+   "ref": 27.4,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.35,
+   "ref": 0.349,
+   "src": "HEOS",
+   "dev": 0.001,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 371.57,
+   "ref": 371.55036,
+   "src": "HEOS",
+   "dev": 0.01964,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -187.78,
+   "ref": -187.34,
+   "src": "ATCT_G",
+   "dev": -0.44,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0055,
+    -0.0032,
+    -0.0023
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "n-octano",
+  "cas": "111-65-9",
+  "MW": {
+   "fluxo": 114.231,
+   "ref": 114.22852,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00248,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 568.7,
+   "ref": 568.7,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 24.9,
+   "ref": 24.9,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.399,
+   "ref": 0.398,
+   "src": "HEOS",
+   "dev": 0.001,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 398.82,
+   "ref": 398.79376,
+   "src": "HEOS",
+   "dev": 0.02624,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -208.75,
+   "ref": -208.22,
+   "src": "ATCT_G",
+   "dev": -0.53,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0065,
+    -0.0037,
+    -0.0011
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "nitrogeno",
+  "cas": "7727-37-9",
+  "MW": {
+   "fluxo": 28.014,
+   "ref": 28.0134,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.0006,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 126.2,
+   "ref": 126.192,
+   "src": "HEOS",
+   "dev": 6e-05,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 33.98,
+   "ref": 33.958,
+   "src": "HEOS",
+   "dev": 0.00065,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.037,
+   "ref": 0.0372,
+   "src": "HEOS",
+   "dev": -0.0002,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 77.35,
+   "ref": 77.355,
+   "src": "HEOS",
+   "dev": -0.005,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 0.0,
+   "ref": 0.0,
+   "src": "ATCT_G",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0019,
+    0.0008,
+    0.001
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "oxigeno",
+  "cas": "7782-44-7",
+  "MW": {
+   "fluxo": 31.999,
+   "ref": 31.9988,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.0002,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 154.58,
+   "ref": 154.581,
+   "src": "HEOS",
+   "dev": -1e-05,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 50.43,
+   "ref": 50.43,
+   "src": "HEOS",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.022,
+   "ref": 0.0222,
+   "src": "HEOS",
+   "dev": -0.0002,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 90.19,
+   "ref": 90.18781,
+   "src": "HEOS",
+   "dev": 0.00219,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 0.0,
+   "ref": 0.0,
+   "src": "ATCT_G",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0004,
+    0.0015,
+    0.0029
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "co2",
+  "cas": "124-38-9",
+  "MW": {
+   "fluxo": 44.01,
+   "ref": 44.0095,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.0005,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 304.12,
+   "ref": 304.1282,
+   "src": "HEOS",
+   "dev": -3e-05,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 73.74,
+   "ref": 73.773,
+   "src": "HEOS",
+   "dev": -0.00045,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.225,
+   "ref": 0.22394,
+   "src": "HEOS",
+   "dev": 0.00106,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 194.7,
+   "ref": null,
+   "src": null,
+   "ok": null
+  },
+  "Hf": {
+   "fluxo": -393.51,
+   "ref": -393.474,
+   "src": "ATCT_G",
+   "dev": -0.036,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0012,
+    0.0008,
+    0.0016
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "h2s",
+  "cas": "7783-06-4",
+  "MW": {
+   "fluxo": 34.082,
+   "ref": 34.08088,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00112,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 373.4,
+   "ref": 373.1,
+   "src": "HEOS",
+   "dev": 0.0008,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 89.63,
+   "ref": 90.0,
+   "src": "HEOS",
+   "dev": -0.00411,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.1,
+   "ref": 0.1005,
+   "src": "HEOS",
+   "dev": -0.0005,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 212.84,
+   "ref": 212.85488,
+   "src": "HEOS",
+   "dev": -0.01488,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -20.63,
+   "ref": -20.53158,
+   "src": "WEBBOOK",
+   "dev": -0.09842,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0029,
+    0.0017,
+    -0.0088
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "agua",
+  "cas": "7732-18-5",
+  "MW": {
+   "fluxo": 18.015,
+   "ref": 18.01528,
+   "src": "IUPAC (fórmula)",
+   "dev": -0.00028,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 647.14,
+   "ref": 647.096,
+   "src": "HEOS",
+   "dev": 7e-05,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 220.64,
+   "ref": 220.64,
+   "src": "HEOS",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.344,
+   "ref": 0.3443,
+   "src": "HEOS",
+   "dev": -0.0003,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 373.15,
+   "ref": 373.1243,
+   "src": "HEOS",
+   "dev": 0.0257,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -241.81,
+   "ref": -241.822,
+   "src": "ATCT_G",
+   "dev": 0.012,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0023,
+    0.0044,
+    -0.0009
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "hidrogeno",
+  "cas": "1333-74-0",
+  "MW": {
+   "fluxo": 2.016,
+   "ref": 2.01588,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00012,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 32.98,
+   "ref": 33.145,
+   "src": "HEOS",
+   "dev": -0.00498,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 12.93,
+   "ref": 12.964,
+   "src": "HEOS",
+   "dev": -0.00262,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": -0.217,
+   "ref": -0.219,
+   "src": "HEOS",
+   "dev": 0.002,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 20.39,
+   "ref": 20.36891,
+   "src": "HEOS",
+   "dev": 0.02109,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 0.0,
+   "ref": 0.0,
+   "src": "ATCT_G",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0014,
+    0.0001,
+    0.0006
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "benceno",
+  "cas": "71-43-2",
+  "MW": {
+   "fluxo": 78.114,
+   "ref": 78.11184,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00216,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 562.05,
+   "ref": 562.05,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 48.95,
+   "ref": 48.95,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.21,
+   "ref": 0.211,
+   "src": "HEOS",
+   "dev": -0.001,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 353.24,
+   "ref": 353.21878,
+   "src": "HEOS",
+   "dev": 0.02122,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 82.88,
+   "ref": 83.18,
+   "src": "ATCT_G",
+   "dev": -0.3,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    -0.0014,
+    -0.0188,
+    -0.0107
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "tolueno",
+  "cas": "108-88-3",
+  "MW": {
+   "fluxo": 92.141,
+   "ref": 92.13842,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00258,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 591.75,
+   "ref": 591.75,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 41.08,
+   "ref": 41.08,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.264,
+   "ref": 0.2657,
+   "src": "HEOS",
+   "dev": -0.0017,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 383.79,
+   "ref": 383.74575,
+   "src": "HEOS",
+   "dev": 0.04425,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 50.17,
+   "ref": 50.41,
+   "src": "ATCT_G",
+   "dev": -0.24,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0131,
+    -0.0101,
+    -0.0032
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "metanol",
+  "cas": "67-56-1",
+  "MW": {
+   "fluxo": 32.042,
+   "ref": 32.04186,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00014,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 512.64,
+   "ref": 512.5,
+   "src": "IUPAC",
+   "dev": 0.00027,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 80.97,
+   "ref": 80.84,
+   "src": "IUPAC",
+   "dev": 0.00161,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.565,
+   "ref": 0.5625,
+   "src": "HEOS",
+   "dev": 0.0025,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 337.69,
+   "ref": 337.63238,
+   "src": "HEOS",
+   "dev": 0.05762,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -200.94,
+   "ref": -200.7,
+   "src": "ATCT_G",
+   "dev": -0.24,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    -0.0049,
+    -0.0027,
+    0.0006
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "etanol",
+  "cas": "64-17-5",
+  "MW": {
+   "fluxo": 46.069,
+   "ref": 46.06844,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00056,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 513.92,
+   "ref": 514.0,
+   "src": "IUPAC",
+   "dev": -0.00016,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 61.48,
+   "ref": 61.37,
+   "src": "IUPAC",
+   "dev": 0.00179,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.649,
+   "ref": 0.646,
+   "src": "HEOS",
+   "dev": 0.003,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 351.44,
+   "ref": 351.57044,
+   "src": "HEOS",
+   "dev": -0.13044,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -234.95,
+   "ref": -234.57,
+   "src": "ATCT_G",
+   "dev": -0.38,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0023,
+    -0.0039,
+    -0.0062
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "etileno",
+  "cas": "74-85-1",
+  "MW": {
+   "fluxo": 28.054,
+   "ref": 28.05316,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00084,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 282.34,
+   "ref": 282.34,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 50.41,
+   "ref": 50.41,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.087,
+   "ref": 0.0866,
+   "src": "HEOS",
+   "dev": 0.0004,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 169.42,
+   "ref": 169.37865,
+   "src": "HEOS",
+   "dev": 0.04135,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 52.47,
+   "ref": 52.56,
+   "src": "ATCT_G",
+   "dev": -0.09,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0163,
+    0.0136,
+    0.0107
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "propileno",
+  "cas": "115-07-1",
+  "MW": {
+   "fluxo": 42.081,
+   "ref": 42.07974,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00126,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 364.9,
+   "ref": 364.9,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 46.0,
+   "ref": 46.0,
+   "src": "IUPAC",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.142,
+   "ref": 0.146,
+   "src": "HEOS",
+   "dev": -0.004,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 225.46,
+   "ref": 225.53087,
+   "src": "HEOS",
+   "dev": -0.07087,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 20.23,
+   "ref": 20.37,
+   "src": "ATCT_G",
+   "dev": -0.14,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    -0.0068,
+    -0.0039,
+    -0.0032
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "amoniaco",
+  "cas": "7664-41-7",
+  "MW": {
+   "fluxo": 17.031,
+   "ref": 17.03052,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.00048,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 405.4,
+   "ref": 405.56,
+   "src": "HEOS",
+   "dev": -0.00039,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 113.53,
+   "ref": 113.634,
+   "src": "HEOS",
+   "dev": -0.00092,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.257,
+   "ref": 0.256,
+   "src": "HEOS",
+   "dev": 0.001,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 239.82,
+   "ref": 239.83432,
+   "src": "HEOS",
+   "dev": -0.01432,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -45.9,
+   "ref": -45.558,
+   "src": "ATCT_G",
+   "dev": -0.342,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    -0.0006,
+    -0.0009,
+    -0.0001
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "co",
+  "cas": "630-08-0",
+  "MW": {
+   "fluxo": 28.01,
+   "ref": 28.0101,
+   "src": "IUPAC (fórmula)",
+   "dev": -0.0001,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 132.85,
+   "ref": 132.86,
+   "src": "HEOS",
+   "dev": -8e-05,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 34.94,
+   "ref": 34.94,
+   "src": "HEOS",
+   "dev": 0.0,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": 0.045,
+   "ref": 0.0497,
+   "src": "HEOS",
+   "dev": -0.0047,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 81.66,
+   "ref": 81.63818,
+   "src": "HEOS",
+   "dev": 0.02182,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": -110.53,
+   "ref": -110.525,
+   "src": "ATCT_G",
+   "dev": -0.005,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0014,
+    0.0014,
+    0.0009
+   ],
+   "src": "TRCIG",
+   "ok": true
+  }
+ },
+ {
+  "id": "argon",
+  "cas": "7440-37-1",
+  "MW": {
+   "fluxo": 39.948,
+   "ref": 39.948,
+   "src": "IUPAC (fórmula)",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Tc": {
+   "fluxo": 150.86,
+   "ref": 150.687,
+   "src": "HEOS",
+   "dev": 0.00115,
+   "ok": true
+  },
+  "Pc": {
+   "fluxo": 48.98,
+   "ref": 48.63,
+   "src": "HEOS",
+   "dev": 0.0072,
+   "ok": true
+  },
+  "omega": {
+   "fluxo": -0.002,
+   "ref": -0.00219,
+   "src": "HEOS",
+   "dev": 0.00019,
+   "ok": true
+  },
+  "Tb": {
+   "fluxo": 87.28,
+   "ref": 87.30214,
+   "src": "HEOS",
+   "dev": -0.02214,
+   "ok": true
+  },
+  "Hf": {
+   "fluxo": 0.0,
+   "ref": 0.0,
+   "src": "ATCT_G",
+   "dev": 0.0,
+   "ok": true
+  },
+  "Cp": {
+   "dev_300_500_800": [
+    0.0007,
+    0.0007,
+    0.0007
+   ],
+   "src": "COOLPROP",
+   "ok": true
+  }
+ }
+]
