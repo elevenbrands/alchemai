@@ -1,0 +1,16 @@
+"marhavilas_estabilizadora:V-102 · Flow · No / less flow (heating medium)": {etiqueta: plausible, nota: "Causas y consecuencia coherentes con rehervidor de vapor"}
+"marhavilas_estabilizadora:V-102 · Level · Less level (bottoms)": {etiqueta: plausible, nota: "Gas blowby por bajo nivel de fondos es real"}
+"single_hexano:T-301 · Pressure · Less pressure (vacuum)": {etiqueta: plausible, nota: "Vacío por vaciado con venteo tapado en tanque atmosférico"}
+"benedetti_nitrato:T-AN · Temperature · Less temperature (solidification)": {etiqueta: plausible, nota: "Cristalización de AN por pérdida de calentamiento, coherente"}
+"benedetti_nitrato:T-AN · Temperature · More temperature (decomposition)": {etiqueta: plausible, nota: "Descomposición de AN por sobrecalentamiento o contaminantes"}
+"benedetti_nitrato:T-AN · Pressure · Less pressure (vacuum)": {etiqueta: plausible, nota: "Tanque ventilado, vaciado por bomba con venteo tapado"}
+"benedetti_nitrato:E-COIL · Temperature · Less temperature (solidification)": {etiqueta: ruido, nota: "Copia del T-AN; trazado y recirculación no aplican al serpentín"}
+"benedetti_nitrato:E-COIL · Temperature · More temperature (decomposition)": {etiqueta: plausible, nota: "Sobrecalentamiento local en pared del serpentín es creíble"}
+"benedetti_nitrato:XV-REC · Temperature · Less temperature (solidification)": {etiqueta: plausible, nota: "Línea de descarga con flujo detenido puede cristalizar"}
+"benedetti_nitrato:P-AN · Temperature · Less temperature (solidification)": {etiqueta: plausible, nota: "Bomba parada con AN estancado puede cristalizar"}
+"wsu_hidrogeno_liquido:V-H2 · Pressure · Less pressure (vacuum)": {etiqueta: espuria, nota: "Bomba/PVRV/admitir aire en tanque criogénico de H2 es imposible y peligroso"}
+"wsu_hidrogeno_liquido:PCV-FC · Temperature · Less temperature (cold front downstream)": {etiqueta: plausible, nota: "Frente frío aguas abajo del vaporizador, coherente con LH2"}
+"michigan_amoniaco_deshielo:E-EVAP · Pressure · Less pressure (condensation-induced hammer)": {etiqueta: plausible, nota: "Golpe hidráulico por condensación, mecanismo del incidente real"}
+"marhavilas_estabilizadora:V-102 · Temperature · More temperature (reboiler)": {etiqueta: plausible, nota: "Exceso de vapor y TT bajo coherentes con rehervidor"}
+"benedetti_nitrato:XV-REC · Flow · Less flow (leak / loss of containment)": {etiqueta: ruido, nota: "Genérica: solución acuosa caliente, no gas; detectores de gas sin sentido"}
+"benedetti_nitrato:P-AN · Flow · Less flow (leak / loss of containment)": {etiqueta: ruido, nota: "Genérica, copia de XV-REC; no dice nada de AN caliente"}

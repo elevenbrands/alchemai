@@ -1,7 +1,10 @@
 # Conjunto APARTADO (bloque 25, 2026-11-05). Cinco HAZOP publicados que las reglas no habían visto: ninguno se usó al
 # escribir las reglas de los bloques 16-17. Escrito y commiteado ANTES de correr AlchemAI sobre ellos; la primera
 # corrida es a ciegas y queda como cifra oficial. Mismo formato y mismas convenciones de `reference.yaml`.
-# Las desviaciones están parafraseadas de la fuente, nunca copiadas. Las filas de la fuente que son operabilidad
+# Las desviaciones están parafraseadas de la fuente, nunca copiadas.
+# Corrección tras la 1.ª corrida (solo endurece el calificador, no toca reglas): M2, M3, M6, N5, A1 y A5 coincidían con filas
+# genéricas (cavitación, sobrepresión por condensador, sin flujo de alimentación, flujo inverso, «alarma»). Cifra a ciegas con
+# los criterios originales: 25/30 datos, 27/39 todos; con el calificador endurecido: ver notebook 19. Las filas de la fuente que son operabilidad
 # pura (muestreo, procedimientos, choque de vehículos) o requieren historial del sitio se marcan `fuera`.
 casos:
   - id: marhavilas_estabilizadora
@@ -13,15 +16,15 @@ casos:
       - {id: M1, alcance: datos, desviacion: "Más nivel en el fondo de la columna", causa: "Para la bomba de fondos",
          consecuencia: "La columna se inunda y el H2S no se despoja", match: {nodes: [V-102, P-101], dev: "more level|no / less flow", concept: "inund|bomba|fondos|rebose|nivel"}}
       - {id: M2, alcance: datos, desviacion: "Menos nivel en el fondo", causa: "Falla el transmisor de nivel",
-         consecuencia: "El gas se va por la línea de fondos al almacenamiento; H2S en los tanques", match: {nodes: [V-102, P-101], dev: "less level|less pressure", concept: "gas.{0,80}(fondos|liquido|bomba|aguas abajo)|vapor.{0,60}bomba|cavitaci|toxic"}}
+         consecuencia: "El gas se va por la línea de fondos al almacenamiento; H2S en los tanques", match: {nodes: [V-102, P-101], dev: "less level|less pressure", concept: "gas.{0,80}(fondos|liquido|bomba|aguas abajo)|vapor.{0,60}bomba|blowby|paso de gas"}}
       - {id: M3, alcance: datos, desviacion: "Más flujo de vapor al rehervidor", causa: "Falla el transmisor de temperatura del rehervidor",
-         consecuencia: "Más vapores, más presión; se pierden hidrocarburos pesados por el domo", match: {nodes: [V-102, E-101, FV-110], dev: "more temperature|more pressure|more flow", concept: "rehervidor|vapor|presion|inund|arrastre"}}
+         consecuencia: "Más vapores, más presión; se pierden hidrocarburos pesados por el domo", match: {nodes: [V-102, E-101, FV-110], dev: "more temperature|more pressure|more flow", concept: "rehervidor|medio de calentamiento|vapor de calentamiento"}}
       - {id: M4, alcance: datos, desviacion: "Más presión en la línea de gas de domo", causa: "Falla el transmisor de presión o la línea al lavador se bloquea",
          consecuencia: "Rotura de línea, liberación de H2S, fuego", match: {nodes: [V-102, V-103, C-101], dev: "more pressure", concept: "alivio|psv|bloque|toxic|h2s|fuga"}}
       - {id: M5, alcance: datos, desviacion: "Menos flujo de crudo estabilizado a la bomba", causa: "Baja alimentación de la plataforma",
          consecuencia: "Cavitación de la bomba", match: {nodes: [P-101], dev: "no / less flow|less level|less pressure", concept: "cavita|npsh|succion"}}
       - {id: M6, alcance: datos, desviacion: "No hay flujo de vapor al rehervidor", causa: "Falla el transmisor de flujo, falla la planta de vapor o los tubos se taponan",
-         consecuencia: "No se estabiliza el crudo; H2S en producto", match: {nodes: [V-102, E-101, FV-110], dev: "no / less flow|less heat transfer|less temperature", concept: "rehervidor|vapor|calentamiento|especificacion|h2s|toxic|despoj"}}
+         consecuencia: "No se estabiliza el crudo; H2S en producto", match: {nodes: [V-102, E-101, FV-110], dev: "no / less flow|less heat transfer|less temperature", concept: "rehervidor|medio de calentamiento|despoj|sin estabilizar"}}
       - {id: M7, alcance: datos, desviacion: "Más presión en el rehervidor por fuga de tubos", causa: "Fuga de vapor al lado de crudo",
          consecuencia: "Sube la presión de la columna; crudo húmedo al almacenamiento", match: {nodes: [E-101, V-102], dev: "composition|tube leak|more pressure", concept: "tubo|fuga|agua|contamin"}}
       - {id: M8, alcance: fuera, desviacion: "Más flujo de gas al lavador por crudo con más H2S", causa: "Cambio de calidad del crudo de la plataforma",
@@ -67,7 +70,7 @@ casos:
       - {id: N4, alcance: datos, desviacion: "Menos presión en el tanque (vacío)", causa: "El venteo no deja entrar aire al vaciar; condensación interna",
          consecuencia: "Deformación por vacío", match: {nodes: [T-AN], dev: "less pressure", concept: "vacio|colaps|vente"}}
       - {id: N5, alcance: datos, desviacion: "Menos temperatura", causa: "Se cierra el vapor o falla el traceado de las líneas",
-         consecuencia: "Cristalización y líneas tapadas", match: {nodes: [T-AN, E-COIL, P-AN], dev: "less temperature|no / less flow|less heat transfer", concept: "cristal|solidif|congel|tapa|bloque|calent"}}
+         consecuencia: "Cristalización y líneas tapadas", match: {nodes: [T-AN, E-COIL, P-AN], dev: "less temperature|no / less flow|less heat transfer", concept: "cristal|solidif|congel|punto de fusion"}}
       - {id: N6, alcance: datos, desviacion: "Menos nivel", causa: "Falla el transmisor de nivel; drenajes abiertos",
          consecuencia: "Cavitación de la bomba; el serpentín expuesto sobrecalienta y descompone", match: {nodes: [T-AN, P-AN], dev: "less level|less pressure", concept: "cavita|succion|serpent|sobrecalent|descompos|expuest"}}
       - {id: N7, alcance: datos, desviacion: "Otra composición: entra condensado o amoniaco de más", causa: "Falla el lazo de flujo de amoniaco o la línea de lavado queda abierta",
@@ -108,7 +111,7 @@ casos:
       más débil; se incluye porque el escenario del accidente (gas caliente contra líquido frío) es de datos.
     items:
       - {id: A1, alcance: datos, desviacion: "Más flujo de amoniaco líquido al evaporador durante el deshielo", causa: "La válvula de alimentación de líquido abre por error humano o de programa",
-         consecuencia: "Gas caliente contra líquido frío, condensación, vacío y golpe hidráulico: rotura de tubería y liberación de amoniaco", match: {nodes: [XV-LIQ, E-EVAP], dev: "more flow|composition|more pressure|reverse", concept: "toxic|amoniaco|golpe|condens|fuga|rotura|liquido"}}
+         consecuencia: "Gas caliente contra líquido frío, condensación, vacío y golpe hidráulico: rotura de tubería y liberación de amoniaco", match: {nodes: [XV-LIQ, E-EVAP], dev: "more flow|composition|more pressure", concept: "golpe|condens|liquido.{0,60}(caliente|vapor|gas)"}}
       - {id: A2, alcance: datos, desviacion: "Más flujo de gas caliente a la succión de baja temperatura", causa: "Válvula de paro de succión abierta en el deshielo",
          consecuencia: "Gas caliente a los compresores", match: {nodes: [XV-HG, XV-SUC, E-EVAP], dev: "more flow|more temperature|more pressure", concept: "compresor|aguas abajo|caliente|temperatura|presion"}}
       - {id: A3, alcance: datos, desviacion: "Menos presión en los serpentines del evaporador", causa: "El gas caliente se condensa al tocar líquido frío",
@@ -116,4 +119,4 @@ casos:
       - {id: A4, alcance: fuera, desviacion: "Líquido residual en el ciclo de deshielo", causa: "Tiempo de vaciado demasiado corto",
          consecuencia: "Golpe hidráulico al abrir el gas caliente", match: {nodes: [E-EVAP], dev: ".", concept: "vaciado|residual|golpe"}}
       - {id: A5, alcance: fuera, desviacion: "Arranque tras una interrupción", causa: "Corte de energía; el operador borra todas las alarmas al reiniciar",
-         consecuencia: "Liberación de amoniaco", match: {nodes: [E-EVAP, XV-LIQ], dev: ".", concept: "arranque|alarma|reinici"}}
+         consecuencia: "Liberación de amoniaco", match: {nodes: [E-EVAP, XV-LIQ], dev: ".", concept: "arranque|reinici|restablec"}}

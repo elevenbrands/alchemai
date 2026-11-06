@@ -1,0 +1,3592 @@
+{
+ "cases": [
+  {
+   "id": "marhavilas_estabilizadora",
+   "titulo": "Estabilizadora de crudo amargo con rehervidor de vapor (nodo 5)",
+   "n_rows": 48,
+   "missing": [],
+   "items": [
+    {
+     "id": "M1",
+     "alcance": "datos",
+     "desviacion": "Más nivel en el fondo de la columna",
+     "found": true,
+     "row": "V-102 · Flow · No / less flow (heating medium)"
+    },
+    {
+     "id": "M2",
+     "alcance": "datos",
+     "desviacion": "Menos nivel en el fondo",
+     "found": true,
+     "row": "V-102 · Level · Less level (bottoms)"
+    },
+    {
+     "id": "M3",
+     "alcance": "datos",
+     "desviacion": "Más flujo de vapor al rehervidor",
+     "found": true,
+     "row": "V-102 · Pressure · More pressure"
+    },
+    {
+     "id": "M4",
+     "alcance": "datos",
+     "desviacion": "Más presión en la línea de gas de domo",
+     "found": true,
+     "row": "V-102 · Pressure · More pressure"
+    },
+    {
+     "id": "M5",
+     "alcance": "datos",
+     "desviacion": "Menos flujo de crudo estabilizado a la bomba",
+     "found": true,
+     "row": "P-101 · Pressure · Less pressure (suction)"
+    },
+    {
+     "id": "M6",
+     "alcance": "datos",
+     "desviacion": "No hay flujo de vapor al rehervidor",
+     "found": true,
+     "row": "V-102 · Flow · No / less flow (heating medium)"
+    },
+    {
+     "id": "M7",
+     "alcance": "datos",
+     "desviacion": "Más presión en el rehervidor por fuga de tubos",
+     "found": true,
+     "row": "E-101 · Composition · Other (tube leak)"
+    },
+    {
+     "id": "M8",
+     "alcance": "fuera",
+     "desviacion": "Más flujo de gas al lavador por crudo con más H2S",
+     "found": false,
+     "row": null
+    },
+    {
+     "id": "M9",
+     "alcance": "fuera",
+     "desviacion": "Pérdida de contención por recipiente roto o válvula abierta a la atmósfera",
+     "found": true,
+     "row": "P-101 · Flow · Less flow (leak / loss of containment)"
+    }
+   ],
+   "extra_rows": [
+    "V-101 · Flow · No / less flow",
+    "V-101 · Flow · Reverse flow",
+    "V-101 · Level · More level",
+    "V-101 · Level · Less level",
+    "V-101 · Pressure · More pressure",
+    "V-101 · Temperature · More temperature",
+    "V-101 · Temperature · Less temperature (winter)",
+    "V-101 · Composition · Part of (water carryover)",
+    "E-102 · Flow · No / less flow",
+    "E-102 · Flow · Reverse flow",
+    "E-102 · Composition · Other (tube leak)",
+    "E-102 · Temperature · Less heat transfer",
+    "E-102 · Pressure · More pressure (cold side blocked in)",
+    "V-102 · Flow · No / less flow",
+    "V-102 · Flow · Reverse flow",
+    "V-102 · Temperature · More temperature (reboiler)",
+    "V-102 · Level · More level (bottoms)",
+    "FV-110 · Flow · No / less flow",
+    "FV-110 · Pressure · More pressure (downstream)",
+    "E-101 · Flow · No / less flow",
+    "E-101 · Flow · Reverse flow",
+    "E-101 · Temperature · Less heat transfer",
+    "E-101 · Pressure · More pressure (cold side blocked in)",
+    "P-101 · Flow · No / less flow",
+    "P-101 · Flow · Reverse flow",
+    "P-101 · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "P-101 · Pressure · More pressure (deadhead)",
+    "E-103 · Flow · No / less flow",
+    "E-103 · Flow · Reverse flow",
+    "E-103 · Temperature · More temperature (less cooling)",
+    "E-103 · Temperature · Less temperature (overcooling)",
+    "V-103 · Flow · No / less flow",
+    "V-103 · Flow · Reverse flow",
+    "V-103 · Level · More level",
+    "V-103 · Level · Less level",
+    "V-103 · Pressure · More pressure",
+    "V-103 · Temperature · More temperature",
+    "C-101 · Flow · No / less flow",
+    "C-101 · Flow · Reverse flow",
+    "C-101 · Flow · Less flow (leak / loss of containment)",
+    "C-101 · Pressure · More pressure (discharge)",
+    "C-101 · Temperature · More temperature (discharge)"
+   ],
+   "rows": [
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento / hidratos"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 3,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 4,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Level",
+     "deviation": "More level",
+     "causes": [
+      "Falla del control de nivel / válvula de líquido cerrada",
+      "Slug de líquido en la alimentación"
+     ],
+     "consequences": [
+      "Arrastre de líquido al gas (carryover) → daño a compresor aguas abajo",
+      "Rebose"
+     ],
+     "safeguards": [
+      "LAH + LAHH con paro",
+      "Demister"
+     ],
+     "severity": 4,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Level",
+     "deviation": "Less level",
+     "causes": [
+      "Válvula de líquido abierta en falla",
+      "Baja alimentación"
+     ],
+     "consequences": [
+      "Paso de gas a la línea de líquido (gas blowby) → sobrepresión del sistema de baja presión aguas abajo"
+     ],
+     "safeguards": [
+      "LAL + LALL con cierre de válvula de líquido",
+      "PSV aguas abajo dimensionada para blowby"
+     ],
+     "severity": 4,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Pressure",
+     "deviation": "More pressure",
+     "causes": [
+      "Salida de gas bloqueada",
+      "Blowby desde aguas arriba",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Sobrepresión del recipiente (operación 20.0 bar)"
+     ],
+     "safeguards": [
+      "PSV dimensionada (bloqueo, fuego)",
+      "PAH"
+     ],
+     "severity": 4,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Temperature",
+     "deviation": "More temperature",
+     "causes": [
+      "Alta T en la alimentación o en el almacenamiento (sol, falla de enfriamiento aguas arriba)",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Mayor presión de vapor del líquido → más presión en el recipiente y en las líneas conectadas"
+     ],
+     "safeguards": [
+      "TAH",
+      "PSV dimensionada para la presión de vapor a la T máxima y para fuego"
+     ],
+     "severity": 3,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (winter)",
+     "causes": [
+      "Baja T ambiente"
+     ],
+     "consequences": [
+      "Congelamiento del agua en sumidero, drenajes e instrumentos → drenaje bloqueado o tubería rota"
+     ],
+     "safeguards": [
+      "Trazado eléctrico o de vapor y aislamiento en sumidero, drenajes e instrumentos"
+     ],
+     "severity": 3,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-101",
+     "kind": "Separator",
+     "parameter": "Composition",
+     "deviation": "Part of (water carryover)",
+     "causes": [
+      "Alto nivel de interfase: drenaje de agua tardío o alta carga de agua en la alimentación"
+     ],
+     "consequences": [
+      "El agua pasa aguas abajo con la fase orgánica (E-102)"
+     ],
+     "safeguards": [
+      "Alarma de alto nivel de interfase",
+      "Drenaje automático de agua con control de interfase"
+     ],
+     "severity": 4,
+     "evidence": "P 20.0→19.0 bar; T 293→293 K; inflamable, 23.61 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-102",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento / hidratos"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 4,
+     "evidence": "P 19.0→11.0 bar; T 459→383 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-102",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 5,
+     "evidence": "P 19.0→11.0 bar; T 459→383 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-102",
+     "kind": "HeatExchanger",
+     "parameter": "Composition",
+     "deviation": "Other (tube leak)",
+     "causes": [
+      "Fuga tubo-coraza por corrosión o vibración"
+     ],
+     "consequences": [
+      "Contaminación del lado de baja presión con el de alta",
+      "Sobrepresión del lado de baja presión"
+     ],
+     "safeguards": [
+      "PSV en el lado de baja presión (caso rotura de tubo)",
+      "Monitoreo de composición / presión"
+     ],
+     "severity": 5,
+     "evidence": "P 19.0→11.0 bar; T 459→383 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-102",
+     "kind": "HeatExchanger",
+     "parameter": "Temperature",
+     "deviation": "Less heat transfer",
+     "causes": [
+      "Ensuciamiento",
+      "Bajo flujo de un lado"
+     ],
+     "consequences": [
+      "Salidas fuera de especificación de temperatura"
+     ],
+     "safeguards": [
+      "TAH/TAL en salidas",
+      "Programa de limpieza"
+     ],
+     "severity": 4,
+     "evidence": "P 19.0→11.0 bar; T 459→383 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-102",
+     "kind": "HeatExchanger",
+     "parameter": "Pressure",
+     "deviation": "More pressure (cold side blocked in)",
+     "causes": [
+      "Válvulas del lado frío cerradas (equipo en espera o mantenimiento) con el lado caliente en servicio"
+     ],
+     "consequences": [
+      "El líquido atrapado se calienta: expansión térmica y vaporización → sobrepresión y ruptura",
+      "BLEVE si el líquido es un gas licuado inflamable"
+     ],
+     "safeguards": [
+      "PSV del lado frío que no pueda aislarse (válvulas candado-abierto)",
+      "Procedimiento: aislar primero el lado caliente y drenar el lado frío"
+     ],
+     "severity": 5,
+     "evidence": "P 19.0→11.0 bar; T 459→383 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-102",
+     "kind": "DistillationColumn",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 3,
+     "evidence": "P 8.0→7.5 bar; T 463→458 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-102",
+     "kind": "DistillationColumn",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 4,
+     "evidence": "P 8.0→7.5 bar; T 463→458 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-102",
+     "kind": "DistillationColumn",
+     "parameter": "Pressure",
+     "deviation": "More pressure",
+     "causes": [
+      "Falla del condensador (utilidad fría)",
+      "Salida de vapor bloqueada",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Sobrepresión de la columna; alivio de vapor inflamable"
+     ],
+     "safeguards": [
+      "PSV en el domo dimensionada para falla de condensador",
+      "PAH con corte de rehervidor"
+     ],
+     "severity": 4,
+     "evidence": "P 8.0→7.5 bar; T 463→458 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-102",
+     "kind": "DistillationColumn",
+     "parameter": "Temperature",
+     "deviation": "More temperature (reboiler)",
+     "causes": [
+      "Falla del control de vapor al rehervidor (más medio de calentamiento)",
+      "Transmisor de temperatura de fondos con lectura baja"
+     ],
+     "consequences": [
+      "Más vapor de calentamiento → más tráfico de vapor: inundación, arrastre de pesados al destilado, más presión en la columna",
+      "Degradación térmica de fondos"
+     ],
+     "safeguards": [
+      "TAH en fondos",
+      "Control de ΔP de la columna",
+      "PAH con corte del medio de calentamiento"
+     ],
+     "severity": 3,
+     "evidence": "P 8.0→7.5 bar; T 463→458 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-102",
+     "kind": "DistillationColumn",
+     "parameter": "Flow",
+     "deviation": "No / less flow (heating medium)",
+     "causes": [
+      "Falla del suministro de vapor",
+      "Válvula del medio de calentamiento falla cerrada",
+      "Tubos del rehervidor ensuciados o tapados"
+     ],
+     "consequences": [
+      "Sin despojamiento: los ligeros se quedan en los fondos; producto sin estabilizar / fuera de especificación (Hydrogen sulfide al almacenamiento)",
+      "Se pierde el tráfico de vapor y la separación"
+     ],
+     "safeguards": [
+      "FAL en el medio de calentamiento",
+      "TAL en fondos con alarma",
+      "Analizador o muestreo del producto de fondos"
+     ],
+     "severity": 3,
+     "evidence": "P 8.0→7.5 bar; T 463→458 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-102",
+     "kind": "DistillationColumn",
+     "parameter": "Level",
+     "deviation": "Less level (bottoms)",
+     "causes": [
+      "Transmisor de nivel de fondos con lectura alta",
+      "Válvula de fondos abierta en falla"
+     ],
+     "consequences": [
+      "Paso de gas a la línea de fondos (gas blowby) → cavitación de la bomba de fondos y gas al sistema de baja presión aguas abajo"
+     ],
+     "safeguards": [
+      "LAL + LALL con cierre de la válvula de fondos",
+      "PSV aguas abajo dimensionada para blowby"
+     ],
+     "severity": 4,
+     "evidence": "P 8.0→7.5 bar; T 463→458 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-102",
+     "kind": "DistillationColumn",
+     "parameter": "Level",
+     "deviation": "More level (bottoms)",
+     "causes": [
+      "Salida de fondos cerrada o válvula de nivel que falla cerrada",
+      "Transmisor de nivel con lectura falsa"
+     ],
+     "consequences": [
+      "Llenado de la torre: líquido a la línea de domo y al sistema de alivio",
+      "Liberación de líquido inflamable por el alivio"
+     ],
+     "safeguards": [
+      "Medición de nivel independiente con LAHH",
+      "Balance de entradas y salidas durante el arranque"
+     ],
+     "severity": 4,
+     "evidence": "P 8.0→7.5 bar; T 463→458 K; inflamable, 22.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "FV-110",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 20.7→19.0 bar; T 488→485 K; no inflamable, 1.67 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "FV-110",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 20.7 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 3,
+     "evidence": "P 20.7→19.0 bar; T 488→485 K; no inflamable, 1.67 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-101",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 3,
+     "evidence": "P 19.0→18.0 bar; T 485→463 K; inflamable, 16.67 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-101",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 4,
+     "evidence": "P 19.0→18.0 bar; T 485→463 K; inflamable, 16.67 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-101",
+     "kind": "HeatExchanger",
+     "parameter": "Composition",
+     "deviation": "Other (tube leak)",
+     "causes": [
+      "Fuga tubo-coraza por corrosión o vibración"
+     ],
+     "consequences": [
+      "Contaminación del lado de baja presión con el de alta",
+      "Sobrepresión del lado de baja presión"
+     ],
+     "safeguards": [
+      "PSV en el lado de baja presión (caso rotura de tubo)",
+      "Monitoreo de composición / presión"
+     ],
+     "severity": 4,
+     "evidence": "P 19.0→18.0 bar; T 485→463 K; inflamable, 16.67 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-101",
+     "kind": "HeatExchanger",
+     "parameter": "Temperature",
+     "deviation": "Less heat transfer",
+     "causes": [
+      "Ensuciamiento",
+      "Bajo flujo de un lado"
+     ],
+     "consequences": [
+      "Salidas fuera de especificación de temperatura"
+     ],
+     "safeguards": [
+      "TAH/TAL en salidas",
+      "Programa de limpieza"
+     ],
+     "severity": 3,
+     "evidence": "P 19.0→18.0 bar; T 485→463 K; inflamable, 16.67 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-101",
+     "kind": "HeatExchanger",
+     "parameter": "Pressure",
+     "deviation": "More pressure (cold side blocked in)",
+     "causes": [
+      "Válvulas del lado frío cerradas (equipo en espera o mantenimiento) con el lado caliente en servicio"
+     ],
+     "consequences": [
+      "El líquido atrapado se calienta: expansión térmica y vaporización → sobrepresión y ruptura",
+      "BLEVE si el líquido es un gas licuado inflamable"
+     ],
+     "safeguards": [
+      "PSV del lado frío que no pueda aislarse (válvulas candado-abierto)",
+      "Procedimiento: aislar primero el lado caliente y drenar el lado frío"
+     ],
+     "severity": 5,
+     "evidence": "P 19.0→18.0 bar; T 485→463 K; inflamable, 16.67 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-101",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación",
+      "Daño al equipo rotatorio por operar en vacío"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 7.5→12.0 bar; T 458→459 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-101",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 7.5→12.0 bar; T 458→459 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-101",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 7.5→12.0 bar; T 458→459 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-101",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 3,
+     "evidence": "P 7.5→12.0 bar; T 458→459 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-101",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (deadhead)",
+     "causes": [
+      "Válvula de descarga cerrada con bomba operando"
+     ],
+     "consequences": [
+      "Calentamiento del fluido en la carcasa, daño a sellos",
+      "Sobrepresión de la tubería de descarga"
+     ],
+     "safeguards": [
+      "Recirculación mínima",
+      "PSV o paro por alta presión / bajo flujo"
+     ],
+     "severity": 3,
+     "evidence": "P 7.5→12.0 bar; T 458→459 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-101",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "Less pressure (suction)",
+     "causes": [
+      "Bajo nivel en el recipiente de succión",
+      "Filtro de succión tapado"
+     ],
+     "consequences": [
+      "Cavitación y daño al impulsor"
+     ],
+     "safeguards": [
+      "Alarma LAL en succión",
+      "ΔP en filtro"
+     ],
+     "severity": 2,
+     "evidence": "P 7.5→12.0 bar; T 458→459 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-103",
+     "kind": "Cooler",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 11.0→10.0 bar; T 383→313 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-103",
+     "kind": "Cooler",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 2,
+     "evidence": "P 11.0→10.0 bar; T 383→313 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-103",
+     "kind": "Cooler",
+     "parameter": "Temperature",
+     "deviation": "More temperature (less cooling)",
+     "causes": [
+      "Falla de la utilidad fría (agua/aire)",
+      "Ensuciamiento del intercambiador",
+      "Bypass abierto"
+     ],
+     "consequences": [
+      "Salida por encima de 313 K; equipo aguas abajo fuera de diseño",
+      "Mayor presión en recipientes aguas abajo por mayor fracción vapor"
+     ],
+     "safeguards": [
+      "Alarma TAH en salida",
+      "Control de T con válvula en utilidad"
+     ],
+     "severity": 2,
+     "evidence": "P 11.0→10.0 bar; T 383→313 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-103",
+     "kind": "Cooler",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (overcooling)",
+     "causes": [
+      "Utilidad fría a máxima capacidad (ventiladores/agua sin control)",
+      "Bajo flujo de proceso con enfriamiento constante",
+      "Baja T ambiente"
+     ],
+     "consequences": [
+      "Condensación de pesados / cambio de fase aguas abajo"
+     ],
+     "safeguards": [
+      "Control de T de salida con alarma TAL",
+      "Verificar MDMT de materiales"
+     ],
+     "severity": 2,
+     "evidence": "P 11.0→10.0 bar; T 383→313 K; inflamable, 17.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-103",
+     "kind": "Separator",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 7.0→6.8 bar; T 333→331 K; inflamable, 5.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-103",
+     "kind": "Separator",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 7.0→6.8 bar; T 333→331 K; inflamable, 5.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-103",
+     "kind": "Separator",
+     "parameter": "Level",
+     "deviation": "More level",
+     "causes": [
+      "Falla del control de nivel / válvula de líquido cerrada",
+      "Slug de líquido en la alimentación"
+     ],
+     "consequences": [
+      "Arrastre de líquido al gas (carryover) → daño a compresor aguas abajo",
+      "Rebose"
+     ],
+     "safeguards": [
+      "LAH + LAHH con paro",
+      "Demister"
+     ],
+     "severity": 3,
+     "evidence": "P 7.0→6.8 bar; T 333→331 K; inflamable, 5.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-103",
+     "kind": "Separator",
+     "parameter": "Level",
+     "deviation": "Less level",
+     "causes": [
+      "Válvula de líquido abierta en falla",
+      "Baja alimentación"
+     ],
+     "consequences": [
+      "Paso de gas a la línea de líquido (gas blowby) → sobrepresión del sistema de baja presión aguas abajo"
+     ],
+     "safeguards": [
+      "LAL + LALL con cierre de válvula de líquido",
+      "PSV aguas abajo dimensionada para blowby"
+     ],
+     "severity": 3,
+     "evidence": "P 7.0→6.8 bar; T 333→331 K; inflamable, 5.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-103",
+     "kind": "Separator",
+     "parameter": "Pressure",
+     "deviation": "More pressure",
+     "causes": [
+      "Salida de gas bloqueada",
+      "Blowby desde aguas arriba",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Sobrepresión del recipiente (operación 7.0 bar)"
+     ],
+     "safeguards": [
+      "PSV dimensionada (bloqueo, fuego)",
+      "PAH"
+     ],
+     "severity": 3,
+     "evidence": "P 7.0→6.8 bar; T 333→331 K; inflamable, 5.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-103",
+     "kind": "Separator",
+     "parameter": "Temperature",
+     "deviation": "More temperature",
+     "causes": [
+      "Alta T en la alimentación o en el almacenamiento (sol, falla de enfriamiento aguas arriba)",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Mayor presión de vapor del líquido → más presión en el recipiente y en las líneas conectadas"
+     ],
+     "safeguards": [
+      "TAH",
+      "PSV dimensionada para la presión de vapor a la T máxima y para fuego"
+     ],
+     "severity": 2,
+     "evidence": "P 7.0→6.8 bar; T 333→331 K; inflamable, 5.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "C-101",
+     "kind": "Compressor",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación",
+      "Daño al equipo rotatorio por operar en vacío"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 3,
+     "evidence": "P 6.8→28.0 bar; T 331→403 K; inflamable, 4.86 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "C-101",
+     "kind": "Compressor",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 4,
+     "evidence": "P 6.8→28.0 bar; T 331→403 K; inflamable, 4.86 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "C-101",
+     "kind": "Compressor",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 4,
+     "evidence": "P 6.8→28.0 bar; T 331→403 K; inflamable, 4.86 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "C-101",
+     "kind": "Compressor",
+     "parameter": "Pressure",
+     "deviation": "More pressure (discharge)",
+     "causes": [
+      "Válvula de descarga cerrada / bloqueo aguas abajo",
+      "Falla del control antisurge"
+     ],
+     "consequences": [
+      "Sobrepresión de la descarga por encima de 28.0 bar de diseño",
+      "Surge del compresor"
+     ],
+     "safeguards": [
+      "PSV en descarga dimensionada al flujo del compresor",
+      "Alarma PAH + paro por alta presión",
+      "Control antisurge"
+     ],
+     "severity": 4,
+     "evidence": "P 6.8→28.0 bar; T 331→403 K; inflamable, 4.86 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "C-101",
+     "kind": "Compressor",
+     "parameter": "Temperature",
+     "deviation": "More temperature (discharge)",
+     "causes": [
+      "Alta relación de compresión por baja presión de succión",
+      "Falla del enfriador aguas abajo",
+      "Baja eficiencia por desgaste"
+     ],
+     "consequences": [
+      "T de descarga > 403 K de diseño; límite típico 420-450 K para lubricante/sellos",
+      "Daño a sellos y lubricante"
+     ],
+     "safeguards": [
+      "Alarma TAH y paro por alta T de descarga",
+      "Monitoreo de vibración"
+     ],
+     "severity": 4,
+     "evidence": "P 6.8→28.0 bar; T 331→403 K; inflamable, 4.86 kg/s",
+     "source": "rule"
+    }
+   ]
+  },
+  {
+   "id": "single_hexano",
+   "titulo": "Tanque de almacenamiento de hexano T-301 (ejemplo CCPS reanalizado)",
+   "n_rows": 25,
+   "missing": [],
+   "items": [
+    {
+     "id": "H1",
+     "alcance": "datos",
+     "desviacion": "Más nivel",
+     "found": true,
+     "row": "T-301 · Level · More level"
+    },
+    {
+     "id": "H2",
+     "alcance": "datos",
+     "desviacion": "Más presión",
+     "found": true,
+     "row": "T-301 · Pressure · More pressure"
+    },
+    {
+     "id": "H3",
+     "alcance": "datos",
+     "desviacion": "Menos presión (vacío)",
+     "found": true,
+     "row": "T-301 · Pressure · Less pressure (vacuum)"
+    },
+    {
+     "id": "H4",
+     "alcance": "datos",
+     "desviacion": "Menos nivel / sin flujo de entrada",
+     "found": true,
+     "row": "J-OUT · Flow · No / less flow"
+    },
+    {
+     "id": "H5",
+     "alcance": "datos",
+     "desviacion": "Menos temperatura",
+     "found": true,
+     "row": "T-301 · Temperature · Less temperature (winter)"
+    },
+    {
+     "id": "H6",
+     "alcance": "datos",
+     "desviacion": "Más temperatura",
+     "found": true,
+     "row": "T-301 · Temperature · More temperature"
+    },
+    {
+     "id": "H7",
+     "alcance": "datos",
+     "desviacion": "Fuga (pérdida de contención)",
+     "found": true,
+     "row": "J-UNLOAD · Flow · Less flow (leak / loss of containment)"
+    },
+    {
+     "id": "H8",
+     "alcance": "fuera",
+     "desviacion": "Menos presión por bloqueo tras vaporizado",
+     "found": true,
+     "row": "T-301 · Pressure · Less pressure (vacuum)"
+    }
+   ],
+   "extra_rows": [
+    "J-UNLOAD · Flow · No / less flow",
+    "J-UNLOAD · Flow · Reverse flow",
+    "J-UNLOAD · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "J-UNLOAD · Pressure · More pressure (deadhead)",
+    "J-UNLOAD · Pressure · Less pressure (suction)",
+    "XV-IN · Flow · Less flow (leak / loss of containment)",
+    "XV-IN · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "XV-IN · Pressure · More pressure (downstream)",
+    "T-301 · Flow · No / less flow",
+    "T-301 · Flow · Reverse flow",
+    "T-301 · Level · Less level",
+    "XV-OUT · Flow · Less flow (leak / loss of containment)",
+    "XV-OUT · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "J-OUT · Flow · Reverse flow",
+    "J-OUT · Flow · Less flow (leak / loss of containment)",
+    "J-OUT · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "J-OUT · Pressure · More pressure (deadhead)",
+    "J-OUT · Pressure · Less pressure (suction)"
+   ],
+   "rows": [
+    {
+     "node": "J-UNLOAD",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación",
+      "Daño al equipo rotatorio por operar en vacío"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 1.0→4.0 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-UNLOAD",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-UNLOAD",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-UNLOAD",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-UNLOAD",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (deadhead)",
+     "causes": [
+      "Válvula de descarga cerrada con bomba operando"
+     ],
+     "consequences": [
+      "Calentamiento del fluido en la carcasa, daño a sellos",
+      "Sobrepresión de la tubería de descarga"
+     ],
+     "safeguards": [
+      "Recirculación mínima",
+      "PSV o paro por alta presión / bajo flujo"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-UNLOAD",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "Less pressure (suction)",
+     "causes": [
+      "Bajo nivel en el recipiente de succión",
+      "Filtro de succión tapado"
+     ],
+     "consequences": [
+      "Cavitación y daño al impulsor"
+     ],
+     "safeguards": [
+      "Alarma LAL en succión",
+      "ΔP en filtro"
+     ],
+     "severity": 1,
+     "evidence": "P 1.0→4.0 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-IN",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 2,
+     "evidence": "P 4.0→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-IN",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 2,
+     "evidence": "P 4.0→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-IN",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 4.0 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 2,
+     "evidence": "P 4.0→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 2,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Level",
+     "deviation": "More level",
+     "causes": [
+      "Falla del control de nivel / válvula de líquido cerrada",
+      "Slug de líquido en la alimentación"
+     ],
+     "consequences": [
+      "Arrastre de líquido al gas (carryover) → daño a compresor aguas abajo",
+      "Rebose"
+     ],
+     "safeguards": [
+      "LAH + LAHH con paro",
+      "Demister"
+     ],
+     "severity": 2,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Level",
+     "deviation": "Less level",
+     "causes": [
+      "Válvula de líquido abierta en falla",
+      "Baja alimentación"
+     ],
+     "consequences": [
+      "Paso de gas a la línea de líquido (gas blowby) → sobrepresión del sistema de baja presión aguas abajo"
+     ],
+     "safeguards": [
+      "LAL + LALL con cierre de válvula de líquido",
+      "PSV aguas abajo dimensionada para blowby"
+     ],
+     "severity": 2,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Pressure",
+     "deviation": "More pressure",
+     "causes": [
+      "Salida de gas bloqueada",
+      "Blowby desde aguas arriba",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Sobrepresión del recipiente (operación 1.2 bar)"
+     ],
+     "safeguards": [
+      "PSV dimensionada (bloqueo, fuego)",
+      "PAH"
+     ],
+     "severity": 2,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Temperature",
+     "deviation": "More temperature",
+     "causes": [
+      "Alta T en la alimentación o en el almacenamiento (sol, falla de enfriamiento aguas arriba)",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Mayor presión de vapor del líquido → más presión en el recipiente y en las líneas conectadas"
+     ],
+     "safeguards": [
+      "TAH",
+      "PSV dimensionada para la presión de vapor a la T máxima y para fuego"
+     ],
+     "severity": 1,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (winter)",
+     "causes": [
+      "Baja T ambiente"
+     ],
+     "consequences": [
+      "Congelamiento del agua en sumidero, drenajes e instrumentos → drenaje bloqueado o tubería rota"
+     ],
+     "safeguards": [
+      "Trazado eléctrico o de vapor y aislamiento en sumidero, drenajes e instrumentos"
+     ],
+     "severity": 1,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-301",
+     "kind": "Tank",
+     "parameter": "Pressure",
+     "deviation": "Less pressure (vacuum)",
+     "causes": [
+      "Vaciado por la bomba más rápido de lo que el venteo admite aire",
+      "Venteo tapado o congelado",
+      "Enfriamiento del espacio de vapor (lluvia, bloqueo tras limpieza con vapor)"
+     ],
+     "consequences": [
+      "Colapso por vacío del recipiente (un tanque atmosférico resiste solo milibares de vacío)"
+     ],
+     "safeguards": [
+      "Válvula de presión-vacío (PVRV) dimensionada para el vaciado",
+      "Rompedor de vacío",
+      "Inertizado con control de presión",
+      "Inspección del venteo"
+     ],
+     "severity": 2,
+     "evidence": "P 1.2→1.2 bar; T 293→293 K; inflamable, 8.33 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-OUT",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 2,
+     "evidence": "P 1.2→1.1 bar; T 293→293 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-OUT",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 2,
+     "evidence": "P 1.2→1.1 bar; T 293→293 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-OUT",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación",
+      "Daño al equipo rotatorio por operar en vacío"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 1.1→5.0 bar; T 293→294 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-OUT",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 2,
+     "evidence": "P 1.1→5.0 bar; T 293→294 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-OUT",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 2,
+     "evidence": "P 1.1→5.0 bar; T 293→294 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-OUT",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 2,
+     "evidence": "P 1.1→5.0 bar; T 293→294 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-OUT",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (deadhead)",
+     "causes": [
+      "Válvula de descarga cerrada con bomba operando"
+     ],
+     "consequences": [
+      "Calentamiento del fluido en la carcasa, daño a sellos",
+      "Sobrepresión de la tubería de descarga"
+     ],
+     "safeguards": [
+      "Recirculación mínima",
+      "PSV o paro por alta presión / bajo flujo"
+     ],
+     "severity": 2,
+     "evidence": "P 1.1→5.0 bar; T 293→294 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "J-OUT",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "Less pressure (suction)",
+     "causes": [
+      "Bajo nivel en el recipiente de succión",
+      "Filtro de succión tapado"
+     ],
+     "consequences": [
+      "Cavitación y daño al impulsor"
+     ],
+     "safeguards": [
+      "Alarma LAL en succión",
+      "ΔP en filtro"
+     ],
+     "severity": 1,
+     "evidence": "P 1.1→5.0 bar; T 293→294 K; inflamable, 2.22 kg/s",
+     "source": "rule"
+    }
+   ]
+  },
+  {
+   "id": "benedetti_nitrato",
+   "titulo": "Tanque de nitrato de amonio líquido caliente al 83 % con serpentín de vapor",
+   "n_rows": 35,
+   "missing": [],
+   "items": [
+    {
+     "id": "N1",
+     "alcance": "datos",
+     "desviacion": "No hay flujo en la recirculación / descarga",
+     "found": true,
+     "row": "T-AN · Flow · No / less flow"
+    },
+    {
+     "id": "N2",
+     "alcance": "datos",
+     "desviacion": "Más flujo de vapor al serpentín o rotura del serpentín",
+     "found": true,
+     "row": "T-AN · Temperature · More temperature (decomposition)"
+    },
+    {
+     "id": "N3",
+     "alcance": "datos",
+     "desviacion": "Más presión en el serpentín",
+     "found": true,
+     "row": "PCV-STM · Pressure · More pressure (downstream)"
+    },
+    {
+     "id": "N4",
+     "alcance": "datos",
+     "desviacion": "Menos presión en el tanque (vacío)",
+     "found": true,
+     "row": "T-AN · Pressure · Less pressure (vacuum)"
+    },
+    {
+     "id": "N5",
+     "alcance": "datos",
+     "desviacion": "Menos temperatura",
+     "found": true,
+     "row": "T-AN · Temperature · Less temperature (solidification)"
+    },
+    {
+     "id": "N6",
+     "alcance": "datos",
+     "desviacion": "Menos nivel",
+     "found": true,
+     "row": "P-AN · Pressure · Less pressure (suction)"
+    },
+    {
+     "id": "N7",
+     "alcance": "datos",
+     "desviacion": "Otra composición: entra condensado o amoniaco de más",
+     "found": true,
+     "row": "T-AN · Composition · Other (toxic vapors from atmospheric tank)"
+    },
+    {
+     "id": "N8",
+     "alcance": "fuera",
+     "desviacion": "Quemaduras al tomar muestra",
+     "found": false,
+     "row": null
+    },
+    {
+     "id": "N9",
+     "alcance": "fuera",
+     "desviacion": "Evento externo",
+     "found": false,
+     "row": null
+    }
+   ],
+   "extra_rows": [
+    "FV-NH3 · Flow · No / less flow",
+    "FV-NH3 · Flow · Reverse flow",
+    "FV-NH3 · Flow · Less flow (leak / loss of containment)",
+    "FV-NH3 · Pressure · More pressure (downstream)",
+    "XV-WASH · Flow · No / less flow",
+    "XV-WASH · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "XV-WASH · Pressure · More pressure (downstream)",
+    "T-AN · Flow · Reverse flow",
+    "T-AN · Level · More level",
+    "T-AN · Level · Less level",
+    "T-AN · Pressure · More pressure",
+    "T-AN · Temperature · More temperature",
+    "PCV-STM · Flow · No / less flow",
+    "PCV-STM · Temperature · Less temperature (Joule-Thomson)",
+    "TCV-STM · Pressure · More pressure (downstream)",
+    "E-COIL · Flow · No / less flow",
+    "E-COIL · Flow · Reverse flow",
+    "E-COIL · Composition · Other (tube leak)",
+    "E-COIL · Temperature · Less heat transfer",
+    "E-COIL · Temperature · More temperature (decomposition)",
+    "XV-REC · Flow · Less flow (leak / loss of containment)",
+    "XV-REC · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "P-AN · Flow · No / less flow",
+    "P-AN · Flow · Reverse flow",
+    "P-AN · Flow · Less flow (leak / loss of containment)",
+    "P-AN · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "P-AN · Pressure · More pressure (deadhead)",
+    "P-AN · Temperature · Less temperature (solidification)"
+   ],
+   "rows": [
+    {
+     "node": "FV-NH3",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 6.0→1.5 bar; T 298→298 K; inflamable, 0.01 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "FV-NH3",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 6.0→1.5 bar; T 298→298 K; inflamable, 0.01 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "FV-NH3",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 6.0→1.5 bar; T 298→298 K; inflamable, 0.01 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "FV-NH3",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 6.0 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 3,
+     "evidence": "P 6.0→1.5 bar; T 298→298 K; inflamable, 0.01 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-WASH",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 3.0→1.5 bar; T 363→363 K; no inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-WASH",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 1,
+     "evidence": "P 3.0→1.5 bar; T 363→363 K; no inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-WASH",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 3.0 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 1,
+     "evidence": "P 3.0→1.5 bar; T 363→363 K; no inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Level",
+     "deviation": "More level",
+     "causes": [
+      "Falla del control de nivel / válvula de líquido cerrada",
+      "Slug de líquido en la alimentación"
+     ],
+     "consequences": [
+      "Arrastre de líquido al gas (carryover) → daño a compresor aguas abajo",
+      "Rebose"
+     ],
+     "safeguards": [
+      "LAH + LAHH con paro",
+      "Demister"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Level",
+     "deviation": "Less level",
+     "causes": [
+      "Válvula de líquido abierta en falla",
+      "Baja alimentación"
+     ],
+     "consequences": [
+      "Paso de gas a la línea de líquido (gas blowby) → sobrepresión del sistema de baja presión aguas abajo"
+     ],
+     "safeguards": [
+      "LAL + LALL con cierre de válvula de líquido",
+      "PSV aguas abajo dimensionada para blowby"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Pressure",
+     "deviation": "More pressure",
+     "causes": [
+      "Salida de gas bloqueada",
+      "Blowby desde aguas arriba",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Sobrepresión del recipiente (operación 1.5 bar)"
+     ],
+     "safeguards": [
+      "PSV dimensionada (bloqueo, fuego)",
+      "PAH"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Temperature",
+     "deviation": "More temperature",
+     "causes": [
+      "Alta T en la alimentación o en el almacenamiento (sol, falla de enfriamiento aguas arriba)",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Mayor presión de vapor del líquido → más presión en el recipiente y en las líneas conectadas"
+     ],
+     "safeguards": [
+      "TAH",
+      "PSV dimensionada para la presión de vapor a la T máxima y para fuego"
+     ],
+     "severity": 2,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Composition",
+     "deviation": "Other (toxic vapors from atmospheric tank)",
+     "causes": [
+      "Componente tóxico residual en el líquido almacenado"
+     ],
+     "consequences": [
+      "Vapores tóxicos salen del tanque atmosférico al área de trabajo → exposición del personal"
+     ],
+     "safeguards": [
+      "Detectores de gas con alarma en el área",
+      "Venteo a lugar seguro o a lavador",
+      "Ventilación del área"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (solidification)",
+     "causes": [
+      "Pérdida del medio de calentamiento o del trazado de la línea",
+      "Baja T ambiente",
+      "Flujo detenido en la recirculación o en un tramo muerto"
+     ],
+     "consequences": [
+      "Cristalización / solidificación de Ammonium nitrate (punto de fusión 443 K) en el equipo y las líneas → líneas tapadas, bomba dañada, venteo o alivio bloqueado"
+     ],
+     "safeguards": [
+      "TAL con alarma en la recirculación",
+      "Trazado y aislamiento de líneas, sin tramos muertos",
+      "Alarma de bajo flujo en la recirculación",
+      "Procedimiento de deshielo/relavado"
+     ],
+     "severity": 2,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Temperature",
+     "deviation": "More temperature (decomposition)",
+     "causes": [
+      "Falla del control del medio de calentamiento (válvula de vapor abierta)",
+      "Fuga del serpentín / tubo",
+      "Fuego externo",
+      "Contaminación con materia orgánica, cloruros o ácido"
+     ],
+     "consequences": [
+      "Descomposición térmica de Ammonium nitrate → generación de gases, sobrepresión, explosión"
+     ],
+     "safeguards": [
+      "SIS de alta temperatura que corta el medio de calentamiento (SIL según LOPA)",
+      "Medio de calentamiento atemperado por debajo de la T de descomposición",
+      "Inundación / dilución de emergencia",
+      "Control de contaminantes en las entradas",
+      "Alivio dimensionado para descomposición"
+     ],
+     "severity": 5,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "T-AN",
+     "kind": "Tank",
+     "parameter": "Pressure",
+     "deviation": "Less pressure (vacuum)",
+     "causes": [
+      "Vaciado por la bomba más rápido de lo que el venteo admite aire",
+      "Venteo tapado o congelado",
+      "Enfriamiento del espacio de vapor (lluvia, bloqueo tras limpieza con vapor)"
+     ],
+     "consequences": [
+      "Colapso por vacío del recipiente (un tanque atmosférico resiste solo milibares de vacío)"
+     ],
+     "safeguards": [
+      "Válvula de presión-vacío (PVRV) dimensionada para el vaciado",
+      "Rompedor de vacío",
+      "Inertizado con control de presión",
+      "Inspección del venteo"
+     ],
+     "severity": 2,
+     "evidence": "P 1.5→1.0 bar; T 418→413 K; inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-STM",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 10.0→7.0 bar; T 453→438 K; no inflamable, 0.42 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-STM",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 10.0 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 2,
+     "evidence": "P 10.0→7.0 bar; T 453→438 K; no inflamable, 0.42 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-STM",
+     "kind": "Valve",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (Joule-Thomson)",
+     "causes": [
+      "Expansión isoentálpica normal; mayor ΔP por baja presión aguas abajo"
+     ],
+     "consequences": [
+      "Salida a 438.1 K (ΔT = -15.0 K)"
+     ],
+     "safeguards": [
+      "Verificar MDMT de materiales",
+      "TAL aguas abajo"
+     ],
+     "severity": 2,
+     "evidence": "P 10.0→7.0 bar; T 453→438 K; no inflamable, 0.42 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "TCV-STM",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 7.0 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 1,
+     "evidence": "P 7.0→6.0 bar; T 438→433 K; no inflamable, 0.42 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-COIL",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 6.0→5.5 bar; T 433→423 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-COIL",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 2,
+     "evidence": "P 6.0→5.5 bar; T 433→423 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-COIL",
+     "kind": "HeatExchanger",
+     "parameter": "Composition",
+     "deviation": "Other (tube leak)",
+     "causes": [
+      "Fuga tubo-coraza por corrosión o vibración"
+     ],
+     "consequences": [
+      "Contaminación del lado de baja presión con el de alta",
+      "Sobrepresión del lado de baja presión"
+     ],
+     "safeguards": [
+      "PSV en el lado de baja presión (caso rotura de tubo)",
+      "Monitoreo de composición / presión"
+     ],
+     "severity": 2,
+     "evidence": "P 6.0→5.5 bar; T 433→423 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-COIL",
+     "kind": "HeatExchanger",
+     "parameter": "Temperature",
+     "deviation": "Less heat transfer",
+     "causes": [
+      "Ensuciamiento",
+      "Bajo flujo de un lado"
+     ],
+     "consequences": [
+      "Salidas fuera de especificación de temperatura"
+     ],
+     "safeguards": [
+      "TAH/TAL en salidas",
+      "Programa de limpieza"
+     ],
+     "severity": 1,
+     "evidence": "P 6.0→5.5 bar; T 433→423 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-COIL",
+     "kind": "HeatExchanger",
+     "parameter": "Temperature",
+     "deviation": "More temperature (decomposition)",
+     "causes": [
+      "Falla del control del medio de calentamiento (válvula de vapor abierta)",
+      "Fuga del serpentín / tubo",
+      "Fuego externo",
+      "Contaminación con materia orgánica, cloruros o ácido"
+     ],
+     "consequences": [
+      "Descomposición térmica de Ammonium nitrate → generación de gases, sobrepresión, explosión"
+     ],
+     "safeguards": [
+      "SIS de alta temperatura que corta el medio de calentamiento (SIL según LOPA)",
+      "Medio de calentamiento atemperado por debajo de la T de descomposición",
+      "Inundación / dilución de emergencia",
+      "Control de contaminantes en las entradas",
+      "Alivio dimensionado para descomposición"
+     ],
+     "severity": 5,
+     "evidence": "P 6.0→5.5 bar; T 433→423 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-REC",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material tóxico: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→1.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-REC",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→1.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-AN",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación",
+      "Daño al equipo rotatorio por operar en vacío"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 1,
+     "evidence": "P 1.0→4.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-AN",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-AN",
+     "kind": "Pump",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material tóxico: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-AN",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-AN",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "More pressure (deadhead)",
+     "causes": [
+      "Válvula de descarga cerrada con bomba operando"
+     ],
+     "consequences": [
+      "Calentamiento del fluido en la carcasa, daño a sellos",
+      "Sobrepresión de la tubería de descarga"
+     ],
+     "safeguards": [
+      "Recirculación mínima",
+      "PSV o paro por alta presión / bajo flujo"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-AN",
+     "kind": "Pump",
+     "parameter": "Pressure",
+     "deviation": "Less pressure (suction)",
+     "causes": [
+      "Bajo nivel en el recipiente de succión",
+      "Filtro de succión tapado"
+     ],
+     "consequences": [
+      "Cavitación y daño al impulsor"
+     ],
+     "safeguards": [
+      "Alarma LAL en succión",
+      "ΔP en filtro"
+     ],
+     "severity": 1,
+     "evidence": "P 1.0→4.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "P-AN",
+     "kind": "Pump",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (solidification)",
+     "causes": [
+      "Pérdida del medio de calentamiento o del trazado de la línea",
+      "Baja T ambiente",
+      "Flujo detenido en la recirculación o en un tramo muerto"
+     ],
+     "consequences": [
+      "Cristalización / solidificación de Ammonium nitrate (punto de fusión 443 K) en el equipo y las líneas → líneas tapadas, bomba dañada, venteo o alivio bloqueado"
+     ],
+     "safeguards": [
+      "TAL con alarma en la recirculación",
+      "Trazado y aislamiento de líneas, sin tramos muertos",
+      "Alarma de bajo flujo en la recirculación",
+      "Procedimiento de deshielo/relavado"
+     ],
+     "severity": 2,
+     "evidence": "P 1.0→4.0 bar; T 413→413 K; no inflamable, 11.11 kg/s",
+     "source": "rule"
+    }
+   ]
+  },
+  {
+   "id": "wsu_hidrogeno_liquido",
+   "titulo": "Tanque de hidrógeno líquido con escudo enfriado por vapor, calentador y regulador a celda de combustible",
+   "n_rows": 18,
+   "missing": [],
+   "items": [
+    {
+     "id": "W1",
+     "alcance": "datos",
+     "desviacion": "Más flujo del regulador / por el disco de ruptura",
+     "found": true,
+     "row": "V-H2 · Pressure · More pressure"
+    },
+    {
+     "id": "W2",
+     "alcance": "datos",
+     "desviacion": "Menos o nada de flujo del regulador",
+     "found": true,
+     "row": "V-H2 · Flow · No / less flow"
+    },
+    {
+     "id": "W3",
+     "alcance": "datos",
+     "desviacion": "Más nivel",
+     "found": true,
+     "row": "V-H2 · Level · More level"
+    },
+    {
+     "id": "W4",
+     "alcance": "datos",
+     "desviacion": "Más presión por encima del MAWP",
+     "found": true,
+     "row": "V-H2 · Pressure · More pressure"
+    },
+    {
+     "id": "W5",
+     "alcance": "datos",
+     "desviacion": "Más temperatura",
+     "found": true,
+     "row": "V-H2 · Temperature · More temperature"
+    },
+    {
+     "id": "W6",
+     "alcance": "datos",
+     "desviacion": "Menos temperatura",
+     "found": true,
+     "row": "PCV-FC · Temperature · Less temperature (cold front downstream)"
+    },
+    {
+     "id": "W7",
+     "alcance": "fuera",
+     "desviacion": "Menos presión por venteo abierto en almacenamiento",
+     "found": false,
+     "row": null
+    },
+    {
+     "id": "W8",
+     "alcance": "fuera",
+     "desviacion": "Movimiento involuntario (tornillos, ajuste del regulador)",
+     "found": false,
+     "row": null
+    }
+   ],
+   "extra_rows": [
+    "XV-FILL · Flow · No / less flow",
+    "XV-FILL · Flow · Reverse flow",
+    "XV-FILL · Flow · Less flow (leak / loss of containment)",
+    "XV-FILL · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "V-H2 · Flow · Reverse flow",
+    "V-H2 · Level · Less level",
+    "HTR-1 · Flow · No / less flow",
+    "HTR-1 · Flow · Reverse flow",
+    "HTR-1 · Temperature · More temperature (more heating)",
+    "PCV-FC · Flow · No / less flow",
+    "PCV-FC · Flow · Reverse flow",
+    "PCV-FC · Flow · Less flow (leak / loss of containment)",
+    "PCV-FC · Pressure · More pressure (downstream)"
+   ],
+   "rows": [
+    {
+     "node": "XV-FILL",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 1.5→1.4 bar; T 20→20 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-FILL",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.4 bar; T 20→20 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-FILL",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.4 bar; T 20→20 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-FILL",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 3,
+     "evidence": "P 1.5→1.4 bar; T 20→20 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-H2",
+     "kind": "Vessel",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 2.4→2.4 bar; T 28→33 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-H2",
+     "kind": "Vessel",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→2.4 bar; T 28→33 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-H2",
+     "kind": "Vessel",
+     "parameter": "Level",
+     "deviation": "More level",
+     "causes": [
+      "Falla del control de nivel / válvula de líquido cerrada",
+      "Slug de líquido en la alimentación"
+     ],
+     "consequences": [
+      "Arrastre de líquido al gas (carryover) → daño a compresor aguas abajo",
+      "Rebose"
+     ],
+     "safeguards": [
+      "LAH + LAHH con paro",
+      "Demister"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→2.4 bar; T 28→33 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-H2",
+     "kind": "Vessel",
+     "parameter": "Level",
+     "deviation": "Less level",
+     "causes": [
+      "Válvula de líquido abierta en falla",
+      "Baja alimentación"
+     ],
+     "consequences": [
+      "Paso de gas a la línea de líquido (gas blowby) → sobrepresión del sistema de baja presión aguas abajo"
+     ],
+     "safeguards": [
+      "LAL + LALL con cierre de válvula de líquido",
+      "PSV aguas abajo dimensionada para blowby"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→2.4 bar; T 28→33 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-H2",
+     "kind": "Vessel",
+     "parameter": "Pressure",
+     "deviation": "More pressure",
+     "causes": [
+      "Salida de gas bloqueada",
+      "Blowby desde aguas arriba",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Sobrepresión del recipiente (operación 2.4 bar)"
+     ],
+     "safeguards": [
+      "PSV dimensionada (bloqueo, fuego)",
+      "PAH"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→2.4 bar; T 28→33 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "V-H2",
+     "kind": "Vessel",
+     "parameter": "Temperature",
+     "deviation": "More temperature",
+     "causes": [
+      "Alta T en la alimentación o en el almacenamiento (sol, falla de enfriamiento aguas arriba)",
+      "Fuego externo"
+     ],
+     "consequences": [
+      "Mayor presión de vapor del líquido → más presión en el recipiente y en las líneas conectadas"
+     ],
+     "safeguards": [
+      "TAH",
+      "PSV dimensionada para la presión de vapor a la T máxima y para fuego"
+     ],
+     "severity": 2,
+     "evidence": "P 2.4→2.4 bar; T 28→33 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "HTR-1",
+     "kind": "Heater",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 2.4→2.4 bar; T 20→28 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "HTR-1",
+     "kind": "Heater",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→2.4 bar; T 20→28 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "HTR-1",
+     "kind": "Heater",
+     "parameter": "Temperature",
+     "deviation": "More temperature (more heating)",
+     "causes": [
+      "Falla del control de T",
+      "Bajo flujo de proceso con calentamiento constante"
+     ],
+     "consequences": [
+      "Vaporización / degradación térmica",
+      "Sobrepresión si hay bloqueo"
+     ],
+     "safeguards": [
+      "Alarma TAH y corte de calentamiento",
+      "PSV por expansión térmica/bloqueo"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→2.4 bar; T 20→28 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-FC",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 2.4→1.3 bar; T 33→293 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-FC",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→1.3 bar; T 33→293 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-FC",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→1.3 bar; T 33→293 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-FC",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 2.4 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→1.3 bar; T 33→293 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "PCV-FC",
+     "kind": "Valve",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (cold front downstream)",
+     "causes": [
+      "Falla del calentador / vaporizador",
+      "Flujo mayor al de diseño",
+      "Líquido criogénico arrastrado a la línea de gas"
+     ],
+     "consequences": [
+      "Componentes no criogénicos aguas abajo (sellos, válvulas, regulador) por debajo de su T mínima de diseño (operación hasta 33 K) → fragilización y fuga de material inflamable"
+     ],
+     "safeguards": [
+      "TAL con cierre de la salida",
+      "Materiales y sellos especificados para la T mínima posible",
+      "Interlock calentador-regulador"
+     ],
+     "severity": 3,
+     "evidence": "P 2.4→1.3 bar; T 33→293 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    }
+   ]
+  },
+  {
+   "id": "michigan_amoniaco_deshielo",
+   "titulo": "Evaporador de amoniaco en ciclo de deshielo (incidente Millard Refrigerated Services, 2010)",
+   "n_rows": 24,
+   "missing": [],
+   "items": [
+    {
+     "id": "A1",
+     "alcance": "datos",
+     "desviacion": "Más flujo de amoniaco líquido al evaporador durante el deshielo",
+     "found": true,
+     "row": "E-EVAP · Pressure · More pressure (cold side blocked in)"
+    },
+    {
+     "id": "A2",
+     "alcance": "datos",
+     "desviacion": "Más flujo de gas caliente a la succión de baja temperatura",
+     "found": true,
+     "row": "XV-HG · Pressure · More pressure (downstream)"
+    },
+    {
+     "id": "A3",
+     "alcance": "datos",
+     "desviacion": "Menos presión en los serpentines del evaporador",
+     "found": true,
+     "row": "E-EVAP · Pressure · Less pressure (condensation-induced hammer)"
+    },
+    {
+     "id": "A4",
+     "alcance": "fuera",
+     "desviacion": "Líquido residual en el ciclo de deshielo",
+     "found": true,
+     "row": "E-EVAP · Pressure · Less pressure (condensation-induced hammer)"
+    },
+    {
+     "id": "A5",
+     "alcance": "fuera",
+     "desviacion": "Arranque tras una interrupción",
+     "found": true,
+     "row": "E-EVAP · Pressure · Less pressure (condensation-induced hammer)"
+    }
+   ],
+   "extra_rows": [
+    "XV-HG · Flow · No / less flow",
+    "XV-HG · Flow · Reverse flow",
+    "XV-HG · Flow · Less flow (leak / loss of containment)",
+    "XV-LIQ · Flow · No / less flow",
+    "XV-LIQ · Flow · Reverse flow",
+    "XV-LIQ · Flow · Less flow (leak / loss of containment)",
+    "XV-LIQ · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "E-EVAP · Flow · No / less flow",
+    "E-EVAP · Flow · Reverse flow",
+    "E-EVAP · Composition · Other (tube leak)",
+    "E-EVAP · Temperature · Less heat transfer",
+    "XV-SUC · Flow · No / less flow",
+    "XV-SUC · Flow · Reverse flow",
+    "XV-SUC · Flow · Less flow (leak / loss of containment)",
+    "XV-SUC · Pressure · More pressure (downstream)",
+    "XV-SUC · Temperature · Less temperature (Joule-Thomson)",
+    "XV-RELIEF · Flow · No / less flow",
+    "XV-RELIEF · Flow · Reverse flow",
+    "XV-RELIEF · Flow · Less flow (leak / loss of containment)",
+    "XV-RELIEF · Pressure · More pressure (blocked-in liquid, thermal expansion)",
+    "XV-RELIEF · Pressure · More pressure (downstream)"
+   ],
+   "rows": [
+    {
+     "node": "XV-HG",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 10.0→7.0 bar; T 343→338 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-HG",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 10.0→7.0 bar; T 343→338 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-HG",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 10.0→7.0 bar; T 343→338 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-HG",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 10.0 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 3,
+     "evidence": "P 10.0→7.0 bar; T 343→338 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-LIQ",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 2.0→1.5 bar; T 243→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-LIQ",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 2.0→1.5 bar; T 243→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-LIQ",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 2.0→1.5 bar; T 243→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-LIQ",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 3,
+     "evidence": "P 2.0→1.5 bar; T 243→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-EVAP",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 7.0→6.5 bar; T 338→293 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-EVAP",
+     "kind": "HeatExchanger",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 7.0→6.5 bar; T 338→293 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-EVAP",
+     "kind": "HeatExchanger",
+     "parameter": "Composition",
+     "deviation": "Other (tube leak)",
+     "causes": [
+      "Fuga tubo-coraza por corrosión o vibración"
+     ],
+     "consequences": [
+      "Contaminación del lado de baja presión con el de alta",
+      "Sobrepresión del lado de baja presión"
+     ],
+     "safeguards": [
+      "PSV en el lado de baja presión (caso rotura de tubo)",
+      "Monitoreo de composición / presión"
+     ],
+     "severity": 3,
+     "evidence": "P 7.0→6.5 bar; T 338→293 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-EVAP",
+     "kind": "HeatExchanger",
+     "parameter": "Temperature",
+     "deviation": "Less heat transfer",
+     "causes": [
+      "Ensuciamiento",
+      "Bajo flujo de un lado"
+     ],
+     "consequences": [
+      "Salidas fuera de especificación de temperatura"
+     ],
+     "safeguards": [
+      "TAH/TAL en salidas",
+      "Programa de limpieza"
+     ],
+     "severity": 2,
+     "evidence": "P 7.0→6.5 bar; T 338→293 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-EVAP",
+     "kind": "HeatExchanger",
+     "parameter": "Pressure",
+     "deviation": "More pressure (cold side blocked in)",
+     "causes": [
+      "Válvulas del lado frío cerradas (equipo en espera o mantenimiento) con el lado caliente en servicio"
+     ],
+     "consequences": [
+      "El líquido atrapado se calienta: expansión térmica y vaporización → sobrepresión y ruptura",
+      "BLEVE si el líquido es un gas licuado inflamable"
+     ],
+     "safeguards": [
+      "PSV del lado frío que no pueda aislarse (válvulas candado-abierto)",
+      "Procedimiento: aislar primero el lado caliente y drenar el lado frío"
+     ],
+     "severity": 4,
+     "evidence": "P 7.0→6.5 bar; T 338→293 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "E-EVAP",
+     "kind": "HeatExchanger",
+     "parameter": "Pressure",
+     "deviation": "Less pressure (condensation-induced hammer)",
+     "causes": [
+      "Líquido frío (243 K) admitido mientras hay vapor caliente (338 K) de Ammonia: válvula abierta por error u orden de arranque equivocada",
+      "Líquido residual no vaciado antes de admitir el vapor"
+     ],
+     "consequences": [
+      "Condensación súbita del vapor → vacío local → el líquido se acelera como tapón → golpe hidráulico, rotura de tubería o equipo, liberación tóxica, liberación inflamable"
+     ],
+     "safeguards": [
+      "Interlock: la válvula de líquido no abre con la de vapor abierta",
+      "Verificar el vaciado (tiempo o nivel) antes de admitir vapor",
+      "Válvula de apertura lenta para el vapor",
+      "Drenaje de los tramos fríos"
+     ],
+     "severity": 5,
+     "evidence": "P 7.0→6.5 bar; T 338→293 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-SUC",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 6.5→1.2 bar; T 283→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-SUC",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→1.2 bar; T 283→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-SUC",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→1.2 bar; T 283→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-SUC",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 6.5 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→1.2 bar; T 283→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-SUC",
+     "kind": "Valve",
+     "parameter": "Temperature",
+     "deviation": "Less temperature (Joule-Thomson)",
+     "causes": [
+      "Expansión isoentálpica normal; mayor ΔP por baja presión aguas abajo"
+     ],
+     "consequences": [
+      "Salida a 243.1 K (ΔT = -40.0 K)",
+      "T por debajo de −29 °C: acero al carbono fuera de rango (fragilización)"
+     ],
+     "safeguards": [
+      "Verificar MDMT de materiales",
+      "TAL aguas abajo"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→1.2 bar; T 283→243 K; inflamable, 0.00 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-RELIEF",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "No / less flow",
+     "causes": [
+      "Válvula de bloqueo cerrada aguas arriba",
+      "Falla de equipo aguas arriba",
+      "Taponamiento"
+     ],
+     "consequences": [
+      "Pérdida de producción",
+      "Equipo aguas abajo fuera de especificación"
+     ],
+     "safeguards": [
+      "Alarma de bajo flujo (FAL)",
+      "Paro por bajo flujo en rotatorios"
+     ],
+     "severity": 2,
+     "evidence": "P 6.5→4.0 bar; T 293→288 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-RELIEF",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Reverse flow",
+     "causes": [
+      "Paro del equipo con presión aguas abajo mayor",
+      "Falla de válvula check"
+     ],
+     "consequences": [
+      "Retroceso de fluido inflamable/tóxico a sección de menor presión",
+      "Sobrepresión de equipo aguas arriba"
+     ],
+     "safeguards": [
+      "Válvula check en descarga",
+      "Interlock de paro con cierre de válvula de descarga"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→4.0 bar; T 293→288 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-RELIEF",
+     "kind": "Valve",
+     "parameter": "Flow",
+     "deviation": "Less flow (leak / loss of containment)",
+     "causes": [
+      "Fuga en sello, bridas o derivaciones sin tapón",
+      "Corrosión de la línea"
+     ],
+     "consequences": [
+      "Liberación de material inflamable: incendio o exposición del personal; pérdida de contención en la línea"
+     ],
+     "safeguards": [
+      "Inspección y recorridos periódicos de la línea",
+      "Detectores de gas",
+      "Tapones en derivaciones y drenajes"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→4.0 bar; T 293→288 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-RELIEF",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (blocked-in liquid, thermal expansion)",
+     "causes": [
+      "Sección con líquido aislada entre válvulas y calentada por sol, fuego o trazado"
+     ],
+     "consequences": [
+      "Expansión térmica del líquido atrapado: la presión sube rápido → fuga en bridas o rotura de la línea"
+     ],
+     "safeguards": [
+      "Válvula de alivio térmico en cada sección aislable",
+      "Procedimiento: drenar antes de aislar"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→4.0 bar; T 293→288 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    },
+    {
+     "node": "XV-RELIEF",
+     "kind": "Valve",
+     "parameter": "Pressure",
+     "deviation": "More pressure (downstream)",
+     "causes": [
+      "Válvula abierta en falla con aguas abajo de menor presión de diseño"
+     ],
+     "consequences": [
+      "Sistema aguas abajo expuesto a 6.5 bar de aguas arriba"
+     ],
+     "safeguards": [
+      "PSV aguas abajo dimensionada para válvula totalmente abierta",
+      "Clase de presión homogénea"
+     ],
+     "severity": 3,
+     "evidence": "P 6.5→4.0 bar; T 293→288 K; inflamable, 0.17 kg/s",
+     "source": "rule"
+    }
+   ]
+  }
+ ],
+ "recall_datos": 1.0,
+ "found_datos": [
+  30,
+  30
+ ],
+ "recall_todos": 0.8717948717948718,
+ "found_todos": [
+  34,
+  39
+ ],
+ "dexpi_dir": "notebooks/hazop_apartado/dexpi"
+}

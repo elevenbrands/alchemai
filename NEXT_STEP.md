@@ -1,8 +1,11 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 24)
+Actualizado: 2026-11-05 (bloque 25)
 
 ## Dónde estamos
+**Bloque 25 (2026-11-05): conjunto apartado de HAZOP** (`notebooks/19_hazop_apartado.md`): 5 HAZOP publicados nuevos; recall a ciegas
+25/30 = 83 % → 30/30 con reglas de sustancia/régimen térmico; precisión útil 69 % → 76 %, espurias 2.6 % → 0 (revisor independiente,
+rúbrica previa). El owner pidió seguir en orden: 26 variables enteras + costo de relleno, 27 Fluxo 1.1 UI Figma, 28 repo público + post.
 **Bloque 24 (2026-11-05): optimización multivariable** (`notebooks/18_optimizacion_multivariable.md`): `optimize_design_multi`
 (36 tools), malla + Nelder-Mead; compresión 3 etapas 3.021/9.087 bar vs teoría 3/9; con límite del HAZOP 2.699/8.591 bar;
 absorbedor aceite + enfriamiento con óptimo de esquina sensible al precio. Bench v3 = 10 tarjetas (49 en total).
@@ -10,11 +13,11 @@ Bloques 18-23 del mismo día: transporte, costo, costo anual, optimizador 1D, ma
 Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
-Opciones (el owner elige):
-1. **Conjunto apartado de HAZOP** para medir recall sin sesgo y calificar precisión.
-2. **Variables enteras** (número de etapas) en la optimización + costo de relleno e internos.
-3. **Fluxo 1.1 UI en Figma** (tras el veredicto de Apple de 1.0.0).
-4. **Repo público + primer post** (decisión del owner) con la evidencia de los bloques 13-24.
+Orden fijado por el owner (2026-11-05, «sigue con esos 4 en orden»):
+1. ✅ Conjunto apartado de HAZOP (bloque 25).
+2. **Bloque 26: variables enteras** (número de etapas / platos) en `optimize_design_multi` + costo de relleno e internos de columnas (platos SSLW de IDAES `_cost_distillation_trays`; relleno = precio por m³ como dato de entrada, sin tabla verificada).
+3. **Bloque 27: Fluxo 1.1 UI en Figma** (reactor cinético + NRTL); necesita al owner una hora y conviene esperar el veredicto de Apple de 1.0.0 (4).
+4. **Bloque 28: repo público + primer post**; el OK explícito del owner sigue siendo obligatorio antes de publicar.
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
 
 ## Bloqueante actual

@@ -1,0 +1,2815 @@
+<!-- Generated with pyDEXPI 2.1.0 - https://github.com/process-intelligence-research/pyDEXPI -->
+<Model name="example" uri="http://www.example.org">
+  <Import prefix="Core" source="https://data.dexpi.org/models/2.0.1/Core.xml"/>
+  <Import prefix="Plant" source="https://data.dexpi.org/models/2.0.1/Plant.xml"/>
+  <Import prefix="Process" source="https://data.dexpi.org/models/2.0.1/Process.xml"/>
+  <Object id="id_a9ad95b892294f93ae4f818ca079647f" type="Core/EngineeringModel">
+    <Components property="ConceptualModel">
+      <Object id="id_1e392278663645258e89c3515be40a25" type="Process/ProcessModel">
+        <Components property="ListsOfMaterialComponents">
+          <Object id="id_01041dcee1ad40d8a3fd17a79ffe2493" type="Process/Process.ListOfMaterialComponents">
+            <References objects="#id_ee95061c4e024ea49e338a1ccae829ae #id_6a5f9dbe022b400699d2a7ecce0e578e #id_7164e49681644b9fbdc2521f2cd41bcf #id_d42463b686e741dfa52c2f59985ea653 #id_355acf063baf455aa6e249414eda9774 #id_82fc708cc65f4124b4edf666a12baaf5" property="Component"/>
+          </Object>
+        </Components>
+        <Components property="MaterialComponents">
+          <Object id="id_ee95061c4e024ea49e338a1ccae829ae" type="Process/Process.PureMaterialComponent">
+            <Data property="Identifier">
+              <String>Hydrogen sulfide</String>
+            </Data>
+            <Data property="Label">
+              <String>Hydrogen sulfide</String>
+            </Data>
+          </Object>
+          <Object id="id_6a5f9dbe022b400699d2a7ecce0e578e" type="Process/Process.PureMaterialComponent">
+            <Data property="Identifier">
+              <String>Methane</String>
+            </Data>
+            <Data property="Label">
+              <String>Methane</String>
+            </Data>
+          </Object>
+          <Object id="id_7164e49681644b9fbdc2521f2cd41bcf" type="Process/Process.PureMaterialComponent">
+            <Data property="Identifier">
+              <String>N-butane</String>
+            </Data>
+            <Data property="Label">
+              <String>N-butane</String>
+            </Data>
+          </Object>
+          <Object id="id_d42463b686e741dfa52c2f59985ea653" type="Process/Process.PureMaterialComponent">
+            <Data property="Identifier">
+              <String>N-heptane</String>
+            </Data>
+            <Data property="Label">
+              <String>N-heptane</String>
+            </Data>
+          </Object>
+          <Object id="id_355acf063baf455aa6e249414eda9774" type="Process/Process.PureMaterialComponent">
+            <Data property="Identifier">
+              <String>N-decane</String>
+            </Data>
+            <Data property="Label">
+              <String>N-decane</String>
+            </Data>
+          </Object>
+          <Object id="id_82fc708cc65f4124b4edf666a12baaf5" type="Process/Process.PureMaterialComponent">
+            <Data property="Identifier">
+              <String>Water</String>
+            </Data>
+            <Data property="Label">
+              <String>Water</String>
+            </Data>
+          </Object>
+        </Components>
+        <Components property="MaterialStates">
+          <Object id="id_36927f78032d49338a3901cb181ef95b" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_a3c9e47f618940d581c18156ff583929" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_48fdb4c927534e528a320ed86f187247" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_c858194d94f04e98b2a34c74a2e23f17" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.22</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_8395482260e641d4ac4d316299dc96f2" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.1</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_b02e5bbb8c9945268aa4cd040d4431d2" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.08</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_cab79c814def4548b3ae63e0c78b1f34" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.25</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_5a0eabafd1d64ac9a0ccbac480407029" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.33</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_32a08a9a0cd440ef9426c8d9fbfaf627" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.02</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-1</String>
+                </Data>
+                <Data property="Label">
+                  <String>1</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.15</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-1</String>
+            </Data>
+            <Data property="Label">
+              <String>1</String>
+            </Data>
+          </Object>
+          <Object id="id_954535aa415846008097f6b32ee72bc5" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_f651fdce075f485b9aea63eac5537b0a" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_505cb5d9ef984756a2e004fdde00c29d" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_01f6772aeb3d4f49b2027044043fbf5d" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.22</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_d7b5a47eff764447802db24b22276747" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.1</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_aa37b43cf8af4c02898f798033fc5abd" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.08</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_1aa3127e538447f7b6bcfaacd7768041" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.25</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_abbb0576b5054fefb37f918914d0c297" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.33</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_ea8676903793469a8d03ba9bcb0f1532" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.02</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-2</String>
+                </Data>
+                <Data property="Label">
+                  <String>2</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-2</String>
+            </Data>
+            <Data property="Label">
+              <String>2</String>
+            </Data>
+          </Object>
+          <Object id="id_9289995494e94280b2098424f0b5fc69" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_16502ae139bc403e9406339b843bda66" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_750d6af19b254fa084bf052d77b4c3cc" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_899a3d4a46704199b9d3e89df7f38624" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_c7039c51ae7848b9b061b866ddaea812" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_c2f8d116139b4a20aac3754d2948e67b" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_82d81130e65c497da794f808f2bf118c" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_62260fb2296f4134be64b657a1ffce28" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_02949a21c8244e518281f51654957492" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.999</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-2w</String>
+                </Data>
+                <Data property="Label">
+                  <String>2w</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-2w</String>
+            </Data>
+            <Data property="Label">
+              <String>2w</String>
+            </Data>
+          </Object>
+          <Object id="id_fadb3e7d62394f1b91af5337158bcfa5" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_1ff85e9332ab4f72ae3705b51ed33159" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_8fc0b08082954dc3acb4fbff27af4909" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_6b82e293437c45b89fbc4e1cc4f42ab0" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.22</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_ca451354744b48c198662330aa44eed8" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.1</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_7520a0ba83b84a47ab1c6e73ead44e2c" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.08</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_093fcc98e47c40f187cef4889553f35a" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.25</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_cd651c860c0f4a93aba8cab952374b45" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.33</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_f75a45d6a5704492b858b3393cae2bc4" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.02</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-3</String>
+                </Data>
+                <Data property="Label">
+                  <String>3</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.2</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-3</String>
+            </Data>
+            <Data property="Label">
+              <String>3</String>
+            </Data>
+          </Object>
+          <Object id="id_80221415c07742d289dc12966aa4037b" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_2991797480bc4a94b280e8a3f3daa3b0" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_19a4cb5385c341519272347205306051" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_440b5b523e3446cb992654b40f05812f" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_94babb49879a43f8bd652303b0a5e367" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_23e17a6a32774fac83328f53dccdf0ba" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_689c6552bc454e5aa08ee10f071ee986" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.35</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_5cff9f9800c8462393bc84802ceb9caf" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.5989</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_7b8c57a8e4a14b378076f561917b6723" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-4</String>
+                </Data>
+                <Data property="Label">
+                  <String>4</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-4</String>
+            </Data>
+            <Data property="Label">
+              <String>4</String>
+            </Data>
+          </Object>
+          <Object id="id_51a86e9f76084a52823ad0e4f677059c" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_b416846284af429d96bd6d4e33565a5c" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_db75ee0dcc9f42d9a02c38be4baee393" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_a864e9a9abe1415788cd6ab3a2ab7644" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_39a15bb7b64d45ddb19c7b29834834c1" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_223e52824d814def874a071b83038be6" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_bff648118b3243b6b8c8c8988ccbe375" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.35</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_e93a927383a04681bf90b3d8317a5ad0" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.5989</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_bdbfe2df1f7649fb86c9be9dd618a323" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-5</String>
+                </Data>
+                <Data property="Label">
+                  <String>5</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.3</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-5</String>
+            </Data>
+            <Data property="Label">
+              <String>5</String>
+            </Data>
+          </Object>
+          <Object id="id_a9b726c6f2fe4cd5814735e37eab98c9" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_8967e4cf25ac4685aa370d2dcbf8b7ee" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_c91d03acfdab4e1f91c891f73c9faa82" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_7711ff1b3f7e4f17837befd5b3bf96cf" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_8e5bb5e18b3c404ebab1884349d362cc" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_9c8de61bd7544ff0908c1609c51684d3" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_f6f4755e47c5453aa8c0dc45af0ea38d" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_d0854551f71c46ec912ecb26584e562c" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_494b5a4f032743ce941873551bd33a19" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>1.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-6</String>
+                </Data>
+                <Data property="Label">
+                  <String>6</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=1.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-6</String>
+            </Data>
+            <Data property="Label">
+              <String>6</String>
+            </Data>
+          </Object>
+          <Object id="id_137f53acc7e14511b6c6bbfbeb150fa3" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_80010c45e47b4f2c832a804304752140" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_ee9b1ff2c450424b962ccc0ac0bd75de" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_122ab63b54ed448abd48567b897da49d" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_77c59368714d46769932e5e8b12d7089" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_c5766feb442946c0b8b6a8f608df42bc" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_bf6b842c6cd34ec08a0858b49ec5c620" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_45544b7db6b0467ba8ecb4eb70551eeb" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_69e1980834944be4b4dd39e89f1c9b3a" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>1.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-7</String>
+                </Data>
+                <Data property="Label">
+                  <String>7</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=1.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-7</String>
+            </Data>
+            <Data property="Label">
+              <String>7</String>
+            </Data>
+          </Object>
+          <Object id="id_344ede7c5489414d83aaf85447bd4545" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_660160d65d984d02a22f9875f2302eed" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_e6965816193d4528b76ceb5d7d82a2eb" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_e75800ea47a34849bda3a696353b31c8" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_58ec9af4f3824a859511ae5f2825d995" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_422d85bc77e24cd2aead45645ad45ea3" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_506ae6cae32340e78d9936488b08083c" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_950b9847d41744e29b3efa9005476db5" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_61e64e9163974c029d987c57218b6e49" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>1.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-8</String>
+                </Data>
+                <Data property="Label">
+                  <String>8</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-8</String>
+            </Data>
+            <Data property="Label">
+              <String>8</String>
+            </Data>
+          </Object>
+          <Object id="id_ae2cb3446e304f68b70414d8816dc37a" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_9ccb8db03c7e4eeeb94eded8beca34af" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_60aaf313b2634cfe92c731bc20a94e3a" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_7971c98d57a54635b9e35b8af66d7640" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_0975eba7e1134add801ceb77c85722d9" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_320d0b9efb7a4fd5b336dd3be317d3e6" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_5124c7e669104131a87080a8e37819d2" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.35</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_c5984f104cf44912b4309f410fc3f817" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.5989</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_73d1dd69ab934d2394608351f837eb32" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-9</String>
+                </Data>
+                <Data property="Label">
+                  <String>9</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-9</String>
+            </Data>
+            <Data property="Label">
+              <String>9</String>
+            </Data>
+          </Object>
+          <Object id="id_418ab85193e34a7abd094e47e658ecf8" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_4d11bba77c2743b88be836454cc244c7" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_3218101fe81a4ada80d9213b5659c89b" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_66f88329b9f840a48a4a0bfda00ca3ef" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_348add88713e43aaafca85e2a05a6a0d" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_3ef4722d373c40a385d51f6474d80acf" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_30e21133c2944119a6b9c970f2beba9a" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.35</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_44580d4b910e4361865f1f8a40ca31ab" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.5989</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_2144c01e25624b3f8ee0a917f8519e77" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-10</String>
+                </Data>
+                <Data property="Label">
+                  <String>10</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-10</String>
+            </Data>
+            <Data property="Label">
+              <String>10</String>
+            </Data>
+          </Object>
+          <Object id="id_67f1dbd909604162a078f03072010152" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_76ea40fc838e430c8838d4a5a211c6bb" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_360fa5e5554043488eef8624242d4ae6" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_abcf5f72036d45b1b6dee4186d779fdb" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_37d9f60ba6714364a48a2ee2748de43b" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_760c4771b3024014951d698ad77a1e29" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_85054485031d4461937aae3d79836001" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.35</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_ec7271791b544193bfd6baecd744a07f" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.5989</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_b4eabf87f7994f908f072b1fbb7fa570" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-11</String>
+                </Data>
+                <Data property="Label">
+                  <String>11</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-11</String>
+            </Data>
+            <Data property="Label">
+              <String>11</String>
+            </Data>
+          </Object>
+          <Object id="id_66500e382b5f4fa9b4dce4ac6b1fb591" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_ed39181825d242c4a8302e6401313ee7" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_dcd8be79072349a9a94a65e78fa58211" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_9693a2c1ead440e2b989d33c7d5cb787" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_776da21a76714c14a25e771158ae55d9" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.001</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_2ddf7094c17b4f7c938d30d126988dff" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_5086f227bf8e413a9e6ed685cce1b349" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.35</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_0028de725844474b8960f75ccbd1ff7e" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.5989</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_56670041279a4987ba9e30b6b08f2eb6" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-12</String>
+                </Data>
+                <Data property="Label">
+                  <String>12</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-12</String>
+            </Data>
+            <Data property="Label">
+              <String>12</String>
+            </Data>
+          </Object>
+          <Object id="id_3468b1dc31c64f239322fd7dd4fa9d20" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_70720545d4f94c32a42eee3c52d7373e" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_49b0661ce1e141e18b4dafc260c5649e" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_3fa60c35367c47bea58db287d02f2141" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.55</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_35ef8995252b44a386feb4d1d1265016" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.3</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_31d389c636e84ccea0e49546257efcb4" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.12</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_4a1e561df1d44c14b26576c43658b08b" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.03</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_083f5f14d6894ab7978ff905dde48348" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_f5d24cfffbdf406abf5ea2e18bb5a3b6" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-13</String>
+                </Data>
+                <Data property="Label">
+                  <String>13</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=1.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-13</String>
+            </Data>
+            <Data property="Label">
+              <String>13</String>
+            </Data>
+          </Object>
+          <Object id="id_cc7b8baa025544f1a731ade5e28fd77f" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_124a28422efb4d1e8e498f38c8538324" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_6d1a9731ae8a47c49e8c97ed0a889faa" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_5bd6e3eb3a7043b9abb145994828a424" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.55</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_12251d1226b0455c90b70fa4b6d2c5db" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.3</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_14c3296f622446b89edb134304c2e59f" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.12</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_313f2a373f8840e6b4e7ee0dea8815f2" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.03</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_695c9cc707e9466ab2dd19c145afffa9" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_bf9be2d63e1244d2b501557ddc66d40f" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-14</String>
+                </Data>
+                <Data property="Label">
+                  <String>14</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=1.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-14</String>
+            </Data>
+            <Data property="Label">
+              <String>14</String>
+            </Data>
+          </Object>
+          <Object id="id_3a473af034004138b65a6f4de4651203" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_7c15297fc7704ecfad6b7ed82708ed6f" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_08d1d18caa4e40dc8f28270e43f584b1" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_d9c6d0ae2548433dbb20d42fed60912a" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_d9e4ea1083f74dedb08327dadc42b17a" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_54bc554b20c3450b8dd77f38cd80a5f1" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.3</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_0e2d0d216d824399a517219fe52c1d86" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.6</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_fdc0df1b130f4d228adaf5d54f66cc4f" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.05</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_0676225fc3da4c86b3d51fabeae4578a" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-15</String>
+                </Data>
+                <Data property="Label">
+                  <String>15</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=0.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-15</String>
+            </Data>
+            <Data property="Label">
+              <String>15</String>
+            </Data>
+          </Object>
+          <Object id="id_c1d78c3360c34ea187f10a0b23964aa5" type="Process/Process.MaterialState">
+            <Components property="State">
+              <Object id="id_b92c5766a08c48b48f2b671f2b862841" type="Process/Process.MaterialStateType">
+                <Components property="Composition">
+                  <Object id="id_20d76b98eb264500abe2da9b02b5f5aa" type="Process/Process.Composition">
+                    <Components property="MoleFractions">
+                      <Object id="id_6781e240305049128023ab566a85fc68" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.55</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_21cc9bdd0bb44e3393e673e6b813090d" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.3</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_63b68b2a35ca4769a93452a2f354113b" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.12</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_265150d39d12426a85a406a91ecd7706" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.03</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_b5ae37a357b5444586fa7cf0fa5a0de3" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                      <Object id="id_b8d7539aebc442ca9659c8184bf0a50e" type="Core/QualifiedValue">
+                        <Data property="Value">
+                          <Double>0.0</Double>
+                        </Data>
+                      </Object>
+                    </Components>
+                  </Object>
+                </Components>
+                <Data property="Description">
+                  <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                    <Data property="SingleLanguageStrings">
+                      <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                        <Data property="Language">
+                          <String>en</String>
+                        </Data>
+                        <Data property="Value">
+                          <String>design basis</String>
+                        </Data>
+                      </AggregatedDataValue>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+                <Data property="Identifier">
+                  <String>MST-16</String>
+                </Data>
+                <Data property="Label">
+                  <String>16</String>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <String>vapor_fraction=1.0</String>
+            </Data>
+            <Data property="Identifier">
+              <String>MS-16</String>
+            </Data>
+            <Data property="Label">
+              <String>16</String>
+            </Data>
+          </Object>
+        </Components>
+        <Components property="MaterialTemplates">
+          <Object id="id_03ac519817c94ef29331e8c5141e103b" type="Process/Process.MaterialTemplate">
+            <References objects="#id_01041dcee1ad40d8a3fd17a79ffe2493" property="ListOfComponents"/>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>marhavilas_estabilizadora</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>MT-1</String>
+            </Data>
+            <Data property="Label">
+              <String>marhavilas_estabilizadora</String>
+            </Data>
+            <Data property="NumberOfMaterialComponents">
+              <Integer>6</Integer>
+            </Data>
+            <Data property="NumberOfPhases">
+              <Integer>2</Integer>
+            </Data>
+            <Data property="PhaseLabel">
+              <String>Vapor</String>
+              <String>Liquid</String>
+            </Data>
+          </Object>
+        </Components>
+        <Components property="ProcessConnections">
+          <Object id="id_c50ab44ea81548dfb1705df5d8476523" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_a701e1a02c6444a4907c4107342e50c1" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>85000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_3d2205504d4e4cc78e3f6406cc054f2d" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>20.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_ef84e1e62d5042b69e9fa132cd21f193" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>20.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_36ff244348654775ad16664a223d21f8" property="Source"/>
+            <References objects="#id_46ef435bf2eb4eed9dee1a21b3aab682" property="Target"/>
+            <References objects="#id_36927f78032d49338a3901cb181ef95b" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-1</String>
+            </Data>
+            <Data property="Label">
+              <String>1</String>
+            </Data>
+          </Object>
+          <Object id="id_a98ebb452d974baebbc68d4332ed27f5" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_b1def4d2b64d44bead324a540079016b" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>80000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_d2ea954037a04e569ffb2ae4bdf8f3fb" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>19.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_c78fafa9267d4fd9a9bcad85eef2f048" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>20.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_f7a862a5cb46413eb2bd73066bd49317" property="Source"/>
+            <References objects="#id_b163352e8eaf431e8c93cb64151fc5b7" property="Target"/>
+            <References objects="#id_954535aa415846008097f6b32ee72bc5" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-2</String>
+            </Data>
+            <Data property="Label">
+              <String>2</String>
+            </Data>
+          </Object>
+          <Object id="id_b21b2db8db304c239078485f02868b1f" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_a27315dee9f14a588fa654f2aeb710bb" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>3000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_20b0269f26fb44b283ba249d19c95214" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>19.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_4ecb095a2d1a4e66bb61ac28b83366ab" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>20.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_48633ee7c6d74a98a6e77e5aeb98aa77" property="Source"/>
+            <References objects="#id_0cf8decf84024af4a38e536d43937066" property="Target"/>
+            <References objects="#id_9289995494e94280b2098424f0b5fc69" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-2w</String>
+            </Data>
+            <Data property="Label">
+              <String>2w</String>
+            </Data>
+          </Object>
+          <Object id="id_f4a4d82c4dc14e54bcee8819a06b07f8" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_59c79c2ee0fc40e7b51a1b515c3f06e4" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>80000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_45b07969c2714b4c8d5b226d64cebab2" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>8.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_de08813e886d4ff58ac3243d704b6292" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>95.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_0dc769abb8f74339968ff2e124a94479" property="Source"/>
+            <References objects="#id_a63c4daa2dd4486795435b222e990f8d" property="Target"/>
+            <References objects="#id_fadb3e7d62394f1b91af5337158bcfa5" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-3</String>
+            </Data>
+            <Data property="Label">
+              <String>3</String>
+            </Data>
+          </Object>
+          <Object id="id_bc535c14e1014583b9f4b72ceaa9166f" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_bfb84f708dd84cada0ae00e08bc49753" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>60000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_d4db2a57d8e846daa585fbc7f897fd2a" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>7.5</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_1c0ff5b2c72b4bd89bb3ba5f473dd2cd" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>180.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_efd36b181446435fa3d56959fdbbf962" property="Source"/>
+            <References objects="#id_c1341ae32196488db6a1118d77268165" property="Target"/>
+            <References objects="#id_80221415c07742d289dc12966aa4037b" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-4</String>
+            </Data>
+            <Data property="Label">
+              <String>4</String>
+            </Data>
+          </Object>
+          <Object id="id_b13d90dbea924094a324b7cf548fb8c5" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_d3448791874f4c32806c27c9c9f4898a" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>60000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_3738d2d463514f5790c0e0eb13e10c02" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>7.5</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_d02e914f874a4327b0e7aae35d628c25" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>190.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_8185117e62654be9a8592a0cc25961a8" property="Source"/>
+            <References objects="#id_f617ec7d57e94cc69a0d4948f21fb220" property="Target"/>
+            <References objects="#id_51a86e9f76084a52823ad0e4f677059c" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-5</String>
+            </Data>
+            <Data property="Label">
+              <String>5</String>
+            </Data>
+          </Object>
+          <Object id="id_cfa401bade9e4b95ad76ea73563ac284" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_10857a956d4449c99a01b697f7d174c2" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>6000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_b649ef403e1c49499dd671ed49fb4917" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>20.7</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_ac96cd8b327e4480bb889dc585522861" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>215.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_875537ae916440e2a1eceee5154dc8a5" property="Source"/>
+            <References objects="#id_855dee32ee3c454983f639eab545a84c" property="Target"/>
+            <References objects="#id_a9b726c6f2fe4cd5814735e37eab98c9" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-6</String>
+            </Data>
+            <Data property="Label">
+              <String>6</String>
+            </Data>
+          </Object>
+          <Object id="id_e21a21e01b5f47c2bbbadd3dc5761087" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_c8dd2df4a0bf484fb8b4c14d15867669" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>6000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_11646aa662dd4b90b792de9928f85b98" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>19.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_40ee28c703004676b92b0767d61c4253" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>212.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_9b21e981e05f4b11923c7b58e68cd0f5" property="Source"/>
+            <References objects="#id_ccf2545de77f416393535291cef5c7b4" property="Target"/>
+            <References objects="#id_137f53acc7e14511b6c6bbfbeb150fa3" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-7</String>
+            </Data>
+            <Data property="Label">
+              <String>7</String>
+            </Data>
+          </Object>
+          <Object id="id_4b516c903a904bd4a1dd6ff61fcad70f" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_a995182b4cf44c2885929911a63ad316" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>6000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_7dc65207cbda45d19b33d55897dc6b1f" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>18.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_0164b1b94eee4d29a8b88fa1ad5f7bd4" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>180.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_1d73820c9c834675b7ae3446c65b385a" property="Source"/>
+            <References objects="#id_694a4863740943cf8b25389ab8d44dd8" property="Target"/>
+            <References objects="#id_344ede7c5489414d83aaf85447bd4545" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-8</String>
+            </Data>
+            <Data property="Label">
+              <String>8</String>
+            </Data>
+          </Object>
+          <Object id="id_2589eb6d8519472298ca36691ce8a0d9" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_4efbb26d775b478bbd876bd60f824884" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>62000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_4f79c8595ce34680b9f53f9b56fc8b07" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>7.5</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_2b934c2c7433487f9c1d2a9172d2c10f" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>185.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_b43e131717804d9a91e1d1e63751fb87" property="Source"/>
+            <References objects="#id_df1a5a0b39174c918bee532f921c012a" property="Target"/>
+            <References objects="#id_ae2cb3446e304f68b70414d8816dc37a" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-9</String>
+            </Data>
+            <Data property="Label">
+              <String>9</String>
+            </Data>
+          </Object>
+          <Object id="id_075879226ea64b62ad46bed77ee0e9c8" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_0ff1945e510643cca20f22462c17130c" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>62000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_1254058b20ff4e8b834ae4e423fc2e8b" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>12.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_bd9fc10e284448d0866c502f4879a130" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>186.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_bc77e9a655a1465eb982d7a836f09665" property="Source"/>
+            <References objects="#id_8700d484be8b40929c5047f8561340e8" property="Target"/>
+            <References objects="#id_418ab85193e34a7abd094e47e658ecf8" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-10</String>
+            </Data>
+            <Data property="Label">
+              <String>10</String>
+            </Data>
+          </Object>
+          <Object id="id_75ba536a8f2a4ca8bb498ac1e0d00acf" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_a1da1dc455d74617a70c0f727915e47f" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>62000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_9f0ae214e6564a058ccad2d8528e6b80" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>11.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_6dccd908e8e34b0f859688ce64c03524" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>110.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_88a43d6132f24a34b08b2c68a197b7e2" property="Source"/>
+            <References objects="#id_8957a68e3e664e6c98368becbc509ef6" property="Target"/>
+            <References objects="#id_67f1dbd909604162a078f03072010152" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-11</String>
+            </Data>
+            <Data property="Label">
+              <String>11</String>
+            </Data>
+          </Object>
+          <Object id="id_de360833dd42428b94484ce1bc29df7e" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_6a3a981c34c24ea396f99d847cb0b7b4" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>62000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_6b9dea2370ba4e1783a3a8b51767d782" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>10.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_4a70fce5d7b14a74a7fb9e4b96e4dded" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>40.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_00371ad070484634b97963cb88771aef" property="Source"/>
+            <References objects="#id_512499a84f3b4c808362a7b2d4481b14" property="Target"/>
+            <References objects="#id_66500e382b5f4fa9b4dce4ac6b1fb591" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-12</String>
+            </Data>
+            <Data property="Label">
+              <String>12</String>
+            </Data>
+          </Object>
+          <Object id="id_03b02758db5f4fc0a598381d3273bfa8" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_fe9bbc83ee6440008111410fb9983ea7" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>18000.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_4a59c0dc5c164cb4ab396b833697b990" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>7.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_5bb633df5e1243f9b60fb021ebd3f027" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>60.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_eb692aa606ab4ddf9e269ac2f647a955" property="Source"/>
+            <References objects="#id_4db1f592d8da4a9aa71058f80580c152" property="Target"/>
+            <References objects="#id_3468b1dc31c64f239322fd7dd4fa9d20" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-13</String>
+            </Data>
+            <Data property="Label">
+              <String>13</String>
+            </Data>
+          </Object>
+          <Object id="id_d22c82c4de50403fbd8618650c5ff888" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_09ee1dbf2ef7440eb512842aed3da0ed" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>17500.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_65965c8b4fd64c7087e6faa3dfb1c8d9" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>6.8</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_e4427730ac3d41fc866ff3b133cc27bc" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>58.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_8c6d47c13bf844de942fa8ca2803d283" property="Source"/>
+            <References objects="#id_19be3ce837da456aac90426cc7752835" property="Target"/>
+            <References objects="#id_cc7b8baa025544f1a731ade5e28fd77f" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-14</String>
+            </Data>
+            <Data property="Label">
+              <String>14</String>
+            </Data>
+          </Object>
+          <Object id="id_b2e73fa0292a4dbbabf9671e0f434034" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_9093744d40cf4f518adf6d68773e0e38" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>500.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_2511c16e31214cbd8d10b1e62d43bb3e" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>6.8</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_9a70088cae964783a11d61957d4b6e55" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>58.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_c10c8b5123be461f83c3abd7720423e1" property="Source"/>
+            <References objects="#id_c2a4869489c445e58be6ad5cd4daf192" property="Target"/>
+            <References objects="#id_3a473af034004138b65a6f4de4651203" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-15</String>
+            </Data>
+            <Data property="Label">
+              <String>15</String>
+            </Data>
+          </Object>
+          <Object id="id_8f171417df6840cc929a7562c4edc3ee" type="Process/Process.Stream">
+            <Components property="MassFlow">
+              <Object id="id_08530188ca33427784fdb6d77e30ba4a" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.MassFlowRateUnit.KilogramPerHour"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>17500.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Pressure">
+              <Object id="id_426fa1e2d87f47fa8c4f562ba23e1996" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.PressureAbsoluteUnit.Bar"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>28.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <Components property="Temperature">
+              <Object id="id_368b932d15a04c99888b42b52fd82452" type="Core/QualifiedValue">
+                <Data property="Value">
+                  <AggregatedDataValue type="Core/PhysicalQuantities.PhysicalQuantity">
+                    <Data property="Unit">
+                      <DataReference data="Core/PhysicalQuantities.TemperatureUnit.DegreeCelsius"/>
+                    </Data>
+                    <Data property="Value">
+                      <Double>130.0</Double>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </Object>
+            </Components>
+            <References objects="#id_d65527caf6a94c9892a36c78dd567578" property="Source"/>
+            <References objects="#id_e034873914434533b6fbcff7470e3be8" property="Target"/>
+            <References objects="#id_c1d78c3360c34ea187f10a0b23964aa5" property="MaterialStateReference"/>
+            <Data property="Identifier">
+              <String>S-16</String>
+            </Data>
+            <Data property="Label">
+              <String>16</String>
+            </Data>
+          </Object>
+        </Components>
+        <Components property="ProcessSteps">
+          <Object id="id_6839aa66737946cb9760fe42313b9f63" type="Process/Process.Source">
+            <Components property="Ports">
+              <Object id="id_36ff244348654775ad16664a223d21f8" type="Process/Process.MaterialPort">
+                <References objects="#id_c50ab44ea81548dfb1705df5d8476523" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>SRC-1.out1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Identifier">
+              <String>SRC-1</String>
+            </Data>
+          </Object>
+          <Object id="id_a0118521aab1436e80144bf7e189887b" type="Process/Process.SeparatingByGravity">
+            <Components property="Ports">
+              <Object id="id_46ef435bf2eb4eed9dee1a21b3aab682" type="Process/Process.MaterialPort">
+                <References objects="#id_c50ab44ea81548dfb1705df5d8476523" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-101.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_f7a862a5cb46413eb2bd73066bd49317" type="Process/Process.MaterialPort">
+                <References objects="#id_a98ebb452d974baebbc68d4332ed27f5" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-101.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+              <Object id="id_48633ee7c6d74a98a6e77e5aeb98aa77" type="Process/Process.MaterialPort">
+                <References objects="#id_b21b2db8db304c239078485f02868b1f" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-101.out3</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Three-phase inlet separator</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>V-101</String>
+            </Data>
+          </Object>
+          <Object id="id_1dc5713547564e7cb5c0bdca6061c450" type="Process/Process.ExchangingThermalEnergy">
+            <Components property="Ports">
+              <Object id="id_b163352e8eaf431e8c93cb64151fc5b7" type="Process/Process.MaterialPort">
+                <References objects="#id_a98ebb452d974baebbc68d4332ed27f5" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-102.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_0dc769abb8f74339968ff2e124a94479" type="Process/Process.MaterialPort">
+                <References objects="#id_f4a4d82c4dc14e54bcee8819a06b07f8" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-102.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+              <Object id="id_8700d484be8b40929c5047f8561340e8" type="Process/Process.MaterialPort">
+                <References objects="#id_075879226ea64b62ad46bed77ee0e9c8" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-102.in3</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_88a43d6132f24a34b08b2c68a197b7e2" type="Process/Process.MaterialPort">
+                <References objects="#id_75ba536a8f2a4ca8bb498ac1e0d00acf" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-102.out4</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Feed/bottoms exchanger</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>E-102</String>
+            </Data>
+            <Data property="Method">
+              <DataReference data="Process/Enumerations.HeatExchangeMethod.Tubular"/>
+            </Data>
+          </Object>
+          <Object id="id_985ae34bad204563afd9eb1309211e79" type="Process/Process.Distilling">
+            <Components property="Ports">
+              <Object id="id_a63c4daa2dd4486795435b222e990f8d" type="Process/Process.MaterialPort">
+                <References objects="#id_f4a4d82c4dc14e54bcee8819a06b07f8" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-102.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_efd36b181446435fa3d56959fdbbf962" type="Process/Process.MaterialPort">
+                <References objects="#id_bc535c14e1014583b9f4b72ceaa9166f" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-102.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+              <Object id="id_f617ec7d57e94cc69a0d4948f21fb220" type="Process/Process.MaterialPort">
+                <References objects="#id_b13d90dbea924094a324b7cf548fb8c5" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-102.in3</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_b43e131717804d9a91e1d1e63751fb87" type="Process/Process.MaterialPort">
+                <References objects="#id_2589eb6d8519472298ca36691ce8a0d9" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-102.out4</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+              <Object id="id_eb692aa606ab4ddf9e269ac2f647a955" type="Process/Process.MaterialPort">
+                <References objects="#id_03b02758db5f4fc0a598381d3273bfa8" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-102.out5</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Crude stabiliser column</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>V-102</String>
+            </Data>
+          </Object>
+          <Object id="id_d4f814c145e54defa1469d96379d343c" type="Process/Process.Source">
+            <Components property="Ports">
+              <Object id="id_875537ae916440e2a1eceee5154dc8a5" type="Process/Process.MaterialPort">
+                <References objects="#id_cfa401bade9e4b95ad76ea73563ac284" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>SRC-STM.out1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Identifier">
+              <String>SRC-STM</String>
+            </Data>
+          </Object>
+          <Object id="id_fee47d8d8e3346d788b1e042431f034b" type="Process/Process.RegulatingFlow">
+            <Components property="Ports">
+              <Object id="id_855dee32ee3c454983f639eab545a84c" type="Process/Process.MaterialPort">
+                <References objects="#id_cfa401bade9e4b95ad76ea73563ac284" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>FV-110.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_9b21e981e05f4b11923c7b58e68cd0f5" type="Process/Process.MaterialPort">
+                <References objects="#id_e21a21e01b5f47c2bbbadd3dc5761087" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>FV-110.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Steam flow control valve to reboiler</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>FV-110</String>
+            </Data>
+          </Object>
+          <Object id="id_22863d48dacc458bad4c4a03dacdadb8" type="Process/Process.ExchangingThermalEnergy">
+            <Components property="Ports">
+              <Object id="id_c1341ae32196488db6a1118d77268165" type="Process/Process.MaterialPort">
+                <References objects="#id_bc535c14e1014583b9f4b72ceaa9166f" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-101.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_8185117e62654be9a8592a0cc25961a8" type="Process/Process.MaterialPort">
+                <References objects="#id_b13d90dbea924094a324b7cf548fb8c5" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-101.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+              <Object id="id_ccf2545de77f416393535291cef5c7b4" type="Process/Process.MaterialPort">
+                <References objects="#id_e21a21e01b5f47c2bbbadd3dc5761087" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-101.in3</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_1d73820c9c834675b7ae3446c65b385a" type="Process/Process.MaterialPort">
+                <References objects="#id_4b516c903a904bd4a1dd6ff61fcad70f" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-101.out4</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Steam-heated reboiler</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>E-101</String>
+            </Data>
+            <Data property="Method">
+              <DataReference data="Process/Enumerations.HeatExchangeMethod.Tubular"/>
+            </Data>
+          </Object>
+          <Object id="id_bdf03d24930e4a2abba8855366b3da67" type="Process/Process.Sink">
+            <Components property="Ports">
+              <Object id="id_694a4863740943cf8b25389ab8d44dd8" type="Process/Process.MaterialPort">
+                <References objects="#id_4b516c903a904bd4a1dd6ff61fcad70f" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>SNK-COND.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Identifier">
+              <String>SNK-COND</String>
+            </Data>
+          </Object>
+          <Object id="id_70048850c4344bea86f362268f685e08" type="Process/Process.Pumping">
+            <Components property="Ports">
+              <Object id="id_df1a5a0b39174c918bee532f921c012a" type="Process/Process.MaterialPort">
+                <References objects="#id_2589eb6d8519472298ca36691ce8a0d9" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>P-101.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_bc77e9a655a1465eb982d7a836f09665" type="Process/Process.MaterialPort">
+                <References objects="#id_075879226ea64b62ad46bed77ee0e9c8" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>P-101.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Stabilised crude pump (spare installed)</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>P-101</String>
+            </Data>
+          </Object>
+          <Object id="id_cd80945255c744f592c3562084e3143a" type="Process/Process.RemovingThermalEnergy">
+            <Components property="Ports">
+              <Object id="id_8957a68e3e664e6c98368becbc509ef6" type="Process/Process.MaterialPort">
+                <References objects="#id_75ba536a8f2a4ca8bb498ac1e0d00acf" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-103.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_00371ad070484634b97963cb88771aef" type="Process/Process.MaterialPort">
+                <References objects="#id_de360833dd42428b94484ce1bc29df7e" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>E-103.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Seawater cooler</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>E-103</String>
+            </Data>
+            <Data property="Method">
+              <DataReference data="Process/Enumerations.HeatExchangeMethod.Tubular"/>
+            </Data>
+          </Object>
+          <Object id="id_b67091ca74d24472b1ecc628292066b4" type="Process/Process.Sink">
+            <Components property="Ports">
+              <Object id="id_512499a84f3b4c808362a7b2d4481b14" type="Process/Process.MaterialPort">
+                <References objects="#id_de360833dd42428b94484ce1bc29df7e" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>SNK-STORAGE.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Identifier">
+              <String>SNK-STORAGE</String>
+            </Data>
+          </Object>
+          <Object id="id_6d3dcbaad7f54ac28368edafad7f8ae1" type="Process/Process.SeparatingByFlash">
+            <Components property="Ports">
+              <Object id="id_4db1f592d8da4a9aa71058f80580c152" type="Process/Process.MaterialPort">
+                <References objects="#id_03b02758db5f4fc0a598381d3273bfa8" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-103.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_8c6d47c13bf844de942fa8ca2803d283" type="Process/Process.MaterialPort">
+                <References objects="#id_d22c82c4de50403fbd8618650c5ff888" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-103.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+              <Object id="id_c10c8b5123be461f83c3abd7720423e1" type="Process/Process.MaterialPort">
+                <References objects="#id_b2e73fa0292a4dbbabf9671e0f434034" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>V-103.out3</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Overhead gas scrubber</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>V-103</String>
+            </Data>
+          </Object>
+          <Object id="id_6e0cd9c87e6747968f395d2286b3b1fe" type="Process/Process.Compressing">
+            <Components property="Ports">
+              <Object id="id_19be3ce837da456aac90426cc7752835" type="Process/Process.MaterialPort">
+                <References objects="#id_d22c82c4de50403fbd8618650c5ff888" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>C-101.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+              <Object id="id_d65527caf6a94c9892a36c78dd567578" type="Process/Process.MaterialPort">
+                <References objects="#id_8f171417df6840cc929a7562c4edc3ee" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>C-101.out2</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Outlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Description">
+              <AggregatedDataValue type="Core/DataTypes.MultiLanguageString">
+                <Data property="SingleLanguageStrings">
+                  <AggregatedDataValue type="Core/DataTypes.SingleLanguageString">
+                    <Data property="Language">
+                      <String>en</String>
+                    </Data>
+                    <Data property="Value">
+                      <String>Two-stage reciprocating compressor</String>
+                    </Data>
+                  </AggregatedDataValue>
+                </Data>
+              </AggregatedDataValue>
+            </Data>
+            <Data property="Identifier">
+              <String>C-101</String>
+            </Data>
+            <Data property="Method">
+              <DataReference data="Process/Enumerations.CompressionMethod.ReciprocatingMotion"/>
+            </Data>
+          </Object>
+          <Object id="id_2f14c221c6374d8eb005ddbcba851787" type="Process/Process.Sink">
+            <Components property="Ports">
+              <Object id="id_e034873914434533b6fbcff7470e3be8" type="Process/Process.MaterialPort">
+                <References objects="#id_8f171417df6840cc929a7562c4edc3ee" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>SNK-GAS.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Identifier">
+              <String>SNK-GAS</String>
+            </Data>
+          </Object>
+          <Object id="id_2d8c99c5c49c449c8388c2071a1b3219" type="Process/Process.Sink">
+            <Components property="Ports">
+              <Object id="id_0cf8decf84024af4a38e536d43937066" type="Process/Process.MaterialPort">
+                <References objects="#id_b21b2db8db304c239078485f02868b1f" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>SNK-H2O.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Identifier">
+              <String>SNK-H2O</String>
+            </Data>
+          </Object>
+          <Object id="id_ce35ee68672441178fe005e6c6e5ccbc" type="Process/Process.Sink">
+            <Components property="Ports">
+              <Object id="id_c2a4869489c445e58be6ad5cd4daf192" type="Process/Process.MaterialPort">
+                <References objects="#id_b2e73fa0292a4dbbabf9671e0f434034" property="ConnectorReference"/>
+                <References objects="#id_03ac519817c94ef29331e8c5141e103b" property="MaterialTemplateReference"/>
+                <Data property="Identifier">
+                  <String>SNK-LIQ.in1</String>
+                </Data>
+                <Data property="NominalDirection">
+                  <DataReference data="Process/Enumerations.PortDirection.Inlet"/>
+                </Data>
+              </Object>
+            </Components>
+            <Data property="Identifier">
+              <String>SNK-LIQ</String>
+            </Data>
+          </Object>
+        </Components>
+      </Object>
+    </Components>
+    <Data property="OriginatingSystemName">
+      <String>AlchemAI book case: marhavilas_estabilizadora</String>
+    </Data>
+    <Data property="OriginatingSystemVendorName">
+      <String>Process Intelligence Research, TU Delft</String>
+    </Data>
+    <Data property="OriginatingSystemVersion">
+      <String>2.1.0</String>
+    </Data>
+  </Object>
+</Model>

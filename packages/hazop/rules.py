@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
-from packages.hazop.graph import TOXIC, ProcessGraph, StreamNode, UnitNode
+from packages.hazop.graph import UNSTABLE, melting_point_K, TOXIC, ProcessGraph, StreamNode, UnitNode
 
 BAR = 1e5
 
@@ -44,7 +44,10 @@ def _flags(g: ProcessGraph, u: UnitNode) -> dict:
     return {"flammable": any(s.flammable for s in ss), "toxic": any(s.toxic for s in ss), "water": any(s.has_water for s in ss),
             "hydrate": any(s.hydrate_risk for s in ss), "pmax": pmax, "tmax": tmax, "tmin": tmin,
             "mass": max([s.mass_flow_kg_s for s in ss] + [0.0]), "pmin": min([s.P_Pa for s in ss] + [1e12]),
-            "liquid": any(_is_liquid(s) for s in ss), "toxic_in": sorted({c for s in _streams(g, u.inlets) for c, x in s.mole_fractions.items()
+            "liquid": any(_is_liquid(s) for s in ss),
+            "solid": next((s.solid_component for s in ss if s.solidifies), ""),
+            "unstable": sorted({c for s in ss for c, x in s.mole_fractions.items() if x > 1e-4 and c in UNSTABLE}),
+            "toxic_in": sorted({c for s in _streams(g, u.inlets) for c, x in s.mole_fractions.items()
                                                                           if x > 1e-4 and c in TOXIC})}
 
 
@@ -170,7 +173,8 @@ def rules_for_unit(g: ProcessGraph, u: UnitNode) -> list[HazopRow]:
                                  ["Alta T en la alimentación o en el almacenamiento (sol, falla de enfriamiento aguas arriba)", "Fuego externo"],
                                  ["Mayor presión de vapor del líquido → más presión en el recipiente y en las líneas conectadas"],
                                  ["TAH", "PSV dimensionada para la presión de vapor a la T máxima y para fuego"], max(1, sev - 1), ev))
-        if f["water"] and f["tmin"] < 323.15:
+        wet = [s for s in _streams(g, u.inlets + u.outlets) if s.has_water and _is_liquid(s)]
+        if wet and min(s.T_K for s in wet) < 323.15:
             rows.append(HazopRow(u.name, k, "Temperature", "Less temperature (winter)",
                                  ["Baja T ambiente"],
                                  ["Congelamiento del agua en sumidero, drenajes e instrumentos → drenaje bloqueado o tubería rota"],
@@ -188,11 +192,16 @@ def rules_for_unit(g: ProcessGraph, u: UnitNode) -> list[HazopRow]:
                                  ["Vapores tóxicos salen del tanque atmosférico al área de trabajo → exposición del personal"],
                                  ["Detectores de gas con alarma en el área", "Venteo a lugar seguro o a lavador", "Ventilación del área"], sev, ev))
     elif k == "Valve":
-        rows += _common_flow_rows(u, f, sev, ev)
-        rows.append(HazopRow(u.name, k, "Pressure", "More pressure (downstream)",
-                             ["Válvula abierta en falla con aguas abajo de menor presión de diseño"],
-                             [f"Sistema aguas abajo expuesto a {u.P_in_Pa / BAR:.1f} bar de aguas arriba" if u.P_in_Pa else "Sobrepresión aguas abajo"],
-                             ["PSV aguas abajo dimensionada para válvula totalmente abierta", "Clase de presión homogénea"], sev, ev))
+        ups = [v for v in g.units.values() if set(v.outlets) & set(u.inlets)]
+        dns = [v for v in g.units.values() if set(v.inlets) & set(u.outlets)]
+        inner = bool(ups) and bool(dns) and not any("Source" in v.kind or "Sink" in v.kind for v in ups + dns)
+        rows += [r for r in _common_flow_rows(u, f, sev, ev)
+                 if not (inner and r.deviation in ("No / less flow", "Reverse flow"))]
+        if u.P_in_Pa and u.P_out_Pa and u.P_in_Pa > u.P_out_Pa + 0.5 * BAR:
+            rows.append(HazopRow(u.name, k, "Pressure", "More pressure (downstream)",
+                                 ["Válvula abierta en falla con aguas abajo de menor presión de diseño"],
+                                 [f"Sistema aguas abajo expuesto a {u.P_in_Pa / BAR:.1f} bar de aguas arriba" if u.P_in_Pa else "Sobrepresión aguas abajo"],
+                                 ["PSV aguas abajo dimensionada para válvula totalmente abierta", "Clase de presión homogénea"], sev, ev))
         if u.T_out_K is not None and u.T_in_K is not None and u.T_out_K < u.T_in_K - 5:
             lt = []
             if f["hydrate"]:
@@ -216,7 +225,7 @@ def rules_for_unit(g: ProcessGraph, u: UnitNode) -> list[HazopRow]:
         ins = _streams(g, u.inlets)
         if len(ins) >= 2:
             cold = min(ins, key=lambda s: s.T_K)
-            if _is_liquid(cold):
+            if _is_liquid(cold) and cold.P_Pa >= 1.3 * BAR:      # an atmospheric / vented side cannot be blocked in
                 rows.append(HazopRow(u.name, k, "Pressure", "More pressure (cold side blocked in)",
                                      ["Válvulas del lado frío cerradas (equipo en espera o mantenimiento) con el lado caliente en servicio"],
                                      ["El líquido atrapado se calienta: expansión térmica y vaporización → sobrepresión y ruptura"]
@@ -262,17 +271,29 @@ def rules_for_unit(g: ProcessGraph, u: UnitNode) -> list[HazopRow]:
                              ["Sobrepresión de la columna; alivio de vapor inflamable" if f["flammable"] else "Sobrepresión de la columna"],
                              ["PSV en el domo dimensionada para falla de condensador", "PAH con corte de rehervidor"], sev, ev))
         rows.append(HazopRow(u.name, k, "Temperature", "More temperature (reboiler)",
-                             ["Falla del control de vapor al rehervidor"],
-                             ["Inundación, arrastre de pesados al destilado", "Degradación térmica de fondos"],
-                             ["TAH en fondos", "Control de ΔP de la columna"], max(1, sev - 1), ev))
+                             ["Falla del control de vapor al rehervidor (más medio de calentamiento)", "Transmisor de temperatura de fondos con lectura baja"],
+                             ["Más vapor de calentamiento → más tráfico de vapor: inundación, arrastre de pesados al destilado, más presión en la columna", "Degradación térmica de fondos"],
+                             ["TAH en fondos", "Control de ΔP de la columna", "PAH con corte del medio de calentamiento"], max(1, sev - 1), ev))
+        rows.append(HazopRow(u.name, k, "Flow", "No / less flow (heating medium)",
+                             ["Falla del suministro de vapor", "Válvula del medio de calentamiento falla cerrada", "Tubos del rehervidor ensuciados o tapados"],
+                             ["Sin despojamiento: los ligeros se quedan en los fondos; producto sin estabilizar / fuera de especificación"
+                              + (f" ({', '.join(f['toxic_in'])} al almacenamiento)" if f["toxic_in"] else ""), "Se pierde el tráfico de vapor y la separación"],
+                             ["FAL en el medio de calentamiento", "TAL en fondos con alarma", "Analizador o muestreo del producto de fondos"], max(1, sev - 1), ev))
+        rows.append(HazopRow(u.name, k, "Level", "Less level (bottoms)",
+                             ["Transmisor de nivel de fondos con lectura alta", "Válvula de fondos abierta en falla"],
+                             ["Paso de gas a la línea de fondos (gas blowby) → cavitación de la bomba de fondos y gas al sistema de baja presión aguas abajo"],
+                             ["LAL + LALL con cierre de la válvula de fondos", "PSV aguas abajo dimensionada para blowby"], sev, ev))
         rows.append(HazopRow(u.name, k, "Level", "More level (bottoms)",
                              ["Salida de fondos cerrada o válvula de nivel que falla cerrada", "Transmisor de nivel con lectura falsa"],
                              ["Llenado de la torre: líquido a la línea de domo y al sistema de alivio"]
                              + (["Liberación de líquido inflamable por el alivio"] if f["flammable"] else []),
                              ["Medición de nivel independiente con LAHH", "Balance de entradas y salidas durante el arranque"], sev, ev))
-        rows.append(HazopRow(u.name, k, "Flow", "Less reflux",
-                             ["Falla de la bomba de reflujo", "Bajo nivel en el acumulador"],
-                             ["Pérdida de pureza del destilado"], ["FAL en reflujo", "LAL en acumulador"], max(1, sev - 1), ev))
+        outs_c = _streams(g, u.outlets)
+        has_overhead_liquid = any(_is_liquid(s) and s.T_K < (f["tmax"] + f["tmin"]) / 2 for s in outs_c)
+        if has_overhead_liquid:
+            rows.append(HazopRow(u.name, k, "Flow", "Less reflux",
+                                 ["Falla de la bomba de reflujo", "Bajo nivel en el acumulador"],
+                                 ["Pérdida de pureza del destilado"], ["FAL en reflujo", "LAL en acumulador"], max(1, sev - 1), ev))
     elif k in ("Mixer", "Splitter", "OT_Recycle", "NodeIn", "NodeOut"):
         is_mixer = k in ("Mixer", "NodeIn")        # DWSIM names the mixer ObjectType "NodeIn"
         if is_mixer:
@@ -289,6 +310,54 @@ def rules_for_unit(g: ProcessGraph, u: UnitNode) -> list[HazopRow]:
                                  ["Control de relación aire/combustible", "Arrestallamas", "Analizador de O₂"], 5, ev))
     else:
         rows += _common_flow_rows(u, f, sev, ev)
+    rows += _cross_cutting_rows(g, u, f, sev, ev)
+    return rows
+
+
+CRYO_K = 233.15     # -40 C: below this, carbon steel and ordinary elastomer seals are outside their rating
+
+
+def _cross_cutting_rows(g: ProcessGraph, u: UnitNode, f: dict, sev: int, ev: str) -> list[HazopRow]:
+    """Rows that depend on the substance or the temperature regime, not on the unit kind (bloque 25)."""
+    k = u.kind
+    rows: list[HazopRow] = []
+    ins, outs = _streams(g, u.inlets), _streams(g, u.outlets)
+    if f["solid"] and k in ("Tank", "Vessel", "Pump", "Pipe"):     # the coil / valve rows would only repeat the tank's
+        tm = melting_point_K(f["solid"]) or 0.0
+        rows.append(HazopRow(u.name, k, "Temperature", "Less temperature (solidification)",
+                             ["Pérdida del medio de calentamiento o del trazado de la línea", "Baja T ambiente", "Flujo detenido en la recirculación o en un tramo muerto"],
+                             [f"Cristalización / solidificación de {f['solid']} (punto de fusión {tm:.0f} K) en el equipo y las líneas → líneas tapadas, bomba dañada, venteo o alivio bloqueado"],
+                             ["TAL con alarma en la recirculación", "Trazado y aislamiento de líneas, sin tramos muertos", "Alarma de bajo flujo en la recirculación", "Procedimiento de deshielo/relavado"], max(2, sev - 1), ev))
+    if f["unstable"] and k in ("Tank", "Vessel", "HeatExchanger", "Heater", "RCT_CSTR", "RCT_Generic", "RCT_Conversion", "RCT_PFR"):
+        c = ", ".join(f["unstable"])
+        rows.append(HazopRow(u.name, k, "Temperature", "More temperature (decomposition)",
+                             ["Falla del control del medio de calentamiento (válvula de vapor abierta)", "Fuga del serpentín / tubo", "Fuego externo", "Contaminación con materia orgánica, cloruros o ácido"],
+                             [f"Descomposición térmica de {c} → generación de gases, sobrepresión, explosión"],
+                             ["SIS de alta temperatura que corta el medio de calentamiento (SIL según LOPA)", "Medio de calentamiento atemperado por debajo de la T de descomposición",
+                              "Inundación / dilución de emergencia", "Control de contaminantes en las entradas", "Alivio dimensionado para descomposición"], 5, ev))
+    if k in ("Tank", "Vessel") and f["pmin"] < 1.5 * BAR and f["liquid"] and f["tmin"] > CRYO_K:   # not for cryogenic vessels
+        rows.append(HazopRow(u.name, k, "Pressure", "Less pressure (vacuum)",
+                             ["Vaciado por la bomba más rápido de lo que el venteo admite aire", "Venteo tapado o congelado", "Enfriamiento del espacio de vapor (lluvia, bloqueo tras limpieza con vapor)"],
+                             ["Colapso por vacío del recipiente (un tanque atmosférico resiste solo milibares de vacío)"],
+                             ["Válvula de presión-vacío (PVRV) dimensionada para el vaciado", "Rompedor de vacío", "Inertizado con control de presión", "Inspección del venteo"], max(2, sev - 1), ev))
+    if f["tmin"] < CRYO_K and any(s.T_K > CRYO_K for s in outs) and k in ("Heater", "Valve", "Vessel", "Tank", "HeatExchanger"):
+        rows.append(HazopRow(u.name, k, "Temperature", "Less temperature (cold front downstream)",
+                             ["Falla del calentador / vaporizador", "Flujo mayor al de diseño", "Líquido criogénico arrastrado a la línea de gas"],
+                             [f"Componentes no criogénicos aguas abajo (sellos, válvulas, regulador) por debajo de su T mínima de diseño (operación hasta {f['tmin']:.0f} K) → fragilización y fuga"
+                              + (" de material inflamable" if f["flammable"] else "")],
+                             ["TAL con cierre de la salida", "Materiales y sellos especificados para la T mínima posible", "Interlock calentador-regulador"], sev, ev))
+    vap = [s for s in ins if s.vapor_fraction == s.vapor_fraction and s.vapor_fraction > 0.5]
+    liq = [s for s in ins if _is_liquid(s)]
+    for v in vap:
+        for l in liq:
+            cv = max(v.mole_fractions, key=v.mole_fractions.get, default="")
+            if cv and l.mole_fractions.get(cv, 0.0) > 0.5 and v.T_K - l.T_K > 50.0:
+                rows.append(HazopRow(u.name, k, "Pressure", "Less pressure (condensation-induced hammer)",
+                                     [f"Líquido frío ({l.T_K:.0f} K) admitido mientras hay vapor caliente ({v.T_K:.0f} K) de {cv}: válvula abierta por error u orden de arranque equivocada", "Líquido residual no vaciado antes de admitir el vapor"],
+                                     ["Condensación súbita del vapor → vacío local → el líquido se acelera como tapón → golpe hidráulico, rotura de tubería o equipo"
+                                      + (", liberación tóxica" if f["toxic"] else "") + (", liberación inflamable" if f["flammable"] else "")],
+                                     ["Interlock: la válvula de líquido no abre con la de vapor abierta", "Verificar el vaciado (tiempo o nivel) antes de admitir vapor", "Válvula de apertura lenta para el vapor", "Drenaje de los tramos fríos"], 5, ev))
+                break
     return rows
 
 

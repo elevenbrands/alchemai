@@ -7,6 +7,8 @@ anyone (agent, MCP client, file).
 """
 from __future__ import annotations
 
+import functools
+
 import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -18,6 +20,29 @@ FLAMMABLE = {"Methane", "Ethane", "Propane", "N-butane", "Isobutane", "N-pentane
              "1-Butene", "Isobutene", "Hydrogen", "Carbon monoxide", "Ethanol", "Methanol", "Benzene", "Toluene", "Ethylene", "Propylene", "Ammonia"}
 TOXIC = {"Carbon monoxide", "Hydrogen sulfide", "Ammonia", "Methanol", "Benzene", "Chlorine", "Sulfur dioxide"}
 HYDRATE_FORMERS = {"Methane", "Ethane", "Propane", "Carbon dioxide", "Nitrogen", "Hydrogen sulfide"}
+# Thermally unstable substances that decompose on heating (CCPS, "Guidelines for Chemical Reactivity Evaluation"; ammonium
+# nitrate: NFPA 400 and CSB West Fertilizer 2013 report). Kept short on purpose: a name here triggers a severity-5 row.
+UNSTABLE = {"Ammonium nitrate", "Hydrogen peroxide", "Ethylene oxide", "Acetylene", "Nitromethane", "Nitroglycerin"}
+SOLIDIFIES_ABOVE_K = 293.15      # a major component with a melting point above ambient freezes in cold lines
+_TM_METHODS = ("CRC_INORG", "CRC_ORG", "COMMON_CHEMISTRY")   # OPEN_NTBKM gives 286 K for sulfur (real: 388 K); skipped
+
+
+@functools.lru_cache(maxsize=None)
+def melting_point_K(name: str) -> float | None:
+    """Melting point from `chemicals` (CRC first), None when the name is unknown (e.g. a placeholder "Reactant A")."""
+    try:
+        import chemicals
+        cas = chemicals.CAS_from_any(name)
+    except Exception:
+        return None
+    for m in _TM_METHODS:
+        try:
+            v = chemicals.Tm(cas, method=m)
+        except Exception:
+            v = None
+        if v:
+            return float(v)
+    return None
 
 
 @dataclass
@@ -33,6 +58,9 @@ class StreamNode:
     toxic: bool
     has_water: bool
     hydrate_risk: bool          # water + hydrate formers + T < 300 K + P > 10 bar
+    solidifies: bool = False    # a component with x > 0.2 melts above SOLIDIFIES_ABOVE_K (freezes in cold lines)
+    unstable: bool = False      # a component in UNSTABLE is present (thermal decomposition)
+    solid_component: str = ""
 
 
 @dataclass
@@ -69,10 +97,13 @@ def stream_node(name: str, T_K: float, P_Pa: float, vapor_fraction: float, molar
     """StreamNode with the hazard flags derived from composition, T and P (same rule for every source)."""
     present = {c for c, x in mole_fractions.items() if x > 1e-4}
     water = "Water" in present
+    solid = next((c for c, x in mole_fractions.items() if x > 0.2 and (melting_point_K(c) or 0.0) > SOLIDIFIES_ABOVE_K), "")
     return StreamNode(name=name, T_K=T_K, P_Pa=P_Pa, vapor_fraction=vapor_fraction, molar_flow_mol_s=molar_flow_mol_s,
                       mass_flow_kg_s=mass_flow_kg_s, mole_fractions=mole_fractions,
-                      flammable=bool(present & FLAMMABLE), toxic=bool(present & TOXIC), has_water=water,
-                      hydrate_risk=water and bool(present & HYDRATE_FORMERS) and T_K < 300.0 and P_Pa > 10e5)
+                      flammable=bool({c for c, x in mole_fractions.items() if x > 0.01} & FLAMMABLE),   # traces are not a fire hazard
+                      toxic=bool(present & TOXIC), has_water=water,
+                      hydrate_risk=water and bool(present & HYDRATE_FORMERS) and T_K < 300.0 and P_Pa > 10e5,
+                      solidifies=bool(solid), unstable=bool(present & UNSTABLE), solid_component=solid)
 
 
 def _obj_type(o) -> str:

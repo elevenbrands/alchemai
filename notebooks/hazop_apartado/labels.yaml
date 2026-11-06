@@ -1,0 +1,154 @@
+marhavilas_estabilizadora:1: {etiqueta: plausible, nota: "hidratos posibles a 20 bar y 20 °C con crudo amargo"}
+marhavilas_estabilizadora:2: {etiqueta: ruido, nota: "reflujo genérico; sin causa propia del separador"}
+marhavilas_estabilizadora:3: {etiqueta: plausible, nota: "nivel alto con arrastre a V-103/C-101 coherente"}
+marhavilas_estabilizadora:4: {etiqueta: plausible, nota: "bajo nivel con paso de gas a V-102 (8 bar)"}
+marhavilas_estabilizadora:5: {etiqueta: plausible, nota: "sobrepresión estándar del separador a 20 bar"}
+marhavilas_estabilizadora:6: {etiqueta: plausible, nota: "mayor presión de vapor por T alta o fuego"}
+marhavilas_estabilizadora:7: {etiqueta: plausible, nota: "agua en sumidero puede congelar a T ambiente baja"}
+marhavilas_estabilizadora:8: {etiqueta: plausible, nota: "arrastre de agua por falla de interfase, trifásico"}
+marhavilas_estabilizadora:9: {etiqueta: plausible, nota: "sin flujo en intercambiador de proceso"}
+marhavilas_estabilizadora:10: {etiqueta: ruido, nota: "reflujo genérico en intercambiador"}
+marhavilas_estabilizadora:11: {etiqueta: plausible, nota: "fuga de tubos entre crudo frío y fondos calientes"}
+marhavilas_estabilizadora:12: {etiqueta: plausible, nota: "ensuciamiento reduce transferencia, habitual"}
+marhavilas_estabilizadora:13: {etiqueta: plausible, nota: "líquido atrapado en lado frío con lado caliente activo"}
+marhavilas_estabilizadora:14: {etiqueta: plausible, nota: "sin flujo a la estabilizadora, coherente"}
+marhavilas_estabilizadora:15: {etiqueta: ruido, nota: "reflujo genérico en columna"}
+marhavilas_estabilizadora:16: {etiqueta: plausible, nota: "sobrepresión por salida bloqueada o fuego; condensador no descrito"}
+marhavilas_estabilizadora:17: {etiqueta: plausible, nota: "falla de FV-110 sube T del rehervidor"}
+marhavilas_estabilizadora:18: {etiqueta: plausible, nota: "inundación de fondos, líquido al sistema de alivio"}
+marhavilas_estabilizadora:19: {etiqueta: espuria, nota: "no hay reflujo ni acumulador descrito en la estabilizadora"}
+marhavilas_estabilizadora:20: {etiqueta: ruido, nota: "duplica la falta de flujo de E-101"}
+marhavilas_estabilizadora:21: {etiqueta: plausible, nota: "válvula de vapor abierta expone aguas abajo a 20.7 bar"}
+marhavilas_estabilizadora:22: {etiqueta: plausible, nota: "sin flujo de calentamiento en rehervidor"}
+marhavilas_estabilizadora:23: {etiqueta: ruido, nota: "reflujo genérico en rehervidor"}
+marhavilas_estabilizadora:24: {etiqueta: plausible, nota: "fuga vapor 20.7 bar a proceso 8 bar, sobrepresión"}
+marhavilas_estabilizadora:25: {etiqueta: plausible, nota: "ensuciamiento del rehervidor, habitual"}
+marhavilas_estabilizadora:26: {etiqueta: plausible, nota: "lado frío bloqueado con vapor en servicio"}
+marhavilas_estabilizadora:27: {etiqueta: plausible, nota: "bomba sin flujo, daño por marcha en vacío"}
+marhavilas_estabilizadora:28: {etiqueta: plausible, nota: "contraflujo con bomba parada, check"}
+marhavilas_estabilizadora:29: {etiqueta: plausible, nota: "fuga de crudo amargo a 185 °C, incendio y H2S"}
+marhavilas_estabilizadora:30: {etiqueta: plausible, nota: "líquido atrapado y calentado por fuego"}
+marhavilas_estabilizadora:31: {etiqueta: plausible, nota: "descarga cerrada, daño al sello"}
+marhavilas_estabilizadora:32: {etiqueta: plausible, nota: "cavitación por bajo NPSH en fondos"}
+marhavilas_estabilizadora:33: {etiqueta: plausible, nota: "sin flujo en enfriador de agua de mar"}
+marhavilas_estabilizadora:34: {etiqueta: ruido, nota: "reflujo genérico en enfriador"}
+marhavilas_estabilizadora:35: {etiqueta: plausible, nota: "salida sobre 313 K coherente con almacenamiento a 40 °C"}
+marhavilas_estabilizadora:36: {etiqueta: ruido, nota: "condensación de pesados no cuadra con crudo líquido"}
+marhavilas_estabilizadora:37: {etiqueta: plausible, nota: "sin flujo de gas al lavador"}
+marhavilas_estabilizadora:38: {etiqueta: ruido, nota: "reflujo genérico en lavador"}
+marhavilas_estabilizadora:39: {etiqueta: plausible, nota: "nivel alto arrastra líquido al compresor"}
+marhavilas_estabilizadora:40: {etiqueta: plausible, nota: "bajo nivel pasa gas a línea de líquido"}
+marhavilas_estabilizadora:41: {etiqueta: plausible, nota: "sobrepresión del lavador, 7 bar"}
+marhavilas_estabilizadora:42: {etiqueta: plausible, nota: "T alta eleva presión del lavador"}
+marhavilas_estabilizadora:43: {etiqueta: plausible, nota: "sin succión en compresor, marcha en vacío"}
+marhavilas_estabilizadora:44: {etiqueta: plausible, nota: "contraflujo del compresor tras paro, descarga a 28 bar"}
+marhavilas_estabilizadora:45: {etiqueta: plausible, nota: "fuga de gas rico en H2S, tóxico e inflamable"}
+marhavilas_estabilizadora:46: {etiqueta: plausible, nota: "sobrepresión de descarga sobre 28 bar, surge"}
+marhavilas_estabilizadora:47: {etiqueta: plausible, nota: "alta T de descarga por relación de compresión"}
+single_hexano:1: {etiqueta: plausible, nota: "bomba de descarga sin flujo, marcha en vacío"}
+single_hexano:2: {etiqueta: plausible, nota: "contraflujo al paro de la bomba"}
+single_hexano:3: {etiqueta: plausible, nota: "fuga de hexano inflamable"}
+single_hexano:4: {etiqueta: plausible, nota: "hexano atrapado por sol o fuego"}
+single_hexano:5: {etiqueta: plausible, nota: "descarga cerrada daña sello"}
+single_hexano:6: {etiqueta: plausible, nota: "cavitación por baja succión desde pipa"}
+single_hexano:7: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+single_hexano:8: {etiqueta: plausible, nota: "contraflujo del tanque a la línea de pipa"}
+single_hexano:9: {etiqueta: plausible, nota: "fuga de hexano en válvula, incendio"}
+single_hexano:10: {etiqueta: plausible, nota: "hexano atrapado en la línea de llenado"}
+single_hexano:11: {etiqueta: plausible, nota: "llenado a 4.0 bar contra tanque a 1.2 bar"}
+single_hexano:12: {etiqueta: ruido, nota: "flujo nulo genérico en tanque"}
+single_hexano:13: {etiqueta: ruido, nota: "reflujo genérico; la causa no aplica a un tanque"}
+single_hexano:14: {etiqueta: plausible, nota: "sobrellenado y rebose del tanque, caso clásico"}
+single_hexano:15: {etiqueta: ruido, nota: "bajo nivel: consecuencia de blowby no aplica a tanque"}
+single_hexano:16: {etiqueta: plausible, nota: "sobrepresión del tanque por bloqueo de venteo o fuego"}
+single_hexano:17: {etiqueta: plausible, nota: "T alta eleva presión de vapor del hexano"}
+single_hexano:18: {etiqueta: plausible, nota: "agua traza en sumidero puede congelar"}
+single_hexano:19: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+single_hexano:20: {etiqueta: ruido, nota: "reflujo genérico en válvula de salida"}
+single_hexano:21: {etiqueta: plausible, nota: "fuga de hexano en válvula de salida"}
+single_hexano:22: {etiqueta: plausible, nota: "hexano atrapado entre válvulas"}
+single_hexano:23: {etiqueta: ruido, nota: "aguas arriba a 1.2 bar, sin riesgo para aguas abajo"}
+single_hexano:24: {etiqueta: plausible, nota: "bomba de transferencia sin flujo"}
+single_hexano:25: {etiqueta: plausible, nota: "contraflujo al paro de la bomba"}
+single_hexano:26: {etiqueta: plausible, nota: "fuga de hexano en bomba"}
+single_hexano:27: {etiqueta: plausible, nota: "líquido atrapado y calentado"}
+single_hexano:28: {etiqueta: plausible, nota: "descarga cerrada daña sello"}
+single_hexano:29: {etiqueta: plausible, nota: "cavitación por bajo nivel en tanque"}
+benedetti_nitrato:1: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+benedetti_nitrato:2: {etiqueta: ruido, nota: "reflujo genérico en válvula de amoniaco"}
+benedetti_nitrato:3: {etiqueta: plausible, nota: "fuga de amoniaco, tóxico e inflamable"}
+benedetti_nitrato:4: {etiqueta: plausible, nota: "válvula abierta expone aguas abajo a 6 bar"}
+benedetti_nitrato:5: {etiqueta: ruido, nota: "válvula normalmente cerrada; sin flujo es lo normal"}
+benedetti_nitrato:6: {etiqueta: plausible, nota: "condensado atrapado y calentado"}
+benedetti_nitrato:7: {etiqueta: plausible, nota: "fallo abierta introduce 3 bar a tanque atmosférico"}
+benedetti_nitrato:8: {etiqueta: ruido, nota: "flujo nulo genérico en tanque"}
+benedetti_nitrato:9: {etiqueta: ruido, nota: "reflujo genérico; no aplica a tanque"}
+benedetti_nitrato:10: {etiqueta: plausible, nota: "sobrellenado del tanque de nitrato"}
+benedetti_nitrato:11: {etiqueta: ruido, nota: "bajo nivel: consecuencia no aplica a tanque ventilado"}
+benedetti_nitrato:12: {etiqueta: plausible, nota: "venteo taponado por cristalización, sobrepresión"}
+benedetti_nitrato:13: {etiqueta: plausible, nota: "T alta acerca a descomposición del nitrato"}
+benedetti_nitrato:14: {etiqueta: espuria, nota: "congelamiento a 130-150 °C contradice los datos"}
+benedetti_nitrato:15: {etiqueta: plausible, nota: "vapores de amoniaco del dosificado a atmósfera"}
+benedetti_nitrato:16: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+benedetti_nitrato:17: {etiqueta: plausible, nota: "válvula de vapor abierta expone aguas abajo a 10 bar"}
+benedetti_nitrato:18: {etiqueta: ruido, nota: "vapor saturado a 438 K normal, sin riesgo aquí"}
+benedetti_nitrato:19: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+benedetti_nitrato:20: {etiqueta: plausible, nota: "válvula de vapor a 7 bar aguas abajo, coherente"}
+benedetti_nitrato:21: {etiqueta: plausible, nota: "pérdida de calentamiento, riesgo de cristalizar"}
+benedetti_nitrato:22: {etiqueta: ruido, nota: "reflujo genérico en serpentín"}
+benedetti_nitrato:23: {etiqueta: plausible, nota: "fuga de vapor al nitrato por serpentín"}
+benedetti_nitrato:24: {etiqueta: plausible, nota: "ensuciamiento del serpentín, habitual"}
+benedetti_nitrato:25: {etiqueta: espuria, nota: "tanque ventilado: lado frío no se aísla; no es gas licuado"}
+benedetti_nitrato:26: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+benedetti_nitrato:27: {etiqueta: ruido, nota: "reflujo genérico en válvula de recirculación"}
+benedetti_nitrato:28: {etiqueta: espuria, nota: "nitrato de amonio no es inflamable; incendio contradice datos"}
+benedetti_nitrato:29: {etiqueta: plausible, nota: "solución caliente atrapada entre válvulas"}
+benedetti_nitrato:30: {etiqueta: ruido, nota: "aguas arriba a 1.0 bar, sin riesgo aguas abajo"}
+benedetti_nitrato:31: {etiqueta: plausible, nota: "bomba sin flujo, marcha en vacío"}
+benedetti_nitrato:32: {etiqueta: plausible, nota: "contraflujo al paro de la bomba"}
+benedetti_nitrato:33: {etiqueta: espuria, nota: "nitrato de amonio no es inflamable; incendio contradice datos"}
+benedetti_nitrato:34: {etiqueta: plausible, nota: "solución atrapada, calentamiento"}
+benedetti_nitrato:35: {etiqueta: plausible, nota: "descarga cerrada calienta nitrato en carcasa"}
+benedetti_nitrato:36: {etiqueta: plausible, nota: "cavitación por bajo nivel en succión"}
+wsu_hidrogeno_liquido:1: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+wsu_hidrogeno_liquido:2: {etiqueta: plausible, nota: "retorno de H2 al dewar con llenado a menor presión"}
+wsu_hidrogeno_liquido:3: {etiqueta: plausible, nota: "fuga de hidrógeno, inflamable"}
+wsu_hidrogeno_liquido:4: {etiqueta: plausible, nota: "LH2 atrapado entre válvulas, caso clásico"}
+wsu_hidrogeno_liquido:5: {etiqueta: ruido, nota: "aguas arriba 1.5 bar menor que tanque, sin riesgo"}
+wsu_hidrogeno_liquido:6: {etiqueta: ruido, nota: "flujo nulo genérico en tanque"}
+wsu_hidrogeno_liquido:7: {etiqueta: ruido, nota: "reflujo genérico; no aplica a tanque"}
+wsu_hidrogeno_liquido:8: {etiqueta: plausible, nota: "sobrellenado durante llenado desde dewar"}
+wsu_hidrogeno_liquido:9: {etiqueta: ruido, nota: "bajo nivel: consecuencia no aplica a tanque criogénico"}
+wsu_hidrogeno_liquido:10: {etiqueta: plausible, nota: "sobrepresión por calor de fuga o calentador atorado"}
+wsu_hidrogeno_liquido:11: {etiqueta: plausible, nota: "pérdida de aislamiento eleva presión de vapor"}
+wsu_hidrogeno_liquido:12: {etiqueta: ruido, nota: "calentador eléctrico, flujo nulo sin sentido"}
+wsu_hidrogeno_liquido:13: {etiqueta: ruido, nota: "reflujo genérico en calentador"}
+wsu_hidrogeno_liquido:14: {etiqueta: plausible, nota: "calentador atorado en encendido, sobrepresión"}
+wsu_hidrogeno_liquido:15: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+wsu_hidrogeno_liquido:16: {etiqueta: ruido, nota: "reflujo genérico en regulador"}
+wsu_hidrogeno_liquido:17: {etiqueta: plausible, nota: "fuga de hidrógeno gas, inflamable"}
+wsu_hidrogeno_liquido:18: {etiqueta: plausible, nota: "regulador falla abierto, celda expuesta a presión de tanque"}
+michigan_amoniaco_deshielo:1: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+michigan_amoniaco_deshielo:2: {etiqueta: ruido, nota: "reflujo genérico en válvula de gas caliente"}
+michigan_amoniaco_deshielo:3: {etiqueta: plausible, nota: "fuga de amoniaco, tóxico, personal cerca"}
+michigan_amoniaco_deshielo:4: {etiqueta: plausible, nota: "gas caliente expone aguas abajo a 10 bar"}
+michigan_amoniaco_deshielo:5: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+michigan_amoniaco_deshielo:6: {etiqueta: plausible, nota: "retorno de gas caliente a línea de líquido, coherente"}
+michigan_amoniaco_deshielo:7: {etiqueta: plausible, nota: "fuga de amoniaco líquido a -30 °C"}
+michigan_amoniaco_deshielo:8: {etiqueta: plausible, nota: "amoniaco líquido atrapado, caso del incidente"}
+michigan_amoniaco_deshielo:9: {etiqueta: ruido, nota: "aguas arriba a 2 bar, sin riesgo aguas abajo"}
+michigan_amoniaco_deshielo:10: {etiqueta: plausible, nota: "sin flujo en evaporador"}
+michigan_amoniaco_deshielo:11: {etiqueta: ruido, nota: "reflujo genérico en evaporador"}
+michigan_amoniaco_deshielo:12: {etiqueta: ruido, nota: "serpentín de un solo fluido; contaminación entre lados no aplica"}
+michigan_amoniaco_deshielo:13: {etiqueta: plausible, nota: "escarcha o suciedad reducen transferencia"}
+michigan_amoniaco_deshielo:14: {etiqueta: plausible, nota: "amoniaco atrapado y calentado por gas caliente"}
+michigan_amoniaco_deshielo:15: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+michigan_amoniaco_deshielo:16: {etiqueta: plausible, nota: "retorno de gas a succión de compresores"}
+michigan_amoniaco_deshielo:17: {etiqueta: plausible, nota: "fuga de amoniaco en succión"}
+michigan_amoniaco_deshielo:18: {etiqueta: plausible, nota: "succión expuesta a 6.5 bar por válvula abierta"}
+michigan_amoniaco_deshielo:19: {etiqueta: plausible, nota: "expansión a 243 K, acero al carbono bajo MDMT"}
+michigan_amoniaco_deshielo:20: {etiqueta: ruido, nota: "flujo nulo genérico; válvula, sin detalle del proceso"}
+michigan_amoniaco_deshielo:21: {etiqueta: ruido, nota: "reflujo genérico en válvula de alivio"}
+michigan_amoniaco_deshielo:22: {etiqueta: plausible, nota: "fuga de amoniaco en válvula de alivio"}
+michigan_amoniaco_deshielo:23: {etiqueta: plausible, nota: "líquido atrapado y calentado"}
+michigan_amoniaco_deshielo:24: {etiqueta: plausible, nota: "válvula abierta expone aguas abajo a 6.5 bar"}
