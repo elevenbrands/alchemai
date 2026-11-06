@@ -36,10 +36,10 @@ def find(item: dict, rows: list[dict]) -> dict | None:
     return None
 
 
-def score(out_dir: str | Path | None = None) -> dict:
-    ref = yaml.safe_load(REF.read_text())
+def score(out_dir: str | Path | None = None, ref_path: Path = REF, builders: dict | None = None) -> dict:
+    ref = yaml.safe_load(Path(ref_path).read_text())
     out_dir = Path(out_dir or tempfile.mkdtemp(prefix="hazop_book_"))
-    paths = write_all(out_dir)
+    paths = write_all(out_dir, builders or CASES)
     cases, tot = [], {"datos": [0, 0], "todos": [0, 0]}
     for c in ref["casos"]:
         h = hazop_from_dexpi(paths[c["id"]])
@@ -54,7 +54,8 @@ def score(out_dir: str | Path | None = None) -> dict:
         used = {i["row"] for i in items if i["row"]}
         extra = [f"{r['node']} · {r['parameter']} · {r['deviation']}" for r in h["rows"]
                  if f"{r['node']} · {r['parameter']} · {r['deviation']}" not in used]
-        cases.append({"id": c["id"], "titulo": c["titulo"], "n_rows": h["n_rows"], "missing": h["missing"], "items": items, "extra_rows": extra})
+        cases.append({"id": c["id"], "titulo": c["titulo"], "n_rows": h["n_rows"], "missing": h["missing"], "items": items, "extra_rows": extra,
+                      "rows": h["rows"]})
     return {"cases": cases, "recall_datos": tot["datos"][0] / tot["datos"][1], "found_datos": tot["datos"],
             "recall_todos": tot["todos"][0] / tot["todos"][1], "found_todos": tot["todos"], "dexpi_dir": str(out_dir)}
 

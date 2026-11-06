@@ -132,6 +132,6 @@ def csb_williams():
 CASES = {f.__name__: f for f in (lawley_dimerizacion, ccps_dap, crowl_louvar_reactor, csb_texas_city, csb_williams)}
 
 
-def write_all(out_dir: str | Path) -> dict[str, str]:
+def write_all(out_dir: str | Path, cases: dict | None = None) -> dict[str, str]:
     from packages.hazop.dexpi_examples import write
-    return {k: write(f(), out_dir, k) for k, f in CASES.items()}
+    return {k: write(f(), out_dir, k) for k, f in (cases or CASES).items()}
