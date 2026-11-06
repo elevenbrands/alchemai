@@ -94,3 +94,19 @@ Queda para después:
 1. La plantilla de Figma Community, entre las 5 propuestas.
 2. Distribución fuera de la App Store, que es la recomendación.
 3. Cobro y precio (puede esperar al final del MVP).
+
+## 9. Diseño en Figma (2026-11-06, pendiente de aprobación del owner)
+
+Archivo: https://www.figma.com/design/Cb75xN1JHDXuPpUOzz37VQ (registro en `.figma/project.json`, capturas en `docs/design/mac/`).
+Plantilla elegida por el owner: kit oficial **macOS 27** como librería enlazada, más los patrones del **AI Agent UI Kit** para el panel del agente (solo referencia visual, sin activos copiados). Moodboard en la página 01.
+
+Pantallas: Bienvenida y motor, Conversación (claro y oscuro), Diagrama de flujo con inspector, Corrientes y balances, HAZOP preliminar y Ajustes del agente.
+Componentes propios: insignia de evidencia (verificado, sin verificar, propuesta de la IA, suposición, infactible), fila de llamada a herramienta, botón de barra, estado del motor y barra lateral.
+Todos los números salen de una corrida real de DWSIM: columna etanol-agua NRTL, 32 etapas, alimentación en la 22, R 1.2665 (x_D 0.8015, Qc 2 233.6 kW, Qr 2 766.6 kW, 7 filas de HAZOP por regla).
+
+Notas para SwiftUI:
+- Los íconos de la barra lateral son glifos del kit usados como marcadores; en la app van SF Symbols.
+- La fuente monoespaciada en Figma es JetBrains Mono porque SF Mono no está disponible; en la app es SF Mono.
+- En modo oscuro, el kit pierde los textos de la barra lateral al cambiar de modo; la captura oscura usa una barra desacoplada. En SwiftUI la barra es nativa y no tiene este problema.
+- Las desviaciones del HAZOP salen del motor en inglés; la app las traduce al mostrarlas.
+- El ícono es un marcador: la marca pasa por el Premium Brand Gate después de aprobar este diseño.

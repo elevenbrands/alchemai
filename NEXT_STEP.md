@@ -6,6 +6,7 @@ Actualizado: 2026-11-06 (bloques 29-30 cerrados, mes 2)
 **Bloque 29 (2026-11-06): bench completo con tres modelos** (`notebooks/22_bench_tres_modelos.md`): una pasada de las 50 tarjetas
 por modelo: Opus 97.0 % (99.0 % con `reciclo` corregida), Sonnet 94.0 %, Haiku 92.4 %; trampas 15/15 · 14/15 · 15/15; la brecha está en v3
 (95/82/77 %). Opus detectó que `reciclo` no daba T ni P del agua fresca: corregido. Datos en `notebooks/bench_runs/m2/`.
+**Corrección 2026-11-06: deriva de la alimentación al reconstruir columnas** (óptimo del bloque 26 no reproducible; corregido a 29 etapas, R 1.394, 885 080 USD/año; tarjeta y calificaciones actualizadas: Opus 100 % en una pasada).
 **Bloque 30 (2026-11-06): constantes de Fluxo** (`notebooks/21_fluxo_constantes.md`): 166/167 dentro de tolerancia; ω H₂S 0.090 → 0.100.
 **Bloque 26 (2026-11-05): variables enteras + costo de platos/relleno** (`notebooks/20_variables_enteras.md`): etapas enteras × reflujo en la
 columna etanol-agua → 32 etapas, R 1.267, R/R_min riguroso 1.12; platos de Seider exactos; tarjeta `optimo_etapas_reflujo` (50 tarjetas).
@@ -35,7 +36,7 @@ Siguiente (plan mes 2):
 5. Fluxo: exportar casos a JSON/SFILES.
 **Decisión del owner 2026-11-06: la UI es una app de Mac en SwiftUI** («App Mac Swift»). Estructura en `docs/MAC_APP_ESTRUCTURA.md`
 (agente en Python como proceso hijo, DWSIM aparte por GPL, Developer ID fuera de la App Store, repo privado `apps/alchemai-mac`).
-**Bloqueante de diseño:** el owner elige la plantilla de Figma Community (5 propuestas el 2026-11-06). Sin esa elección no se toca Figma.
+Plantilla elegida por el owner 2026-11-06: macOS 27 + patrones del AI Agent UI Kit. **Diseño Figma listo** (Cb75xN1JHDXuPpUOzz37VQ, 7 pantallas, capturas en `docs/design/mac/`): **bloqueante = aprobación del owner**. Después: Premium Brand Gate (ícono), repo `apps/alchemai-mac`, `alchemai serve`.
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto

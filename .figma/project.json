@@ -1,0 +1,19 @@
+{
+  "file_id": "Cb75xN1JHDXuPpUOzz37VQ",
+  "url": "https://www.figma.com/design/Cb75xN1JHDXuPpUOzz37VQ",
+  "created_at": "2026-11-06",
+  "template": "macOS 27 (Apple, community library lk-9b6046629e11...) + patrones de 'AI Agent UI Kit' (Viacheslav Derzhaiev, community 1654386819853232641, solo referencia visual)",
+  "approved_by_owner": false,
+  "pages": {"00 Portada": "3:778", "01 Moodboard": "3:779", "03 Pantallas": "0:1", "04 Componentes": "3:780"},
+  "components": {"AA/Insignia": "4:44", "AA/Herramienta": "4:70", "AA/BotonBarra": "4:77", "AA/EstadoMotor": "4:78", "AA/BarraLateral": "4:1552"},
+  "screens": [
+    {"name": "01 Bienvenida", "node_id": "9:791"},
+    {"name": "03 Conversación", "node_id": "5:10"},
+    {"name": "03 Conversación · oscuro", "node_id": "9:892"},
+    {"name": "04 Diagrama", "node_id": "6:269"},
+    {"name": "05 Corrientes", "node_id": "8:408"},
+    {"name": "06 HAZOP", "node_id": "8:648"},
+    {"name": "07 Ajustes", "node_id": "9:833"}
+  ],
+  "data_source": "DWSIM 10.2.12, columna etanol-agua NRTL, 32 etapas, alimentación en la 22, R 1.2665 (resuelta 2026-11-06)"
+}

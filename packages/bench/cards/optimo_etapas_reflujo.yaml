@@ -25,17 +25,17 @@ tags:
 - costo
 expected:
   stages:
-    value: 32.0
+    value: 29.0
     unit: etapas
     tol:
       abs: 3
   reflux_ratio:
-    value: 1.2665000000000002
+    value: 1.3940000000000001
     unit: '-'
     tol:
       rel: 0.08
   TAC_usd_y:
-    value: 866991.953320777
+    value: 885080.4887841525
     unit: USD/año
     tol:
       rel: 0.01

@@ -26,9 +26,18 @@ def _rebuild_column(flowsheet_id: str, unit: str, new: dict) -> dict:
     old_n = int(params["stages"])
     params.update(new)
     n = int(params["stages"])
-    if kind == "distillation_column" and "feed_stage" not in new:
-        old_feed = int(s["column_feeds"].get(unit, params.get("feed_stage", max(1, old_n // 2))))
-        params["feed_stage"] = min(n - 1, max(2, int(round(old_feed * (n - 1) / (old_n - 1)))))   # same relative position, never condenser/reboiler
+    if kind == "distillation_column":
+        # The relative feed position is stored once and every rebuild maps from it. Mapping from the previous
+        # (already rounded) feed stage made the error compound: after many optimizer evaluations the feed of a
+        # 32-stage column had drifted from 16 to about 20, and the reported optimum did not reproduce (found 2026-11-06).
+        frac = s.setdefault("feed_frac", {})
+        if "feed_stage" in new:
+            frac[unit] = int(new["feed_stage"]) / (n - 1)
+        else:
+            if unit not in frac:
+                old_feed = int(s["column_feeds"].get(unit, params.get("feed_stage", max(1, old_n // 2))))
+                frac[unit] = old_feed / (old_n - 1)
+            params["feed_stage"] = min(n - 1, max(2, int(round(frac[unit] * (n - 1)))))   # never condenser/reboiler
     if kind == "absorption_column" and n < 4:
         raise ValueError("DWSIM needs at least 4 stages in an absorption column")
     inner = s["fs"].Inner

@@ -37,6 +37,24 @@ def test_two_stage_optimum_and_hazop_limit():
     T.close_flowsheet(fid)
 
 
+def test_feed_stage_does_not_drift_over_rebuilds():
+    """2026-11-06: rebuilding a column many times (as the optimizer does) must keep the feed at the same relative
+    position. Mapping from the previous rounded feed compounded the rounding and moved the feed of a 32-stage column
+    from 16 to about 20, so the reported optimum did not reproduce on a fresh flowsheet."""
+    from packages.dwsim_client import tools as T
+    from packages.dwsim_client.tools_sweep import set_unit_param
+    spec = importlib.util.spec_from_file_location("nb20", ROOT / "notebooks" / "20_variables_enteras.py")
+    nb = importlib.util.module_from_spec(spec); spec.loader.exec_module(nb)
+    fid = nb.column(20, 2.0)                                   # feed at stage 10 of 20
+    for n in (8, 8, 32):                                       # old mapping: 10 → 4 → 4 → 18; from the stored position: 16
+        r = set_unit_param(fid, "T-101", "stages", n)
+    assert r["stages"] == 32 and r["feed_stage"] == round(10 / 19 * 31)     # 16, the same as one direct rebuild
+    r = set_unit_param(fid, "T-101", "feed_stage", 22)          # an explicit feed resets the reference position
+    r = set_unit_param(fid, "T-101", "stages", 40)
+    assert r["feed_stage"] == round(22 / 31 * 39)
+    T.close_flowsheet(fid)
+
+
 def test_three_stage_two_variables_reach_equal_ratios():
     import importlib.util
     spec = importlib.util.spec_from_file_location("nb18", ROOT / "notebooks" / "18_optimizacion_multivariable.py")
