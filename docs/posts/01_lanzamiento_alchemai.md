@@ -1,6 +1,6 @@
 # Post 1 — Lanzamiento de AlchemAI (borrador para LinkedIn, español)
 
-> Estado: BORRADOR 2026-11-05. No publicar sin el OK del owner (también decide si el repo se abre primero).
+> Estado: LISTO 2026-11-05. El owner aprobó abrir el repo («Aprobado y sigue»); el repo es público desde esta fecha. El post lo publica el owner en LinkedIn.
 
 ---
 
@@ -34,7 +34,7 @@ Resultados, con evidencia reproducible en el repo:
 Lo que **no** hace: no reemplaza a un equipo de HAZOP, no tiene UI todavía (es un servidor MCP: se usa desde
 Claude Desktop, Claude Code o Cursor) y los precios de los ejemplos son ilustrativos.
 
-Es código abierto (MIT; DWSIM corre aparte bajo su propia licencia): [enlace al repo]
+Es código abierto (MIT; DWSIM corre aparte bajo su propia licencia): https://github.com/elevenbrands/alchemai
 
 Si eres ingeniero de procesos o das clase de diseño, me interesa que lo rompas. ¿Qué caso le pondrías?
 
@@ -43,7 +43,6 @@ Si eres ingeniero de procesos o das clase de diseño, me interesa que lo rompas.
 ---
 
 Notas para el owner:
-- Sustituir «[enlace al repo]» por https://github.com/elevenbrands/alchemai al abrir el repo.
 - Cifras tomadas de `BENCHMARK.md` al 2026-11-05 (bloques 13-26). Si se publica después, actualizar.
 - Posible imagen: la tabla de `notebooks/20_variables_enteras.md` (costo vs etapas) o la de recall/precisión del
   notebook 19.
