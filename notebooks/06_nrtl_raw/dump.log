@@ -25,4 +25,4 @@ metanol|n-heptano    11/11 puntos; T 333.05–345.03 K
 metanol|n-octano     11/11 puntos; T 336.15–345.75 K
 n-butano|metanol     11/11 puntos; T 272.66–291.59 K
 benceno|tolueno      11/11 puntos; T 354.33–381.26 K
-written /Users/elevenbrands/Documents/VS Code/alchemai/notebooks/06_nrtl_raw/dwsim_pares.json
+written ~/Documents/VS Code/alchemai/notebooks/06_nrtl_raw/dwsim_pares.json

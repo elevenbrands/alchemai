@@ -8140,4 +8140,4 @@ TXY x=0.850 T=351.535 y=0.8530372990270014
 TXY x=0.900 T=351.545 y=0.8962490423040524
 TXY x=0.950 T=351.632 y=0.9449480038374555
 TXY x=1.000 T=351.806 y=0.999999
-written /Users/elevenbrands/Documents/VS Code/alchemai/notebooks/05_nrtl_raw/dwsim_nrtl.json
+written ~/Documents/VS Code/alchemai/notebooks/05_nrtl_raw/dwsim_nrtl.json
