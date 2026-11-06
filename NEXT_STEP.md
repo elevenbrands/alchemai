@@ -1,6 +1,6 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-05 (bloque 26)
+Actualizado: 2026-11-05 (bloques 27-28 preparados)
 
 ## Dónde estamos
 **Bloque 26 (2026-11-05): variables enteras + costo de platos/relleno** (`notebooks/20_variables_enteras.md`): etapas enteras × reflujo en la
@@ -18,8 +18,8 @@ Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 Orden fijado por el owner (2026-11-05, «sigue con esos 4 en orden»):
 1. ✅ Conjunto apartado de HAZOP (bloque 25).
 2. ✅ Bloque 26: variables enteras + costo de platos y relleno.
-3. **Bloque 27: Fluxo 1.1 UI en Figma** (reactor cinético + NRTL); necesita al owner una hora y conviene esperar el veredicto de Apple de 1.0.0 (4).
-4. **Bloque 28: repo público + primer post**; el OK explícito del owner sigue siendo obligatorio antes de publicar.
+3. **Bloque 27 PROPUESTO**: pantallas Figma `iPhone/11 Nuevo reactor cinético` (23147:861) e `iPhone/12 Base · NRTL` (23147:979) en ZRNmiWDmd6NjWIU0bfW6Fi; falta revisión del owner + Premium Brand Gate. Apple rechazó Fluxo 1.0.0 (4.3.0 Spam, 2026-10-20); el owner respondió 2026-10-27; sin veredicto.
+4. **Bloque 28 PREPARADO**: LICENSE MIT, README al día, rutas absolutas limpiadas, sin secretos ni datos personales en el repo; borrador del post en `docs/posts/01_lanzamiento_alchemai.md`. Falta el OK del owner para `gh repo edit elevenbrands/alchemai --visibility public` y para publicar el post.
 Decisiones del owner abiertas: repo público + primer post; UI (web vs Mac).
 
 ## Bloqueante actual
