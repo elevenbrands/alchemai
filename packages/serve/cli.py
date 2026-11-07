@@ -106,9 +106,28 @@ def _wait_port(port: int, timeout_s: float = 30.0) -> bool:
     return False
 
 
+def describe_flowsheet(flowsheet_id: str) -> dict:
+    """App-only (not an agent tool): the graph as the session recorded it — units with kind, params and connections,
+    stream specs, compounds. This is what the diagram draws and what the inspector edits."""
+    s = T._s(flowsheet_id)
+    units = []
+    for name, kind in s["kinds"].items():
+        c = s["conn"].get(name) or {}
+        params = dict(s["params"].get(name) or {})
+        if name in s["column_feeds"]:
+            params["feed_stage"] = s["column_feeds"][name]
+        units.append({"name": name, "kind": kind, "params": params, "feeds": c.get("feeds") or [], "products": c.get("products") or [],
+                      "energy_feeds": c.get("energy_feeds") or [], "energy_products": c.get("energy_products") or []})
+    return {"flowsheet_id": flowsheet_id, "compounds": list(s["compounds"]), "units": units, "streams": list(s["streams"]),
+            "energy": list(s["energy"]), "stream_specs": {k: dict(v) for k, v in s["stream_specs"].items()}}
+
+
+_APP_TOOLS = {"describe_flowsheet": describe_flowsheet}
+
+
 def op_tool(req: dict) -> None:
     name, args, rid = req.get("name"), req.get("args") or {}, req.get("id")
-    fn = _TOOLS.get(name)
+    fn = _TOOLS.get(name) or _APP_TOOLS.get(name)
     if fn is None:
         emit({"event": "result", "id": rid, "ok": False, "error": f"unknown tool {name!r}", "tools": sorted(_TOOLS)})
         return
