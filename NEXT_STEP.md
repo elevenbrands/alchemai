@@ -36,7 +36,7 @@ Siguiente (plan mes 2):
 5. Fluxo: exportar casos a JSON/SFILES.
 **Decisión del owner 2026-11-06: la UI es una app de Mac en SwiftUI** («App Mac Swift»). Estructura en `docs/MAC_APP_ESTRUCTURA.md`
 (agente en Python como proceso hijo, DWSIM aparte por GPL, Developer ID fuera de la App Store, repo privado `apps/alchemai-mac`).
-Plantilla elegida por el owner 2026-11-06: macOS 27 + patrones del AI Agent UI Kit. **Diseño Figma listo** (Cb75xN1JHDXuPpUOzz37VQ, 7 pantallas, capturas en `docs/design/mac/`): **bloqueante = aprobación del owner**. Después: Premium Brand Gate (ícono), repo `apps/alchemai-mac`, `alchemai serve`.
+Plantilla elegida por el owner 2026-11-06: macOS 27 + patrones del AI Agent UI Kit. **Diseño Figma listo** (Cb75xN1JHDXuPpUOzz37VQ, 7 pantallas, capturas en `docs/design/mac/`): **APROBADO por el owner 2026-11-06**. Siguiente: `alchemai serve` + repo privado `apps/alchemai-mac` (esqueleto SwiftUI); luego Premium Brand Gate (ícono).
 
 ## Bloqueante actual
 Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CSTRBuilder.WithIsothermalTemperature` roto
