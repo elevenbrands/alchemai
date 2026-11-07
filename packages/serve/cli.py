@@ -56,9 +56,11 @@ sys.stdout = sys.stderr
 
 
 def emit(obj: dict) -> None:
+    line = json.dumps(obj, ensure_ascii=False, default=str)
     with _OUT:
-        _JSON_OUT.write(json.dumps(obj, ensure_ascii=False, default=str) + "\n")
+        _JSON_OUT.write(line + "\n")
         _JSON_OUT.flush()
+    log(f"→ {obj.get('event')} {obj.get('kind') or obj.get('name') or ''} {len(line)} B")
 
 
 def log(msg: str) -> None:
@@ -223,8 +225,26 @@ def op_stop(req: dict) -> None:
     emit({"event": "stopped", "id": rid, "ok": True})
 
 
+def _watch_parent() -> None:
+    """Exit when the app that launched us is gone. `uv run` sits between the app and us, so stdin EOF is not
+    always enough (orphans with DWSIM loaded were found); the app passes its pid in ALCHEMAI_PARENT_PID."""
+    pid = int(os.environ.get("ALCHEMAI_PARENT_PID") or 0)
+    if not pid:
+        return
+    while True:
+        time.sleep(2)
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            log(f"parent {pid} gone; exiting")
+            for proc in list(_RUNS.values()):
+                _kill_group(proc)
+            os._exit(0)
+
+
 def main() -> None:
     port = int(os.environ.get("ALCHEMAI_SERVE_PORT") or _free_port())
+    threading.Thread(target=_watch_parent, name="watch-parent", daemon=True).start()
     log(f"starting: python {sys.version.split()[0]}, mcp http port {port}")
     start_mcp_http(port)
     mcp_ok = _wait_port(port)
@@ -261,6 +281,10 @@ def main() -> None:
     for proc in list(_RUNS.values()):
         _kill_group(proc)
     log("bye")
+    # The HTTP server thread (uvicorn) is not a daemon in practice: without this the process outlives the app
+    # (two orphans with DWSIM loaded were found after two test runs, 2026-11-06).
+    _JSON_OUT.flush()
+    os._exit(0)
 
 
 if __name__ == "__main__":
