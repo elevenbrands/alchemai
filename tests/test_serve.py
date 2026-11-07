@@ -68,6 +68,13 @@ def test_tool_calls_share_one_dwsim_state(serve):
     ev = serve.read(); assert ev["ok"] is False and "unknown tool" in ev["error"]
 
 
+def test_bench_cards_are_listed_for_the_app(serve):
+    d = serve.call("list_bench_cards")
+    assert d["n"] >= 50 and any(c["id"] == "optimo_etapas_reflujo" for c in d["cards"])
+    c = next(c for c in d["cards"] if c["id"] == "bomba")
+    assert "mol" in c["statement_es"] or "kg" in c["statement_es"] and c["expected"]
+
+
 def test_mcp_http_serves_the_same_tools(serve):
     import urllib.request
     serve.send(op="ping", id="p"); ready = serve.read()

@@ -122,7 +122,24 @@ def describe_flowsheet(flowsheet_id: str) -> dict:
             "energy": list(s["energy"]), "stream_specs": {k: dict(v) for k, v in s["stream_specs"].items()}}
 
 
-_APP_TOOLS = {"describe_flowsheet": describe_flowsheet}
+def list_bench_cards() -> dict:
+    """App-only: the public ChemE Design Bench cards (id, version, kind, title and statement in ES/EN) as examples."""
+    import yaml
+    cards_dir = ROOT / "packages" / "bench" / "cards"
+    index = yaml.safe_load((cards_dir / "index.yaml").read_text())
+    out = []
+    for c in index["cards"]:
+        try:
+            card = yaml.safe_load((cards_dir / f"{c['id']}.yaml").read_text())
+        except FileNotFoundError:
+            continue
+        out.append({"id": c["id"], "version": c.get("version", "v0"), "kind": c.get("kind"), "title_es": card["title"]["es"],
+                    "title_en": card["title"]["en"], "statement_es": card["statement"]["es"], "statement_en": card["statement"]["en"],
+                    "expected": sorted(card.get("expected", {}).keys())})
+    return {"n": len(out), "cards": out}
+
+
+_APP_TOOLS = {"describe_flowsheet": describe_flowsheet, "list_bench_cards": list_bench_cards}
 
 
 def op_tool(req: dict) -> None:
@@ -176,7 +193,66 @@ def _forward_stream_event(rid: str, ev: dict, calls: dict) -> None:
               "text": ev.get("result", ""), "answer": ans})
 
 
+_API_MODELS = {"opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5-5", "haiku": "claude-haiku-5-5"}
+
+
+def op_agent_api(req: dict) -> None:
+    """Same events as the claude-code path, but through the Anthropic SDK with the key the app passes in the
+    environment (ANTHROPIC_API_KEY, from the macOS Keychain). Tools run in this process under the DWSIM lock."""
+    import anthropic
+    from packages.agent.agent import AGENT_TOOLS
+    rid = req.get("id") or f"run-{int(time.time())}"
+    model = _API_MODELS.get(req.get("model") or "opus", req.get("model") or "claude-opus-5-5")
+    effort = req.get("effort") or "high"
+    emit({"event": "agent", "id": rid, "kind": "start", "model": model, "effort": effort, "backend": "api"})
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        emit({"event": "agent", "id": rid, "kind": "error", "error": "no hay llave de API de Anthropic (ANTHROPIC_API_KEY)"})
+        return
+    t0 = time.time()
+    n_turns = 0
+    try:
+        client = anthropic.Anthropic(api_key=key)
+        runner = client.beta.messages.tool_runner(model=model, max_tokens=16000, system=APP_SYSTEM, tools=AGENT_TOOLS,
+                                                  output_config={"effort": effort},
+                                                  messages=[{"role": "user", "content": req.get("prompt", "")}])
+        final = None
+        for message in runner:
+            if rid in _STOPPED:
+                break
+            n_turns += 1
+            final = message
+            calls = {}
+            for b in message.content:
+                if b.type == "text" and b.text:
+                    emit({"event": "agent", "id": rid, "kind": "text", "text": b.text})
+                elif b.type == "tool_use":
+                    calls[b.id] = time.time()
+                    emit({"event": "agent", "id": rid, "kind": "tool_call", "call_id": b.id, "name": b.name, "args": b.input})
+            if getattr(message, "stop_reason", None) == "tool_use":
+                with _LOCK:
+                    resp = runner.generate_tool_call_response()
+                for b in getattr(resp, "content", []) or []:
+                    if getattr(b, "type", None) != "tool_result":
+                        continue
+                    content = b.content
+                    if isinstance(content, list):
+                        content = "".join(getattr(x, "text", "") or (x.get("text", "") if isinstance(x, dict) else "") for x in content)
+                    emit({"event": "agent", "id": rid, "kind": "tool_result", "call_id": b.tool_use_id, "name": None,
+                          "seconds": round(time.time() - calls.get(b.tool_use_id, time.time()), 2),
+                          "is_error": bool(getattr(b, "is_error", False)), "content": str(content)[:20000]})
+        text = "".join(b.text for b in final.content if b.type == "text") if final else ""
+        emit({"event": "agent", "id": rid, "kind": "final", "is_error": False, "num_turns": n_turns,
+              "duration_s": round(time.time() - t0, 1), "cost_usd_reported": None, "text": text, "answer": _parse_answer(text)})
+    except Exception as ex:  # noqa: BLE001
+        emit({"event": "agent", "id": rid, "kind": "error", "error": f"{type(ex).__name__}: {str(ex)[:400]}"})
+    finally:
+        _STOPPED.discard(rid)
+
+
 def op_agent(req: dict, port: int) -> None:
+    if req.get("backend") == "api" or (req.get("backend") is None and os.environ.get("ANTHROPIC_API_KEY") and os.environ.get("ALCHEMAI_AGENT_BACKEND") == "api"):
+        return op_agent_api(req)
     rid = req.get("id") or f"run-{int(time.time())}"
     model = req.get("model") or os.environ.get("ALCHEMAI_CC_MODEL", "opus")
     effort = req.get("effort") or os.environ.get("ALCHEMAI_CC_EFFORT", "high")
@@ -235,12 +311,10 @@ _STOPPED: set[str] = set()
 
 def op_stop(req: dict) -> None:
     rid = req.get("id")
+    _STOPPED.add(rid)                       # the API runner checks this between turns
     proc = _RUNS.get(rid)
-    if proc is None:
-        emit({"event": "stopped", "id": rid, "ok": False, "error": "no such run"})
-        return
-    _STOPPED.add(rid)
-    _kill_group(proc)
+    if proc is not None:
+        _kill_group(proc)
     emit({"event": "stopped", "id": rid, "ok": True})
 
 
