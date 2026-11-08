@@ -75,7 +75,9 @@ def new_flowsheet(name: str, compounds: list[str], property_package: str) -> dic
     fs = fs.WithPropertyPackage(getattr(PropertyPackages, property_package))
     fs_id = f"fs{next(_ids)}"
     SESSIONS[fs_id] = {"fs": fs, "streams": {}, "energy": {}, "units": {}, "kinds": {}, "compounds": list(compounds),
-                       "reactions": {}, "column_feeds": {}, "stream_specs": {}, "params": {}, "conn": {}}
+                       "reactions": {}, "column_feeds": {}, "stream_specs": {}, "params": {}, "conn": {},
+                       # kept so a flowsheet can be saved and rebuilt (packages/dwsim_client/persist.py)
+                       "meta": {"name": name, "property_package": property_package}, "reaction_defs": []}
     return {"flowsheet_id": fs_id, "compounds": list(compounds), "property_package": property_package}
 
 
@@ -105,7 +107,7 @@ def add_material_stream(flowsheet_id: str, name: str, temperature_K: float | Non
     s["streams"][name] = b
     s["stream_specs"][name] = {k: v for k, v in dict(temperature_K=temperature_K, pressure_Pa=pressure_Pa, vapor_fraction=vapor_fraction,
                                                       molar_flow_mol_s=molar_flow_mol_s, mass_flow_kg_s=mass_flow_kg_s, mole_fractions=mole_fractions,
-                                                      compound_molar_flows_mol_s=compound_molar_flows_mol_s).items() if v}
+                                                      compound_molar_flows_mol_s=compound_molar_flows_mol_s).items() if v is not None}
     return {"ok": True, "stream": name}
 
 
@@ -124,6 +126,8 @@ def define_conversion_reaction(flowsheet_id: str, name: str, stoichiometry: dict
     r = s["fs"].DefineConversionReaction(name, _stoich(stoichiometry), base_compound, "Vapor", str(float(conversion_percent)))
     s["fs"].ReactionSet(reaction_set).Add(r)
     s["reactions"][name] = reaction_set
+    s.setdefault("reaction_defs", []).append({"tool": "define_conversion_reaction", "args": dict(
+        name=name, stoichiometry=dict(stoichiometry), base_compound=base_compound, conversion_percent=float(conversion_percent), reaction_set=reaction_set)})
     return {"ok": True, "reaction": name, "reaction_set": reaction_set}
 
 
@@ -136,6 +140,8 @@ def define_equilibrium_reaction(flowsheet_id: str, name: str, stoichiometry: dic
                                           lnK_expression_of_T, 0.0)
     s["fs"].ReactionSet(reaction_set).Add(r)
     s["reactions"][name] = reaction_set
+    s.setdefault("reaction_defs", []).append({"tool": "define_equilibrium_reaction", "args": dict(
+        name=name, stoichiometry=dict(stoichiometry), base_compound=base_compound, lnK_expression_of_T=lnK_expression_of_T, reaction_set=reaction_set)})
     return {"ok": True, "reaction": name, "reaction_set": reaction_set}
 
 
@@ -158,6 +164,10 @@ def define_kinetic_reaction(flowsheet_id: str, name: str, stoichiometry: dict[st
                                       float(A_reverse), float(E_reverse_J_mol), "", "", "")
     s["fs"].ReactionSet(reaction_set).Add(r)
     s["reactions"][name] = reaction_set
+    s.setdefault("reaction_defs", []).append({"tool": "define_kinetic_reaction", "args": dict(
+        name=name, stoichiometry=dict(stoichiometry), base_compound=base_compound, direct_orders=dict(direct_orders or {}),
+        A_forward=float(A_forward), E_forward_J_mol=float(E_forward_J_mol), reverse_orders=dict(reverse_orders or {}),
+        A_reverse=float(A_reverse), E_reverse_J_mol=float(E_reverse_J_mol), reaction_set=reaction_set)})
     return {"ok": True, "reaction": name, "reaction_set": reaction_set}
 
 

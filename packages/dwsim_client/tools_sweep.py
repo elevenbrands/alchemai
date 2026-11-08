@@ -119,7 +119,7 @@ def set_stream_spec(flowsheet_id: str, stream: str, temperature_K: float | None 
             b.SetCompoundMolarFlow(k, float(v))
     s.setdefault("stream_specs", {}).setdefault(stream, {}).update(
         {k: v for k, v in dict(temperature_K=temperature_K, pressure_Pa=pressure_Pa, vapor_fraction=vapor_fraction, molar_flow_mol_s=molar_flow_mol_s,
-                               mass_flow_kg_s=mass_flow_kg_s, mole_fractions=mole_fractions, compound_molar_flows_mol_s=compound_molar_flows_mol_s).items() if v})
+                               mass_flow_kg_s=mass_flow_kg_s, mole_fractions=mole_fractions, compound_molar_flows_mol_s=compound_molar_flows_mol_s).items() if v is not None})
     return {"ok": True, "stream": stream}
 
 

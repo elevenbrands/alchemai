@@ -64,6 +64,10 @@ def test_tool_calls_share_one_dwsim_state(serve):
     d = serve.call("describe_flowsheet", flowsheet_id=fid)
     assert [u["name"] for u in d["units"]] == ["MIX"] and d["units"][0]["feeds"] == ["a", "b"] and d["units"][0]["products"] == ["m"]
     assert d["stream_specs"]["a"]["temperature_K"] == 300.0 and d["compounds"] == ["Water"]
+    snap = serve.call("snapshot_flowsheet", flowsheet_id=fid)
+    r = serve.call("restore_flowsheet", snapshot=snap)
+    m2 = serve.call("read_stream", flowsheet_id=r["flowsheet_id"], name="m")
+    assert r["solve"]["ok"] and abs(m2["T_K"] - m["T_K"]) < 1e-6
     serve.send(op="tool", id="x", name="nope", args={})
     ev = serve.read(); assert ev["ok"] is False and "unknown tool" in ev["error"]
 

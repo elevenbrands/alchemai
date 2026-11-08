@@ -139,7 +139,18 @@ def list_bench_cards() -> dict:
     return {"n": len(out), "cards": out}
 
 
-_APP_TOOLS = {"describe_flowsheet": describe_flowsheet, "list_bench_cards": list_bench_cards}
+def snapshot_flowsheet(flowsheet_id: str) -> dict:
+    from packages.dwsim_client.persist import snapshot_flowsheet as snap
+    return snap(flowsheet_id)
+
+
+def restore_flowsheet(snapshot: dict) -> dict:
+    from packages.dwsim_client.persist import restore_flowsheet as restore
+    return restore(snapshot)
+
+
+_APP_TOOLS = {"describe_flowsheet": describe_flowsheet, "list_bench_cards": list_bench_cards,
+              "snapshot_flowsheet": snapshot_flowsheet, "restore_flowsheet": restore_flowsheet}
 
 
 def op_tool(req: dict) -> None:
