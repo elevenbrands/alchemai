@@ -86,8 +86,8 @@ def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = 
     env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
     # Own process group: on timeout we must kill claude AND its MCP server child (a DWSIM solve that never
     # returns would otherwise keep spinning at 100 % CPU as an orphan; three such orphans were found 2026-11-04).
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(ROOT), env=env,
-                            start_new_session=True)
+    proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(ROOT), env=env,
+                            start_new_session=True)   # stdin cerrado: claude -p espera el EOF de un stdin heredado
     try:
         stdout, stderr = proc.communicate(timeout=timeout_s)
     except subprocess.TimeoutExpired:

@@ -275,7 +275,9 @@ def op_agent(req: dict, port: int) -> None:
     env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
     emit({"event": "agent", "id": rid, "kind": "start", "model": model, "effort": effort})
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(ROOT), env=env, start_new_session=True)
+        # stdin=DEVNULL: si hereda el pipe de la app (siempre abierto), `claude -p` espera el EOF de stdin para sumarlo al
+        # prompt y nunca arranca (corrida colgada 5 min sin una sola llamada, 2026-11-08).
+        proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(ROOT), env=env, start_new_session=True)
     except FileNotFoundError:
         emit({"event": "agent", "id": rid, "kind": "error", "error": "claude (Claude Code CLI) not found on PATH"})
         return
