@@ -104,3 +104,15 @@ def test_agent_streams_tool_calls_and_leaves_the_flowsheet_loaded(serve):
     assert any(320 < float(v) < 330 for v in final["answer"]["answers"].values() if isinstance(v, (int, float))), final["answer"]
     # the agent's flowsheet lives in this process: the app can read it without tokens
     serve.send(op="tool", id="pp", name="list_property_packages", args={}); assert serve.read()["ok"]
+
+
+def test_child_claude_env_drops_host_session_and_api_key(monkeypatch):
+    from packages.agent.claude_code_agent import clean_env
+    monkeypatch.setenv("CLAUDE_CODE_MESSAGING_SOCKET", "/tmp/x.sock")
+    monkeypatch.setenv("CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH", "1")
+    monkeypatch.setenv("CLAUDECODE", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.setenv("HOME_TEST_KEEP", "yes")
+    env = clean_env()
+    assert not any(k.startswith("CLAUDE_CODE_") for k in env) and "CLAUDECODE" not in env and "ANTHROPIC_API_KEY" not in env
+    assert env["HOME_TEST_KEEP"] == "yes"

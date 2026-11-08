@@ -33,7 +33,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from packages.agent.agent import SYSTEM, _parse_answer  # noqa: E402
-from packages.agent.claude_code_agent import _kill_group  # noqa: E402
+from packages.agent.claude_code_agent import _kill_group, clean_env  # noqa: E402
 from packages.dwsim_client import tools as T  # noqa: E402
 
 VERSION = "0.1.0"
@@ -272,7 +272,7 @@ def op_agent(req: dict, port: int) -> None:
            "--append-system-prompt", APP_SYSTEM, "--max-turns", str(req.get("max_turns") or 40),
            "--output-format", "stream-json", "--verbose", "--no-session-persistence", "--permission-mode", "bypassPermissions",
            "--mcp-config", _mcp_config(port), "--strict-mcp-config", "--allowedTools", "mcp__alchemai__*"]
-    env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT")}
+    env = clean_env()
     emit({"event": "agent", "id": rid, "kind": "start", "model": model, "effort": effort})
     try:
         # stdin=DEVNULL: si hereda el pipe de la app (siempre abierto), `claude -p` espera el EOF de stdin para sumarlo al
