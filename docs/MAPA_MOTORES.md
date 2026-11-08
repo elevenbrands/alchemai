@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-08: **36 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-08: **37 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 (**sin ipopt**), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -50,7 +50,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 |---|---|---|---|---|
 | Reactores de conversión, equilibrio, CSTR y PFR cinéticos dentro del flowsheet | ✅ (`define_*_reaction`, `add_unit cstr/pfr`) | DWSIM | GPL-3 · proceso aparte | `WithIsothermalTemperature` roto en 10.2.12 (usar `Isothermal()`) |
 | Cinética detallada: mecanismos (GRI-Mech), llama adiabática, retardo de ignición, WSR, redes de reactores | 🧪 (notebook 03: PFR vs analítico 0.000 %, llama 2226 K) | Cantera 3.2 (`IdealGasReactor`, `ReactorNet`, `FreeFlame`) | BSD · en proceso | Tool `kinetic_reactor_network` + `adiabatic_flame`; ya validado, es el motor más barato de incorporar |
-| **Reactor real con geometría**: perfil radial, laminar vs pistón, difusión radial, puntos calientes | 🧪 (Caso 1 de `transporte-lab`: pistón 0.7939 = analítico; laminar 0.7818, malla independiente) | FEniCSx | LGPL-3 · **proceso aparte** en el env micromamba | Tool `tubular_reactor_field`; luego no isotérmico (ahí el PFR ideal se separa más del campo) |
+| **Reactor real con geometría**: perfil radial, laminar vs pistón, difusión radial | ✅ (`tubular_reactor_field`, M1 2026-11-08: pistón 0.7940 = analítico; laminar 0.7819, malla independiente, Re < 2300) | FEniCSx | LGPL-3 · **proceso aparte** en el env micromamba (`ALCHEMAI_FENICSX_PYTHON`) | No isotérmico (ahí el PFR ideal se separa más del campo); puntos calientes; la app de Mac empaquetada no lleva FEniCSx |
 | Reactores multifásicos, catalíticos con transporte en el pellet (Thiele) | ⬜ | FEniCSx o modelo 1D propio (scipy) | — | Después del tubular no isotérmico |
 
 ## 4 · Separaciones
@@ -88,7 +88,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | Necesidad | Hoy | Motor | Licencia · cómo entra | Hueco |
 |---|---|---|---|---|
 | Coeficientes de película (Onda), HTU/NTU, difusividades Wilke-Chang y Fuller | ✅ (bloque 22) | propio + `chemicals` | MIT | Correlaciones para estructurado (Rocha-Bravo-Fair) |
-| **Campo de concentración con geometría**: advección-difusión-reacción axisimétrica, SUPG | 🧪 (Caso 1) | FEniCSx | LGPL-3 · proceso aparte | La misma tool `tubular_reactor_field` |
+| **Campo de concentración con geometría**: advección-difusión-reacción axisimétrica, SUPG | ✅ (`tubular_reactor_field`) | FEniCSx | LGPL-3 · proceso aparte | Órdenes ≠ 1 y varias especies |
 | Difusión en sólidos/pellets, membranas | ⬜ | FEniCSx / scipy | — | Por demanda |
 
 ## 8 · Costos y economía
@@ -146,7 +146,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 
 | # | Bloque | Área | Por qué ahora | Dependencias nuevas |
 |---|---|---|---|---|
-| 1 | `tubular_reactor_field` (FEniCSx, proceso aparte) | 3, 6, 7 | Caso 1 ya verificado; fija el patrón «motor externo en otro entorno» que OpenFOAM reutiliza | ninguna (env micromamba ya existe) |
+| 1 ✅ | `tubular_reactor_field` (FEniCSx, proceso aparte) — hecho 2026-11-08 | 3, 6, 7 | Patrón «motor externo en otro entorno» fijado en `packages/transport/reactor_field.py` (`run_solver`): OpenFOAM lo reutiliza | ninguna |
 | 2 | `kinetic_reactor_network` + `adiabatic_flame` (Cantera) | 3 | Validado en el notebook 03; en proceso; cubre combustión y cinética detallada | ninguna |
 | 3 | Economía completa: módulo desnudo (Turton), flujo de caja, VPN/TIR | 8 | Puro Python; es lo que convierte un costo en una decisión | ninguna (tablas con fuente) |
 | 4 | Exponer `fluids`/`ht` que ya están: alivio API 520, válvulas de control, accesorios, compresible, dos fases, lado coraza Kern/Bell-Delaware, ebullición/condensación | 5, 6, 10 | Librerías ya instaladas; cada tool = referencia del docstring + test | ninguna |

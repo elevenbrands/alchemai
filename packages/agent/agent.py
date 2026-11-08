@@ -84,6 +84,11 @@ Hard rules:
    "over-specified: <which two specs conflict> (and the numbers if they disagree)"}. Never invent the missing
    value and never silently drop one of two conflicting specs. The ONLY omission you may fill yourself is a
    missing flow basis (rule 7), because it just scales extensive results.
+10. A kinetic PFR in DWSIM is the IDEAL reactor (plug flow). When the card asks about a REAL tubular reactor, laminar
+   flow, a radial conversion profile, the effect of tube diameter / number of tubes, or how much the ideal PFR
+   over-predicts, call tubular_reactor_field (FEniCSx field of one tube of the bundle) with k from the kinetics,
+   the volumetric flow at reactor conditions, the diffusivity and ρ, μ from stream_transport_properties; report
+   X_plug_flow and X_laminar side by side and the seal only if its evidence says verified.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -318,6 +323,21 @@ def tube_film_coefficient(flowsheet_id: str, stream: str, inner_diameter_m: floa
 
 
 @beta_tool
+def tubular_reactor_field(volumetric_flow_m3_s: float, tube_diameter_m: float, n_tubes: int, diffusivity_m2_s: float,
+                          tube_length_m: float | None = None, volume_m3: float | None = None,
+                          k_1_s: float | None = None, A_1_s: float | None = None, E_J_mol: float | None = None, T_K: float | None = None,
+                          density_kg_m3: float | None = None, viscosity_Pa_s: float | None = None, reynolds: float | None = None,
+                          nz: int = 300, nr: int = 30) -> str:
+    """Real tubular reactor vs ideal PFR: first-order isothermal reaction in a bundle of n_tubes laminar tubes solved as a 2-D
+    field with FEniCSx (separate process). Needs volumetric flow at reactor conditions, tube diameter, n_tubes, tube_length_m OR
+    volume_m3, diffusivity_m2_s (diffusivity_estimate) and k_1_s or A_1_s+E_J_mol+T_K; pass density/viscosity so Re confirms
+    laminar flow. Returns X_plug_flow (ideal PFR), X_laminar (with radial diffusion), X_laminar_segregated, the penalty in
+    points and evidence (verified only if plug reproduces 1−e^(−kτ), mesh-independent, within bounds and Re < 2300)."""
+    return json.dumps(TT.tubular_reactor_field(volumetric_flow_m3_s, tube_diameter_m, n_tubes, diffusivity_m2_s, tube_length_m, volume_m3,
+                                               k_1_s, A_1_s, E_J_mol, T_K, density_kg_m3, viscosity_Pa_s, reynolds, nz, nr), default=float)
+
+
+@beta_tool
 def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, object] | None = None, year: int = 2023,
                    cepci: float | None = None) -> str:
     """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
@@ -429,7 +449,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, optimize_design_multi, absorption_stages,
+               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

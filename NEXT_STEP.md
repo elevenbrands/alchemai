@@ -3,6 +3,9 @@
 Actualizado: 2026-11-06 (bloques 29-30 cerrados, mes 2)
 
 ## Dónde estamos
+**Bloque M1 (2026-11-08): `tubular_reactor_field`, primer motor externo (FEniCSx como proceso aparte, 37 tools)**: Caso 1 reproducido por la
+tool y por MCP (pistón 0.7940 = analítico, laminar 0.7819, penalización 1.2 puntos, Re 2000, sello verificado con 4 comprobaciones); 6 tests.
+Mapa de 12 áreas en `docs/MAPA_MOTORES.md`.
 **Bloque 29 (2026-11-06): bench completo con tres modelos** (`notebooks/22_bench_tres_modelos.md`): una pasada de las 50 tarjetas
 por modelo: Opus 97.0 % (99.0 % con `reciclo` corregida), Sonnet 94.0 %, Haiku 92.4 %; trampas 15/15 · 14/15 · 15/15; la brecha está en v3
 (95/82/77 %). Opus detectó que `reciclo` no daba T ni P del agua fresca: corregido. Datos en `notebooks/bench_runs/m2/`.
@@ -34,8 +37,8 @@ Siguiente (plan mes 2):
 **Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
 balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
-0.7945 vs FEniCSx laminar 0.7818). **Siguiente en ese orden: bloque M1 = tool `tubular_reactor_field` (FEniCSx como proceso aparte)**;
-luego Cantera, economía completa, exponer `fluids`/`ht`, pinch, OpenFOAM tanque agitado.
+0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅ 2026-11-08. **Siguiente: M2 = tools de Cantera (`kinetic_reactor_network`, `adiabatic_flame`)**, luego
+M3 economía completa (módulo desnudo, VPN/TIR), M4 exponer `fluids`/`ht`, M5 pinch, M6 OpenFOAM tanque agitado.
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.

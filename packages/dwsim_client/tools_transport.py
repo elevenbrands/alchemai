@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from packages.dwsim_client.tools import _s
 from packages.transport import hydraulics as H
+from packages.transport import reactor_field as RF
 
 
 def _phase_props(flowsheet_id: str, stream: str) -> dict:
@@ -75,4 +76,23 @@ def tube_film_coefficient(flowsheet_id: str, stream: str, inner_diameter_m: floa
     return r
 
 
-TRANSPORT_TOOLS = [stream_transport_properties, pipe_hydraulics, size_pipe, heat_exchanger_area, tube_film_coefficient]
+def tubular_reactor_field(volumetric_flow_m3_s: float, tube_diameter_m: float, n_tubes: int, diffusivity_m2_s: float,
+                          tube_length_m: float | None = None, volume_m3: float | None = None,
+                          k_1_s: float | None = None, A_1_s: float | None = None, E_J_mol: float | None = None, T_K: float | None = None,
+                          density_kg_m3: float | None = None, viscosity_Pa_s: float | None = None, reynolds: float | None = None,
+                          nz: int = 300, nr: int = 30, figure_path: str | None = None) -> dict:
+    """Real tubular reactor vs ideal PFR: first-order isothermal reaction in a bundle of n_tubes laminar tubes, solved as a
+    2-D axisymmetric advection-diffusion-reaction field with FEniCSx (separate process, ~5 s). Give the volumetric flow at
+    reactor conditions, tube diameter, number of tubes, tube_length_m OR volume_m3, the molecular diffusivity (see
+    diffusivity_estimate) and k_1_s or Arrhenius A_1_s + E_J_mol + T_K (E in J/mol). Pass density_kg_m3 and viscosity_Pa_s
+    (from stream_transport_properties) so Re confirms the laminar regime; without them the result is not verified.
+    Returns X_plug_flow (= ideal PFR, 1 − e^(−kτ)), X_laminar (mixing-cup, with radial diffusion), X_laminar_segregated
+    (no radial diffusion), laminar_penalty_points, the outlet radial profile and `evidence` (plug reproduces the analytic
+    value, mesh independence, bounds, Re < 2300 → verified). Use it when a card asks how a real/laminar tubular reactor
+    differs from the PFR, for radial profiles, or for the effect of tube diameter on conversion."""
+    return RF.tubular_reactor_field(volumetric_flow_m3_s, tube_diameter_m, n_tubes, diffusivity_m2_s, tube_length_m, volume_m3,
+                                    k_1_s, A_1_s, E_J_mol, T_K, density_kg_m3, viscosity_Pa_s, reynolds, nz, nr, figure_path)
+
+
+TRANSPORT_TOOLS = [stream_transport_properties, pipe_hydraulics, size_pipe, heat_exchanger_area, tube_film_coefficient,
+                   tubular_reactor_field]
