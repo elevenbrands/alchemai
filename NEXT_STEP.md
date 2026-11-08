@@ -31,6 +31,11 @@ Orden fijado por el owner (2026-11-05, «sigue con esos 4 en orden»):
 Siguiente (plan mes 2):
 1. ✅ Bloque 29: tabla de tres modelos.
 2. ✅ Bloque 30: constantes de Fluxo.
+**Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
+balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
+(12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
+0.7945 vs FEniCSx laminar 0.7818). **Siguiente en ese orden: bloque M1 = tool `tubular_reactor_field` (FEniCSx como proceso aparte)**;
+luego Cantera, economía completa, exponer `fluids`/`ht`, pinch, OpenFOAM tanque agitado.
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.

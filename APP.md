@@ -59,7 +59,7 @@ packages/hazop/         graph.py (grafo del proceso desde el flowsheet resuelto,
                         report.py (Markdown, Excel, herramienta `hazop_preliminary` en MCP y agente)
 notebooks/              estudio semanal, un notebook = un resultado reproducido
 tests/
-docs/                   plan, decisiones, lecturas
+docs/                   plan, decisiones, lecturas; MAPA_MOTORES.md = cobertura por área (12 áreas, orden de incorporación de motores)
 ```
 
 ## Decisiones
