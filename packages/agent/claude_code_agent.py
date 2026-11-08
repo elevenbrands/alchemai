@@ -34,9 +34,15 @@ def clean_env() -> dict[str, str]:
     Drops the variables of a parent Claude Code session (messaging socket, host auth refresh, session ids): when
     the app or this script is launched from inside Claude Code, the child latched onto the parent session and hung
     without making a single call (2026-11-08). Also drops ANTHROPIC_API_KEY so the subscription path never bills
-    an API key that happens to be in the environment."""
-    return {k: v for k, v in os.environ.items()
-            if not k.startswith(_HOST_SESSION_PREFIXES) and k not in _HOST_SESSION_KEYS and k != "ANTHROPIC_API_KEY"}
+    an API key that happens to be in the environment.
+    The child also skips the person's own CLAUDE.md files and auto-memory (and, via --setting-sources, their user
+    settings and hooks): the agent's instructions are ours, and a CLAUDE.md linked into ~/Documents made macOS
+    block the child on a privacy prompt for AlchemAI.app, so it hung with no tool calls (2026-11-08)."""
+    env = {k: v for k, v in os.environ.items()
+           if not k.startswith(_HOST_SESSION_PREFIXES) and k not in _HOST_SESSION_KEYS and k != "ANTHROPIC_API_KEY"}
+    env["CLAUDE_CODE_DISABLE_CLAUDE_MDS"] = "1"
+    env["CLAUDE_CODE_DISABLE_AUTO_MEMORY"] = "1"
+    return env
 
 
 def _mcp_config_path() -> str:
@@ -94,7 +100,7 @@ def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = 
     Never raises: timeouts and bad output come back as {"is_error": True, "result": <why>}."""
     cmd = ["claude", "-p", prompt, "--model", model, "--effort", effort, "--tools", "",
            "--append-system-prompt", system, "--max-turns", str(max_turns),
-           "--output-format", "json", "--no-session-persistence", "--permission-mode", "bypassPermissions"]
+           "--output-format", "json", "--no-session-persistence", "--setting-sources", "project,local", "--permission-mode", "bypassPermissions"]
     if mcp:
         cmd += ["--mcp-config", _mcp_config_path(), "--strict-mcp-config", "--allowedTools", "mcp__alchemai__*"]
     env = clean_env()

@@ -114,5 +114,7 @@ def test_child_claude_env_drops_host_session_and_api_key(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
     monkeypatch.setenv("HOME_TEST_KEEP", "yes")
     env = clean_env()
-    assert not any(k.startswith("CLAUDE_CODE_") for k in env) and "CLAUDECODE" not in env and "ANTHROPIC_API_KEY" not in env
+    assert "CLAUDE_CODE_MESSAGING_SOCKET" not in env and "CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH" not in env
+    assert "CLAUDECODE" not in env and "ANTHROPIC_API_KEY" not in env
+    assert env["CLAUDE_CODE_DISABLE_CLAUDE_MDS"] == "1" and env["CLAUDE_CODE_DISABLE_AUTO_MEMORY"] == "1"
     assert env["HOME_TEST_KEEP"] == "yes"

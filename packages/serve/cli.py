@@ -270,7 +270,7 @@ def op_agent(req: dict, port: int) -> None:
     timeout_s = int(req.get("timeout_s") or os.environ.get("ALCHEMAI_CC_TIMEOUT_S", "600"))
     cmd = ["claude", "-p", req.get("prompt", ""), "--model", model, "--effort", effort, "--tools", "",
            "--append-system-prompt", APP_SYSTEM, "--max-turns", str(req.get("max_turns") or 40),
-           "--output-format", "stream-json", "--verbose", "--no-session-persistence", "--permission-mode", "bypassPermissions",
+           "--output-format", "stream-json", "--verbose", "--no-session-persistence", "--setting-sources", "project,local", "--permission-mode", "bypassPermissions",
            "--mcp-config", _mcp_config(port), "--strict-mcp-config", "--allowedTools", "mcp__alchemai__*"]
     env = clean_env()
     emit({"event": "agent", "id": rid, "kind": "start", "model": model, "effort": effort})
