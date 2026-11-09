@@ -68,7 +68,7 @@ def test_tools_reactor_and_column():
 
 def test_mcp_server_lists_tools():
     out = subprocess.run([sys.executable, str(ROOT / "packages/dwsim_mcp/smoke_mcp.py")], capture_output=True, text=True, timeout=300)
-    assert "42 tools" in out.stdout and "solve ok: True" in out.stdout, out.stdout[-800:] + out.stderr[-800:]
+    assert "47 tools" in out.stdout and "solve ok: True" in out.stdout, out.stdout[-800:] + out.stderr[-800:]
 
 
 def _have_credentials() -> bool:

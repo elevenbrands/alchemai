@@ -30,6 +30,7 @@ from packages.dwsim_client import tools_optimize as TO  # noqa: E402
 from packages.dwsim_client import tools_mass_transfer as TM  # noqa: E402
 from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.dwsim_client import tools_economics as TE  # noqa: E402
+from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -101,6 +102,10 @@ Hard rules:
    capital_investment, then give total_depreciable_capital_usd, working_capital_usd and land_usd to cash_flow_analysis.
    Capital factors, prices, revenue, tax rate, discount rate and depreciation are the user's: if the card does not give
    them, report the gap (rule 9), never assume them.
+13. Relief valves, control valves, fittings, gas lines with ΔP > 10 % of P1 and two-phase lines have their own tools
+   (relief_valve_sizing, control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop).
+   The relieving rate and overpressure come from the scenario, and FL/Fd/xT from the valve style: they are the user's.
+   For two-phase ΔP report the range across methods, not one number.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -380,6 +385,63 @@ def kinetic_reactor_network(reactor: str, feed: str, T_K: float, P_Pa: float, me
 
 
 @beta_tool
+def relief_valve_sizing(service: str, relieving_rate_kg_s: float, set_pressure_Pa_g: float, overpressure_fraction: float,
+                        back_pressure_Pa_g: float, T_K: float | None = None, MW: float | None = None, Z: float | None = None,
+                        k: float | None = None, density_kg_m3: float | None = None, viscosity_Pa_s: float | None = None,
+                        valve_type: str = "conventional", rupture_disk_upstream: bool = False, Kd: float | None = None) -> str:
+    """Relief valve by API 520 Part I + API 526 orifice letter. service 'gas' (T_K, MW, Z, k), 'steam' (T_K) or
+    'liquid' (density_kg_m3, viscosity_Pa_s optional). GAUGE set and back pressures; overpressure_fraction 0.10 single
+    valve, 0.16 multiple, 0.21 fire. valve_type 'conventional' | 'balanced_bellows'. Returns required_area_mm2, orifice,
+    valves and evidence (printed API equation recomputed)."""
+    return json.dumps(TF.relief_valve_sizing(service, relieving_rate_kg_s, set_pressure_Pa_g, overpressure_fraction,
+                                             back_pressure_Pa_g, T_K, MW, Z, k, density_kg_m3, viscosity_Pa_s, valve_type,
+                                             rupture_disk_upstream, Kd), default=float)
+
+
+@beta_tool
+def control_valve_sizing(fluid: str, P1_Pa: float, P2_Pa: float, FL: float, Fd: float, flow_m3_s: float,
+                         density_kg_m3: float | None = None, vapor_pressure_Pa: float | None = None,
+                         critical_pressure_Pa: float | None = None, viscosity_Pa_s: float | None = None,
+                         T_K: float | None = None, MW: float | None = None, gamma: float | None = None, Z: float | None = None,
+                         xT: float | None = None, pipe_inlet_diameter_m: float | None = None,
+                         pipe_outlet_diameter_m: float | None = None, valve_diameter_m: float | None = None) -> str:
+    """Control valve Kv/Cv by IEC 60534-2-1. 'liquid': flow at inlet conditions + density, vapor and critical pressure,
+    viscosity. 'gas': flow in normal m³/s (0 °C, 1 atm) + T_K, MW, gamma, Z, viscosity, xT. FL, Fd, xT are the valve
+    style's (user/catalog). Reducers: all three diameters. Returns Kv, Cv, choked, cavitation/flashing, evidence."""
+    return json.dumps(TF.control_valve_sizing(fluid, P1_Pa, P2_Pa, FL, Fd, flow_m3_s, density_kg_m3, vapor_pressure_Pa,
+                                              critical_pressure_Pa, viscosity_Pa_s, T_K, MW, gamma, Z, xT,
+                                              pipe_inlet_diameter_m, pipe_outlet_diameter_m, valve_diameter_m), default=float)
+
+
+@beta_tool
+def fittings_resistance(fittings: list[dict[str, object]], inner_diameter_m: float, Re: float, method: str = "Darby3K") -> str:
+    """K of fittings and valves (Darby 3-K or Hooper 2-K, depends on Re and size). fittings = [{'name', 'count'}];
+    fittings=[] lists the catalog names. Pass K_total as fittings_K to pipe_hydraulics."""
+    return json.dumps(TF.fittings_resistance(fittings, inner_diameter_m, Re, method), default=float)
+
+
+@beta_tool
+def compressible_gas_line(P1_Pa: float, T_K: float, MW: float, Z: float, k: float, viscosity_Pa_s: float,
+                          inner_diameter_m: float, length_m: float, mass_flow_kg_s: float | None = None,
+                          P2_Pa: float | None = None, roughness_m: float = 4.57e-5) -> str:
+    """Isothermal compressible gas line (ΔP > 10 % of P1): mass_flow_kg_s → P2, or P2_Pa → mass flow. Returns Mach,
+    choke pressure, choked flag, error of the incompressible formula and evidence (momentum ODE)."""
+    return json.dumps(TF.compressible_gas_line(P1_Pa, T_K, MW, Z, k, viscosity_Pa_s, inner_diameter_m, length_m,
+                                               mass_flow_kg_s, P2_Pa, roughness_m), default=float)
+
+
+@beta_tool
+def two_phase_pressure_drop(mass_flow_kg_s: float, quality: float, liquid_density_kg_m3: float, gas_density_kg_m3: float,
+                            liquid_viscosity_Pa_s: float, gas_viscosity_Pa_s: float, surface_tension_N_m: float,
+                            inner_diameter_m: float, length_m: float, roughness_m: float = 4.57e-5) -> str:
+    """Two-phase frictional ΔP, horizontal, constant quality: Friedel, Müller-Steinhagen-Heck, Chisholm,
+    Lockhart-Martinelli, Whalley's recommendation, spread between methods and Taitel-Dukler regime."""
+    return json.dumps(TF.two_phase_pressure_drop(mass_flow_kg_s, quality, liquid_density_kg_m3, gas_density_kg_m3,
+                                                 liquid_viscosity_Pa_s, gas_viscosity_Pa_s, surface_tension_N_m,
+                                                 inner_diameter_m, length_m, roughness_m), default=float)
+
+
+@beta_tool
 def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, object] | None = None, year: int = 2023,
                    cepci: float | None = None) -> str:
     """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
@@ -521,7 +583,8 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
+               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
+               control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
