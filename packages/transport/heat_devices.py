@@ -65,8 +65,185 @@ def shell_kern(mass_flow_kg_s: float, density_kg_m3: float, viscosity_Pa_s: floa
             "evidence": {"formula_match": match, "verified": match and not reasons, "reasons": reasons},
             "notes": ("Kern no modela las fugas mampara-coraza y tubo-mampara ni el bypass del haz: es un método de "
                       "estimación (típicamente conservador en h y poco fiable en ΔP). Para diseño final se usa "
-                      "Bell-Delaware (pendiente, bloque M4c). Compárese con h_ideal_tube_bank_W_m2K, que es el techo "
+                      "Bell-Delaware (shell_side_bell_delaware). Compárese con h_ideal_tube_bank_W_m2K, que es el techo "
                       "sin fugas.")}
+
+
+# ---------------------------------------------------------------- shell side, Bell-Delaware (Bell 1963, Taborek HEDH)
+_LAYOUTS = {30: (math.sqrt(3.0) / 2.0, 1.0, True), 45: (1.0 / math.sqrt(2.0), 1.0 / math.sqrt(2.0), True),
+            90: (1.0, 1.0, False)}          # angle: (row pitch Pp/Pt, effective normal pitch Ptp/Pt, staggered)
+
+
+def _bd_geometry(Ds, Do, Pt, angle, Dotl, Bc, B, Nt, Lsb, Ltb, Nss):
+    """Taborek's geometry of one baffle compartment (HEDH 3.3.5). Lengths in m, areas in m²."""
+    pp, ptp, staggered = _LAYOUTS[angle]
+    Pp, Ptp = pp * Pt, ptp * Pt
+    Dctl = Dotl - Do                                                  # diameter through the outer tube centres
+    theta_ctl = 2.0 * math.acos(max(-1.0, min(1.0, Ds * (1.0 - 2.0 * Bc) / Dctl)))
+    Fw = theta_ctl / (2.0 * math.pi) - math.sin(theta_ctl) / (2.0 * math.pi)   # fraction of tubes in one window
+    Fc = 1.0 - 2.0 * Fw                                               # fraction of tubes in pure crossflow
+    Nc = Ds * (1.0 - 2.0 * Bc) / Pp                                   # rows crossed between baffle tips
+    Ncw = 0.8 / Pp * (Ds * Bc - (Ds - Dctl) / 2.0)                    # effective rows crossed in each window
+    Sm = B * ((Ds - Dotl) + Dctl / Ptp * (Pt - Do))                   # crossflow area at the centreline
+    Fsbp = B * (Ds - Dotl) / Sm                                       # bypass fraction of Sm
+    theta_ds = 2.0 * math.acos(1.0 - 2.0 * Bc)
+    Ssb = math.pi * Ds * Lsb / 2.0 * (1.0 - theta_ds / (2.0 * math.pi))         # shell-baffle leakage area
+    Stb = math.pi / 4.0 * ((Do + Ltb) ** 2 - Do ** 2) * Nt * (1.0 - Fw)        # tube-baffle hole leakage area
+    Swg = Ds ** 2 / 8.0 * (theta_ds - math.sin(theta_ds))             # gross window area
+    Swt = Nt * Fw * math.pi * Do ** 2 / 4.0                           # tubes in the window
+    Sw = Swg - Swt
+    Dw = 4.0 * Sw / (math.pi * Do * Nt * Fw + Ds * theta_ds)          # hydraulic diameter of the window
+    rss = Nss / Nc
+    return dict(Pp=Pp, Ptp=Ptp, staggered=staggered, Dctl=Dctl, Fw=Fw, Fc=Fc, Nc=Nc, Ncw=Ncw, Sm=Sm, Fsbp=Fsbp,
+                Ssb=Ssb, Stb=Stb, Sw=Sw, Dw=Dw, rs=Ssb / (Ssb + Stb) if Ssb + Stb > 0 else 0.0,
+                rlm=(Ssb + Stb) / Sm, rss=rss)
+
+
+def shell_bell_delaware(mass_flow_kg_s: float, density_kg_m3: float, viscosity_Pa_s: float,
+                        thermal_conductivity_W_mK: float, cp_J_kgK: float, shell_diameter_m: float, tube_od_m: float,
+                        tube_pitch_m: float, layout_angle: int, baffle_cut_fraction: float, baffle_spacing_m: float,
+                        n_baffles: int, outer_tube_limit_diameter_m: float, n_tubes: int | None = None,
+                        tube_passes: int = 1, shell_baffle_clearance_m: float | None = None,
+                        tube_baffle_clearance_m: float | None = None, sealing_strip_pairs: int = 0,
+                        inlet_baffle_spacing_m: float | None = None, outlet_baffle_spacing_m: float | None = None,
+                        wall_viscosity_Pa_s: float | None = None) -> dict:
+    from ht.conv_tube_bank import (Nu_ESDU_73031, Nu_Zukauskas_Bejan, baffle_correction_Bell, baffle_leakage_Bell,
+                                   bundle_bypassing_Bell, dP_Zukauskas, laminar_correction_Bell,
+                                   unequal_baffle_spacing_Bell)
+    from ht.hx import D_baffle_holes, Ntubes, shell_clearance
+    m, rho, mu, k, cp = mass_flow_kg_s, density_kg_m3, viscosity_Pa_s, thermal_conductivity_W_mK, cp_J_kgK
+    Ds, Do, Pt, Bc, B, Nb, Dotl = (shell_diameter_m, tube_od_m, tube_pitch_m, baffle_cut_fraction, baffle_spacing_m,
+                                   int(n_baffles), outer_tube_limit_diameter_m)
+    if layout_angle not in _LAYOUTS:
+        raise ValueError("layout_angle must be 30 (triangular), 45 (rotated square) or 90 (square)")
+    if not 0.0 < Bc < 0.5:
+        raise ValueError("baffle_cut_fraction is the cut height over Ds: between 0 and 0.5 (typical 0.20-0.35)")
+    if not Do < Dotl <= Ds:
+        raise ValueError("outer_tube_limit_diameter_m must be > tube OD and <= shell diameter")
+    if Nb < 1 or Pt <= Do:
+        raise ValueError("need n_baffles >= 1 and tube_pitch_m > tube_od_m")
+    assumptions, warnings, reasons = [], [], []
+    Bin = inlet_baffle_spacing_m or B
+    Bout = outlet_baffle_spacing_m or B
+    if n_tubes is None:
+        n_tubes = int(Ntubes(DBundle=Dotl, Do=Do, pitch=Pt, Ntp=tube_passes, angle=layout_angle))
+        assumptions.append(f"n_tubes = {n_tubes} estimado por ht.Ntubes para Dotl y {tube_passes} paso(s): dar el "
+                           "conteo real de la hoja de datos")
+    if shell_baffle_clearance_m is None:
+        shell_baffle_clearance_m = float(shell_clearance(DShell=Ds))
+        assumptions.append(f"claro diametral coraza-mampara {shell_baffle_clearance_m * 1e3:.1f} mm = tabla TEMA "
+                           "RCB-4.3 (valor de fabricación, no del equipo real)")
+    if tube_baffle_clearance_m is None:
+        L_unsup = 2.0 * max(B, Bin, Bout)               # window tubes are supported every other baffle
+        tube_baffle_clearance_m = float(D_baffle_holes(Do=Do, L_unsupported=L_unsup)) - Do
+        assumptions.append(f"claro diametral tubo-mampara {tube_baffle_clearance_m * 1e3:.2f} mm = TEMA RCB-4.2 "
+                           f"para tramo sin soporte {L_unsup:.2f} m")
+    g = _bd_geometry(Ds, Do, Pt, layout_angle, Dotl, Bc, B, n_tubes, shell_baffle_clearance_m,
+                     tube_baffle_clearance_m, sealing_strip_pairs)
+    Gs = m / g["Sm"]
+    Re, Pr = Do * Gs / mu, cp * mu / k
+    laminar = Re < 100.0
+    Vmax = Gs / rho
+    ST = math.sqrt(2.0) * Pt if layout_angle == 45 else Pt        # transverse pitch (normal to flow)
+    SL = g["Pp"]                                                  # longitudinal pitch (row to row)
+    rows = max(1, round(g["Nc"]))
+    Pr_w = cp * wall_viscosity_Pa_s / k if wall_viscosity_Pa_s else None
+    phi = (mu / wall_viscosity_Pa_s) ** 0.14 if wall_viscosity_Pa_s else 1.0
+    # ideal tube bank (all flow across the tubes, no leakage, no bypass), two independent correlations
+    Nu_z = float(Nu_Zukauskas_Bejan(Re=Re, Pr=Pr, tube_rows=rows, pitch_parallel=SL, pitch_normal=ST, Pr_wall=Pr_w))
+    Nu_e = float(Nu_ESDU_73031(Re=Re, Pr=Pr, tube_rows=rows, pitch_parallel=SL, pitch_normal=ST, Pr_wall=Pr_w,
+                               angle=90.0))
+    h_ideal = Nu_z * k / Do
+    h_ideal_esdu = Nu_e * k / Do
+    # Bell-Delaware correction factors from the digitized charts (ht) and, as an independent check, the HEDH fits
+    Jc = float(baffle_correction_Bell(g["Fc"]))
+    Jl = float(baffle_leakage_Bell(g["Ssb"], g["Stb"], g["Sm"])) if g["rlm"] > 0 else 1.0
+    Jb = 1.0 if g["rss"] >= 0.5 or g["Fsbp"] <= 0 else float(bundle_bypassing_Bell(g["Fsbp"], sealing_strip_pairs, g["Nc"],
+                                                                     laminar=laminar))
+    Js = float(unequal_baffle_spacing_Bell(Nb, B, Bin, Bout, laminar=laminar))
+    Jr = float(laminar_correction_Bell(Re, round((g["Nc"] + g["Ncw"]) * (Nb + 1))))
+    J = Jc * Jl * Jb * Js * Jr
+    h = h_ideal * J
+    rs, rlm = g["rs"], g["rlm"]
+    Cbh = 1.35 if laminar else 1.25
+    fits = {"Jc": 0.55 + 0.72 * g["Fc"],
+            "Jl": 0.44 * (1 - rs) + (1 - 0.44 * (1 - rs)) * math.exp(-2.2 * rlm),
+            "Jb": 1.0 if g["rss"] >= 0.5 else math.exp(-Cbh * g["Fsbp"] * (1 - (2 * g["rss"]) ** (1 / 3)))}
+    chart = {"Jc": Jc, "Jl": Jl, "Jb": Jb}
+    fit_dev = {n: 100.0 * (chart[n] - fits[n]) / fits[n] for n in fits}
+    # pressure drop (Taborek): ideal crossflow section from the Žukauskas bank charts, corrected for leakage (Rl),
+    # bypass (Rb) and end-zone spacing (Rs); windows by Bell's turbulent / laminar window equations
+    dP_bi = float(dP_Zukauskas(Re=Re, n=rows, ST=ST, SL=SL, D=Do, rho=rho, Vmax=Vmax)) / phi
+    p = 0.8 - 0.15 * (1.0 + rs)
+    Rl = math.exp(-1.33 * (1.0 + rs) * rlm ** p)
+    Cbp = 4.5 if laminar else 3.7
+    Rb = 1.0 if g["rss"] >= 0.5 else math.exp(-Cbp * g["Fsbp"] * (1.0 - (2.0 * g["rss"]) ** (1.0 / 3.0)))
+    n_ex = 1.0 if laminar else 0.2
+    Rs = (B / Bin) ** (2.0 - n_ex) + (B / Bout) ** (2.0 - n_ex)        # both end zones together
+    Gw = m / math.sqrt(g["Sm"] * g["Sw"])
+    if laminar:
+        dP_wi = 26.0 * mu * Gw / rho * (g["Ncw"] / (Pt - Do) + B / g["Dw"] ** 2) + Gw ** 2 / rho
+    else:
+        dP_wi = (2.0 + 0.6 * g["Ncw"]) * Gw ** 2 / (2.0 * rho)
+    dP_c = (Nb - 1) * dP_bi * Rb * Rl
+    dP_w = Nb * dP_wi * Rl
+    dP_e = dP_bi * (1.0 + g["Ncw"] / g["Nc"]) * Rb * Rs
+    dP = dP_c + dP_w + dP_e
+    # Kern on the same shell for comparison
+    kern = shell_kern(m, rho, mu, k, cp, Ds, B, Nb, Do, Pt, "triangular" if layout_angle == 30 else "square",
+                      wall_viscosity_Pa_s)
+    # validity and evidence
+    if not 0.15 <= Bc <= 0.45:
+        reasons.append(f"corte de mampara {Bc:.2f} fuera del rango de las gráficas de Bell-Delaware (0.15-0.45)")
+    if not 1.25 - 1e-9 <= Pt / Do <= 1.5 + 1e-9:
+        reasons.append(f"paso/diámetro {Pt / Do:.3f} fuera de 1.25-1.5 (rango de los datos de Delaware)")
+    if Re < 10.0:
+        reasons.append(f"Re = {Re:.3g} < 10: fuera de las correlaciones de banco de tubos")
+    if rlm > 0.8:
+        reasons.append(f"r_lm = {rlm:.2f} > 0.8: fugas fuera de la gráfica de Jl (claros excesivos)")
+    if g["Fsbp"] > 0.7:
+        reasons.append(f"F_sbp = {g['Fsbp']:.2f} > 0.7: bypass fuera de la gráfica de Jb")
+    B_min = max(Ds / 5.0, 0.0508)
+    if B < B_min - 1e-9 or B > Ds + 1e-9:
+        reasons.append(f"espaciado de mamparas {B:.3f} m fuera de [máx(Ds/5, 2 in), Ds] = [{B_min:.3f}, {Ds:.3f}] m")
+    fits_ok = all(abs(v) < 10.0 for v in fit_dev.values())
+    if not fits_ok:
+        reasons.append("factores J de las gráficas y de los ajustes HEDH difieren > 10 %: geometría en una zona "
+                       "mal cubierta por las gráficas")
+    bank_dev = 100.0 * (h_ideal - h_ideal_esdu) / h_ideal_esdu
+    if abs(bank_dev) > 30.0:
+        reasons.append(f"banco ideal: Žukauskas y ESDU 73031 difieren {bank_dev:.0f} % (> 30 %)")
+    if J < 0.5:
+        warnings.append(f"Jc·Jl·Jb·Js·Jr = {J:.2f} < 0.5: el diseño pierde demasiado por fugas o bypass; revisar "
+                        "claros, tiras de sello o corte de mampara")
+    if g["Fsbp"] > 0.1 and sealing_strip_pairs == 0:
+        warnings.append(f"F_sbp = {g['Fsbp']:.2f} sin tiras de sello: un par de tiras por cada 5-7 filas sube Jb")
+    if wall_viscosity_Pa_s is None:
+        warnings.append("sin viscosidad a la temperatura de pared: corrección de pared = 1")
+    stream_fraction_crossflow = Rl * Rb   # share of the ideal crossflow ΔP that survives leakage + bypass
+    return {"h_W_m2K": h, "dP_Pa": dP, "Re": Re, "Pr": Pr, "mass_velocity_kg_m2_s": Gs, "velocity_m_s": Vmax,
+            "h_ideal_tube_bank_W_m2K": h_ideal, "h_ideal_ESDU_W_m2K": h_ideal_esdu,
+            "J": {"Jc_baffle_cut": Jc, "Jl_leakage": Jl, "Jb_bypass": Jb, "Js_end_spacing": Js,
+                  "Jr_laminar": Jr, "product": J},
+            "dP_breakdown_Pa": {"crossflow": dP_c, "windows": dP_w, "end_zones": dP_e, "ideal_section": dP_bi,
+                                "window_ideal": dP_wi},
+            "R": {"Rl_leakage": Rl, "Rb_bypass": Rb, "Rs_end_zones": Rs, "Rl_Rb": stream_fraction_crossflow},
+            "geometry": {"n_tubes": n_tubes, "crossflow_area_m2": g["Sm"], "window_flow_area_m2": g["Sw"],
+                         "Fc_tubes_in_crossflow": g["Fc"], "Fw_tubes_per_window": g["Fw"],
+                         "Nc_rows_crossflow": g["Nc"], "Ncw_rows_window": g["Ncw"], "Fsbp_bypass": g["Fsbp"],
+                         "Ssb_shell_baffle_leak_m2": g["Ssb"], "Stb_tube_baffle_leak_m2": g["Stb"],
+                         "rs": rs, "rlm": rlm, "shell_baffle_clearance_m": shell_baffle_clearance_m,
+                         "tube_baffle_clearance_m": tube_baffle_clearance_m},
+            "kern": {"h_W_m2K": kern["h_W_m2K"], "dP_Pa": kern["dP_Pa"],
+                     "kern_over_bell_delaware_h": kern["h_W_m2K"] / h, "kern_over_bell_delaware_dP": kern["dP_Pa"] / dP},
+            "regime": "laminar (Re < 100)" if laminar else "turbulento/transición",
+            "assumptions": assumptions, "warnings": warnings,
+            "evidence": {"J_chart_vs_HEDH_fit_pct": fit_dev, "ideal_bank_Zukauskas_vs_ESDU_pct": bank_dev,
+                         "verified": not reasons, "reasons": reasons},
+            "notes": ("Bell-Delaware (Bell 1963; Taborek, HEDH 3.3): h = h_ideal·Jc·Jl·Jb·Js·Jr y ΔP = cruce·Rb·Rl + "
+                      "ventanas·Rl + extremos·Rb·Rs, sin boquillas. El banco ideal es Žukauskas (ESDU como "
+                      "contraste), no la correlación j/f de Taborek. Precisión típica ±15-20 % en h y ±30-50 % en "
+                      "ΔP; los claros reales de fabricación dominan Jl y Rl.")}
 
 
 # ---------------------------------------------------------------- nucleate pool boiling + critical heat flux

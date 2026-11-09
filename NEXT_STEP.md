@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-09 (bloques M1-M4 del mapa de motores cerrados; M4c Bell-Delaware pendiente)
+Actualizado: 2026-11-09 (bloques M1-M4 del mapa de motores cerrados, incluido M4c Bell-Delaware)
 
 ## Dónde estamos
+**Bloque M4c (2026-11-09): `shell_side_bell_delaware`, 51 tools.** Jc/Jl/Jb/Js/Jr y Rl/Rb/Rs con banco ideal Žukauskas (ESDU de contraste), claros TEMA por defecto declarados en `assumptions`, Kern de comparación. Evidencia = gráficas vs ajustes HEDH y dos bancos ideales; sin ejemplo publicado legible todavía.
+
 **Bloque M4 (2026-11-09): fluids/ht como tools, 50 tools.** M4a: `relief_valve_sizing` (API 520 + API 526), `control_valve_sizing` (IEC 60534-2-1),
 `fittings_resistance`, `compressible_gas_line` (isotérmico propio + EDO), `two_phase_pressure_drop`; M4b: `shell_side_kern`, `nucleate_boiling`, `film_condensation`.
 Ejemplos de API 520 (1, 2, 4, 5), IEC (1-3) e Incropera 10.1 reproducidos; 16 tests; reglas 13-14 del agente; 163 tests en verde.
@@ -44,7 +46,7 @@ Siguiente (plan mes 2):
 **Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
 balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
-0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 (sin Bell-Delaware). **Siguiente: M4c = Bell-Delaware (geometría de fugas/bypass con claros TEMA del usuario) o M5 pinch, según el owner; luego M6 OpenFOAM tanque agitado.**
+0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). **Siguiente: M5 pinch (curvas compuestas, energía mínima, ΔTmin); luego M6 OpenFOAM tanque agitado.**
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.

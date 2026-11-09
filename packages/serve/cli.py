@@ -8,7 +8,7 @@ One process, two channels, one DWSIM state:
                                                    -> {"event": "agent", "id", "kind": "start|text|tool_call|tool_result|final|error", ...}
       {"op": "stop", "id"}                         -> kills that agent run (and its claude process group)
       {"op": "quit"}
-  * HTTP MCP on 127.0.0.1:<port> with the same 50 tools, for the agent (`claude -p` on the owner's
+  * HTTP MCP on 127.0.0.1:<port> with the same 51 tools, for the agent (`claude -p` on the owner's
     subscription). Because the MCP server lives in THIS process, the flowsheets the agent builds are the
     same objects the app edits afterwards ("Resolver sin el agente": no tokens spent).
 

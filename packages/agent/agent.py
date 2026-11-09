@@ -107,8 +107,10 @@ Hard rules:
    (relief_valve_sizing, control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop).
    The relieving rate and overpressure come from the scenario, and FL/Fd/xT from the valve style: they are the user's.
    For two-phase ΔP report the range across methods, not one number.
-14. Shell-side h/ΔP (shell_side_kern), boiling (nucleate_boiling) and condensation (film_condensation) feed U for
-   heat_exchanger_area. Report the spread between correlations and the fraction of the critical heat flux in use.
+14. Shell-side h/ΔP (shell_side_kern to estimate, shell_side_bell_delaware to rate a defined exchanger), boiling
+   (nucleate_boiling) and condensation (film_condensation) feed U for heat_exchanger_area. Report the spread between
+   correlations and the fraction of the critical heat flux in use. Bell-Delaware geometry (Dotl, baffle cut, tube
+   count, clearances) is the user's exchanger: if a TEMA default was used, say so from assumptions.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -456,6 +458,29 @@ def shell_side_kern(mass_flow_kg_s: float, density_kg_m3: float, viscosity_Pa_s:
 
 
 @beta_tool
+def shell_side_bell_delaware(mass_flow_kg_s: float, density_kg_m3: float, viscosity_Pa_s: float,
+                             thermal_conductivity_W_mK: float, cp_J_kgK: float, shell_diameter_m: float,
+                             tube_od_m: float, tube_pitch_m: float, layout_angle: int, baffle_cut_fraction: float,
+                             baffle_spacing_m: float, n_baffles: int, outer_tube_limit_diameter_m: float,
+                             n_tubes: int | None = None, tube_passes: int = 1,
+                             shell_baffle_clearance_m: float | None = None,
+                             tube_baffle_clearance_m: float | None = None, sealing_strip_pairs: int = 0,
+                             inlet_baffle_spacing_m: float | None = None, outlet_baffle_spacing_m: float | None = None,
+                             wall_viscosity_Pa_s: float | None = None) -> str:
+    """Shell-side h and ΔP by Bell-Delaware (design grade): ideal bank × Jc, Jl, Jb, Js, Jr; ΔP crossflow/windows/
+    end zones with Rl, Rb, Rs. layout_angle 30 | 45 | 90; baffle_cut_fraction = cut/Ds; Dotl = outer tube limit.
+    Clearances default to TEMA (listed in assumptions). Includes Kern on the same shell. evidence: chart J factors vs
+    HEDH fits (10 %), Žukauskas vs ESDU ideal bank (30 %), geometry inside the charts."""
+    return json.dumps(TH.shell_side_bell_delaware(mass_flow_kg_s, density_kg_m3, viscosity_Pa_s,
+                                                  thermal_conductivity_W_mK, cp_J_kgK, shell_diameter_m, tube_od_m,
+                                                  tube_pitch_m, layout_angle, baffle_cut_fraction, baffle_spacing_m,
+                                                  n_baffles, outer_tube_limit_diameter_m, n_tubes, tube_passes,
+                                                  shell_baffle_clearance_m, tube_baffle_clearance_m,
+                                                  sealing_strip_pairs, inlet_baffle_spacing_m,
+                                                  outlet_baffle_spacing_m, wall_viscosity_Pa_s), default=float)
+
+
+@beta_tool
 def nucleate_boiling(P_Pa: float, critical_pressure_Pa: float, MW: float, T_sat_K: float, liquid_density_kg_m3: float,
                      vapor_density_kg_m3: float, liquid_viscosity_Pa_s: float, liquid_conductivity_W_mK: float,
                      liquid_cp_J_kgK: float, latent_heat_J_kg: float, surface_tension_N_m: float,
@@ -630,7 +655,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               nucleate_boiling, film_condensation, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

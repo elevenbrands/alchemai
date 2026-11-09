@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-09: **50 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-09: **51 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 (**sin ipopt**), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -77,7 +77,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | Necesidad | Hoy | Motor | Licencia · cómo entra | Hueco |
 |---|---|---|---|---|
 | Área de intercambiador: LMTD·F (Fakheri), Gnielinski lado tubo, U | ✅ (2 tools; área de DWSIM a 0.2 %) | `ht` | MIT | — |
-| Lado coraza: Kern, Bell-Delaware, arreglo de tubos, claros | 🟡 Kern ✅ (`shell_side_kern`, bloque M4b, con techo de banco ideal Žukauskas); Bell-Delaware ⬜ | `ht` | MIT · en proceso | Bell-Delaware (bloque M4c): geometría de fugas y bypass con claros TEMA del usuario |
+| Lado coraza: Kern, Bell-Delaware, arreglo de tubos, claros | ✅ Kern (`shell_side_kern`, M4b) y Bell-Delaware (`shell_side_bell_delaware`, M4c: Jc/Jl/Jb/Js/Jr y Rl/Rb/Rs, claros TEMA por defecto declarados, arreglos 30/45/90) | `ht` | MIT · en proceso | Banco ideal con la correlación j/f de Taborek (hoy Žukauskas + ESDU); boquillas; validar contra un ejemplo publicado con datos legibles |
 | Ebullición, condensación, radiación, aislamiento | ✅ ebullición nucleada + flujo crítico y condensación (2 tools, bloque M4b; Incropera ej. 10.1 reproducido) · radiación y aislamiento 📦 | `ht` | MIT · en proceso | Ebullición en flujo (Chen) y película; radiación y aislamiento sin tool |
 | Integración energética (pinch, redes de intercambiadores) | ✅ parcial (trade-off recuperación-costo, bloque 20) | propio + DWSIM | MIT | Análisis de pinch formal (curvas compuestas, ΔTmin, MER) es un bloque propio sin dependencias nuevas |
 | **Campo de temperatura con geometría**: conducción en sólidos, puntos calientes, pared de reactor | 🧪 (`conduccion_2d.py`, orden 2 verificado contra analítico) | FEniCSx | LGPL-3 · proceso aparte | Entra junto con el reactor no isotérmico |
@@ -149,7 +149,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 1 ✅ | `tubular_reactor_field` (FEniCSx, proceso aparte) — hecho 2026-11-08 | 3, 6, 7 | Patrón «motor externo en otro entorno» fijado en `packages/transport/reactor_field.py` (`run_solver`): OpenFOAM lo reutiliza | ninguna |
 | 2 ✅ | `kinetic_reactor_network` + `adiabatic_flame` (Cantera) — hecho 2026-11-08 | 3 | Validado en el notebook 03; en proceso; cubre combustión y cinética detallada | ninguna |
 | 3 ✅ | Economía completa: módulo desnudo (Seider vía BioSTEAM), flujo de caja, VPN/TIR — hecho 2026-11-08 | 8 | Puro Python; es lo que convierte un costo en una decisión | ninguna (tablas con fuente) |
-| 4 | ✅ 2026-11-09 (M4a + M4b, 50 tools): alivio API 520, válvulas IEC, accesorios, gas compresible, dos fases, Kern, ebullición, condensación. Pendiente M4c: Bell-Delaware | 5, 6, 10 | Librerías ya instaladas; cada tool = referencia + test | ninguna |
+| 4 | ✅ 2026-11-09 (M4a + M4b + M4c, 51 tools): alivio API 520, válvulas IEC, accesorios, gas compresible, dos fases, Kern, Bell-Delaware, ebullición, condensación | 5, 6, 10 | Librerías ya instaladas; cada tool = referencia + test | ninguna |
 | 5 | Pinch formal (curvas compuestas, MER, ΔTmin) | 6 | Sin dependencias; conecta con `flowsheet_cost` | ninguna |
 | 6 | Caso 2 `transporte-lab`: tanque agitado OpenFOAM vs CSTR → `stirred_tank_cfd` | 5 | Segundo motor externo; mezclado es pregunta frecuente | ninguna (OpenFOAM instalado) |
 | 7 | Reactor tubular no isotérmico (FEniCSx, energía acoplada) | 3, 6 | Donde el PFR ideal y el campo se separan de verdad | ninguna |
