@@ -31,6 +31,7 @@ from packages.dwsim_client import tools_mass_transfer as TM  # noqa: E402
 from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.dwsim_client import tools_economics as TE  # noqa: E402
 from packages.dwsim_client import tools_flow as TF  # noqa: E402
+from packages.dwsim_client import tools_heat as TH  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -106,6 +107,8 @@ Hard rules:
    (relief_valve_sizing, control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop).
    The relieving rate and overpressure come from the scenario, and FL/Fd/xT from the valve style: they are the user's.
    For two-phase ΔP report the range across methods, not one number.
+14. Shell-side h/ΔP (shell_side_kern), boiling (nucleate_boiling) and condensation (film_condensation) feed U for
+   heat_exchanger_area. Report the spread between correlations and the fraction of the critical heat flux in use.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -442,6 +445,48 @@ def two_phase_pressure_drop(mass_flow_kg_s: float, quality: float, liquid_densit
 
 
 @beta_tool
+def shell_side_kern(mass_flow_kg_s: float, density_kg_m3: float, viscosity_Pa_s: float, thermal_conductivity_W_mK: float,
+                    cp_J_kgK: float, shell_diameter_m: float, baffle_spacing_m: float, n_baffles: int, tube_od_m: float,
+                    tube_pitch_m: float, layout: str = "triangular", wall_viscosity_Pa_s: float | None = None) -> str:
+    """Shell-side h and ΔP by Kern (preliminary; no leakage/bypass). layout 'triangular' | 'square'. Also gives the
+    ideal tube-bank h (Žukauskas) as the ceiling. evidence: Kern's Re range and TEMA pitch/baffle-spacing limits."""
+    return json.dumps(TH.shell_side_kern(mass_flow_kg_s, density_kg_m3, viscosity_Pa_s, thermal_conductivity_W_mK,
+                                         cp_J_kgK, shell_diameter_m, baffle_spacing_m, n_baffles, tube_od_m, tube_pitch_m,
+                                         layout, wall_viscosity_Pa_s), default=float)
+
+
+@beta_tool
+def nucleate_boiling(P_Pa: float, critical_pressure_Pa: float, MW: float, T_sat_K: float, liquid_density_kg_m3: float,
+                     vapor_density_kg_m3: float, liquid_viscosity_Pa_s: float, liquid_conductivity_W_mK: float,
+                     liquid_cp_J_kgK: float, latent_heat_J_kg: float, surface_tension_N_m: float,
+                     heat_flux_W_m2: float | None = None, wall_superheat_K: float | None = None,
+                     surface_roughness_um: float = 1.0, rohsenow_Csf: float | None = None,
+                     rohsenow_n: float | None = None) -> str:
+    """Nucleate pool boiling h (Cooper recommended; Mostinski, Stephan-Abdelsalam, Rohsenow if Csf/n given), spread,
+    critical heat flux (Zuber, Lienhard-Dhir) and fraction of it in use. Give heat_flux_W_m2 OR wall_superheat_K."""
+    return json.dumps(TH.nucleate_boiling(P_Pa, critical_pressure_Pa, MW, T_sat_K, liquid_density_kg_m3, vapor_density_kg_m3,
+                                          liquid_viscosity_Pa_s, liquid_conductivity_W_mK, liquid_cp_J_kgK, latent_heat_J_kg,
+                                          surface_tension_N_m, heat_flux_W_m2, wall_superheat_K, surface_roughness_um,
+                                          rohsenow_Csf, rohsenow_n), default=float)
+
+
+@beta_tool
+def film_condensation(geometry: str, T_sat_K: float, liquid_density_kg_m3: float, vapor_density_kg_m3: float,
+                      liquid_conductivity_W_mK: float, liquid_viscosity_Pa_s: float, liquid_cp_J_kgK: float,
+                      latent_heat_J_kg: float, wall_T_K: float | None = None, length_m: float | None = None,
+                      tube_od_m: float | None = None, n_rows: int = 1, mass_flow_kg_s: float | None = None,
+                      quality: float | None = None, tube_id_m: float | None = None, P_Pa: float | None = None,
+                      critical_pressure_Pa: float | None = None) -> str:
+    """Pure-vapor condensation h. 'vertical_plate'/'vertical_tube' (wall_T_K, length_m), 'horizontal_tube' (wall_T_K,
+    tube_od_m, n_rows): Nusselt with h'fg. 'in_tube' (mass_flow_kg_s per tube, quality, tube_id_m, P_Pa,
+    critical_pressure_Pa): Shah and Boyko-Kruzhilin. evidence flags wavy/turbulent films."""
+    return json.dumps(TH.film_condensation(geometry, T_sat_K, liquid_density_kg_m3, vapor_density_kg_m3,
+                                           liquid_conductivity_W_mK, liquid_viscosity_Pa_s, liquid_cp_J_kgK, latent_heat_J_kg,
+                                           wall_T_K, length_m, tube_od_m, n_rows, mass_flow_kg_s, quality, tube_id_m, P_Pa,
+                                           critical_pressure_Pa), default=float)
+
+
+@beta_tool
 def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, object] | None = None, year: int = 2023,
                    cepci: float | None = None) -> str:
     """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
@@ -584,7 +629,8 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
-               control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
+               control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
+               nucleate_boiling, film_condensation, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

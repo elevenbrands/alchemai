@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-08: **42 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-09: **50 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 (**sin ipopt**), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -68,7 +68,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 |---|---|---|---|---|
 | ΔP en tubería monofásica, diámetro nominal (B36.10M), velocidad, régimen | ✅ (3 tools, bloque 18; ±1.4 % vs DWSIM) | `fluids` Colebrook/Clamond | MIT | Gas con ΔP > 10 % de P entrada (usar `fluids.compressible`) |
 | Tubería en el flowsheet (dos fases, Beggs-Brill) | ✅ (kind `pipe`) | DWSIM Pipe Segment | GPL-3 | Solo lo que DWSIM da; sin ΔP bifásico propio |
-| Accesorios, válvulas de control, bombas (eficiencia), flujo compresible, dos fases propio | 📦 (`fluids.fittings`, `control_valve`, `pump`, `compressible`, `two_phase`) | `fluids` | MIT · en proceso | Tools `fittings_losses`, `size_control_valve`, `compressible_line`, `two_phase_dP`: todo ya está en la librería, falta exponerlo con referencia |
+| Accesorios, válvulas de control, flujo compresible, dos fases propio | ✅ (4 tools, bloque M4a; ejemplos 1-3 de IEC 60534-2-1, EDO de momento, límites de una fase) | `fluids` (IEC 60534-2-1, Darby 3-K, Friedel/MSH/Chisholm/L-M) + forma cerrada isotérmica propia | MIT · en proceso | Bombas (eficiencia) sin tool; gas adiabático (Fanno) no cubierto; dos fases solo fricción horizontal |
 | **Campo de flujo con geometría**: tanque agitado, mezclado, tiempo de homogeneización, zonas muertas, turbulencia | 🧪 (cavidad `icoFoam` corrida; sin caso de ingeniería aún) | OpenFOAM v2606 | **GPL-3 · proceso aparte** (`openfoam -c`, rutas sin espacios vía `~/tlab`) | Caso 2 de `transporte-lab`: tanque agitado vs CSTR ideal; luego tool `stirred_tank_cfd` |
 | Redes de tuberías (mallas, bombas en paralelo) | ⬜ | modelo propio (Hardy-Cross con `fluids`) | — | Baja prioridad hasta que un caso lo pida |
 
@@ -77,8 +77,8 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | Necesidad | Hoy | Motor | Licencia · cómo entra | Hueco |
 |---|---|---|---|---|
 | Área de intercambiador: LMTD·F (Fakheri), Gnielinski lado tubo, U | ✅ (2 tools; área de DWSIM a 0.2 %) | `ht` | MIT | — |
-| Lado coraza: Kern, Bell-Delaware, arreglo de tubos, claros | 📦 (`ht.conv_tube_bank.dP_Kern`, `baffle_*_Bell`, `ht.hx.DBundle_for_Ntubes_Phadkeb`) | `ht` | MIT · en proceso | Tool `shell_and_tube_rating` (diseño térmico completo TEMA-lite) |
-| Ebullición, condensación, radiación, aislamiento | 📦 (`ht.boiling_nucleic`, `ht.condensation`, `ht.radiation`, `ht.insulation`) | `ht` | MIT · en proceso | Tools de rehervidor/condensador y pérdida por aislamiento |
+| Lado coraza: Kern, Bell-Delaware, arreglo de tubos, claros | 🟡 Kern ✅ (`shell_side_kern`, bloque M4b, con techo de banco ideal Žukauskas); Bell-Delaware ⬜ | `ht` | MIT · en proceso | Bell-Delaware (bloque M4c): geometría de fugas y bypass con claros TEMA del usuario |
+| Ebullición, condensación, radiación, aislamiento | ✅ ebullición nucleada + flujo crítico y condensación (2 tools, bloque M4b; Incropera ej. 10.1 reproducido) · radiación y aislamiento 📦 | `ht` | MIT · en proceso | Ebullición en flujo (Chen) y película; radiación y aislamiento sin tool |
 | Integración energética (pinch, redes de intercambiadores) | ✅ parcial (trade-off recuperación-costo, bloque 20) | propio + DWSIM | MIT | Análisis de pinch formal (curvas compuestas, ΔTmin, MER) es un bloque propio sin dependencias nuevas |
 | **Campo de temperatura con geometría**: conducción en sólidos, puntos calientes, pared de reactor | 🧪 (`conduccion_2d.py`, orden 2 verificado contra analítico) | FEniCSx | LGPL-3 · proceso aparte | Entra junto con el reactor no isotérmico |
 | Hornos y calderas (radiación de llama) | ⬜ | Cantera (llama) + `ht.radiation` | BSD/MIT | Sin caso de referencia elegido |
@@ -116,7 +116,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | Necesidad | Hoy | Motor | Licencia · cómo entra | Hueco |
 |---|---|---|---|---|
 | HAZOP preliminar por reglas sobre el grafo (desde DWSIM o DEXPI) + propuestas LLM marcadas | ✅ (`hazop_preliminary`, `hazop_from_dexpi`; recall 30/30 apartado, 0 espurias) | propio + Claude | MIT | Precisión útil 76 %: sigue habiendo ruido |
-| Dimensionamiento de válvulas de alivio (API 520/521), ruido | 📦 (`fluids.safety_valve.API520_A_g`, `API520_A_steam`, `API521_noise`) | `fluids` | MIT · en proceso | Tool `relief_valve_sizing` conectada a la fila HAZOP «más presión» |
+| Dimensionamiento de válvulas de alivio (API 520/521), ruido | ✅ (`relief_valve_sizing`, bloque M4a; ejemplos 1, 2, 4 y 5 de API 520 Parte I) · ruido 📦 | `fluids.safety_valve` + API 526 | MIT · en proceso | Conectar a la fila HAZOP «más presión»; ruido API 521 sin tool; la tasa de alivio sale del escenario (no la decide la tool) |
 | LOPA, SIL, árbol de fallas | ⬜ | propio (tablas CCPS) | — | Fase 2 del plan |
 | Dispersión, incendio, explosión (consecuencias) | ⬜ | modelos propios (Gaussiano, TNT-equivalente) | — | Sin motor abierto maduro; por demanda |
 
@@ -149,7 +149,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 1 ✅ | `tubular_reactor_field` (FEniCSx, proceso aparte) — hecho 2026-11-08 | 3, 6, 7 | Patrón «motor externo en otro entorno» fijado en `packages/transport/reactor_field.py` (`run_solver`): OpenFOAM lo reutiliza | ninguna |
 | 2 ✅ | `kinetic_reactor_network` + `adiabatic_flame` (Cantera) — hecho 2026-11-08 | 3 | Validado en el notebook 03; en proceso; cubre combustión y cinética detallada | ninguna |
 | 3 ✅ | Economía completa: módulo desnudo (Seider vía BioSTEAM), flujo de caja, VPN/TIR — hecho 2026-11-08 | 8 | Puro Python; es lo que convierte un costo en una decisión | ninguna (tablas con fuente) |
-| 4 | Exponer `fluids`/`ht` que ya están: alivio API 520, válvulas de control, accesorios, compresible, dos fases, lado coraza Kern/Bell-Delaware, ebullición/condensación | 5, 6, 10 | Librerías ya instaladas; cada tool = referencia del docstring + test | ninguna |
+| 4 | ✅ 2026-11-09 (M4a + M4b, 50 tools): alivio API 520, válvulas IEC, accesorios, gas compresible, dos fases, Kern, ebullición, condensación. Pendiente M4c: Bell-Delaware | 5, 6, 10 | Librerías ya instaladas; cada tool = referencia + test | ninguna |
 | 5 | Pinch formal (curvas compuestas, MER, ΔTmin) | 6 | Sin dependencias; conecta con `flowsheet_cost` | ninguna |
 | 6 | Caso 2 `transporte-lab`: tanque agitado OpenFOAM vs CSTR → `stirred_tank_cfd` | 5 | Segundo motor externo; mezclado es pregunta frecuente | ninguna (OpenFOAM instalado) |
 | 7 | Reactor tubular no isotérmico (FEniCSx, energía acoplada) | 3, 6 | Donde el PFR ideal y el campo se separan de verdad | ninguna |

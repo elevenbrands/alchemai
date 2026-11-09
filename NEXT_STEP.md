@@ -1,8 +1,11 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-08 (bloques M1-M3 del mapa de motores cerrados)
+Actualizado: 2026-11-09 (bloques M1-M4 del mapa de motores cerrados; M4c Bell-Delaware pendiente)
 
 ## Dónde estamos
+**Bloque M4 (2026-11-09): fluids/ht como tools, 50 tools.** M4a: `relief_valve_sizing` (API 520 + API 526), `control_valve_sizing` (IEC 60534-2-1),
+`fittings_resistance`, `compressible_gas_line` (isotérmico propio + EDO), `two_phase_pressure_drop`; M4b: `shell_side_kern`, `nucleate_boiling`, `film_condensation`.
+Ejemplos de API 520 (1, 2, 4, 5), IEC (1-3) e Incropera 10.1 reproducidos; 16 tests; reglas 13-14 del agente; 163 tests en verde.
 **Bloque M3 (2026-11-08): economía completa, 42 tools** (`bare_module_factors`, `capital_investment`, `cash_flow_analysis`): F_BM de Seider leídos
 de BioSTEAM, inversión total con porcentajes del usuario, flujo de caja = fórmulas cerradas y = funciones de BioSTEAM; 15 tests; regla 12 del agente.
 **Bloque M2 (2026-11-08): Cantera como tools, 39 tools** (`adiabatic_flame`, `kinetic_reactor_network`): notebook 03 reproducido por la tool y por MCP
@@ -41,9 +44,7 @@ Siguiente (plan mes 2):
 **Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
 balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
-0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. **Siguiente: M4 = exponer `fluids`/`ht` ya instalados** (alivio
-API 520, válvulas de control, accesorios, compresible, dos fases, lado coraza Kern/Bell-Delaware, ebullición/condensación), luego M5 pinch,
-M6 OpenFOAM tanque agitado.
+0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 (sin Bell-Delaware). **Siguiente: M4c = Bell-Delaware (geometría de fugas/bypass con claros TEMA del usuario) o M5 pinch, según el owner; luego M6 OpenFOAM tanque agitado.**
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.
