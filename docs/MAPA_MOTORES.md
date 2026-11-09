@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-08: **39 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-08: **42 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 (**sin ipopt**), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -97,8 +97,8 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 |---|---|---|---|---|
 | Costo de compra de equipos (HX, bomba, compresor, recipiente, platos, relleno), CEPCI 1990-2023 | ✅ (3 tools, bloque 19; exacto vs tests de IDAES) | IDAES costeo SSLW (Seider) | BSD · en proceso | Costo de compra, **no instalado**; CEPCI > 2023 lo da el usuario |
 | Capital fijo (Lang), factor de ubicación (México 0.84-0.92), anualización (CRF), costo de operación → costo total anual | ✅ (`flowsheet_cost`, bloque 20) | propio | MIT | Precios siempre del usuario (MOCKS PRECIOS-ILUSTRATIVOS) |
-| Factores de módulo desnudo por equipo (Turton/CAPCOST), contingencia, capital de trabajo | ⬜ | propio (tablas de Turton transcritas con fuente) | — | Bloque de puro Python; alto valor, cero dependencias nuevas |
-| Flujo de caja, VPN, TIR, periodo de recuperación, depreciación | ⬜ | propio o `biosteam.TEA` 📦 | MIT | Tool `cash_flow_analysis`; `biosteam.TEA` como referencia cruzada |
+| Factores de módulo desnudo por equipo, inversión total (sitio, servicios, contingencia, terreno, arranque, capital de trabajo) | ✅ (`bare_module_factors`, `capital_investment`, M3 2026-11-08) | propio; F_BM de Seider 2017 leídos de BioSTEAM (no Turton: mismo libro que el costo de compra de IDAES) | MIT/NCSA · en proceso | Porcentajes de inversión siempre del usuario; relleno y equipos sin F_BM en BioSTEAM los da el usuario |
+| Flujo de caja, VPN, TIR, periodo de recuperación, depreciación | ✅ (`cash_flow_analysis`, M3: = fórmulas cerradas y = funciones de BioSTEAM) | propio, VPN recalculado con las funciones de `biosteam._tea` | MIT | Sin préstamos ni inflación; MACRS es de EE. UU. (México: SL con tasa de la LISR) |
 | Costo de servicios (vapor, agua, electricidad) por región | ⬜ | tablas del usuario | — | Nunca defaults: la regla de la fábrica |
 
 ## 9 · Optimización y modelos sustitutos
@@ -148,7 +148,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 |---|---|---|---|---|
 | 1 ✅ | `tubular_reactor_field` (FEniCSx, proceso aparte) — hecho 2026-11-08 | 3, 6, 7 | Patrón «motor externo en otro entorno» fijado en `packages/transport/reactor_field.py` (`run_solver`): OpenFOAM lo reutiliza | ninguna |
 | 2 ✅ | `kinetic_reactor_network` + `adiabatic_flame` (Cantera) — hecho 2026-11-08 | 3 | Validado en el notebook 03; en proceso; cubre combustión y cinética detallada | ninguna |
-| 3 | Economía completa: módulo desnudo (Turton), flujo de caja, VPN/TIR | 8 | Puro Python; es lo que convierte un costo en una decisión | ninguna (tablas con fuente) |
+| 3 ✅ | Economía completa: módulo desnudo (Seider vía BioSTEAM), flujo de caja, VPN/TIR — hecho 2026-11-08 | 8 | Puro Python; es lo que convierte un costo en una decisión | ninguna (tablas con fuente) |
 | 4 | Exponer `fluids`/`ht` que ya están: alivio API 520, válvulas de control, accesorios, compresible, dos fases, lado coraza Kern/Bell-Delaware, ebullición/condensación | 5, 6, 10 | Librerías ya instaladas; cada tool = referencia del docstring + test | ninguna |
 | 5 | Pinch formal (curvas compuestas, MER, ΔTmin) | 6 | Sin dependencias; conecta con `flowsheet_cost` | ninguna |
 | 6 | Caso 2 `transporte-lab`: tanque agitado OpenFOAM vs CSTR → `stirred_tank_cfd` | 5 | Segundo motor externo; mezclado es pregunta frecuente | ninguna (OpenFOAM instalado) |

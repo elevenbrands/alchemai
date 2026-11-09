@@ -111,7 +111,8 @@ _FLOOR: dict = {}
 def cost_pump(power_W: float, deltaP_Pa: float, density_kg_m3: float, flow_m3_s: float, pump_type: str = "Centrifugal",
               material: str = "CastIron", pump_type_factor: float = 1.4, motor_type: str = "Open", year: int = 2023,
               cepci: float | None = None) -> dict:
-    """pump_type_factor (Seider table): 1.0, 1.5, 2.0 or 1.4 for the single/two-stage, speed and head classes."""
+    """pump_type_factor is IDAES's case CODE for centrifugal pumps (Seider table): 1.1, 1.2, 1.3, 1.4, 2.1, 2.2 →
+    F_T = 1.00, 1.50, 1.70, 2.00, 2.70, 8.90 (idaes SSLW.cost_pump); default 1.4 (F_T 2.00)."""
     from idaes.models.costing.SSLW import PumpMaterial, PumpMotorType, PumpType, SSLWCostingData
     from idaes.core import UnitModelCostingBlock
     from pyomo.common.config import ConfigValue
@@ -173,6 +174,8 @@ def cost_vessel(diameter_m: float, length_m: float, vertical: bool = True, mater
 
     r = _run(build)
     out = _price(r, year, cepci) | {"equipment": "vessel", "diameter_m": diameter_m, "length_m": length_m}
+    if include_platforms_ladders and "base_cost_platforms_ladders" in r["detail"]:
+        out["platforms_ladders_purchase_cost_usd"] = r["detail"]["base_cost_platforms_ladders"] * out["purchase_cost_usd"] / r["usd_ce500"]
     if number_of_trays is not None:
         out |= {"number_of_trays": int(number_of_trays), "tray_type": tray_type,
                 "trays_purchase_cost_usd": r["detail"]["base_cost_trays"] * out["purchase_cost_usd"] / r["usd_ce500"]}

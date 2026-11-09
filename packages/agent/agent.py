@@ -29,6 +29,7 @@ from packages.dwsim_client import tools_costing as TC  # noqa: E402
 from packages.dwsim_client import tools_optimize as TO  # noqa: E402
 from packages.dwsim_client import tools_mass_transfer as TM  # noqa: E402
 from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
+from packages.dwsim_client import tools_economics as TE  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -95,6 +96,11 @@ Hard rules:
    For ignition delay, blow-out / flame stability vs residence time, CO or NO from a combustor, or any detailed
    mechanism, call kinetic_reactor_network (batch, pfr or wsr). Simple power-law kinetics with real thermo stay in
    DWSIM's kinetic CSTR/PFR. Seal only if evidence.verified; outside GRI-Mech's range say so.
+12. Purchase cost (equipment_cost) is NOT installed cost. For capital, NPV, IRR, payback or "is it worth it", price each
+   unit with equipment_cost, pass purchase_cost_usd, base_purchase_cost_usd and platforms_ladders_purchase_cost_usd to
+   capital_investment, then give total_depreciable_capital_usd, working_capital_usd and land_usd to cash_flow_analysis.
+   Capital factors, prices, revenue, tax rate, discount rate and depreciation are the user's: if the card does not give
+   them, report the gap (rule 9), never assume them.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -397,6 +403,36 @@ def cost_unit(flowsheet_id: str, unit: str, options: dict[str, object] | None = 
 
 
 @beta_tool
+def bare_module_factors() -> str:
+    """Bare-module factors F_BM by equipment type (Seider 2017 via BioSTEAM): the `type` keys capital_investment accepts."""
+    return json.dumps(TE.bare_module_factors(), default=float)
+
+
+@beta_tool
+def capital_investment(equipment: list[dict[str, object]], factors: dict[str, float], location_factor: float = 1.0) -> str:
+    """Installed (bare-module) cost and total capital investment. equipment: [{name, type (bare_module_factors key) or
+    F_BM, purchase_cost_usd, base_purchase_cost_usd, platforms_ladders_purchase_cost_usd (both from equipment_cost),
+    basis}]. factors, all required fractions given by the user (0 if not applicable): site_preparation,
+    service_facilities, allocated_costs, contingency_and_fee, land, royalties, startup, working_capital. Check evidence."""
+    return json.dumps(TE.capital_investment(equipment, factors, location_factor), default=float)
+
+
+@beta_tool
+def cash_flow_analysis(depreciable_capital_usd: float, revenue_usd_y: float, operating_cost_usd_y: float,
+                       plant_life_years: int, income_tax_rate: float, discount_rate: float, depreciation: str,
+                       construction_schedule: list[float], working_capital_usd: float = 0.0, land_usd: float = 0.0,
+                       startup_years: float = 0.0, startup_revenue_fraction: float = 1.0,
+                       startup_operating_cost_fraction: float = 1.0) -> str:
+    """Discounted cash flow (real, no loans): NPV, IRR, payback, discounted payback, break-even revenue, yearly table.
+    depreciable_capital_usd = C_TDC; operating cost without depreciation; rates as fractions; depreciation 'MACRS7',
+    'SL10', 'DDB10', 'SYD10'; construction_schedule fractions summing to 1. Economic inputs are the user's. Check evidence."""
+    return json.dumps(TE.cash_flow_analysis(depreciable_capital_usd, revenue_usd_y, operating_cost_usd_y, plant_life_years,
+                                            income_tax_rate, discount_rate, depreciation, construction_schedule,
+                                            working_capital_usd, land_usd, startup_years, startup_revenue_fraction,
+                                            startup_operating_cost_fraction), default=float)
+
+
+@beta_tool
 def flowsheet_cost(flowsheet_id: str, prices: dict[str, float], hours_per_year: float, interest: float, years: int,
                    exchanger_areas_m2: dict[str, float] | None = None, vessel_sizes: dict[str, object] | None = None,
                    options: dict[str, object] | None = None, lang: str = "lang_1948_fluid", country: str | None = None,
@@ -485,7 +521,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, optimize_design_multi, absorption_stages,
+               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

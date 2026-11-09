@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-08 (bloques M1-M2 del mapa de motores cerrados)
+Actualizado: 2026-11-08 (bloques M1-M3 del mapa de motores cerrados)
 
 ## Dónde estamos
+**Bloque M3 (2026-11-08): economía completa, 42 tools** (`bare_module_factors`, `capital_investment`, `cash_flow_analysis`): F_BM de Seider leídos
+de BioSTEAM, inversión total con porcentajes del usuario, flujo de caja = fórmulas cerradas y = funciones de BioSTEAM; 15 tests; regla 12 del agente.
 **Bloque M2 (2026-11-08): Cantera como tools, 39 tools** (`adiabatic_flame`, `kinetic_reactor_network`): notebook 03 reproducido por la tool y por MCP
 (llama 2226 K vs completa 2327 K, PFR/CSTR = analítico, ignición 4.53 ms, apagado 0.2-0.5 ms, S_L 0.378 m/s); 7 tests; regla 11 del agente.
 **Bloque M1 (2026-11-08): `tubular_reactor_field`, primer motor externo (FEniCSx como proceso aparte, 37 tools)**: Caso 1 reproducido por la
@@ -39,8 +41,9 @@ Siguiente (plan mes 2):
 **Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
 balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
-0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅ y M2 Cantera ✅ 2026-11-08. **Siguiente: M3 = economía completa (módulo desnudo de Turton, flujo de caja,
-VPN/TIR)**, luego M4 exponer `fluids`/`ht`, M5 pinch, M6 OpenFOAM tanque agitado.
+0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. **Siguiente: M4 = exponer `fluids`/`ht` ya instalados** (alivio
+API 520, válvulas de control, accesorios, compresible, dos fases, lado coraza Kern/Bell-Delaware, ebullición/condensación), luego M5 pinch,
+M6 OpenFOAM tanque agitado.
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.

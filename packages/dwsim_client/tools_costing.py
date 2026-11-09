@@ -16,14 +16,34 @@ def equipment_cost(equipment: str, size: dict, options: dict | None = None, year
       there is no verified public price table).
     options (optional, names exactly as listed by costing_options): heat_exchanger hx_type (default Utube), material
     (StainlessSteelStainlessSteel), tube_length (TwelveFoot); pump pump_type (Centrifugal), material (CastIron),
-    pump_type_factor (1.4), motor_type (Open); compressor compressor_type (Centrifugal), drive_type (ElectricMotor),
+    pump_type_factor (IDAES case code 1.1|1.2|1.3|1.4|2.1|2.2 → F_T 1.00|1.50|1.70|2.00|2.70|8.90; default 1.4), motor_type (Open); compressor compressor_type (Centrifugal), drive_type (ElectricMotor),
     material (CarbonSteel); vessel material (CarbonSteel), include_platforms_ladders (true).
     year: 2015-2023 uses IDAES's CEPCI table; for another year pass cepci (the index value)."""
     fn = {"heat_exchanger": sslw.cost_heat_exchanger_floored, "pump": sslw.cost_pump, "compressor": sslw.cost_compressor,
           "vessel": sslw.cost_vessel, "packing": sslw.cost_packing}.get(equipment)
     if fn is None:
         raise ValueError("equipment must be heat_exchanger, pump, compressor, vessel or packing")
-    return fn(**size, **(options or {}), year=year, cepci=cepci)
+    out = fn(**size, **(options or {}), year=year, cepci=cepci)
+    base_opts = BASE_OPTIONS.get(equipment)
+    if base_opts is not None:
+        bsize = dict(size, **base_opts.get("size", {}))
+        bopts = dict(options or {}, **base_opts["options"])
+        out["base_purchase_cost_usd"] = fn(**bsize, **bopts, year=year, cepci=cepci)["purchase_cost_usd"]
+        out["base_definition"] = base_opts["label"]
+    return out
+
+
+# Base equipment for the bare-module formula C_BM = C_P + C_P,base·(F_BM − 1): same correlation and size, base material
+# and type (what Seider's F_BM refers to). Packing has no base: its F_BM is the user's.
+BASE_OPTIONS = {
+    "heat_exchanger": {"options": {"material": "CarbonSteelCarbonSteel"}, "size": {"shell_pressure_Pa": 101325.0},
+                       "label": "acero al carbón ambos lados, coraza a 1 atm, mismo tipo y largo"},
+    "pump": {"options": {"material": "CastIron", "pump_type_factor": 1.1}, "label": "hierro colado, código de tipo 1.1 (F_T = 1.00)"},
+    "compressor": {"options": {"material": "CarbonSteel", "drive_type": "ElectricMotor"},
+                   "label": "acero al carbón, motor eléctrico, mismo tipo"},
+    "vessel": {"options": {"material": "CarbonSteel", "tray_material": "CarbonSteel"},
+               "label": "acero al carbón (casco y platos), mismas dimensiones"},
+}
 
 
 def costing_options() -> dict:

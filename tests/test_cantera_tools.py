@@ -84,3 +84,9 @@ def test_methane_air_flame_speed():
     # GRI-Mech 3.0 gives ~0.38 m/s; measured stoichiometric methane-air speeds are ~0.36-0.37 m/s
     assert 0.36 <= r["laminar_flame_speed_m_s"] <= 0.40
     assert r["evidence"]["grid_independent"] and r["evidence"]["verified"]
+
+
+def test_results_are_plain_json():
+    import json
+    json.dumps(TK.adiabatic_flame("CH4", 1.0, T_K=300.0), allow_nan=False)
+    json.dumps(TK.kinetic_reactor_network("batch_constant_volume", AIR_CH4, 1200.0, 10e5, end_time_s=0.01), allow_nan=False)
