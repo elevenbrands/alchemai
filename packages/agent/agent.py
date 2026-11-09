@@ -28,6 +28,7 @@ from packages.dwsim_client import tools_transport as TT  # noqa: E402
 from packages.dwsim_client import tools_costing as TC  # noqa: E402
 from packages.dwsim_client import tools_optimize as TO  # noqa: E402
 from packages.dwsim_client import tools_mass_transfer as TM  # noqa: E402
+from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -89,6 +90,11 @@ Hard rules:
    over-predicts, call tubular_reactor_field (FEniCSx field of one tube of the bundle) with k from the kinetics,
    the volumetric flow at reactor conditions, the diffusivity and ρ, μ from stream_transport_properties; report
    X_plug_flow and X_laminar side by side and the seal only if its evidence says verified.
+11. DWSIM's conversion reactor at 100 % has NO dissociation: for a flame, burner, furnace or combustion temperature
+   call adiabatic_flame (equilibrium with CO, OH, NO; its complete-combustion T is the upper bound) and report both.
+   For ignition delay, blow-out / flame stability vs residence time, CO or NO from a combustor, or any detailed
+   mechanism, call kinetic_reactor_network (batch, pfr or wsr). Simple power-law kinetics with real thermo stay in
+   DWSIM's kinetic CSTR/PFR. Seal only if evidence.verified; outside GRI-Mech's range say so.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -338,6 +344,36 @@ def tubular_reactor_field(volumetric_flow_m3_s: float, tube_diameter_m: float, n
 
 
 @beta_tool
+def adiabatic_flame(fuel: str, equivalence_ratio: float, T_K: float = 298.15, P_Pa: float = 101325.0,
+                    oxidizer: str = "O2:1, N2:3.76", mechanism: str = "gri30.yaml", laminar_flame_speed: bool = False,
+                    report_species: list[str] | None = None) -> str:
+    """Adiabatic flame of a premixed mixture (Cantera, GRI-Mech 3.0 by default). fuel/oxidizer as compositions in
+    mechanism species ('CH4', 'CH4:0.9, C2H6:0.1'; air 'O2:1, N2:3.76'). Returns T_adiabatic_equilibrium_K (with
+    dissociation), T_adiabatic_complete_combustion_K (100 % conversion reactor: upper bound), dissociation_penalty_K,
+    products and, with laminar_flame_speed=True (~20 s), the laminar flame speed. Check evidence.verified."""
+    return json.dumps(TK.adiabatic_flame(fuel, equivalence_ratio, T_K, P_Pa, oxidizer, mechanism, laminar_flame_speed,
+                                         report_species), default=float)
+
+
+@beta_tool
+def kinetic_reactor_network(reactor: str, feed: str, T_K: float, P_Pa: float, mechanism: str = "gri30.yaml",
+                            energy: str = "adiabatic", end_time_s: float | None = None,
+                            residence_times_s: list[float] | None = None, key_species: list[str] | None = None,
+                            report_species: list[str] | None = None, initial_state: str = "ignited",
+                            custom_species: list[dict[str, object]] | None = None,
+                            custom_reactions: list[dict[str, object]] | None = None) -> str:
+    """Detailed-kinetics reactor (Cantera). reactor 'batch_constant_volume' | 'batch_constant_pressure' | 'pfr'
+    (end_time_s = residence time) | 'wsr' (CSTR at steady state for each residence_times_s, 1-20 values). feed as
+    'CH4:1, O2:2, N2:7.52'. energy 'adiabatic' | 'isothermal'. Gives ignition delay (adiabatic batch), blow-out, CO, NO,
+    conversions of key_species. Own kinetics (isothermal only): custom_species [{'name','composition':{'C':4,'H':10}}],
+    custom_reactions [{'equation':'A => B','A':1e8,'b':0,'Ea_J_mol':1e5,'orders':{'A':1}}], C in mol/m³. Check
+    evidence.verified."""
+    return json.dumps(TK.kinetic_reactor_network(reactor, feed, T_K, P_Pa, mechanism, energy, end_time_s, residence_times_s,
+                                                 key_species, report_species, initial_state, custom_species,
+                                                 custom_reactions), default=float)
+
+
+@beta_tool
 def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, object] | None = None, year: int = 2023,
                    cepci: float | None = None) -> str:
     """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
@@ -449,7 +485,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, optimize_design_multi, absorption_stages,
+               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, equipment_cost, costing_options, cost_unit, flowsheet_cost, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
