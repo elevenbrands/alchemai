@@ -32,6 +32,7 @@ from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.dwsim_client import tools_economics as TE  # noqa: E402
 from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.dwsim_client import tools_heat as TH  # noqa: E402
+from packages.dwsim_client import tools_energy as TE  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -111,6 +112,9 @@ Hard rules:
    (nucleate_boiling) and condensation (film_condensation) feed U for heat_exchanger_area. Report the spread between
    correlations and the fraction of the critical heat flux in use. Bell-Delaware geometry (Dotl, baffle cut, tube
    count, clearances) is the user's exchanger: if a TEMA default was used, say so from assumptions.
+15. Heat integration: pinch_analysis on the stream table (supply/target T and CP or duty of every heater, cooler
+   and exchanger side). ΔTmin is a design choice: state it and show a sweep. Report Q_hot_min, Q_cold_min, the
+   pinch and, if the current utilities are known, the saving; never claim a network is optimal from targets alone.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -512,6 +516,17 @@ def film_condensation(geometry: str, T_sat_K: float, liquid_density_kg_m3: float
 
 
 @beta_tool
+def pinch_analysis(streams: list[dict], dT_min_K: float, dT_min_sweep_K: list[float] | None = None,
+                   current_hot_utility_W: float | None = None, current_cold_utility_W: float | None = None) -> str:
+    """Pinch analysis (Problem Table Algorithm): minimum hot/cold utility, pinch, heat recovery, grand composite and
+    composite curves, minimum units, streams crossing the pinch, ΔTmin sweep and saving vs current utilities.
+    streams = [{'name', 'T_supply_K', 'T_target_K', 'CP_W_K' or 'heat_load_W', optional 'dT_contribution_K'}].
+    evidence: independent shifted composite curves touch at the pinch without crossing; energy balance closes."""
+    return json.dumps(TE.pinch_analysis(streams, dT_min_K, dT_min_sweep_K, current_hot_utility_W,
+                                        current_cold_utility_W), default=float)
+
+
+@beta_tool
 def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, object] | None = None, year: int = 2023,
                    cepci: float | None = None) -> str:
     """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
@@ -655,7 +670,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               shell_side_bell_delaware, nucleate_boiling, film_condensation, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 
