@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-09 (bloques M1-M5 y M6a del mapa de motores cerrados)
+Actualizado: 2026-11-10 (M1-M5 y M6a cerrados; M6b tool lista sin sello de malla)
 
 ## Dónde estamos
+**Bloque M6b (2026-11-10): `stirred_tank_cfd`, 54 tools, 🟡.** Rushton con mamparas por MRF k-ε: Np, P, P/V, θ95 (Grenville, correlación). Torque y estabilidad ✅; Np 4.89 con 885 mil celdas vs ≈ 5. Estudio de 3 mallas + GCI (Celik 2008) **no cierra**: Np salta con la resolución del aspa de 3 mm (49 celdas 4.52 vs 50 celdas 4.73). La tool lo declara no verificado. ~80 min por llamada.
+
 **Bloque M6a (2026-11-09): `vessel_residence_time_cfd`, 53 tools.** OpenFOAM simpleFoam + edad media local en un tanque prismático; τ, σ²/τ², N, volumen estancado y conversión real vs CSTR; teorema edad de salida = V/Q y estudio de malla. Sin impulsor (M6b).
 
 **Bloque M5 (2026-11-09): `pinch_analysis`, 52 tools.** Tabla del problema, MER, curvas compuestas y gran compuesta, unidades mínimas, barrido de ΔTmin y ahorro vs servicios actuales; Kemp (20/60 kW) y Smith (7.5/10 MW) reproducidos; evidencia = curvas desplazadas que se tocan sin cruzarse.
@@ -50,7 +52,7 @@ Siguiente (plan mes 2):
 **Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
 balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
-0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). M5 pinch ✅ (52 tools). M6a tanque de flujo continuo CFD ✅ (53 tools). M6b viabilidad ✅ 2026-11-10 (caso 3 de `transporte-lab`: Rushton MRF, Np 4.67 vs ≈ 5, balance de torque 0.26 %, 19 min con `mpirun -np 4` desde `$TMPDIR`). **Siguiente: tool `stirred_tank_cfd` en AlchemAI sobre `transporte-lab/openfoam/rushton/make_case.py` (parametrizar T, D/T, C/T, N, fluido; forces en impulsor y en paredes como evidencia; estudio de malla con fondo 8 mm vs 6 mm; tiempo de mezclado por correlación de Grenville marcado como tal); luego M7.**
+0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). M5 pinch ✅ (52 tools). M6a tanque de flujo continuo CFD ✅ (53 tools). M6b viabilidad ✅ 2026-11-10 (caso 3 de `transporte-lab`: Rushton MRF, Np 4.67 vs ≈ 5, balance de torque 0.26 %, 19 min con `mpirun -np 4` desde `$TMPDIR`). **Siguiente (decide el owner): M6b-2 = malla del aspa con celdas fijas (refinamiento por espesor/capas o nivel 3 en el impulsor) y repetir el estudio de 3 mallas para cerrar el GCI (~2-4 h de CPU), o pasar a M5b (corrientes del pinch desde el flowsheet) / M7.**
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.

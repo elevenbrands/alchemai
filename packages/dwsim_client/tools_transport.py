@@ -7,6 +7,7 @@ from packages.dwsim_client.tools import _s
 from packages.transport import hydraulics as H
 from packages.transport import reactor_field as RF
 from packages.transport import vessel_cfd as VC
+from packages.transport import stirred_tank as ST
 
 
 def _phase_props(flowsheet_id: str, stream: str) -> dict:
@@ -112,5 +113,23 @@ def vessel_residence_time_cfd(length_m: float, width_m: float, height_m: float, 
                          cells_per_max_dimension, mesh_study, first_order_k_1_s)
 
 
+def stirred_tank_cfd(tank_diameter_m: float, liquid_height_m: float, impeller_diameter_m: float, clearance_m: float,
+                     rotational_speed_rps: float, density_kg_m3: float, viscosity_Pa_s: float, n_baffles: int = 4,
+                     baffle_width_m: float | None = None, blade_thickness_m: float | None = None,
+                     cells_across_tank: int = 64, mesh_study: bool = True) -> dict:
+    """Power draw of a baffled flat-bottom tank stirred by a 6-blade Rushton turbine, solved with OpenFOAM in a
+    separate process (steady MRF, k-ε, snappyHexMesh). Geometry is the user's: tank T, liquid height H, impeller D and
+    clearance C (bottom to disc); baffle width defaults to T/10 and blade thickness to 0.03 D (stated in assumptions).
+    Returns the power number Np from the impeller torque, the power P = Np ρN³D⁵, P/V and W/kg, Re, Fr, tip speed,
+    Kolmogorov scale and the mixing time θ95 from Grenville's correlation (labelled: a correlation, not CFD; only
+    for H = T and turbulent flow). evidence: torque balance impeller vs walls < 3 % (angular momentum), Np steady
+    within 8 % over the last 500 iterations, three meshes (64/49/38 cells across the tank) converging monotonically
+    with grid convergence index < 10 % (Celik 2008; Np_extrapolated is the Richardson value), checkMesh, Re > 1e4 and
+    Np in the literature band 4-6. With mesh study it takes about 80 minutes on 4 cores; mesh_study=False ~45 min."""
+    return ST.stirred_tank_rushton(tank_diameter_m, liquid_height_m, impeller_diameter_m, clearance_m,
+                                   rotational_speed_rps, density_kg_m3, viscosity_Pa_s, n_baffles, baffle_width_m,
+                                   blade_thickness_m, cells_across_tank, mesh_study)
+
+
 TRANSPORT_TOOLS = [stream_transport_properties, pipe_hydraulics, size_pipe, heat_exchanger_area, tube_film_coefficient,
-                   tubular_reactor_field, vessel_residence_time_cfd]
+                   tubular_reactor_field, vessel_residence_time_cfd, stirred_tank_cfd]

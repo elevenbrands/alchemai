@@ -96,7 +96,10 @@ Hard rules:
    X_plug_flow and X_laminar side by side and the seal only if its evidence says verified.
    For a tank or basin that DWSIM models as an ideal CSTR, when the card asks about mixing quality, dead volume,
    short-circuiting or where to put the inlet and outlet, call vessel_residence_time_cfd (OpenFOAM) and report
-   σ²/τ², N and the conversion of the real RTD next to the ideal CSTR. It has no impeller: say so for agitated tanks.
+   σ²/τ², N and the conversion of the real RTD next to the ideal CSTR. It has no impeller.
+   For an AGITATED tank (impeller power, power number, W/m³, motor size, mixing time) with a Rushton turbine, call
+   stirred_tank_cfd with the user's T, H, D, C, speed and ρ, μ (never invent the geometry or the speed); report Np,
+   P and P/V with the seal only if verified, and give θ95 as a correlation. It takes ~80 min: say so before calling.
 11. DWSIM's conversion reactor at 100 % has NO dissociation: for a flame, burner, furnace or combustion temperature
    call adiabatic_flame (equilibrium with CO, OH, NO; its complete-combustion T is the upper bound) and report both.
    For ignition delay, blow-out / flame stability vs residence time, CO or NO from a combustor, or any detailed
@@ -411,6 +414,20 @@ def vessel_residence_time_cfd(length_m: float, width_m: float, height_m: float, 
 
 
 @beta_tool
+def stirred_tank_cfd(tank_diameter_m: float, liquid_height_m: float, impeller_diameter_m: float, clearance_m: float,
+                     rotational_speed_rps: float, density_kg_m3: float, viscosity_Pa_s: float, n_baffles: int = 4,
+                     baffle_width_m: float | None = None, blade_thickness_m: float | None = None,
+                     cells_across_tank: int = 64, mesh_study: bool = True) -> str:
+    """Baffled tank with a 6-blade Rushton turbine by MRF CFD (OpenFOAM, separate process). Returns the power number
+    Np, power P, P/V, W/kg, Re, Fr, tip speed and θ95 from Grenville's correlation (labelled, H = T only). evidence:
+    torque balance impeller vs walls, steady Np, 3-mesh GCI < 10 % (Richardson Np), checkMesh, Re > 1e4, Np in 4-6.
+    About 80 min per call with mesh study."""
+    return json.dumps(TT.stirred_tank_cfd(tank_diameter_m, liquid_height_m, impeller_diameter_m, clearance_m,
+                                          rotational_speed_rps, density_kg_m3, viscosity_Pa_s, n_baffles, baffle_width_m,
+                                          blade_thickness_m, cells_across_tank, mesh_study), default=float)
+
+
+@beta_tool
 def relief_valve_sizing(service: str, relieving_rate_kg_s: float, set_pressure_Pa_g: float, overpressure_fraction: float,
                         back_pressure_Pa_g: float, T_K: float | None = None, MW: float | None = None, Z: float | None = None,
                         k: float | None = None, density_kg_m3: float | None = None, viscosity_Pa_s: float | None = None,
@@ -685,7 +702,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, vessel_residence_time_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
+               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
