@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-09 (bloques M1-M5 del mapa de motores cerrados)
+Actualizado: 2026-11-09 (bloques M1-M5 y M6a del mapa de motores cerrados)
 
 ## Dónde estamos
+**Bloque M6a (2026-11-09): `vessel_residence_time_cfd`, 53 tools.** OpenFOAM simpleFoam + edad media local en un tanque prismático; τ, σ²/τ², N, volumen estancado y conversión real vs CSTR; teorema edad de salida = V/Q y estudio de malla. Sin impulsor (M6b).
+
 **Bloque M5 (2026-11-09): `pinch_analysis`, 52 tools.** Tabla del problema, MER, curvas compuestas y gran compuesta, unidades mínimas, barrido de ΔTmin y ahorro vs servicios actuales; Kemp (20/60 kW) y Smith (7.5/10 MW) reproducidos; evidencia = curvas desplazadas que se tocan sin cruzarse.
 
 **Bloque M4c (2026-11-09): `shell_side_bell_delaware`, 51 tools.** Jc/Jl/Jb/Js/Jr y Rl/Rb/Rs con banco ideal Žukauskas (ESDU de contraste), claros TEMA por defecto declarados en `assumptions`, Kern de comparación. Evidencia = gráficas vs ajustes HEDH y dos bancos ideales; sin ejemplo publicado legible todavía.
@@ -48,7 +50,7 @@ Siguiente (plan mes 2):
 **Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
 balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
-0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). M5 pinch ✅ (52 tools). **Siguiente: M6 OpenFOAM tanque agitado (o M5b: extraer la tabla de corrientes del flowsheet y objetivo de área/red, según el owner).**
+0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). M5 pinch ✅ (52 tools). M6a tanque de flujo continuo CFD ✅ (53 tools). **Siguiente: M6b impulsor con MRF (`stirred_tank_cfd`: número de potencia vs literatura, tiempo de mezclado) o M5b (corrientes desde el flowsheet), según el owner; luego M7 reactor tubular no isotérmico.**
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.

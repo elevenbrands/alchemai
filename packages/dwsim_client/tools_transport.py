@@ -6,6 +6,7 @@ from __future__ import annotations
 from packages.dwsim_client.tools import _s
 from packages.transport import hydraulics as H
 from packages.transport import reactor_field as RF
+from packages.transport import vessel_cfd as VC
 
 
 def _phase_props(flowsheet_id: str, stream: str) -> dict:
@@ -94,5 +95,22 @@ def tubular_reactor_field(volumetric_flow_m3_s: float, tube_diameter_m: float, n
                                     k_1_s, A_1_s, E_J_mol, T_K, density_kg_m3, viscosity_Pa_s, reynolds, nz, nr, figure_path)
 
 
+def vessel_residence_time_cfd(length_m: float, width_m: float, height_m: float, volumetric_flow_m3_s: float,
+                              kinematic_viscosity_m2_s: float, inlet: dict, outlet: dict,
+                              cells_per_max_dimension: int = 30, mesh_study: bool = True,
+                              first_order_k_1_s: float | None = None) -> dict:
+    """Is this tank really a CSTR? Residence-time behaviour of a flow-through box vessel (no impeller) solved with
+    OpenFOAM in a separate process: steady flow (simpleFoam; laminar, or k-ε above inlet Re 2000) and the local mean
+    age of the fluid. inlet / outlet = {'face': 'x-'|'x+'|'y-'|'y+'|'z-'|'z+', 'center_m': [c1, c2] on that wall
+    (the two other axes in x, y, z order), 'size_m': [s1, s2]} (rectangular openings, at least 2 cells wide).
+    Returns τ = V/Q, the volume-mean age over τ (1 = CSTR, 0.5 = plug flow), the RTD variance σ²/τ² (> 1 = dead
+    volume or short-circuit), equivalent tanks in series N, an age histogram (stagnant volume = age > 3τ), a
+    diagnosis and, with first_order_k_1_s, the conversion of the real RTD next to ideal CSTR and PFR. evidence:
+    simpleFoam converged, the flow-weighted outlet age equals τ within 3 % (a theorem), and with mesh_study the coarse
+    and 1.5× finer meshes agree (⟨a⟩ 5 %, σ²/τ² 10 % or 0.05). A 30-cell run with mesh study takes about a minute."""
+    return VC.vessel_rtd(length_m, width_m, height_m, volumetric_flow_m3_s, kinematic_viscosity_m2_s, inlet, outlet,
+                         cells_per_max_dimension, mesh_study, first_order_k_1_s)
+
+
 TRANSPORT_TOOLS = [stream_transport_properties, pipe_hydraulics, size_pipe, heat_exchanger_area, tube_film_coefficient,
-                   tubular_reactor_field]
+                   tubular_reactor_field, vessel_residence_time_cfd]

@@ -32,7 +32,7 @@ from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.dwsim_client import tools_economics as TE  # noqa: E402
 from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.dwsim_client import tools_heat as TH  # noqa: E402
-from packages.dwsim_client import tools_energy as TE  # noqa: E402
+from packages.dwsim_client import tools_energy as TEN  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -94,6 +94,9 @@ Hard rules:
    over-predicts, call tubular_reactor_field (FEniCSx field of one tube of the bundle) with k from the kinetics,
    the volumetric flow at reactor conditions, the diffusivity and ρ, μ from stream_transport_properties; report
    X_plug_flow and X_laminar side by side and the seal only if its evidence says verified.
+   For a tank or basin that DWSIM models as an ideal CSTR, when the card asks about mixing quality, dead volume,
+   short-circuiting or where to put the inlet and outlet, call vessel_residence_time_cfd (OpenFOAM) and report
+   σ²/τ², N and the conversion of the real RTD next to the ideal CSTR. It has no impeller: say so for agitated tanks.
 11. DWSIM's conversion reactor at 100 % has NO dissociation: for a flame, burner, furnace or combustion temperature
    call adiabatic_flame (equilibrium with CO, OH, NO; its complete-combustion T is the upper bound) and report both.
    For ignition delay, blow-out / flame stability vs residence time, CO or NO from a combustor, or any detailed
@@ -394,6 +397,20 @@ def kinetic_reactor_network(reactor: str, feed: str, T_K: float, P_Pa: float, me
 
 
 @beta_tool
+def vessel_residence_time_cfd(length_m: float, width_m: float, height_m: float, volumetric_flow_m3_s: float,
+                              kinematic_viscosity_m2_s: float, inlet: dict, outlet: dict,
+                              cells_per_max_dimension: int = 30, mesh_study: bool = True,
+                              first_order_k_1_s: float | None = None) -> str:
+    """Real tank vs ideal CSTR (OpenFOAM, separate process, no impeller): box vessel with one inlet and one outlet
+    opening {'face': 'x-'..'z+', 'center_m': [c1, c2], 'size_m': [s1, s2]}. Returns τ, ⟨age⟩/τ, σ²/τ², tanks in
+    series N, stagnant volume, diagnosis and first-order conversion vs CSTR/PFR. evidence: converged flow, outlet
+    age = τ within 3 % (theorem), mesh study. About a minute per call."""
+    return json.dumps(TT.vessel_residence_time_cfd(length_m, width_m, height_m, volumetric_flow_m3_s,
+                                                   kinematic_viscosity_m2_s, inlet, outlet, cells_per_max_dimension,
+                                                   mesh_study, first_order_k_1_s), default=float)
+
+
+@beta_tool
 def relief_valve_sizing(service: str, relieving_rate_kg_s: float, set_pressure_Pa_g: float, overpressure_fraction: float,
                         back_pressure_Pa_g: float, T_K: float | None = None, MW: float | None = None, Z: float | None = None,
                         k: float | None = None, density_kg_m3: float | None = None, viscosity_Pa_s: float | None = None,
@@ -522,7 +539,7 @@ def pinch_analysis(streams: list[dict], dT_min_K: float, dT_min_sweep_K: list[fl
     composite curves, minimum units, streams crossing the pinch, ΔTmin sweep and saving vs current utilities.
     streams = [{'name', 'T_supply_K', 'T_target_K', 'CP_W_K' or 'heat_load_W', optional 'dT_contribution_K'}].
     evidence: independent shifted composite curves touch at the pinch without crossing; energy balance closes."""
-    return json.dumps(TE.pinch_analysis(streams, dT_min_K, dT_min_sweep_K, current_hot_utility_W,
+    return json.dumps(TEN.pinch_analysis(streams, dT_min_K, dT_min_sweep_K, current_hot_utility_W,
                                         current_cold_utility_W), default=float)
 
 
@@ -668,7 +685,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
+               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, vessel_residence_time_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
