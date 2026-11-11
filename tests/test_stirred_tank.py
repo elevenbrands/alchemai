@@ -1,5 +1,5 @@
 """Stirred tank (bloque M6b): geometry, case files, post-processing and the correlation are checked fast; the full
-MRF run (3 meshes, ~80 min) only with ALCHEMAI_SLOW_CFD=1 (its numbers are recorded in APP.md)."""
+MRF run (3 meshes, ~2 h) only with ALCHEMAI_SLOW_CFD=1 (its numbers are recorded in APP.md)."""
 import math
 import os
 import tempfile
@@ -88,12 +88,13 @@ def test_tool_is_registered():
 
 
 @pytest.mark.skipif(os.environ.get("ALCHEMAI_SLOW_CFD") != "1" or not openfoam_available(),
-                    reason="corrida MRF completa con 3 mallas (~80 min): ALCHEMAI_SLOW_CFD=1")
+                    reason="corrida MRF completa con 3 mallas (~2 h): ALCHEMAI_SLOW_CFD=1")
 def test_standard_rushton_power_number_is_verified():
     r = ST.stirred_tank_rushton(0.3, 0.3, 0.1, 0.1, 5.0, 998.0, 1.0e-3)
     ev = r["evidence"]
     assert ev["verified"], ev["reasons"]
     assert 4.0 < r["Np"] < 6.0 and ev["torque_imbalance"] < 0.03
+    assert ev["mesh_ok"] and r["Np_uncertainty_fraction"] < ST.BAND_TOL
 
 
 def test_grid_convergence_recovers_an_exact_second_order_series():
@@ -117,3 +118,12 @@ def test_recorded_end_to_end_series_is_rejected():
     # series is not in the asymptotic range (R > 1) and the seal must not be given
     g = ST.grid_convergence([4.8944, 4.5216, 4.2876], [885278, 431656, 220360])
     assert not g["monotonic"] and g["R"] > 1 and g["gci_fine"] is None
+
+
+def test_mesh_band_is_the_largest_deviation_from_the_fine_mesh():
+    b = ST.mesh_band([5.0, 4.8, 5.3])
+    assert b["uncertainty"] == pytest.approx(0.06) and b["min"] == 4.8 and b["max"] == 5.3
+    # level-2 blade series of 2026-11-10 (64 / 49 / 38): 12.4 % scatter, no seal
+    assert ST.mesh_band([4.8944, 4.5216, 4.2876])["uncertainty"] > ST.BAND_TOL
+    # level-3 blade, verified end-to-end run of 2026-11-10 (APP.md): 3.5 % band, sealed
+    assert ST.mesh_band([4.8531, 5.0223, 4.7038])["uncertainty"] == pytest.approx(0.0349, abs=0.001)

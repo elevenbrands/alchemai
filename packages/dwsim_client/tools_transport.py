@@ -123,9 +123,10 @@ def stirred_tank_cfd(tank_diameter_m: float, liquid_height_m: float, impeller_di
     Returns the power number Np from the impeller torque, the power P = Np ρN³D⁵, P/V and W/kg, Re, Fr, tip speed,
     Kolmogorov scale and the mixing time θ95 from Grenville's correlation (labelled: a correlation, not CFD; only
     for H = T and turbulent flow). evidence: torque balance impeller vs walls < 3 % (angular momentum), Np steady
-    within 8 % over the last 500 iterations, three meshes (64/49/38 cells across the tank) converging monotonically
-    with grid convergence index < 10 % (Celik 2008; Np_extrapolated is the Richardson value), checkMesh, Re > 1e4 and
-    Np in the literature band 4-6. With mesh study it takes about 80 minutes on 4 cores; mesh_study=False ~45 min."""
+    within 8 % over the last 500 iterations, three meshes (64/49/38 cells across the tank) whose Np stays within 10 %
+    of the fine mesh (mesh-scatter band, Np_uncertainty_fraction; not a GCI, because the thin blade snaps to the grid),
+    checkMesh on every mesh, Re > 1e4 and Np in the literature band 4-6. With mesh study it takes about 2 hours on 4
+    cores; mesh_study=False ~65 min."""
     return ST.stirred_tank_rushton(tank_diameter_m, liquid_height_m, impeller_diameter_m, clearance_m,
                                    rotational_speed_rps, density_kg_m3, viscosity_Pa_s, n_baffles, baffle_width_m,
                                    blade_thickness_m, cells_across_tank, mesh_study)

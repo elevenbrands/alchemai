@@ -99,7 +99,7 @@ Hard rules:
    σ²/τ², N and the conversion of the real RTD next to the ideal CSTR. It has no impeller.
    For an AGITATED tank (impeller power, power number, W/m³, motor size, mixing time) with a Rushton turbine, call
    stirred_tank_cfd with the user's T, H, D, C, speed and ρ, μ (never invent the geometry or the speed); report Np,
-   P and P/V with the seal only if verified, and give θ95 as a correlation. It takes ~80 min: say so before calling.
+   P and P/V with the seal only if verified, and give θ95 as a correlation. It takes ~2 h: say so before calling.
 11. DWSIM's conversion reactor at 100 % has NO dissociation: for a flame, burner, furnace or combustion temperature
    call adiabatic_flame (equilibrium with CO, OH, NO; its complete-combustion T is the upper bound) and report both.
    For ignition delay, blow-out / flame stability vs residence time, CO or NO from a combustor, or any detailed
@@ -420,8 +420,8 @@ def stirred_tank_cfd(tank_diameter_m: float, liquid_height_m: float, impeller_di
                      cells_across_tank: int = 64, mesh_study: bool = True) -> str:
     """Baffled tank with a 6-blade Rushton turbine by MRF CFD (OpenFOAM, separate process). Returns the power number
     Np, power P, P/V, W/kg, Re, Fr, tip speed and θ95 from Grenville's correlation (labelled, H = T only). evidence:
-    torque balance impeller vs walls, steady Np, 3-mesh GCI < 10 % (Richardson Np), checkMesh, Re > 1e4, Np in 4-6.
-    About 80 min per call with mesh study."""
+    torque balance impeller vs walls, steady Np, 3 meshes within a 10 % band, checkMesh, Re > 1e4, Np in 4-6.
+    About 2 h per call with mesh study."""
     return json.dumps(TT.stirred_tank_cfd(tank_diameter_m, liquid_height_m, impeller_diameter_m, clearance_m,
                                           rotational_speed_rps, density_kg_m3, viscosity_Pa_s, n_baffles, baffle_width_m,
                                           blade_thickness_m, cells_across_tank, mesh_study), default=float)

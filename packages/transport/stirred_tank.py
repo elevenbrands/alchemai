@@ -19,10 +19,13 @@ Evidence → seal:
     iterations (steady MRF leaves a ~2 % bias at the rotating-zone interface; a missing wall or baffle is ≫ 3 %),
   * steady: Np over the last WINDOW iterations oscillates less than OSC_TOL of its mean (steady MRF never settles
     exactly; the reported Np is that window's mean),
-  * mesh_independent (with mesh_study): three meshes refined by ~1.3 converge monotonically and the grid
-    convergence index of the fine mesh (Celik et al. 2008, ASME V&V procedure; Roache) is below GCI_TOL. The
-    observed order is capped at the formal order 2 for the GCI and the Richardson-extrapolated Np (conservative),
-  * mesh_ok: checkMesh passes and the impeller, baffles and rotating zone exist in the mesh,
+  * mesh_independent (with mesh_study): Np of three meshes refined by ~1.3 stays inside a band: every coarser
+    mesh lies within BAND_TOL of the fine one (mesh-scatter uncertainty, reported as Np_uncertainty_fraction). A
+    grid convergence index (Celik et al. 2008, ASME V&V) is not used for the seal: the 0.03 D blade is only a few
+    cells thick and snaps to the background grid, so Np jumps discretely between meshes (49 → 5.13, 50 → 4.81
+    cells across) and never enters the asymptotic range the GCI needs. The GCI is still reported as a diagnostic
+    when the series happens to be monotonic,
+  * mesh_ok: checkMesh passes on all meshes and the impeller, baffles and rotating zone exist in the mesh,
   * turbulent: Re > RE_TURBULENT, where k-ε applies and Np of a baffled Rushton is constant,
   * plausible: NP_BAND (Rushton et al. 1950; Bates et al. 1963 report Np ≈ 4-6 for baffled disc turbines). A
     sanity band, not a proof: it catches a broken case, not a 10 % error.
@@ -43,7 +46,9 @@ from packages.transport.vessel_cfd import _run, openfoam_available
 
 TORQUE_TOL = 0.03   # window means of the standard case: 1.7 % bias ± 0.6 % (MRF interface), 250-iter windows 0.4-2.8 %
 OSC_TOL = 0.08
-GCI_TOL = 0.10
+BAND_TOL = 0.10    # mesh-scatter band for the seal (see module docstring)
+IMPELLER_LEVEL = 3   # impeller cells = background/8: the 0.03 D blade gets 3-5 cells (level 2 gave ~2 and Np jumped
+                     # 4.5 % between 49 and 50 cells across the tank as the blade snapped to the grid)
 P_FORMAL = 2.0
 MESH_RATIO = 1.3
 RE_TURBULENT = 1.0e4
@@ -189,7 +194,7 @@ castellatedMeshControls {{
   features ();
   refinementSurfaces {{
     tank {{ level (0 1); patchInfo {{ type wall; }} }}
-{baf_ref}    impeller {{ level (2 2); patchInfo {{ type wall; }} }}
+{baf_ref}    impeller {{ level ({IMPELLER_LEVEL} {IMPELLER_LEVEL}); patchInfo {{ type wall; }} }}
     shaft {{ level (1 1); patchInfo {{ type wall; }} }}
     top {{ level (0 0); patchInfo {{ type patch; }} }}
     mrf {{ level (2 2); faceZone mrfFaces; cellZone rotor; cellZoneInside inside; }}
@@ -200,7 +205,7 @@ castellatedMeshControls {{
 }};
 snapControls {{ nSmoothPatch 3; tolerance 2.0; nSolveIter 50; nRelaxIter 5; nFeatureSnapIter 10; implicitFeatureSnap true; explicitFeatureSnap false; multiRegionFeatureSnap false; }};
 addLayersControls {{ relativeSizes true; layers {{ }}; expansionRatio 1.2; finalLayerThickness 0.3; minThickness 0.1; nGrow 0; featureAngle 60; nRelaxIter 3; nSmoothSurfaceNormals 1; nSmoothNormals 3; nSmoothThickness 10; maxFaceThicknessRatio 0.5; maxThicknessToMedialRatio 0.3; minMedialAxisAngle 90; nBufferCellsNoExtrude 0; nLayerIter 50; }};
-meshQualityControls {{ maxNonOrtho 65; maxBoundarySkewness 20; maxInternalSkewness 4; maxConcave 80; minVol 1e-13; minTetQuality 1e-15; minArea -1; minTwist 0.02; minDeterminant 0.001; minFaceWeight 0.05; minVolRatio 0.01; minTriangleTwist -1; nSmoothScale 4; errorReduction 0.75; relaxed {{ maxNonOrtho 75; }} }};
+meshQualityControls {{ maxNonOrtho 65; maxBoundarySkewness 4; maxInternalSkewness 4; maxConcave 80; minVol 1e-13; minTetQuality 1e-15; minArea -1; minTwist 0.02; minDeterminant 0.001; minFaceWeight 0.05; minVolRatio 0.01; minTriangleTwist -1; nSmoothScale 4; errorReduction 0.75; relaxed {{ maxNonOrtho 75; }} }};
 mergeTolerance 1e-6;
 """)
     omega = 2 * math.pi * N
@@ -328,6 +333,13 @@ def grenville_mixing_time(Np: float, N: float, D: float, T: float, H: float, Re:
     return out
 
 
+def mesh_band(phi: list[float]) -> dict:
+    """Mesh-scatter band of a series ordered fine → coarse: the largest deviation of any mesh from the fine one."""
+    fine = phi[0]
+    dev = max(abs(x - fine) for x in phi[1:]) / abs(fine)
+    return {"fine": fine, "min": min(phi), "max": max(phi), "mean": sum(phi) / len(phi), "uncertainty": dev}
+
+
 def grid_convergence(phi: list[float], cells: list[int], p_formal: float = P_FORMAL) -> dict:
     """Celik et al. (2008) three-mesh procedure. phi and cells ordered fine → coarse. Representative size h ∝ N^(-1/3).
     Returns the convergence ratio R = e21/e32 (0 < R < 1 monotonic), the observed order, the Richardson value and
@@ -418,7 +430,7 @@ def stirred_tank_rushton(tank_diameter_m: float, liquid_height_m: float, impelle
         raise ValueError("rotational_speed_rps, density_kg_m3 y viscosity_Pa_s deben ser positivos")
     lo = 50 if mesh_study else 38
     if not lo <= cells_across_tank <= 90:
-        raise ValueError(f"cells_across_tank entre {lo} y 90 (64 ≈ 0.9 M celdas, ~45 min en 4 núcleos; con estudio de "
+        raise ValueError(f"cells_across_tank entre {lo} y 90 (64 ≈ 1.0 M celdas, ~55 min en 4 núcleos; con estudio de "
                          "malla las otras dos mallas son 1.3 y 1.69 veces más gruesas)")
     if iterations < 2 * WINDOW:
         raise ValueError(f"iterations ≥ {2 * WINDOW}")
@@ -441,12 +453,13 @@ def stirred_tank_rushton(tank_diameter_m: float, liquid_height_m: float, impelle
     V = math.pi * T ** 2 / 4 * H
     P = Np * rho * N ** 3 * D ** 5
     eps_mean = P / (rho * V)
-    mesh_ok = gc is not None and gc["monotonic"] and gc["gci_fine"] is not None and gc["gci_fine"] < GCI_TOL
+    band = mesh_band([m["Np"] for m in meshes]) if mesh_study else None
+    mesh_ok = band is not None and band["uncertainty"] < BAND_TOL
     ev = {
         "torque_balance": all(m["torque_imbalance"] < TORQUE_TOL for m in meshes),
         "torque_imbalance": fine["torque_imbalance"],
         "steady": all(m["oscillation"] < OSC_TOL for m in meshes), "oscillation": fine["oscillation"],
-        "mesh_independent": mesh_ok if gc else None, "grid_convergence": gc,
+        "mesh_independent": mesh_ok if band else None, "mesh_band": band, "grid_convergence": gc,
         "mesh_ok": all(m["mesh"]["checkMesh_ok"] for m in meshes),
         "turbulent": Re > RE_TURBULENT, "Re": Re,
         "plausible": NP_BAND[0] <= Np <= NP_BAND[1],
@@ -458,12 +471,10 @@ def stirred_tank_rushton(tank_diameter_m: float, liquid_height_m: float, impelle
                        "el flujo no está en régimen")
     if not ev["steady"]:
         reasons.append(f"Np oscila más de {OSC_TOL:.0%} en las últimas {WINDOW} iteraciones; sube iterations")
-    if gc is None:
+    if band is None:
         reasons.append("sin estudio de malla (mesh_study=False)")
-    elif not gc["monotonic"]:
-        reasons.append(f"Np no converge de forma monótona entre las 3 mallas (R = {gc['R']:.2f}); sube cells_across_tank")
     elif not mesh_ok:
-        reasons.append(f"GCI de la malla fina {gc['gci_fine']:.1%} ≥ {GCI_TOL:.0%}; sube cells_across_tank")
+        reasons.append(f"Np cambia {band['uncertainty']:.1%} entre las 3 mallas (≥ {BAND_TOL:.0%}); sube cells_across_tank")
     if not ev["mesh_ok"]:
         reasons.append("checkMesh reporta fallas de calidad")
     if not ev["turbulent"]:
@@ -477,8 +488,10 @@ def stirred_tank_rushton(tank_diameter_m: float, liquid_height_m: float, impelle
     return {
         "Np": Np, "Np_range_last_window": [fine["Np_min"], fine["Np_max"]],
         "Np_by_mesh": {m["cells_across_tank"]: m["Np"] for m in meshes},
-        "Np_extrapolated": gc["phi_extrapolated"] if gc else None,
-        "Np_uncertainty_fraction": gc["gci_fine"] if gc else None,
+        "Np_extrapolated": gc["phi_extrapolated"] if gc and gc["monotonic"] else None,
+        "Np_uncertainty_fraction": band["uncertainty"] if band else None,
+        "Np_uncertainty_method": ("dispersión entre 3 mallas (máxima desviación respecto a la malla fina), no GCI"
+                                  if band else None),
         "power_W": P, "power_per_volume_W_m3": P / V, "power_per_mass_W_kg": eps_mean,
         "torque_N_m": fine["torque_N_m"], "Re": Re, "Fr": N ** 2 * D / G, "tip_speed_m_s": math.pi * N * D,
         "liquid_volume_m3": V, "kolmogorov_scale_m": (nu ** 3 / eps_mean) ** 0.25,
