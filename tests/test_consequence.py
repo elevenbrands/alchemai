@@ -25,6 +25,7 @@ from packages.consequence import explosion as Ex  # noqa: E402
 from packages.consequence import fire as Fi  # noqa: E402
 from packages.consequence import source as So  # noqa: E402
 from packages.consequence import tool as T  # noqa: E402
+from packages.consequence.props import P_ATM  # noqa: E402
 
 FT, IN, LBM = 0.3048, 0.0254, 0.45359237
 ATM = 101325.0
@@ -201,13 +202,80 @@ def test_dense_gas_flag_at_its_threshold():
     assert not Dm.dense_gas_check(0.016, 293.15, 293.15, 2.0, Q_kg_s=100.0)["denso"]
 
 
-def test_dispersion_tool_refuses_gaussian_for_a_dense_cloud():
+def test_dispersion_tool_dense_cloud_uses_britter_mcquaid_not_gaussian():
     o = T.gas_dispersion("continua", wind_speed_m_s=2.0, ambient_temperature_K=293.15, stability_class="F",
                          release_rate_kg_s=10.0, compound_name="chlorine", release_temperature_K=239.0,
-                         thresholds=[{"nombre": "ERPG-2 (dato del usuario)", "ppm": 3}])
+                         thresholds=[{"nombre": "ERPG-2 (dato del usuario)", "ppm": 3},
+                                     {"nombre": "1 % (usuario)", "ppm": 10000}])
     assert o["ok"] and o["valido_gaussiano"] is False and o["gas_denso"]["denso"]
-    assert "umbrales" not in o and "concentracion_eje" not in o
-    assert "NO SE CALCULA" in o["resultado"]
+    assert "concentracion_eje" not in o and "NO se usa el gaussiano" in o["resultado"]
+    erpg, one = o["umbrales"]
+    assert erpg["distancia_m"] is None and "fuera de las curvas" in erpg["nota"]   # 3 ppm: below the workbook curves
+    assert one["modelo"] == "Britter-McQuaid" and one["distancia_m"] > 0
+    assert any("NO verificada" in a for a in o["assumptions"])
+
+
+def test_britter_mcquaid_lng_continuous_release():
+    # LNG (Burro-type) example of CCPS 1999 p. 122 as quoted by secondary sources (GasDispersion.jl test, Farrell):
+    # 0.23 m³/s of liquid at 425.6 kg/m³, vapour 1.76 kg/m³ at 111.7 K, u10 = 10.9 m/s, 5 % LFL → x ≈ 367 m.
+    # The CCPS book itself was not read: inputs and answer are secondary.
+    r = Dm.britter_mcquaid_distance("continua", 1.76, 298.0, 10.9, 0.05, Q_kg_s=0.23 * 425.6, T_release_K=111.7)
+    assert r["alpha"] == pytest.approx(-0.4169, abs=5e-4)
+    assert r["D_m"] == pytest.approx(2.259, abs=1e-3)
+    assert r["Cm_C0_corregida"] == pytest.approx(0.0193, abs=1e-4)
+    assert r["distancia_m"] == pytest.approx(367, rel=0.01)
+    chk = Dm.dense_gas_check(0.016, 111.7, 298.0, 10.9, Q_kg_s=0.23 * 425.6, rho_release=1.76)
+    assert chk["denso"] and chk["criterio"] == pytest.approx(0.449, abs=0.005)
+
+
+def test_britter_mcquaid_tables_continuous_and_errata():
+    for table in (Dm._BM_PLUME, Dm._BM_PUFF):
+        for ratio, segs in table.items():
+            for (lo, hi, a, b), (lo2, _, a2, b2) in zip(segs, segs[1:]):
+                assert a * hi + b == pytest.approx(a2 * hi + b2, abs=0.012), (ratio, hi)
+    # E1 / E2: the printed "+" signs would jump at the joint
+    assert abs((0.24 * -0.14 + 1.88) - (0.50 * -0.14 + 1.78)) > 0.1
+    assert abs((0.26 * 0.24 + 1.62) - (0.30 * 0.24 + 1.75)) > 0.1
+    with pytest.raises(ValueError, match="α"):
+        Dm._bm_beta(Dm._BM_PLUME, 0.05, 1.5)
+    with pytest.raises(ValueError, match="fuera de las curvas"):
+        Dm._bm_beta(Dm._BM_PUFF, 0.0005, 0.0)
+    # interpolation lands on the tabulated curves at their ratios and between them
+    b1, b2 = Dm._bm_beta(Dm._BM_PLUME, 0.05, -0.4), Dm._bm_beta(Dm._BM_PLUME, 0.02, -0.4)
+    assert b1 < Dm._bm_beta(Dm._BM_PLUME, 0.03, -0.4) < b2
+
+
+def test_dispersion_tool_lng_with_finite_duration():
+    o = T.gas_dispersion("continua", wind_speed_m_s=10.9, ambient_temperature_K=298.0, stability_class="D",
+                         release_rate_kg_s=0.23 * 425.6, compound_name="methane", release_temperature_K=111.7,
+                         cloud_density_kg_m3=1.76, release_duration_s=174.0,
+                         thresholds=[{"nombre": "5 % (LFL del ejemplo)", "ppm": 50000},
+                                     {"nombre": "LFL de thermo", "fraccion_lfl": 1.0}])
+    t = o["umbrales"][0]
+    assert t["modelo"] == "Britter-McQuaid" and t["regimen"] == "pluma"   # 174 s > 2.5 x/u: steady plume
+    assert t["distancia_m"] == pytest.approx(367, rel=0.01)
+    assert o["umbrales"][1]["distancia_m"] > t["distancia_m"]            # thermo's methane LFL is 4.4 %
+
+
+def test_yellow_book_3_6_4_1_ammonia_boiling_on_dry_sand():
+    r = So.boiling_pool(100.0, 288.15, 239.72, 1.209e6, 0.3, 2e-7, 20.0, penetration_factor=8)
+    assert r["flujo_masico_kg_s"] == pytest.approx(2.71, abs=0.005)          # printed qv = 2.71 kg/s
+    assert r["masa_evaporada_kg"] == pytest.approx(108, abs=0.5)              # printed Qv = 108 kg
+    assert r["flujo_calor_W_m2"] == pytest.approx(3.28e4, rel=2e-3)           # printed 3.28e3: exponent erratum
+    with pytest.raises(ValueError):
+        So.boiling_pool(100.0, 200.0, 239.72, 1.209e6, 0.3, 2e-7, 20.0)
+
+
+def test_source_tool_boiling_pool_soil_table():
+    o = T.release_source_term("charco_ebullicion", compound_name="ammonia", pool_area_m2=100.0,
+                              ground_temperature_K=288.15, soil="subsuelo_arenoso_seco", time_s=20.0,
+                              penetration_factor=8, hvap_J_kg=1.209e6, boiling_point_K=239.72)
+    assert o["ok"] and o["resultado"]["flujo_masico_kg_s"] == pytest.approx(2.71, abs=0.005)   # YB's Lv and Tb
+    th = T.release_source_term("charco_ebullicion", compound_name="ammonia", pool_area_m2=100.0,
+                               ground_temperature_K=288.15, soil="subsuelo_arenoso_seco", time_s=20.0,
+                               penetration_factor=8)
+    assert th["resultado"]["flujo_masico_kg_s"] == pytest.approx(2.71 * 1.209 / 1.371, rel=0.02)  # thermo ΔHv 1.37e6
+    assert not T.release_source_term("charco_ebullicion", compound_name="ammonia", pool_area_m2=100.0)["ok"]
 
 
 def test_dispersion_tool_passive_cloud_is_valid():
@@ -335,6 +403,46 @@ def test_nistir_6546_problem_3_point_source():
     assert d == pytest.approx(690, abs=5)
 
 
+def test_yellow_book_6_6_2_chamberlain_jet_fire():
+    # methane, 100 mm hole, 1e7 Pa, 288.15 K, 30 kg/s, wind 5 m/s, jet 85° from horizontal, target 150 m
+    jf = Fi.jet_fire_chamberlain(30.0, 0.1, 1e7, 288.15, 0.016042, 2201.6, 50e6, 5.0, 85.0)
+    printed = {"W": 0.05471, "gamma": 1.30788, "T_j_K": 97.758, "P_c_Pa": 5.443070e6, "M_j": 3.55688,
+               "u_j_m_s": 915.60648, "rho_air": 1.224785, "rho_j": 107.43, "D_s_m": 0.93656, "Y": 262.716,
+               "L_b0_m": 246.05056, "L_b_m": 141.72199, "Ri_Lb0": 5.8349, "alpha_grados": 6.8348, "K": 0.180859,
+               "b_m": 25.69, "R_l_m": 116.18097, "W1_m": 0.71691, "W2_m": 40.84751, "A_tronco_m2": 9008.52,
+               "A_cilindro_m2": 8263.79, "F_s": 0.12091, "E_kW_m2": 21.951}
+    for k, v in printed.items():                     # print rounds γ (1.30788 vs 1.307904); all within 2e-4
+        assert jf[k] == pytest.approx(v, rel=2e-4), k
+    assert jf["R_w"] == pytest.approx(0.00546, abs=1e-5)
+    Xp, thp, x = jf["_geom"](150.0)
+    assert (Xp, thp, x) == (pytest.approx(149.96, abs=0.01), pytest.approx(2.00843, abs=5e-4),
+                            pytest.approx(139.5698, abs=1e-3))
+    q, F, tau = jf["_flux"](150.0, tau_user=0.67302)   # τ read from the YB graphs (its Bagster line uses −0.08: errata)
+    assert F == pytest.approx(0.0282, abs=1e-4)
+    assert q == pytest.approx(0.417, abs=1e-3)          # printed 417.236 J/m²s
+    assert Fi.transmissivity_tno(None, 288.15, 1.0, None)[0] == 1.0
+    assert 2.02 * 16.6576e4 ** -0.09 == pytest.approx(0.6846, abs=1e-4)   # correct value of the YB's errata line
+
+
+def test_chamberlain_refuses_outside_its_branch():
+    with pytest.raises(ValueError, match="no está ahogada"):
+        Fi.jet_fire_chamberlain(1.0, 0.01, 1.5e5, 288.15, 0.016042, 2201.6, 50e6, 5.0, 85.0)
+    with pytest.raises(ValueError, match="Rw"):
+        Fi.jet_fire_chamberlain(30.0, 0.1, 1e7, 288.15, 0.016042, 2201.6, 50e6, 60.0, 85.0)
+
+
+def test_fire_tool_chamberlain_from_compound():
+    o = T.fire_radiation("chorro", ambient_temperature_K=288.15, compound_name="methane", release_rate_kg_s=30.0,
+                         hole_diameter_m=0.1, storage_pressure_Pa=1e7, storage_temperature_K=288.15, jet_angle_deg=85.0,
+                         wind_speed_m_s=5.0, heat_of_combustion_J_kg=50e6, transmissivity=0.67302, distances_m=[150.0],
+                         endpoints_kW_m2=[{"nombre": "0.4 kW/m² (usuario)", "kW_m2": 0.4}])
+    assert o["ok"], o.get("error")
+    assert o["radiacion"][0]["q_kW_m2"] == pytest.approx(0.417, rel=0.01)   # Cp from thermo instead of 2201.6
+    assert o["puntos_finales"][0]["distancia_m"] == pytest.approx(150, rel=0.05)
+    miss = T.fire_radiation("chorro", ambient_temperature_K=288.15, compound_name="methane", release_rate_kg_s=30.0)
+    assert not miss["ok"] and "jet_angle_deg" in miss["error"]
+
+
 def test_fire_tool_pool_needs_user_data_and_labels_examples():
     assert not T.fire_radiation("charco", compound_name="hexane", pool_diameter_m=10.0)["ok"]   # no temperature
     o = T.fire_radiation("charco", ambient_temperature_K=298.15, compound_name="hexane", pool_diameter_m=10.0,
@@ -408,7 +516,47 @@ def test_explosion_tool_ex6_11_and_receptor():
     assert o["receptor"]["probits"]["ruptura_timpano"]["probabilidad"] > 0.05
     assert "sin criterio" in o["para_lopa"]["nota"].lower() or "Sin criterio" in o["para_lopa"]["nota"]
     assert not T.explosion_overpressure("tnt", flammable_mass_kg=1000.0, compound_name="methane")["ok"]   # η is the user's
-    assert "pendientes" in T.explosion_overpressure("multi_energia")["error"]
+    assert "Baker-Strehlow-Tang pendiente" in T.explosion_overpressure("bst")["error"]
+
+
+def test_multi_energy_yellow_book_5_6_3_table_5_6():
+    # class 10, E = 3.46 MJ/m³ × 63 844 m³; YB scales with pa = 1e5. r' values are chart reads (±10 %).
+    E = 3.46e6 * 63844
+    for p_kPa, r_printed in ((100, 92), (50, 131), (20, 229), (10, 385), (5, 682)):
+        assert Ex.me_distance_to(E, 10, p_kPa * 1e3, 1e5) == pytest.approx(r_printed, rel=0.10), p_kPa
+
+
+def test_multi_energy_cl_ex6_12_and_thesis_annex_ii2():
+    r = Ex.multi_energy(7329e6, 7, 100.0)                 # C&L ex. 6-12: R̄ = 2.4, chart P' ≈ 0.13 → 13.2 kPa
+    assert r["R_escalada"] == pytest.approx(2.4, abs=1e-3)
+    assert r["sobrepresion_Pa"] / 1e3 == pytest.approx(13.2, rel=0.10)
+    r = Ex.multi_energy(1.1e11, 5, (1.1e11 / P_ATM) ** (1 / 3))   # Díaz Alonso annex II.2: class 5 at R' = 1
+    assert r["P_escalada"] == pytest.approx(0.117, abs=1e-4)     # fit; chart 0.12
+    assert r["tp_escalado"] == pytest.approx(0.72, abs=0.01)     # chart 0.7
+
+
+def test_multi_energy_class3_erratum_and_continuity():
+    # class 3 corrected far field against Johansson's curves (vector-extracted, Chalmers ACE 2020:16 fig. B.15)
+    assert Ex.me_scaled_overpressure(1.0, 3) == pytest.approx(0.031, rel=0.03)
+    assert Ex.me_scaled_overpressure(10.0, 3) == pytest.approx(0.00344, rel=0.05)   # extraction ±2 %, fit 3.5 %
+    assert Ex.me_scaled_overpressure(0.6, 3) == pytest.approx(0.05, rel=0.03)   # printed 6.05e-2 would give 0.100
+    assert 6.05e-2 * 0.6 ** -0.99 == pytest.approx(0.100, rel=0.01)
+    for c in range(1, 8):                                    # plateau → far field joins within 7 % (classes 1-7)
+        for lo, hi, *_ in Ex._ME_P[c][:-1]:
+            a, b = Ex.me_scaled_overpressure(hi * (1 - 1e-9), c), Ex.me_scaled_overpressure(hi, c)
+            assert b == pytest.approx(a, rel=0.07), (c, hi)
+    assert Ex.me_scaled_overpressure(150.0, 7) is None       # outside the fit
+
+
+def test_explosion_tool_multi_energy_needs_the_class():
+    miss = T.explosion_overpressure("multi_energia", congested_volume_m3=2094.0)
+    assert not miss["ok"] and "strength_class" in miss["error"]
+    o = T.explosion_overpressure("multi_energia", congested_volume_m3=2094.0, strength_class=7, distances_m=[100.0],
+                                 endpoints_kPa=[{"nombre": "20 kPa (usuario)", "kPa": 20}], receptor_distance_m=100.0)
+    assert o["ok"] and o["energia_J"] == pytest.approx(7329e6, rel=1e-3)
+    assert o["sobrepresion"][0]["sobrepresion_kPa"] == pytest.approx(14.4, abs=0.1)
+    assert 0 < o["puntos_finales"][0]["distancia_m"] < 100
+    assert "duracion_s" in o["sobrepresion"][0] and o["receptor"]["sobrepresion_kPa"] > 0
 
 
 # ----------------------------------------------------------------------------------------------- effects

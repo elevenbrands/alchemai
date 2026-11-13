@@ -1,8 +1,23 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M12 cerrados: el análisis de consecuencias completa la seguridad, del HAZOP a qué pasa si la protección falla)
+Actualizado: 2026-11-13 (M1-M12b cerrados: consecuencias con multi-energía, Chamberlain, gas denso y charco en ebullición)
 
 ## Dónde estamos
+**Sub-bloque M12b (2026-11-13): consecuencias ampliadas, 67 tools, ✅** (las cuatro tools de M12 crecen, sin tools nuevas):
+- `explosion_overpressure(method="multi_energia")`: ajustes de Díaz Alonso 2006 (tesis abierta). La clase 3 lleva una errata corregida y documentada. Reproduce YB §5.6.3, C&L 6-12 y el anexo II.2 de la tesis.
+- `fire_radiation(kind="chorro")` con Chamberlain del TNO: el ejemplo YB §6.6.2 se reproduce paso a paso (0.417 kW/m²).
+- `gas_dispersion`: la nube densa a nivel del suelo recibe distancias de **Britter-McQuaid** (LNG 367 m) en lugar de quedarse sin resultado.
+- `release_source_term(kind="charco_ebullicion")`: YB §3.6.4.1 (2.71 kg/s, 108 kg).
+
+Pendiente:
+1. **Baker-Strehlow-Tang**: hacen falta curvas legibles (Tang y Baker 1999 o Díaz Alonso 2008 por biblioteca, o el PDF de h2tools abierto a mano en el navegador). Ya está la tabla de Mf.
+2. Chamberlain con Rw > 0.05.
+3. Cm* de Britter-McQuaid contra una copia impresa (C&L 3.ª ed. o CCPS).
+4. HyRAM+ en proceso aparte.
+5. CCPS CPQRA.
+
+Siguiente: **decisión del owner** — conseguir BST (acceso a biblioteca) o pasar a otro tema (layout, 3D, árbol de fallas).
+
 **Bloque M12 (2026-11-13): análisis de consecuencias, 67 tools, ✅ en su núcleo.** Paquete `packages/consequence/` y cuatro tools:
 - `release_source_term`: líquido y gas por orificio (ahogado/subsónico), vaciado de tanque, fracción de flash (CoolProp o Cp), evaporación de charco.
 - `gas_dispersion`: pluma y puff de Pasquill-Gifford (Briggs, rural/urbano), distancias a los umbrales del usuario y probit tóxico. Con el criterio de gas denso de Britter-McQuaid, una nube densa a nivel del suelo **no se calcula**.

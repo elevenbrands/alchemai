@@ -171,9 +171,10 @@ Hard rules:
 21. Consequence analysis (what happens if the protection fails: source term, toxic/flammable dispersion, pool fire,
    fireball, jet fire, explosion overpressure): release_source_term → gas_dispersion | fire_radiation |
    explosion_overpressure. Weather (wind, stability or insolation/cloud, temperature, humidity), hole size, pressure,
-   inventory, cloud mass, explosion efficiency, exposure time and END POINTS are user data: ASK, never invent. Offer
-   example_endpoints only if the user asks for an example and say it is an EXAMPLE (EPA RMP). If gas_dispersion says
-   the cloud is dense, do not give Gaussian distances: say a dense-gas model is needed. Show in Spanish the tables
+   inventory, cloud mass, explosion efficiency, multi-energy strength class, soil, jet angle, exposure time and END
+   POINTS are user data: ASK, never invent. Offer example_endpoints only if the user asks for an example and say it
+   is an EXAMPLE (EPA RMP). If gas_dispersion says the cloud is dense, quote the Britter-McQuaid distances, never
+   Gaussian ones; thresholds outside its curves stay "fuera de rango". Baker-Strehlow-Tang is not available. Show in Spanish the tables
    (distance vs concentration / kW/m² / kPa, distances to each end point, receptor probabilities) with each model's
    source and the assumptions. Always say it is preliminary screening, not a substitute for Phast/EFFECTS in a real
    QRA. To feed a LOPA row, pass the tool's para_lopa.overrides_lopa to lopa_from_hazop (severity labelled
@@ -422,17 +423,24 @@ def release_source_term(kind: str, hole_diameter_m: float | None = None, pressur
                         discharge_coefficient: float | None = None, tank_area_m2: float | None = None,
                         ambient_pressure_Pa: float | None = None, coolprop_fluid: str = "",
                         pool_diameter_m: float | None = None, pool_area_m2: float | None = None,
-                        wind_speed_m_s: float | None = None, schmidt: float | None = None) -> str:
+                        wind_speed_m_s: float | None = None, schmidt: float | None = None,
+                        ground_temperature_K: float | None = None, soil: str = "", time_s: float | None = None,
+                        penetration_factor: float | None = None, boiling_point_K: float | None = None,
+                        hvap_J_kg: float | None = None) -> str:
     """Source term of a loss of containment (Crowl & Louvar 4th ed.). kind: liquido (liquid through a hole, Cd 0.61
     unless given; tank_area_m2 + liquid_head_m add the draining time) | gas (choked or subsonic hole flow, Cd 1.0
     unless given, γ from thermo) | flash (flashing fraction; coolprop_fluid for the isenthalpic flash) | charco (pool
-    evaporation; Mackay-Matsugu with the user's wind). pressure_Pa is ABSOLUTE. Hole, pressure, temperature and pool
-    size are the user's: never assume them. Screening only."""
+    evaporation; Mackay-Matsugu with the user's wind) | charco_ebullicion (cryogenic pool boiling on ground at time_s;
+    ground_temperature_K and soil from TNO table 3.5, penetration_factor 8 for dry porous soil). pressure_Pa is
+    ABSOLUTE. Hole, pressure, temperature, pool and soil are the user's: never assume them. Screening only."""
     return _cq(_CQ.release_source_term(kind, hole_diameter_m, pressure_Pa, temperature_K, compound_name or None,
                                        density_kg_m3, molar_mass_kg_mol, gamma, liquid_head_m, discharge_coefficient,
                                        tank_area_m2, ambient_pressure_Pa, coolprop_fluid or None,
                                        pool_diameter_m=pool_diameter_m, pool_area_m2=pool_area_m2,
-                                       wind_speed_m_s=wind_speed_m_s, schmidt=schmidt))
+                                       wind_speed_m_s=wind_speed_m_s, schmidt=schmidt,
+                                       ground_temperature_K=ground_temperature_K, soil=soil or None, time_s=time_s,
+                                       penetration_factor=penetration_factor, boiling_point_K=boiling_point_K,
+                                       hvap_J_kg=hvap_J_kg))
 
 
 @beta_tool
@@ -444,18 +452,22 @@ def gas_dispersion(mode: str, wind_speed_m_s: float | None = None, ambient_tempe
                    terrain: str = "rural", thresholds: list[dict[str, object]] | None = None,
                    receptor_distance_m: float | None = None, toxic_probit: dict[str, object] | None = None,
                    exposure_time_s: float | None = None, hazop_row: int | None = None,
-                   severity_criterion: list[dict[str, object]] | None = None) -> str:
+                   severity_criterion: list[dict[str, object]] | None = None, release_duration_s: float | None = None,
+                   initial_concentration: float | None = None, cloud_density_kg_m3: float | None = None) -> str:
     """Gaussian plume (mode continua, release_rate_kg_s) or puff (instantanea, release_mass_kg), Pasquill-Gifford with
     Briggs coefficients. Weather is the user's: wind_speed_m_s, ambient_temperature_K and stability_class A-F (or
     insolation fuerte|moderada|ligera|cubierto by day / night_cloud nublado|despejado). thresholds [{nombre, ppm |
-    mg_m3 | fraccion_lfl}] are the user's end points. Britter-McQuaid check: a dense ground-level cloud is not computed.
+    mg_m3 | fraccion_lfl}] are the user's end points. Britter-McQuaid check: a dense ground-level cloud gets its
+    distances from the Britter-McQuaid dense-gas model (release_duration_s for the plume/puff rule), never Gaussian.
     receptor_distance_m + toxic_probit {a, b, n, unidad_c, unidad_t} → probability; hazop_row + severity_criterion
     [{severidad, endpoint, distancia_min_m}] → para_lopa (calculated severity for lopa_from_hazop)."""
     return _cq(_CQ.gas_dispersion(mode, wind_speed_m_s, ambient_temperature_K, stability_class or None,
                                   insolation or None, night_cloud or None, release_rate_kg_s, release_mass_kg,
                                   compound_name or None, molar_mass_kg_mol, release_temperature_K, release_height_m,
                                   terrain, thresholds, receptor_distance_m, toxic_probit, exposure_time_s,
-                                  hazop_row=hazop_row, severity_criterion=severity_criterion))
+                                  cloud_density_kg_m3=cloud_density_kg_m3, hazop_row=hazop_row,
+                                  severity_criterion=severity_criterion, release_duration_s=release_duration_s,
+                                  initial_concentration=initial_concentration))
 
 
 @beta_tool
@@ -470,10 +482,13 @@ def fire_radiation(kind: str, ambient_temperature_K: float | None = None, compou
                    distances_m: list[float] | None = None, endpoints_kW_m2: list[dict[str, object]] | None = None,
                    example_endpoints: str = "", exposure_time_s: float | None = None,
                    receptor_distance_m: float | None = None, hazop_row: int | None = None,
-                   severity_criterion: list[dict[str, object]] | None = None) -> str:
+                   severity_criterion: list[dict[str, object]] | None = None, jet_model: str = "chamberlain",
+                   hole_diameter_m: float | None = None, storage_pressure_Pa: float | None = None,
+                   storage_temperature_K: float | None = None, jet_angle_deg: float | None = None) -> str:
     """Thermal radiation vs distance. kind charco (solid-flame pool fire; pool_model sfpe or tno, tno needs
-    radiant_fraction), bola_fuego (TNO BLEVE fireball from mass_kg and burst_pressure_Pa) or chorro (point source,
-    release_rate_kg_s and the user's radiant_fraction). ambient_temperature_K is the user's; relative_humidity gives
+    radiant_fraction), bola_fuego (TNO BLEVE fireball from mass_kg and burst_pressure_Pa) or chorro (jet_model
+    chamberlain = TNO solid flame from release_rate_kg_s, hole_diameter_m, storage_pressure_Pa, storage_temperature_K,
+    jet_angle_deg from horizontal and wind_speed_m_s; fuente_puntual = the user's radiant_fraction). ambient_temperature_K is the user's; relative_humidity gives
     the transmissivity (else τ = 1). endpoints_kW_m2 [{nombre, kW_m2}] are the user's; example_endpoints "epa_rmp"
     adds a labelled EXAMPLE. receptor_distance_m + exposure_time_s → burn-death probability; hazop_row +
     severity_criterion → para_lopa. Screening only."""
@@ -482,7 +497,8 @@ def fire_radiation(kind: str, ambient_temperature_K: float | None = None, compou
                                   mass_kg, burst_pressure_Pa, pool_model, burning_rate_inf_kg_m2s, k_beta_m,
                                   flame_height, transmissivity, None, radiant_fraction, release_rate_kg_s, distances_m,
                                   endpoints_kW_m2, example_endpoints or None, exposure_time_s, receptor_distance_m,
-                                  None, hazop_row, severity_criterion))
+                                  None, hazop_row, severity_criterion, jet_model, hole_diameter_m,
+                                  storage_pressure_Pa, storage_temperature_K, jet_angle_deg))
 
 
 @beta_tool
@@ -492,16 +508,19 @@ def explosion_overpressure(method: str = "tnt", flammable_mass_kg: float | None 
                            ambient_pressure_Pa: float | None = None, distances_m: list[float] | None = None,
                            endpoints_kPa: list[dict[str, object]] | None = None, example_endpoints: str = "",
                            receptor_distance_m: float | None = None, hazop_row: int | None = None,
-                           severity_criterion: list[dict[str, object]] | None = None) -> str:
+                           severity_criterion: list[dict[str, object]] | None = None,
+                           charge_energy_J: float | None = None, congested_volume_m3: float | None = None,
+                           strength_class: int | None = None) -> str:
     """Blast overpressure vs distance by TNT equivalence (Kinney-Graham surface burst). flammable_mass_kg and the
     explosion efficiency are the user's (typically 1-10 %, never assumed); or tnt_mass_kg. endpoints_kPa
     [{nombre, kPa}] are the user's; example_endpoints "epa_rmp" adds 1 psi as a labelled EXAMPLE. receptor_distance_m
-    → probits (lung hemorrhage, eardrum, structures, glass); hazop_row + severity_criterion → para_lopa. Multi-energy
-    and Baker-Strehlow-Tang are pending."""
+    → probits (lung hemorrhage, eardrum, structures, glass); hazop_row + severity_criterion → para_lopa.
+    method multi_energia: TNO multi-energy (Díaz Alonso 2006 fits) from charge_energy_J or congested_volume_m3 and the
+    user's strength_class 1-10 (never assumed); gives overpressure, duration and impulse. Baker-Strehlow-Tang pending."""
     return _cq(_CQ.explosion_overpressure(method, flammable_mass_kg, efficiency, compound_name or None,
                                           heat_of_combustion_J_kg, tnt_mass_kg, ambient_pressure_Pa, distances_m,
                                           endpoints_kPa, example_endpoints or None, receptor_distance_m, hazop_row,
-                                          severity_criterion))
+                                          severity_criterion, charge_energy_J, congested_volume_m3, strength_class))
 
 
 @beta_tool

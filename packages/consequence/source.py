@@ -122,3 +122,30 @@ def pool_evaporation_mackay(M_kg_mol: float, Psat_Pa: float, T_liquid_K: float, 
     return {"modelo": "evaporación de charco con viento (Mackay y Matsugu 1973)",
             "fuente": "Mackay & Matsugu (1973), Can. J. Chem. Eng. 51:434; forma de CCPS CPQRA (2000)", "K_m_s": K,
             "area_m2": A, "flujo_masico_kg_s": q}
+
+
+def boiling_pool(area_m2: float, T_ground_K: float, T_boil_K: float, Hvap_J_kg: float, k_soil_W_mK: float,
+                 alpha_soil_m2_s: float, t_s: float, penetration_factor: float = 1.0) -> dict:
+    """Boiling (cryogenic) pool on ground, heat from the soil only: q_g = k_s (T_g − T)/sqrt(π α_s t),
+    Qm = q_g A/ΔHv (C&L 4th ed. eq. 4-107/4-108). Mass evaporated up to t: ∫Qm dt = 2 k_s (T_g − T) A sqrt(t/(π α_s))/ΔHv.
+    Soil properties are the user's (or TNO Yellow Book table 3.5). penetration_factor = 8 for dry porous soil (liquid
+    soaks in; TNO YB eq. 3.120), CR = 1 + 1.4 m − 3.0 m² for moist soil (eq. 3.124); 1 = impermeable ground (C&L)."""
+    if t_s <= 0:
+        raise ValueError("t_s debe ser > 0 (el flujo inicial es singular en t = 0)")
+    dT = T_ground_K - T_boil_K
+    if dT <= 0:
+        raise ValueError("el suelo no está más caliente que el punto de ebullición: no es un charco en ebullición")
+    qg = penetration_factor * k_soil_W_mK * dT / math.sqrt(math.pi * alpha_soil_m2_s * t_s)
+    q = qg * area_m2 / Hvap_J_kg
+    m = 2.0 * penetration_factor * k_soil_W_mK * dT * area_m2 * math.sqrt(t_s / (math.pi * alpha_soil_m2_s)) / Hvap_J_kg
+    return {"modelo": "charco en ebullición calentado por el suelo (conducción semi-infinita)",
+            "fuente": f"{SRC_CL}, ec. 4-107/4-108; TNO YB 2005 ec. 3.120-3.122", "factor_penetracion": penetration_factor,
+            "flujo_calor_W_m2": qg, "flujo_masico_kg_s": q,
+            "masa_evaporada_kg": m, "t_s": t_s}
+
+
+# TNO Yellow Book CPR 14E (2005) table 3.5: λs (W/m K), as (m²/s)
+SOILS_TNO = {"hormigon_aislante": (0.207, 2.5e-7), "hormigon_ligero": (0.418, 2.5e-7), "hormigon_pesado": (1.3, 5.9e-7),
+             "escoria": (0.7, 4.2e-7), "subsuelo_promedio_8pct_humedad": (0.9, 4.3e-7),
+             "subsuelo_arenoso_seco": (0.3, 2.0e-7), "arena_humeda_8pct_arcilla": (0.6, 3.3e-7), "madera": (0.2, 1.6e-7),
+             "grava": (2.5, 11e-7), "acero_al_carbono": (46.0, 128e-7)}

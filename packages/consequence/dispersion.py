@@ -2,7 +2,8 @@
 coefficients as tabulated by Turner/Griffiths), and the Britter-McQuaid dense-gas criterion.
 
 The Gaussian model is for passive (neutrally buoyant) clouds. When the Britter-McQuaid Richardson-type criterion says
-the release is dense, the functions here refuse to give distances: a dense-gas model is needed instead.
+a ground-level release is dense, the Gaussian is not used: `britter_mcquaid_distance` (workbook curve fits) gives the
+distances instead (M12b).
 """
 from __future__ import annotations
 
@@ -171,3 +172,73 @@ def _last_crossing(f, x_lo: float, x_hi: float, n: int = 400) -> float | None:
 
 def distance_to_concentration(conc_of_x, threshold: float, x_lo: float = 1.0, x_hi: float = 100_000.0) -> float | None:
     return _last_crossing(lambda x: float(conc_of_x(x)) - threshold, x_lo, x_hi)
+
+
+# --------------------------------------------------------------------------- Britter-McQuaid dense gas (workbook fits)
+SRC_BM = ("Britter & McQuaid (1988) Workbook, ajustes de sus curvas impresos en Crowl & Louvar 2.ª ed. (2002) "
+          "(leídos en la reproducción de la tesis de Souza, UFRJ); erratas de signo E1 (pluma 0.1) y E2 (puff 0.005) "
+          "corregidas por continuidad, igual que la transcripción de CCPS")
+_INF = float("inf")
+# Cm/C0: [(alpha_low, alpha_high, slope, intercept)] with alpha_low < α ≤ alpha_high; β = slope·α + intercept
+_BM_PLUME = {
+    0.1: [(-_INF, -0.55, 0, 1.75), (-0.55, -0.14, 0.24, 1.88), (-0.14, 1.0, -0.50, 1.78)],
+    0.05: [(-_INF, -0.68, 0, 1.92), (-0.68, -0.29, 0.36, 2.16), (-0.29, -0.18, 0, 2.06), (-0.18, 1.0, -0.56, 1.96)],
+    0.02: [(-_INF, -0.69, 0, 2.08), (-0.69, -0.31, 0.45, 2.39), (-0.31, -0.16, 0, 2.25), (-0.16, 1.0, -0.54, 2.16)],
+    0.01: [(-_INF, -0.70, 0, 2.25), (-0.70, -0.29, 0.49, 2.59), (-0.29, -0.20, 0, 2.45), (-0.20, 1.0, -0.52, 2.35)],
+    0.005: [(-_INF, -0.67, 0, 2.40), (-0.67, -0.28, 0.59, 2.80), (-0.28, -0.15, 0, 2.63), (-0.15, 1.0, -0.49, 2.56)],
+    0.002: [(-_INF, -0.69, 0, 2.6), (-0.69, -0.25, 0.39, 2.87), (-0.25, -0.13, 0, 2.77), (-0.13, 1.0, -0.50, 2.71)],
+}
+_BM_PUFF = {
+    0.1: [(-_INF, -0.44, 0, 0.70), (-0.44, 0.43, 0.26, 0.81), (0.43, 1.0, 0, 0.93)],
+    0.05: [(-_INF, -0.56, 0, 0.85), (-0.56, 0.31, 0.26, 1.0), (0.31, 1.0, -0.12, 1.12)],
+    0.02: [(-_INF, -0.66, 0, 0.95), (-0.66, 0.32, 0.36, 1.19), (0.32, 1.0, -0.26, 1.38)],
+    0.01: [(-_INF, -0.71, 0, 1.15), (-0.71, 0.37, 0.34, 1.39), (0.37, 1.0, -0.38, 1.66)],
+    0.005: [(-_INF, -0.52, 0, 1.48), (-0.52, 0.24, 0.26, 1.62), (0.24, 1.0, -0.30, 1.75)],
+    0.002: [(-_INF, 0.27, 0, 1.83), (0.27, 1.0, -0.32, 1.92)],
+    0.001: [(-_INF, -0.10, 0, 2.075), (-0.10, 1.0, -0.27, 2.05)],
+}
+
+
+def _bm_beta(table: dict, ratio: float, alpha: float) -> float:
+    def beta(r):
+        for lo, hi, a, b in table[r]:
+            if lo < alpha <= hi:
+                return a * alpha + b
+        raise ValueError(f"α = {alpha:.3f} fuera del rango de las curvas de Britter-McQuaid (α ≤ 1)")
+    ks = sorted(table)
+    if not ks[0] <= ratio <= ks[-1]:
+        raise ValueError(f"Cm/C0 = {ratio:.4g} fuera de las curvas ({ks[0]} – {ks[-1]})")
+    if ratio in table:
+        return beta(ratio)
+    lo = max(k for k in ks if k < ratio)
+    hi = min(k for k in ks if k > ratio)
+    w = (math.log10(ratio) - math.log10(lo)) / (math.log10(hi) - math.log10(lo))
+    return beta(lo) + w * (beta(hi) - beta(lo))
+
+
+def britter_mcquaid_distance(mode: str, rho0: float, T_ambient_K: float, wind_speed: float, conc_ratio: float,
+                             Q_kg_s: float | None = None, Qstar_kg: float | None = None,
+                             T_release_K: float | None = None, P_Pa: float = P_ATM) -> dict:
+    """Downwind distance to the ground-level concentration ratio Cm/C0 for a dense release (continua: plume from
+    Q_kg_s; instantanea: puff from Qstar_kg). With T_release ≠ T_ambient, the target ratio is corrected for the
+    cloud's heat-up, Cm* = Cm/(Cm + (1 − Cm)·Ta/T0) (form given by secondary sources citing CCPS; not verified in a
+    printed copy). β interpolated linearly in log(Cm/C0) between tabulated curves."""
+    rho_a = P_Pa * 0.028964 / (R * T_ambient_K)
+    g0 = G * (rho0 - rho_a) / rho_a
+    if g0 <= 0:
+        raise ValueError("la nube no es más densa que el aire")
+    ratio = conc_ratio
+    if T_release_K and abs(T_release_K - T_ambient_K) > 1e-6:
+        ratio = conc_ratio / (conc_ratio + (1 - conc_ratio) * T_ambient_K / T_release_K)
+    if mode == "continua":
+        q0 = Q_kg_s / rho0
+        D = math.sqrt(q0 / wind_speed)
+        alpha = 0.2 * math.log10(g0 ** 2 * q0 / wind_speed ** 5)
+        beta = _bm_beta(_BM_PLUME, ratio, alpha)
+    else:
+        V0 = Qstar_kg / rho0
+        D = V0 ** (1.0 / 3.0)
+        alpha = 0.5 * math.log10(g0 * D / wind_speed ** 2)
+        beta = _bm_beta(_BM_PUFF, ratio, alpha)
+    return {"g0_m_s2": g0, "D_m": D, "alpha": alpha, "beta": beta, "Cm_C0_corregida": ratio,
+            "distancia_m": D * 10 ** beta, "fuente": SRC_BM}

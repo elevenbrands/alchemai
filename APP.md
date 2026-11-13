@@ -75,6 +75,25 @@ docs/                   plan, decisiones, lecturas; MAPA_MOTORES.md = cobertura 
 
 ## Decisiones
 
+- 2026-11-13: **Consecuencias M12b, 67 tools (las cuatro de M12 ampliadas, sin tools nuevas).**
+  - **Multi-energía TNO**: `explosion_overpressure(method="multi_energia", charge_energy_J | congested_volume_m3, strength_class)` con los ajustes por tramos P' = C1·R'^C2 e i' = C3·R'^C4 (tablas 4.3/4.4) de Díaz Alonso (2006), tesis doctoral de la Univ. de Murcia, de acceso abierto (tdx.cat). Da sobrepresión, duración de fase positiva (i'/P') e impulso. La clase de fuerza es del usuario.
+    - **Errata de la tesis en la clase 3** (tramo lejano, C1 impreso 6.05e-2: salto ×2 en R' = 0.6). Se usa C1 = 3.10e-2, C2 = −0.97, deducidos de su propia tabla 4.6 y contrastados con las curvas de Johansson 2017 extraídas como vectores de Chalmers ACE 2020:16, fig. B.15 (P'(1) = 0.031, P'(10) = 0.00344).
+    - La clase 4 conserva su meseta hasta que el ajuste lejano baja de ella.
+    - Evidencia: YB §5.6.3 tabla 5.6 (clase 10, 221 GJ, cinco distancias dentro del ±10 % de la lectura de la gráfica); C&L ej. 6-12 (R̄ = 2.400; 14.4 kPa contra 13.2 leído de la gráfica); tesis anexo II.2 (P' 0.117, tp' 0.72).
+  - **Baker-Strehlow-Tang: sigue pendiente.** No hay curvas legibles: Tang y Baker 1999 y Díaz Alonso 2008 son de pago, y h2tools da 403. Solo existe la tabla de Mf.
+  - **Chorro de fuego Chamberlain** (`fire_radiation(kind="chorro", jet_model="chamberlain")`, TNO YB §6.5.4). Reproduce el ejemplo §6.6.2 paso a paso dentro de 2e-4: Y 262.716, Lb 141.72, α 6.8348°, b 25.69, Rl 116.18, W1 0.71691, W2 40.85, A 8263.79, SEP 21.951 kW/m², Fmax 0.0282, q **0.417 kW/m²**.
+    - La ec. 6.54 se lee con el exponente −70·Ri(Ds)^(C′Rw), la única forma que da el valor impreso.
+    - La línea de Bagster del ejemplo usa −0.08 (errata): con −0.09 da 0.6846.
+    - Solo la rama de inclinación Rw ≤ 0.05 (la otra no es legible). Se niega con chorro no ahogado.
+  - **Britter-McQuaid** (`dispersion.britter_mcquaid_distance`). `gas_dispersion` ya **no deja sin distancias** a una nube densa a nivel del suelo: las calcula con el modelo de gas denso y nunca con el gaussiano.
+    - Tablas de pluma y puff de C&L 2.ª ed. (2002), leídas en la reproducción de la tesis de Souza (UFRJ), porque la 4.ª ed. quitó la sección.
+    - Erratas de signo E1 (pluma 0.1) y E2 (puff 0.005), corregidas por continuidad, igual que la transcripción de CCPS.
+    - β se interpola en log(C). Con fuga finita aplica la regla TNO (pluma si tr > 2.5x/u, puff si tr < 0.6x/u, el menor en medio).
+    - La corrección por calentamiento Cm* viene solo de fuentes secundarias (no verificada) y se dice.
+    - Evidencia: LNG de CCPS 1999 p. 122, citado por fuentes secundarias (GasDispersion.jl, Farrell): α −0.4169, Cm* 0.0193, **367 m**. Continuidad de todos los tramos y rechazo fuera de α ≤ 1 y del rango de Cm/C0.
+  - **Charco en ebullición** (`release_source_term(kind="charco_ebullicion")`): C&L ec. 4-107/4-108 y TNO YB ec. 3.120-3.122 (factor 8 para suelo poroso seco) con la tabla 3.5 de suelos.
+    - YB §3.6.4.1, amoniaco sobre arena seca a 20 s: 2.71 kg/s y 108 kg. El Hc impreso 3.28·10³ es errata de 3.28·10⁴.
+  - `tests/test_consequence.py`: 91 tests. Fuentes y extracciones en las notas `M12b_*.md` de la sesión.
 - 2026-11-13: **Análisis de consecuencias (bloque M12), 67 tools.** Paquete `packages/consequence/` y cuatro tools en `TOOLS` y `AGENT_TOOLS` (regla 21 del agente): `release_source_term`, `gas_dispersion`, `fire_radiation`, `explosion_overpressure`. Es cribado preliminar: cada salida lo dice y no sustituye a Phast/EFFECTS en un QRA real.
   - **Paso 0, elección de motor (time-box ~30 min, 2026-11-13).** No hay una librería abierta, mantenida y general:
     - **HyRAM+ (Sandia, `hyram` 6.1 en PyPI, sept 2025, repo activo 2026-11)**: GPL-3.0 y validado, pero solo cubre H₂, metano, propano y mezclas (chorro, llama de chorro, sobrepresión). Si entra, sería como proceso aparte y para contrastar el chorro de H₂/CH₄; queda pendiente.

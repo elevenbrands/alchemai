@@ -19,8 +19,8 @@ Heskestad flame height (SFPE, NUREG-1805): H = 0.235 Q^(2/5) − 1.02 D (Q in kW
 Fireball (BLEVE), TNO Yellow Book §6.5.6/§6.6.5: r = 3.24 M^0.325, t = 0.852 M^0.26, centre at H = 2r,
 Fs = 0.00325 Psv^0.32 (Psv in N/m², Roberts/Hymes), ΔH = ΔHc − ΔHv − Cp ΔT (ΔT = 2000 K − Ta, eq. 6.94),
 SEP = ΔH·M·Fs/(4π r² t), view factor (r/X)² for a target facing the centre.
-Jet fire: point-source q = τ·Frad·Qm·ΔHc/(4π r²) (API 521 / Hajek-Ludwig; same form as NISTIR 6546 for pools), Frad from
-the user. The Chamberlain solid-flame jet model (YB §6.5.4) is pending.
+Jet fire: Chamberlain solid flame (YB §6.5.4, `jet_fire_chamberlain`) or point source q = τ·Frad·Qm·ΔHc/(4π r²)
+(API 521 / Hajek-Ludwig; same form as NISTIR 6546 for pools), Frad from the user.
 """
 from __future__ import annotations
 
@@ -271,3 +271,75 @@ def distance_to_flux(flux_fn, q_target: float, x_lo: float, x_hi: float = 20_000
     if k == len(xs) - 1:
         return float("inf")
     return float(brentq(f, xs[k], xs[k + 1], xtol=1e-4))
+
+
+# --------------------------------------------------------------------------- jet fire (Chamberlain, TNO YB §6.5.4)
+def jet_fire_chamberlain(m_kg_s: float, hole_diameter_m: float, P_init_Pa: float, T_s_K: float, W_g: float,
+                         Cp_J_kgK: float, Hc_J_kg: float, wind_speed: float, theta_j_deg: float,
+                         P_air_Pa: float = 101325.0, W_air: float = 0.02896) -> dict:
+    """Chamberlain (1987) solid-flame jet fire, as in the TNO Yellow Book CPR 14E (2005) §6.5.4 and its worked example
+    §6.6.2: frustum flame from a choked release of a hydrocarbon gas, flame lifted off by b along the hole axis.
+    Eq. 6.54 (W1) is read as Ds(13.5e^(−6Rw)+1.5)(1 − (1 − (ρair/ρj)^½/15)·exp(−70·Ri(Ds)^(C′Rw))): the only form
+    that gives the printed 0.71691 m. The flame-tilt branch implemented is the one for Rw ≤ 0.05 (the other is not
+    legible in the copy read). Returns intermediates and `_flux(X)` → (q kW/m², F, τ) for a target downwind at
+    horizontal distance X from the release point, at the release height."""
+    Rc, Gg = 8.31451, G
+    W = W_g / (15.816 * W_g + 0.0395)
+    gam = 1.0 / (1.0 - Rc / (Cp_J_kgK * W_g))
+    Pc = P_init_Pa * (2.0 / (gam + 1.0)) ** (gam / (gam - 1.0))
+    if Pc <= P_air_Pa:
+        raise ValueError("la fuga no está ahogada: el modelo de Chamberlain del YB es para chorro sónico")
+    Tj = T_s_K * (P_air_Pa / P_init_Pa) ** ((gam - 1.0) / gam)
+    Mj = math.sqrt(((gam + 1.0) * (Pc / P_air_Pa) ** ((gam - 1.0) / gam) - 2.0) / (gam - 1.0))
+    uj = Mj * math.sqrt(gam * Rc * Tj / W_g)
+    Rw = wind_speed / uj
+    if Rw > 0.05:
+        raise ValueError(f"Rw = {Rw:.3f} > 0.05: rama de inclinación del YB no legible en la copia leída (pendiente)")
+    rho_air = P_air_Pa * W_air / (Rc * T_s_K)
+    rho_j = Pc * W_g / (Rc * Tj)
+    Ds = hole_diameter_m * math.sqrt(rho_j / rho_air)
+    Ca = 0.024 * (Gg * Ds / uj ** 2) ** (1.0 / 3.0)
+    Cb, Cc = 0.2, (2.85 / W) ** (2.0 / 3.0)
+    Y = brentq(lambda y: Ca * y ** (5.0 / 3.0) + Cb * y ** (2.0 / 3.0) - Cc, 1e-6, 1e6, xtol=1e-12)
+    Lb0 = Y * Ds
+    Lb = Lb0 * (0.51 * math.exp(-0.4 * wind_speed) + 0.49) * (1.0 - 6.07e-3 * (theta_j_deg - 90.0))
+    Ri_L = (Gg / (Ds ** 2 * uj ** 2)) ** (1.0 / 3.0) * Lb0
+    alpha = (theta_j_deg - 90.0) * (1.0 - math.exp(-25.6 * Rw)) + 8000.0 * Rw / Ri_L
+    K = 0.185 * math.exp(-20.0 * Rw) + 0.015
+    a_r = math.radians(alpha)
+    b = Lb * math.sin(math.radians(K * alpha)) / math.sin(a_r)
+    Rl = math.sqrt(Lb ** 2 - b ** 2 * math.sin(a_r) ** 2) - b * math.cos(a_r)
+    ratio = Tj * W_air / (T_s_K * W_g)                   # ρair/ρj as printed in eq. 6.51
+    Ri_D = (Gg / (Ds ** 2 * uj ** 2)) ** (1.0 / 3.0) * Ds
+    Cpr = 1000.0 * math.exp(-100.0 * Rw) + 0.8
+    W1 = Ds * (13.5 * math.exp(-6.0 * Rw) + 1.5) * (1.0 - (1.0 - math.sqrt(ratio) / 15.0)
+                                                     * math.exp(-70.0 * Ri_D ** (Cpr * Rw)))
+    W2 = Lb * (0.18 * math.exp(-1.5 * Rw) + 0.31) * (1.0 - 0.47 * math.exp(-25.0 * Rw))
+    A_fr = math.pi / 4 * (W1 ** 2 + W2 ** 2) + math.pi / 2 * (W1 + W2) * math.sqrt(Rl ** 2 + ((W2 - W1) / 2) ** 2)
+    A_cyl = math.pi / 2 * ((W1 + W2) / 2) ** 2 + math.pi * Rl * (W1 + W2) / 2
+    Q = m_kg_s * Hc_J_kg
+    Fs = 0.21 * math.exp(-0.00323 * uj) + 0.11
+    E = Fs * Q / A_cyl / 1000.0
+    R = (W1 + W2) / 4.0
+    tj = math.radians(theta_j_deg)
+
+    def geom(X: float) -> tuple[float, float, float]:
+        dx = X - b * math.cos(tj)
+        Xp = math.hypot(b * math.sin(tj), dx)
+        thp = 90.0 - theta_j_deg + alpha - math.degrees(math.atan(b * math.sin(tj) / dx))
+        return Xp, thp, Xp - R
+
+    def flux(X: float, rh: float | None = None, T_air: float | None = None, tau_user: float | None = None):
+        Xp, thp, x = geom(X)
+        if Xp <= R:
+            raise ValueError("blanco dentro de la llama")
+        F = view_factor_cylinder_numeric(2 * R, Rl, thp, Xp)["F_max"]
+        tau, _ = transmissivity_tno(rh, T_air or T_s_K, x, tau_user)
+        return E * F * tau, F, tau
+
+    return {"W": W, "gamma": gam, "T_j_K": Tj, "P_c_Pa": Pc, "M_j": Mj, "u_j_m_s": uj, "R_w": Rw,
+            "rho_air": rho_air, "rho_j": rho_j, "D_s_m": Ds, "Y": Y, "L_b0_m": Lb0, "L_b_m": Lb, "Ri_Lb0": Ri_L,
+            "alpha_grados": alpha, "K": K, "b_m": b, "R_l_m": Rl, "W1_m": W1, "W2_m": W2, "A_tronco_m2": A_fr,
+            "A_cilindro_m2": A_cyl, "Q_W": Q, "F_s": Fs, "E_kW_m2": E, "radio_equivalente_m": R,
+            "fuente": "Chamberlain (1987) según TNO Yellow Book CPR 14E (2005) §6.5.4, ejemplo §6.6.2; SEP sobre el "
+                      "área del cilindro equivalente (como el ejemplo)", "_geom": geom, "_flux": flux}
