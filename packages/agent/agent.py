@@ -121,6 +121,9 @@ Hard rules:
 15. Heat integration: pinch_analysis on the stream table (supply/target T and CP or duty of every heater, cooler
    and exchanger side). ΔTmin is a design choice: state it and show a sweep. Report Q_hot_min, Q_cold_min, the
    pinch and, if the current utilities are known, the saving; never claim a network is optimal from targets alone.
+   With a built flowsheet use pinch_from_flowsheet (extracts heaters/coolers/exchangers, segments CP on phase change,
+   takes heaters/coolers as the current utilities): show the extracted stream table so the user can check it, say
+   which units were not extracted (column condensers/reboilers, reactors) and that supply/target T are today's.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -561,6 +564,19 @@ def pinch_analysis(streams: list[dict], dT_min_K: float, dT_min_sweep_K: list[fl
 
 
 @beta_tool
+def pinch_from_flowsheet(flowsheet_id: str, dT_min_K: float, dT_min_sweep_K: list[float] | None = None,
+                         linearization_tol_pct: float = 1.0, dT_contribution_K: dict[str, float] | None = None,
+                         exclude_units: list[str] | None = None) -> str:
+    """Pinch analysis of a built DWSIM flowsheet: re-solves it, turns every heater, cooler and exchanger side into a
+    process stream (exchanger → cooler chained as one), segments CP from DWSIM flashes where cp varies or the phase
+    changes, counts heaters/coolers as current hot/cold utility and runs pinch_analysis. dT_min_K is the user's
+    choice (ask). Returns extracted_streams (show them), unit_balance (ΔH vs DWSIM duty), MER targets, pinch,
+    current_vs_target saving, linear_cp_targets, assumptions, warnings (units not extracted) and evidence."""
+    return json.dumps(TEN.pinch_from_flowsheet(flowsheet_id, dT_min_K, dT_min_sweep_K, linearization_tol_pct,
+                                               dT_contribution_K, exclude_units), default=float)
+
+
+@beta_tool
 def equipment_cost(equipment: str, size: dict[str, object], options: dict[str, object] | None = None, year: int = 2023,
                    cepci: float | None = None) -> str:
     """Purchase cost (USD f.o.b., not installed) by Seider et al. via IDAES. equipment: heat_exchanger {area_m2,
@@ -704,7 +720,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

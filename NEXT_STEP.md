@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-10 (M1-M5, M6a y M6b cerrados)
+Actualizado: 2026-11-13 (M1-M5, M5b, M6a y M6b cerrados)
 
 ## Dónde estamos
+**Bloque M5b (2026-11-13): `pinch_from_flowsheet`, 55 tools, ✅.** Toma calentadores, enfriadores e intercambiadores de un flowsheet resuelto, encadena tramos de una misma corriente, segmenta CP con flashes de DWSIM (cambio de fase localizado a 0.1 K), servicio actual = calentadores/enfriadores y corre `pinch_analysis`. Evidencia: ΔH de corrientes = duty de DWSIM (tol. 1e-3, medido ≤ 1e-7); Kemp armado en DWSIM con intercambiador: CP lineal 20.0/60.0 kW, pinch 90/80 °C; cp real del agua 19.1/59.1 kW; latente de vapor a 1 atm 225.7 kW vs IAPWS 225.6 kW. 195 tests en verde. No extrae condensadores/rehervidores ni reactores (los lista).
+
 **Bloque M6b (2026-11-10): `stirred_tank_cfd`, 54 tools, ✅ (M6b-2 cerró el sello).** Rushton con mamparas por MRF k-ε: Np, P, P/V, θ95 (Grenville, correlación). Aspa a nivel 3 de refinamiento y `maxBoundarySkewness 4` (todas las mallas pasan checkMesh). El GCI no aplica (el aspa de 3 mm salta con la malla de fondo: 49 → 5.13 y 50 → 4.81 en el mismo caso), así que el sello es una **banda entre 3 mallas**: cada malla gruesa a < 10 % de la fina, reportada como incertidumbre. Corrida de punta a punta verificada: Np 4.85 ± 3.5 % (64/49/38 → 4.85/5.02/4.70), torque 0.7-2.4 %, 285 W/m³, 93 min.
 
 **Bloque M6a (2026-11-09): `vessel_residence_time_cfd`, 53 tools.** OpenFOAM simpleFoam + edad media local en un tanque prismático; τ, σ²/τ², N, volumen estancado y conversión real vs CSTR; teorema edad de salida = V/Q y estudio de malla. Sin impulsor (M6b).
@@ -52,7 +54,7 @@ Siguiente (plan mes 2):
 **Visión del owner 2026-11-08: una sola aplicación que cubra todo lo que hacen los software de ingeniería química** (calor, masa, momento,
 balances, reacción, separación, costos, seguridad, diseño de planta); el agente elige el motor. Mapa por área en `docs/MAPA_MOTORES.md`
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
-0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). M5 pinch ✅ (52 tools). M6a tanque de flujo continuo CFD ✅ (53 tools). M6b viabilidad ✅ 2026-11-10 (caso 3 de `transporte-lab`: Rushton MRF, Np 4.67 vs ≈ 5, balance de torque 0.26 %, 19 min con `mpirun -np 4` desde `$TMPDIR`). M6b-2 ✅ 2026-11-10: sello por banda entre mallas, Np 4.85 ± 3.5 % verificado. **Siguiente (decide el owner): M5b (corrientes del pinch desde el flowsheet) o M7.**
+0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). M5 pinch ✅ (52 tools). M6a tanque de flujo continuo CFD ✅ (53 tools). M6b viabilidad ✅ 2026-11-10 (caso 3 de `transporte-lab`: Rushton MRF, Np 4.67 vs ≈ 5, balance de torque 0.26 %, 19 min con `mpirun -np 4` desde `$TMPDIR`). M6b-2 ✅ 2026-11-10: sello por banda entre mallas, Np 4.85 ± 3.5 % verificado. M5b ✅ 2026-11-13 (55 tools): `pinch_from_flowsheet`. **Siguiente (decide el owner): M7, o ampliar M5b a condensadores/rehervidores de columnas y reactores.**
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
 4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
 5. Fluxo: exportar casos a JSON/SFILES.
