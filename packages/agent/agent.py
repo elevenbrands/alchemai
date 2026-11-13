@@ -38,6 +38,7 @@ from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
 from packages.pid.tool import pid_from_hazop as _pid  # noqa: E402
+from packages.lopa.tool import lopa_from_hazop as _lopa  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -158,6 +159,14 @@ Hard rules:
    leave them "por definir" (size PSVs with relief_valve_sizing, valves with control_valve_sizing, tune loops with
    pid_tuning). Anything you add beyond the tool's output is a "propuesta" you list apart; never put it in the
    table as if the tool produced it. Quote "verified" only when the tool says so (round trip + official XSD).
+20. LOPA and SIL (protection layers, risk reduction, SIL of a trip): lopa_from_hazop on the same flowsheet or DEXPI
+   file. The tolerable frequency is the owner's or the company's risk criterion: ASK for it (one value, by HAZOP
+   severity, or per scenario); never pick one. Pass example_criterion only if the user asks for an example, and say
+   it is an EXAMPLE. Conditional modifiers (ignition, occupancy, fatality), the minutes between alarm and consequence,
+   operator opportunities per year and frequencies of causes outside the table are user data: ask, never invent.
+   Show the LOPA sheet in Spanish (scenario, causes with frequency and source, credited layers and the ones denied with
+   their independence rule, ΠCM, mitigated vs tolerable frequency, state) and the SIF table (required PFD, RRF, SIL,
+   demand mode). Say the tables are generic literature values, not site data, and list scenarios left "incompleto".
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -367,6 +376,27 @@ def pid_from_hazop(flowsheet_id: str = "", dexpi_path: str = "") -> str:
     out = _pid(flowsheet_id or None, dexpi_path or None)
     out.pop("markdown", None)
     out.pop("reglas", None)
+    return json.dumps(out, ensure_ascii=False, default=float)
+
+
+@beta_tool
+def lopa_from_hazop(flowsheet_id: str = "", dexpi_path: str = "", tolerable_frequency: float | None = None,
+                    tolerable_by_severity: dict[str, float] | None = None, example_criterion: str = "",
+                    alarm_response_min: float | None = None, conditional_modifiers: list[dict[str, object]] | None = None,
+                    overrides: dict[str, dict[str, object]] | None = None, min_severity: int = 3) -> str:
+    """LOPA worksheet and required SIL of each trip, from the HAZOP and the minimal P&ID of a SOLVED flowsheet (or a
+    DEXPI Process file). Each HAZOP row (severity >= min_severity, or with a PSV/trip) is a scenario; each cause an
+    initiating event from a cited generic table (BPCS loop 0.1/yr tied to its real P&ID loop, pump seal, cooling water,
+    fire, operator error per opportunity); layers are the PSVs, alarms and check valves traced to the row, with
+    deterministic independence rules. tolerable_frequency (1/año) or tolerable_by_severity {"4": 1e-5} is the user's
+    risk criterion (never assume it); example_criterion bstg_2007 | kenexis_tmel_1e-4 | kenexis_tmel_1e-5 applies a
+    labeled EXAMPLE. alarm_response_min, conditional_modifiers [{nombre, probabilidad, fuente, filas?, nodos?}] and
+    overrides {"<fila>": {frecuencia_tolerable, frecuencias {"n.k": f}, oportunidades_por_año {"n.k": n},
+    modificadores, capas [{tag, tipo, pfd, componentes, fuente, aplica_a}], pfd_sif {tag: pfd}}} are user data."""
+    out = _lopa(flowsheet_id or None, dexpi_path or None, tolerable_frequency, tolerable_by_severity,
+                example_criterion or None, alarm_response_min, conditional_modifiers, overrides, min_severity)
+    out.pop("markdown", None)
+    out.pop("tablas", None)
     return json.dumps(out, ensure_ascii=False, default=float)
 
 
@@ -864,7 +894,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
-               hazop_from_dexpi, pid_from_hazop, close_flowsheet]
+               hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

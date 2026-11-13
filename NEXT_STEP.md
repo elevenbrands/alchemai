@@ -1,8 +1,28 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M10 cerrados: el orden numerado del mapa está completo)
+Actualizado: 2026-11-13 (M1-M11 cerrados: LOPA/SIL cierra la cadena HAZOP → P&ID → nivel de protección)
 
 ## Dónde estamos
+**Bloque M11 (2026-11-13): LOPA y SIL desde el HAZOP y el P&ID, 63 tools, ✅.** Paquete `packages/lopa/` y tool `lopa_from_hazop`.
+- Una fila del HAZOP = un escenario; cada causa = un evento iniciador de una tabla genérica con fuente, ligado al lazo real del P&ID cuando es una falla del BPCS.
+- Capas acreditables: las PSV, alarmas y checks del P&ID trazadas a esa fila, más las que declare el usuario. Seis reglas de independencia deterministas (I-1…I-6) sobre los tags.
+- Cada disparo del P&ID recibe PFD requerida, RRF y SIL (IEC 61511-1, demanda baja o alta).
+- La frecuencia tolerable nunca va por defecto: sin ella, «sin criterio» y criterios de EJEMPLO etiquetados.
+
+Evidencia (`tests/test_lopa.py`, 49 tests):
+- Reproducidos: HSE/BSTG 2007 App. 1 (5.1e-7, con el «-» de IPL1 en IE3 saliendo de la regla I-1) y su variante SIL 2 (2.3e-7; errata del documento en la columna IE1), dos ejemplos de Kenexis (RRR 10 y 100) y Casey 2019 (7.125e-5).
+- **CCPS 2001 no se reprodujo: no hubo copia legible.** Sus valores entran vía fuentes secundarias (SAFEChE/Crowl-Louvar, Casey).
+- Bandas SIL en sus bordes; independencia probada en los 10 HAZOP publicados; extremo a extremo DEXPI → P&ID (XSD oficial) → LOPA con tags consistentes, más 2 flowsheets de DWSIM.
+
+Pendiente:
+- árbol de fallas;
+- verificar la PFDavg de la SIF (arquitectura, intervalo de prueba);
+- escribir el SIL en el DEXPI;
+- tablas CCPS 2015;
+- causas fuera de la tabla (taponamiento, runaway…), que hoy quedan por definir.
+
+Siguiente: **decisión del owner** — criterio de riesgo propio para usar la LOPA en un caso real, y qué tema de investigación sigue (layout, 3D, dispersión, árbol de fallas).
+
 **Bloque M10 (2026-11-13): P&ID mínimo desde el HAZOP en DEXPI P&ID, 62 tools, ✅.** Paquete `packages/pid/` y tool `pid_from_hazop`.
 - Entrada: un flowsheet resuelto o un DEXPI Process.
 - Reglas deterministas, cada una con su fuente:

@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-13: **58 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-13: **63 tools** (M11), DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 + ipopt 3.13.2 (idaes-ext 3.4.2, `~/.idaes/bin`), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -117,7 +117,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 |---|---|---|---|---|
 | HAZOP preliminar por reglas sobre el grafo (desde DWSIM o DEXPI) + propuestas LLM marcadas | ✅ (`hazop_preliminary`, `hazop_from_dexpi`; recall 30/30 apartado, 0 espurias) | propio + Claude | MIT | Precisión útil 76 %: sigue habiendo ruido |
 | Dimensionamiento de válvulas de alivio (API 520/521), ruido | ✅ (`relief_valve_sizing`, bloque M4a; ejemplos 1, 2, 4 y 5 de API 520 Parte I) · ruido 📦 | `fluids.safety_valve` + API 526 | MIT · en proceso | Conectar a la fila HAZOP «más presión»; ruido API 521 sin tool; la tasa de alivio sale del escenario (no la decide la tool) |
-| LOPA, SIL, árbol de fallas | ⬜ | propio (tablas CCPS) | — | Fase 2 del plan |
+| LOPA y SIL (capas de protección, reducción de riesgo, SIL de cada disparo) | ✅ (`lopa_from_hazop`, bloque M11 2026-11-13: HAZOP → P&ID M10 → hoja LOPA; ejemplo HSE/BSTG 2007 App. 1 y su variante SIL 2, dos ejemplos Kenexis y Casey 2019 reproducidos; bandas IEC 61511 en sus bordes; reglas de independencia I-1…I-6 sobre los tags del P&ID) · árbol de fallas ⬜ | propio (tablas genéricas con fuente) | MIT · en proceso | Tablas genéricas, no del sitio; CCPS 2001/2015 sin copia legible (valores vía fuentes secundarias, sus ejemplos no se reproducen); la frecuencia tolerable es del owner; causas fuera de la tabla (taponamiento, runaway…) quedan por definir; sin árbol de fallas ni verificación de PFDavg de la SIF (arquitectura, intervalo de prueba) |
 | Dispersión, incendio, explosión (consecuencias) | ⬜ | modelos propios (Gaussiano, TNT-equivalente) | — | Sin motor abierto maduro; por demanda |
 
 ## 11 · Diseño de planta y documentación
@@ -127,7 +127,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | Exportar el flowsheet a estándares abiertos (SFILES 2.0, DEXPI Process) | ✅ (`export_flowsheet`; 12/12 ida y vuelta; XSD oficial DEXPI 2.0.1 válido, 2026-11-13) | SFILES2, pyDEXPI | MIT | Tipos contra `Plant.xml`/`Process.xml` oficiales (data.dexpi.org no respondió) |
 | Diagrama PFD con etiquetas y resultados | ✅ (app Mac: `LienzoDiagrama`, PDF) | propio SwiftUI | — | — |
 | Reporte PDF del caso (conversación, corrientes, equipos, balances, HAZOP) | ✅ (B8 de la app) | propio | — | — |
-| P&ID (instrumentación, lazos, válvulas) | ✅ (`pid_from_hazop`, bloque M10 2026-11-13: reglas con fuente + PSV/check/alarmas/disparos del HAZOP, tags ISA-5.1 trazados; 22 casos con ida y vuelta y XSD oficial; Skogestad 1997 Fig. 1 reproducida) | DEXPI P&ID vía pyDEXPI 2.1.0 | MIT · en proceso | Sin dibujo (pyDEXPI pide geometría: hueco de layout); bombas de desplazamiento positivo; SIL por LOPA |
+| P&ID (instrumentación, lazos, válvulas) | ✅ (`pid_from_hazop`, bloque M10 2026-11-13: reglas con fuente + PSV/check/alarmas/disparos del HAZOP, tags ISA-5.1 trazados; 22 casos con ida y vuelta y XSD oficial; Skogestad 1997 Fig. 1 reproducida; SIL de sus disparos por `lopa_from_hazop`, M11) | DEXPI P&ID vía pyDEXPI 2.1.0 | MIT · en proceso | Sin dibujo (pyDEXPI pide geometría: hueco de layout); bombas de desplazamiento positivo; el SIL no se escribe aún en el DEXPI |
 | Layout y ruteo de tubería | 🚫 hoy | ninguno abierto maduro | — | Hueco de investigación (fase 3): es diferenciador, no un motor que se instala |
 | 3D / CAD de planta | 🚫 | Plant 3D (Windows, COM) | decisión del owner (Parallels) | No construir sobre Aspen/E3D (sin API abierta) |
 
@@ -156,7 +156,8 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 8 | M8a ✅ 2026-11-13 (57 tools): ipopt + `eo_column_optimize` (IDAES); M8b ✅ 2026-11-13: cualquier mezcla ideal (paquete IDAES generado de `chemicals`, cribado UNIFAC); M8c ✅ 2026-11-13 (58 tools): `optimize_design_surrogate` (OMLT, red sobre muestras de DWSIM, re-verificada en DWSIM). **Bloque 8 cerrado** | 2, 9 | Abre optimización simultánea y sustitutos | **ipopt** (conda-forge; sin costo) |
 | 9 ✅ | Control — hecho 2026-11-13 (M9, 61 tools): `fopdt_identify` (FOPDT/SOPDT por mínimos cuadrados + Smith y Sundaresan-Krishnaswamy), `pid_tuning` (SIMC por defecto, IMC, ZN último ciclo y curva de reacción, Cohen-Coon, Tyreus-Luyben; regla de la mitad), `pid_closed_loop` (márgenes exactos, Ms, IAE, sobrepaso) | 12 | Tema de estudio del plan | `python-control` 0.10.2 (BSD) |
 | 10 ✅ | P&ID mínimo desde HAZOP (DEXPI P&ID) — hecho 2026-11-13 (M10, 62 tools): `pid_from_hazop`, DEXPI 2.0.1 con ida y vuelta, XSD oficial y Skogestad 1997 Fig. 1 | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
-| — | Layout/ruteo, 3D, LOPA, dispersión | 10, 11 | Investigación o decisión del owner | — |
+| 11 ✅ | LOPA y SIL desde el HAZOP y el P&ID — hecho 2026-11-13 (M11, 63 tools): `lopa_from_hazop`, independencia por tags del P&ID, SIL por IEC 61511, ejemplos HSE/BSTG 2007, Kenexis y Casey 2019 reproducidos | 10 | Cierra la cadena HAZOP → P&ID → nivel de protección | ninguna |
+| — | Layout/ruteo, 3D, dispersión, árbol de fallas | 10, 11 | Investigación o decisión del owner | — |
 
 ## Reglas de admisión de un motor nuevo
 
