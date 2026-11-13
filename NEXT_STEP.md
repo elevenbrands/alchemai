@@ -1,8 +1,22 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M7, M8a, M8b, M5b, M6a y M6b cerrados)
+Actualizado: 2026-11-13 (M1-M8 cerrados: M8a, M8b y M8c; M5b, M6a y M6b cerrados)
 
 ## Dónde estamos
+**Bloque M8c (2026-11-13): `optimize_design_surrogate`, 58 tools, ✅. Bloque 8 cerrado.** La tool hace cuatro cosas:
+- muestrea un flowsheet de DWSIM (hipercubo latino más las esquinas; conjunto apartado independiente);
+- entrena una red tanh por salida (numpy y scipy; sin dependencias nuevas);
+- la embebe con OMLT (`ReducedSpaceSmoothNNFormulation`) y resuelve con ipopt desde 6 arranques;
+- vuelve a correr DWSIM en el óptimo y sella solo si DWSIM lo confirma.
+
+Evidencia:
+- **Compresor de 3 etapas a 27 bar:** error apartado 0.037 %. Óptimo 3.026/9.076 bar contra 3.021/9.087 directo (malla 21×21: 3.025/9.100). DWSIM 891.838 kW contra 891.837.
+- **Con descarga ≤ 430 K:** 2.6997/8.579 contra 2.699/8.591; 892.674 kW contra 892.676.
+- **Columna hexano-heptano** (RR × fondos, purezas ≥ 0.95): error apartado en purezas 0.0009 (tolerancia 0.002). RR 2.2314 contra 2.2322 directo; DWSIM 4106.9 kW con purezas 0.95000. `eo_column_optimize` queda a 2.6 % en RR por la base de propiedades.
+- Una discrepancia en la verificación da `not_verified`.
+
+Con DWSIM rápido (0.05 s por corrida), el directo es más rápido; el sustituto paga con flowsheets lentos o con más variables. 236 tests en verde. Siguiente: **M9 control** (`pid_tuning`, python-control), en otra sesión.
+
 **Bloque M8b (2026-11-13): `eo_column_optimize` para cualquier mezcla ideal, 57 tools, ✅.** La misma tool ahora recibe `components` (2 o más), fracciones de alimentación y `specs` de pureza o recuperación. El paquete de propiedades de IDAES se genera de `chemicals`/`thermo` (Psat Wagner-McGarry, cp gas Poling, densidad DIPPR 105, cp líquido ajustado a thermo, ΔHvap = DIPPR 106 en Tsat), con las fuentes citadas y comprobado en cada llamada. UNIFAC Dortmund rechaza las mezclas no ideales (azeótropo o |ln γi/γj| > 0.10). Evidencia: misma fuente a ≤ 2e-11 (sin errores de unidades); BT reproduce M8a (Q_reb −1.6 %, RR 0.5 %); **hexano-heptano vs DWSIM en el óptimo: Q_reb 0.55 %, Q_cond 0.39 %, T 0.03 K**; BTX con recuperaciones, alimentación subenfriada: DWSIM Q_reb 0.87 %; multiplicadores = diferencias finitas ≤ 0.16 %. Siguiente: **M8c OMLT** (sustitutos), en otra sesión.
 
 **Bloque M8a (2026-11-13): ipopt + `eo_column_optimize`, 57 tools, ✅.** ipopt de idaes-ext 3.4.2 (`idaes get-extensions`). Columna benceno-tolueno de IDAES optimizada como un NLP: carga mínima del rehervidor con dos purezas, multiplicadores = MW por unidad de pureza. Evidencia: caso de prueba de IDAES reproducido; vecinos ± 1 % y multiplicadores = diferencias finitas (0.16 %); DWSIM en el óptimo a 0.4-0.5 % en cargas. Hallazgo: `BT_ideal` de IDAES tiene el cp líquido 1000× menor (unidades J/kmol); corregido en copia propia (ΔHvap ≤ 2.3 % de DIPPR). 216 tests en verde.
@@ -62,7 +76,7 @@ balances, reacción, separación, costos, seguridad, diseño de planta); el agen
 (12 áreas, estado ✅/🧪/📦/⬜ verificado, orden propuesto de 10 bloques). Primer caso de dos motores: `transporte-lab/reactor/` (DWSIM PFR
 0.7945 vs FEniCSx laminar 0.7818). M1 `tubular_reactor_field` ✅, M2 Cantera ✅ y M3 economía ✅ 2026-11-08. M4 fluids/ht ✅ 2026-11-09 y M4c Bell-Delaware ✅ (51 tools; falta validarlo contra un ejemplo publicado con datos legibles). M5 pinch ✅ (52 tools). M6a tanque de flujo continuo CFD ✅ (53 tools). M6b viabilidad ✅ 2026-11-10 (caso 3 de `transporte-lab`: Rushton MRF, Np 4.67 vs ≈ 5, balance de torque 0.26 %, 19 min con `mpirun -np 4` desde `$TMPDIR`). M6b-2 ✅ 2026-11-10: sello por banda entre mallas, Np 4.85 ± 3.5 % verificado. M5b ✅ 2026-11-13 (55 tools): `pinch_from_flowsheet`. M7 ✅ 2026-11-13 (56 tools): `nonisothermal_tubular_reactor`. M8a ✅ 2026-11-13 (57 tools): `eo_column_optimize`. **Siguiente: M8b (cualquier mezcla ideal en IDAES con parámetros verificados de `chemicals`) y M8c OMLT (sustituto de red neuronal sobre datos de DWSIM embebido en Pyomo).**
 3. **Bloque 31**: borrador del whitepaper ES/EN «LLM agents for process design: a verified benchmark» desde BENCHMARK.md (publicar = OK del owner).
-4. Bloque 32: estudio de modelos sustitutos con OMLT (plan, tema 7).
+4. ✅ Bloque 32: modelos sustitutos con OMLT = M8c (`optimize_design_surrogate`, 2026-11-13).
 5. Fluxo: exportar casos a JSON/SFILES.
 **Decisión del owner 2026-11-06: la UI es una app de Mac en SwiftUI** («App Mac Swift»). Estructura en `docs/MAC_APP_ESTRUCTURA.md`
 (agente en Python como proceso hijo, DWSIM aparte por GPL, Developer ID fuera de la App Store, repo privado `apps/alchemai-mac`).

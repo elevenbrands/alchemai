@@ -55,7 +55,7 @@ def _rebuild_column(flowsheet_id: str, unit: str, new: dict) -> dict:
 def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> dict:
     """Re-specify one numeric parameter of an existing unit (same names as add_unit params: outlet_T_K,
     outlet_P_Pa, UA_W_K, reflux_ratio, adiabatic_eff_pct, efficiency_pct, heat_added_kW, heat_removed_kW,
-    split_ratio_0 (first ratio; the second becomes 1-x); columns also accept stages and feed_stage (integers; the
+    split_ratio_0 (first ratio; the second becomes 1-x), bottoms_molar_flow_mol_s (distillation_column reboiler spec); columns also accept stages and feed_stage (integers; the
     column is rebuilt with the same connections, feed_stage keeps its relative position). Call solve() afterwards."""
     s = T._s(flowsheet_id)
     b, kind = s["units"][unit], s["kinds"][unit]
@@ -82,6 +82,8 @@ def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> di
         b.WithHeatRemoved(Q.Kilowatt(v))
     elif param == "split_ratio_0":
         b.WithSplitRatios(v, 1.0 - v)
+    elif param == "bottoms_molar_flow_mol_s" and kind == "distillation_column":
+        b.WithReboilerSpec("Product Molar Flow Rate", v, "mol/s")
     else:
         raise ValueError(f"unsupported param {param!r}")
     rec = s.setdefault("params", {}).setdefault(unit, {})
@@ -89,7 +91,7 @@ def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> di
         rec["split_ratios"] = [v, 1.0 - v]
     else:
         rec[param] = v
-        for a, b2 in (("outlet_T_K", "heat_added_kW"), ("outlet_T_K", "heat_removed_kW"), ("adiabatic_eff_pct", "polytropic_eff_pct")):
+        for a, b2 in (("bottoms_molar_flow_mol_s", "distillate_molar_flow_mol_s"), ("outlet_T_K", "heat_added_kW"), ("outlet_T_K", "heat_removed_kW"), ("adiabatic_eff_pct", "polytropic_eff_pct")):
             if param == a: rec.pop(b2, None)
             if param == b2: rec.pop(a, None)
     return {"ok": True, "unit": unit, "param": param, "value": v}

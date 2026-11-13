@@ -314,4 +314,38 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                specs, (reflux_ratio_min, reflux_ratio_max), (boilup_ratio_min, boilup_ratio_max))
 
 
-OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi, eo_column_optimize]
+def optimize_design_surrogate(flowsheet_id: str, variables: list[dict], objective: dict, constraints: list[dict] | None = None,
+                              maximize: bool = False, n_samples: int | None = None, n_holdout: int | None = None,
+                              tolerance_pct: float = 0.5, objective_tolerance: float | None = None, seed: int = 0,
+                              return_samples: bool = False) -> dict:
+    """Surrogate-based optimisation of an existing DWSIM flowsheet (bloque M8c, OMLT + ipopt). variables = 1-6
+    CONTINUOUS variables [{"kind": "unit"|"stream", "name", "param", "lower", "upper", "log_scale": bool}] with the
+    user's bounds; objective and constraints exactly as in optimize_design (constraints may add "tolerance" = absolute
+    accuracy wanted for that readout, e.g. 0.002 for a mole fraction). Samples the flowsheet in DWSIM over the bounds
+    (Latin hypercube + corners; n_samples default 20 + 15·n, an independent held-out hypercube of n_holdout), trains one
+    small tanh network per output (numpy, architecture by cross-validation), embeds them with OMLT
+    (ReducedSpaceSmoothNNFormulation) and solves with ipopt from several starts, then RE-RUNS DWSIM at the proposed
+    optimum. Returns surrogate_optimum, dwsim_at_optimum, holdout_error and error_at_optimum per output, the best DWSIM
+    sample and `evidence`; status "verified" only if held-out and optimum errors are within tolerance (default 0.5 % of
+    the median objective and of each limit), DWSIM meets the constraints within tolerance and no sample is better.
+    Otherwise "not_verified": never report the surrogate value as the answer. Leaves the flowsheet solved at the
+    proposed optimum. Use it when each DWSIM solve is slow or noisy, or to obtain a smooth algebraic model of the
+    flowsheet; for 1-4 variables on a fast flowsheet optimize_design_multi is the direct alternative."""
+    from packages.eo.surrogate import surrogate_optimize
+    cons = constraints or []
+    limits = {f"{c['name']}.{c['key']}": {k: c.get(k) for k in ("max", "min", "tolerance")} for c in cons}
+    for k, lim in limits.items():
+        if lim["max"] is None and lim["min"] is None:
+            raise ValueError(f"la restricción {k} necesita max o min")
+
+    def evaluate(x: list[float]) -> dict:
+        for v, xi in zip(variables, x):
+            _set(flowsheet_id, v["kind"], v["name"], v["param"], float(xi))
+        r = _eval(flowsheet_id, None, None, objective, cons)
+        return {"solved_ok": r["solved_ok"], "objective": r["objective"], "constraints": r.get("constraints") or {}}
+
+    return surrogate_optimize(evaluate, variables, limits, maximize, n_samples, n_holdout, tolerance_pct,
+                              objective_tolerance, seed, return_samples=return_samples)
+
+
+OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate]

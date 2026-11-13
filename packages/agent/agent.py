@@ -136,6 +136,13 @@ Hard rules:
    value, the trays, feed tray, pressure and specs (no defaults). Report RR, boil-up, Q_reboiler and the multipliers as
    "MW per unit of spec", the property sources and the ideal-mixture check, with the seal only if verified. If the tool
    refuses the mixture as non-ideal, say why (UNIFAC) and use optimize_design_multi on the DWSIM column (NRTL/UNIQUAC).
+17. Surrogate optimisation of a built DWSIM flowsheet (slow or many-variable flowsheets, or the user asks for a
+   surrogate/neural network/OMLT): optimize_design_surrogate. Ask for the bounds of every variable, the objective and
+   every limit (no defaults; prices only from the user), and the accuracy wanted for each constrained readout
+   ("tolerance", e.g. 0.002 on a mole fraction). Report the sample count, the held-out error, the surrogate optimum,
+   the DWSIM value at that point and the error there; give the DWSIM numbers as the answer. If status is
+   "not_verified", say so and why, never quote the surrogate value as the result; offer more samples, narrower bounds
+   or optimize_design_multi. Say the surrogate is valid only inside the bounds.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -280,7 +287,7 @@ def read_unit(flowsheet_id: str, name: str) -> str:
 @beta_tool
 def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> str:
     """Re-specify one numeric parameter of an existing unit (outlet_T_K, outlet_P_Pa, UA_W_K, reflux_ratio,
-    adiabatic_eff_pct, polytropic_eff_pct, efficiency_pct, heat_added_kW, heat_removed_kW, split_ratio_0; columns also
+    adiabatic_eff_pct, polytropic_eff_pct, efficiency_pct, heat_added_kW, heat_removed_kW, split_ratio_0, bottoms_molar_flow_mol_s (distillation column); columns also
     stages and feed_stage, integers: the column is rebuilt with its connections). Then solve()."""
     return json.dumps(TS.set_unit_param(flowsheet_id, unit, param, value))
 
@@ -761,6 +768,21 @@ def optimize_design_multi(flowsheet_id: str, variables: list[dict[str, object]],
 
 
 @beta_tool
+def optimize_design_surrogate(flowsheet_id: str, variables: list[dict[str, object]], objective: dict[str, object],
+                              constraints: list[dict[str, object]] | None = None, maximize: bool = False,
+                              n_samples: int | None = None, n_holdout: int | None = None, tolerance_pct: float = 0.5,
+                              objective_tolerance: float | None = None, seed: int = 0) -> str:
+    """Surrogate optimisation of a built DWSIM flowsheet (OMLT + ipopt): samples 1-6 continuous variables
+    [{kind, name, param, lower, upper, log_scale}] over the user's bounds (Latin hypercube + corners, n_samples default
+    20 + 15·n, independent held-out set), trains one small tanh network per output, embeds them with OMLT and solves
+    with ipopt, then re-runs DWSIM at the optimum. objective/constraints as in optimize_design; a constraint may carry
+    "tolerance" (absolute accuracy wanted). Returns surrogate_optimum, dwsim_at_optimum, holdout_error,
+    error_at_optimum, best_dwsim_sample, evidence and status ("verified" only if DWSIM confirms within tolerance)."""
+    return json.dumps(TO.optimize_design_surrogate(flowsheet_id, variables, objective, constraints, maximize, n_samples,
+                                                   n_holdout, tolerance_pct, objective_tolerance, seed), default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -771,7 +793,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

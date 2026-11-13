@@ -1,0 +1,822 @@
+{
+"train_z": [
+[
+0.987260766253571,
+0.9146042657247225
+],
+[
+0.6991805295212761,
+0.33966944728942944
+],
+[
+0.42373459521599455,
+0.5417448884544456
+],
+[
+0.9078672844846564,
+0.7254100687803201
+],
+[
+0.5891275001706916,
+0.38129855152424463
+],
+[
+0.14368292891756934,
+0.6799452299965971
+],
+[
+0.4028519144682486,
+0.5193282884938907
+],
+[
+0.7254068910714011,
+0.8364868875879488
+],
+[
+0.08273642155300226,
+0.4491707755950182
+],
+[
+0.6340057621892523,
+0.19154625557604682
+],
+[
+0.019433606577090742,
+0.2975143344700087
+],
+[
+0.44658751170612737,
+0.007056209768514998
+],
+[
+0.807692297770375,
+0.03232644891476233
+],
+[
+0.1600558012842158,
+0.8803832932244754
+],
+[
+0.026289160310386105,
+0.20699081447464365
+],
+[
+0.2462310653885812,
+0.8722215715204179
+],
+[
+0.6572980698995518,
+0.40557023319611835
+],
+[
+0.10949291355048547,
+0.9337951624888209
+],
+[
+0.7702832928233642,
+0.30221024331302
+],
+[
+0.041319129680875005,
+0.5328440960658186
+],
+[
+0.6085694033854048,
+0.13356261217848117
+],
+[
+0.708113999396006,
+0.8532417754898574
+],
+[
+0.13216761998943677,
+0.34219451295990416
+],
+[
+0.9354568481293325,
+0.14753625710627916
+],
+[
+0.7583196931283522,
+0.36334711704693207
+],
+[
+0.3642580338502263,
+0.775212611140141
+],
+[
+0.20247031538378593,
+0.9588286393038962
+],
+[
+0.8732776587890868,
+0.6369944106621032
+],
+[
+0.27099321266701426,
+0.4640735145942541
+],
+[
+0.975387155820125,
+0.23895957397871181
+],
+[
+0.07190896320356943,
+0.5960297391098149
+],
+[
+0.5381849390876176,
+0.808393352280263
+],
+[
+0.6740260773436215,
+0.9665601024408729
+],
+[
+0.5560096911206357,
+0.70115773778987
+],
+[
+0.7926977966351035,
+0.7978900944085955
+],
+[
+0.9474178369692058,
+0.9814569089386427
+],
+[
+0.47119245690568434,
+0.08090819012618525
+],
+[
+0.350002083726247,
+0.6114954275030184
+],
+[
+0.5675957309596924,
+0.4800980698952935
+],
+[
+0.4810211265012447,
+0.11079909721381809
+],
+[
+0.22484542309383418,
+0.050051546090247624
+],
+[
+0.3094137567960646,
+0.16428428598572384
+],
+[
+0.5117068830128866,
+0.6853103285642255
+],
+[
+0.825777142440205,
+0.6413588062677325
+],
+[
+0.8977013473343818,
+0.2454196976584738
+],
+[
+0.3214515214275088,
+0.06064147620150707
+],
+[
+0.8597058739006925,
+0.7427271981950885
+],
+[
+0.2803760991986731,
+0.5608557964077807
+],
+[
+0.39702471975535003,
+0.2605474237235409
+],
+[
+0.18220128888558962,
+0.4235525234491386
+],
+[
+0.0,
+0.0
+],
+[
+0.0,
+1.0
+],
+[
+1.0,
+0.0
+],
+[
+1.0,
+1.0
+]
+],
+"train_rows": [
+{
+"solved_ok": true,
+"objective": 5959.344028010375,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.987626032467059,
+"bot.mole_fractions.N-heptane": 0.9129588037438464
+}
+},
+{
+"solved_ok": true,
+"objective": 5787.256467120158,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9527298451027093,
+"bot.mole_fractions.N-heptane": 0.9827110173078288
+}
+},
+{
+"solved_ok": true,
+"objective": 4527.069298288499,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9612884376118681,
+"bot.mole_fractions.N-heptane": 0.9536627909883236
+}
+},
+{
+"solved_ok": true,
+"objective": 5970.3072989269895,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9842343409744838,
+"bot.mole_fractions.N-heptane": 0.9424701340236559
+}
+},
+{
+"solved_ok": true,
+"objective": 5321.620118067149,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9550191657170937,
+"bot.mole_fractions.N-heptane": 0.9771336187970765
+}
+},
+{
+"solved_ok": true,
+"objective": 3415.184344824126,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9416116446158143,
+"bot.mole_fractions.N-heptane": 0.9109321190691294
+}
+},
+{
+"solved_ok": true,
+"objective": 4478.418061810333,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9587584905881037,
+"bot.mole_fractions.N-heptane": 0.9552384539669462
+}
+},
+{
+"solved_ok": true,
+"objective": 5203.21264165515,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9820389759844921,
+"bot.mole_fractions.N-heptane": 0.9212597908735707
+}
+},
+{
+"solved_ok": true,
+"objective": 3404.3175617923453,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9239497417065915,
+"bot.mole_fractions.N-heptane": 0.9326625974871238
+}
+},
+{
+"solved_ok": true,
+"objective": 5754.197687038712,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9307274061044019,
+"bot.mole_fractions.N-heptane": 0.9873519861803385
+}
+},
+{
+"solved_ok": true,
+"objective": 3300.729499426798,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9054915333609042,
+"bot.mole_fractions.N-heptane": 0.9397237916747518
+}
+},
+{
+"solved_ok": true,
+"objective": 5262.5889335918255,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9005225735907342,
+"bot.mole_fractions.N-heptane": 0.9881216381031397
+}
+},
+{
+"solved_ok": true,
+"objective": 6678.578655551542,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9084189464066783,
+"bot.mole_fractions.N-heptane": 0.9926925440245189
+}
+},
+{
+"solved_ok": true,
+"objective": 3291.7204254515054,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9477910962771232,
+"bot.mole_fractions.N-heptane": 0.8844729215269815
+}
+},
+{
+"solved_ok": true,
+"objective": 3402.054424061425,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9001877318079163,
+"bot.mole_fractions.N-heptane": 0.9500059257795943
+}
+},
+{
+"solved_ok": true,
+"objective": 3580.7174381864734,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9575748777162894,
+"bot.mole_fractions.N-heptane": 0.8941676267567757
+}
+},
+{
+"solved_ok": true,
+"objective": 5538.658964866239,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9596497236079673,
+"bot.mole_fractions.N-heptane": 0.977328596112824
+}
+},
+{
+"solved_ok": true,
+"objective": 3081.625053705116,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9411753817698334,
+"bot.mole_fractions.N-heptane": 0.8707324283347679
+}
+},
+{
+"solved_ok": true,
+"objective": 6109.356166652695,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9489418971115813,
+"bot.mole_fractions.N-heptane": 0.9859084834039473
+}
+},
+{
+"solved_ok": true,
+"objective": 3186.3199765228014,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.920749248131289,
+"bot.mole_fractions.N-heptane": 0.915259798613463
+}
+},
+{
+"solved_ok": true,
+"objective": 5737.432551902487,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9217477923636046,
+"bot.mole_fractions.N-heptane": 0.988441320029558
+}
+},
+{
+"solved_ok": true,
+"objective": 5124.145943886895,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9817835542941066,
+"bot.mole_fractions.N-heptane": 0.9182096052177053
+}
+},
+{
+"solved_ok": true,
+"objective": 3680.1401768239357,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9237750207201442,
+"bot.mole_fractions.N-heptane": 0.9513961688428598
+}
+},
+{
+"solved_ok": true,
+"objective": 6994.088932958723,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.927310950030976,
+"bot.mole_fractions.N-heptane": 0.9921125213206777
+}
+},
+{
+"solved_ok": true,
+"objective": 5971.694361402955,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9569628190359726,
+"bot.mole_fractions.N-heptane": 0.9826250772755138
+}
+},
+{
+"solved_ok": true,
+"objective": 4068.5893799482683,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9657078148234258,
+"bot.mole_fractions.N-heptane": 0.9171201063835828
+}
+},
+{
+"solved_ok": true,
+"objective": 3358.1719092016283,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9539521940309892,
+"bot.mole_fractions.N-heptane": 0.8776377688086953
+}
+},
+{
+"solved_ok": true,
+"objective": 5979.161478489649,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9812835383458502,
+"bot.mole_fractions.N-heptane": 0.9556267440059961
+}
+},
+{
+"solved_ok": true,
+"objective": 4066.87735474803,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9459533663394328,
+"bot.mole_fractions.N-heptane": 0.9524211307112179
+}
+},
+{
+"solved_ok": true,
+"objective": 6990.542694273636,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.941940085382831,
+"bot.mole_fractions.N-heptane": 0.9906126031766607
+}
+},
+{
+"solved_ok": true,
+"objective": 3240.833275129664,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9282130309213166,
+"bot.mole_fractions.N-heptane": 0.9120758571151635
+}
+},
+{
+"solved_ok": true,
+"objective": 4613.85733871649,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.975601031480884,
+"bot.mole_fractions.N-heptane": 0.9203494480490972
+}
+},
+{
+"solved_ok": true,
+"objective": 4868.885557095278,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9818200556379317,
+"bot.mole_fractions.N-heptane": 0.8995788792900471
+}
+},
+{
+"solved_ok": true,
+"objective": 4800.832866848393,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9741411046649502,
+"bot.mole_fractions.N-heptane": 0.9374764011061443
+}
+},
+{
+"solved_ok": true,
+"objective": 5479.214395446616,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9831345332989527,
+"bot.mole_fractions.N-heptane": 0.928813430044546
+}
+},
+{
+"solved_ok": true,
+"objective": 5731.986136300067,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.987414083496671,
+"bot.mole_fractions.N-heptane": 0.9017962473094286
+}
+},
+{
+"solved_ok": true,
+"objective": 5267.132749972719,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9116626873508826,
+"bot.mole_fractions.N-heptane": 0.9869745843316594
+}
+},
+{
+"solved_ok": true,
+"objective": 4192.131009205876,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.959941218881253,
+"bot.mole_fractions.N-heptane": 0.9398853169038405
+}
+},
+{
+"solved_ok": true,
+"objective": 5113.970248747992,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9637875564732499,
+"bot.mole_fractions.N-heptane": 0.9675119364391166
+}
+},
+{
+"solved_ok": true,
+"objective": 5267.550015914494,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9161700103237509,
+"bot.mole_fractions.N-heptane": 0.9864163999015124
+}
+},
+{
+"solved_ok": true,
+"objective": 4324.584753115049,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9001427138358867,
+"bot.mole_fractions.N-heptane": 0.979269305067915
+}
+},
+{
+"solved_ok": true,
+"objective": 4532.934880744974,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9183768145890386,
+"bot.mole_fractions.N-heptane": 0.9785906841151698
+}
+},
+{
+"solved_ok": true,
+"objective": 4667.943626507118,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9718024568645927,
+"bot.mole_fractions.N-heptane": 0.9380912018682367
+}
+},
+{
+"solved_ok": true,
+"objective": 5807.983857632267,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.980433052861697,
+"bot.mole_fractions.N-heptane": 0.9540296586867363
+}
+},
+{
+"solved_ok": true,
+"objective": 6682.919085029968,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9422089915478232,
+"bot.mole_fractions.N-heptane": 0.9896409128940177
+}
+},
+{
+"solved_ok": true,
+"objective": 4697.368647878511,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9051084290705851,
+"bot.mole_fractions.N-heptane": 0.9831523589534588
+}
+},
+{
+"solved_ok": true,
+"objective": 5781.627803011869,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9836590585809939,
+"bot.mole_fractions.N-heptane": 0.9388849091837769
+}
+},
+{
+"solved_ok": true,
+"objective": 4001.4412813615463,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9522397178199775,
+"bot.mole_fractions.N-heptane": 0.9413743752467624
+}
+},
+{
+"solved_ok": true,
+"objective": 4757.376252797001,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.93402202893518,
+"bot.mole_fractions.N-heptane": 0.9776718364048271
+}
+},
+{
+"solved_ok": true,
+"objective": 3786.6997590519354,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9349699132144011,
+"bot.mole_fractions.N-heptane": 0.9484877904462408
+}
+},
+{
+"solved_ok": true,
+"objective": 3472.7869609406775,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.87871670039249,
+"bot.mole_fractions.N-heptane": 0.9628702543477815
+}
+},
+{
+"solved_ok": true,
+"objective": 2678.9039285631916,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.921212086535518,
+"bot.mole_fractions.N-heptane": 0.844626511021858
+}
+},
+{
+"solved_ok": true,
+"objective": 7507.320327918106,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9044876060116848,
+"bot.mole_fractions.N-heptane": 0.994360262258535
+}
+},
+{
+"solved_ok": true,
+"objective": 5874.268668976638,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.98821983391599,
+"bot.mole_fractions.N-heptane": 0.8994568754899075
+}
+}
+],
+"holdout_z": [
+[
+0.12321785516874477,
+0.7830131794161392
+],
+[
+0.21075485022314552,
+0.31639600478794344
+],
+[
+0.539270081198329,
+0.9840803099932676
+],
+[
+0.809871200113179,
+0.3538598706507005
+],
+[
+0.9540273519390655,
+0.594689827024301
+],
+[
+0.8495523149245066,
+0.8959689447328217
+],
+[
+0.0675118823265383,
+0.08466703484231901
+],
+[
+0.6108335695044806,
+0.4766347641684343
+],
+[
+0.48300723047714994,
+0.031244609545628816
+],
+[
+0.27894964034482866,
+0.6750993726042945
+],
+[
+0.3354363516077361,
+0.5705056358748163
+],
+[
+0.6917425603858246,
+0.21272987942574828
+]
+],
+"holdout_rows": [
+{
+"solved_ok": true,
+"objective": 3255.734313602852,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9410450966127659,
+"bot.mole_fractions.N-heptane": 0.8937901247978238
+}
+},
+{
+"solved_ok": true,
+"objective": 3996.478918796566,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9292521491336184,
+"bot.mole_fractions.N-heptane": 0.9619653877175686
+}
+},
+{
+"solved_ok": true,
+"objective": 4413.520399770764,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9774953181141598,
+"bot.mole_fractions.N-heptane": 0.8932003809704967
+}
+},
+{
+"solved_ok": true,
+"objective": 6177.3039922476855,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9566602529323913,
+"bot.mole_fractions.N-heptane": 0.9841428883792267
+}
+},
+{
+"solved_ok": true,
+"objective": 6323.999615581744,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9811371475645764,
+"bot.mole_fractions.N-heptane": 0.9632670808856125
+}
+},
+{
+"solved_ok": true,
+"objective": 5534.017556057095,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9852931715873301,
+"bot.mole_fractions.N-heptane": 0.9140783559133471
+}
+},
+{
+"solved_ok": true,
+"objective": 3667.9840480475214,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.8939283438768814,
+"bot.mole_fractions.N-heptane": 0.9652922668999209
+}
+},
+{
+"solved_ok": true,
+"objective": 5273.843533007061,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9650381548188532,
+"bot.mole_fractions.N-heptane": 0.9694236372370546
+}
+},
+{
+"solved_ok": true,
+"objective": 5378.104260265842,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9046630640647805,
+"bot.mole_fractions.N-heptane": 0.9883777885570575
+}
+},
+{
+"solved_ok": true,
+"objective": 3881.788751386246,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9565007551158448,
+"bot.mole_fractions.N-heptane": 0.9256170080536327
+}
+},
+{
+"solved_ok": true,
+"objective": 4184.669040962672,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9570813185893676,
+"bot.mole_fractions.N-heptane": 0.9443798006662119
+}
+},
+{
+"solved_ok": true,
+"objective": 5945.817311452675,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.93475385140157,
+"bot.mole_fractions.N-heptane": 0.9877416209638056
+}
+}
+],
+"case": "C",
+"status": "verified",
+"dwsim_at_optimum": {
+"objective": 4106.9105332842055,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9499920964095832,
+"bot.mole_fractions.N-heptane": 0.9499855036740859
+}
+},
+"surrogate_optimum": {
+"values": {
+"T-1.reflux_ratio": 2.231439752582759,
+"T-1.bottoms_molar_flow_mol_s": 50.00098076655683
+},
+"objective": 4107.203983216784,
+"constraints": {
+"dist.mole_fractions.N-hexane": 0.9499999900037633,
+"bot.mole_fractions.N-heptane": 0.9499999900043639
+}
+}
+}
