@@ -131,6 +131,9 @@ Hard rules:
    With a built flowsheet use pinch_from_flowsheet (extracts heaters/coolers/exchangers, segments CP on phase change,
    takes heaters/coolers as the current utilities): show the extracted stream table so the user can check it, say
    which units were not extracted (column condensers/reboilers, reactors) and that supply/target T are today's.
+16. Minimum energy (or reflux) of a benzene-toluene column for given purities, or the marginal cost of a purity spec:
+   eo_column_optimize (equation-oriented, IDAES + ipopt) and report RR, boil-up, Q_reboiler and the multipliers as
+   "MW per unit of purity", with the seal only if verified. Other mixtures: optimize_design_multi on the DWSIM column.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -728,6 +731,19 @@ def packed_column_hydraulics(flowsheet_id: str, gas_stream: str, liquid_stream: 
 
 
 @beta_tool
+def eo_column_optimize(system: str, feed_flow_mol_s: float, feed_T_K: float, feed_P_Pa: float, feed_x_benzene: float,
+                       n_trays: int, feed_tray: int, pressure_Pa: float, x_benzene_distillate_min: float,
+                       x_toluene_bottoms_min: float, reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0,
+                       boilup_ratio_min: float = 0.1, boilup_ratio_max: float = 20.0) -> str:
+    """Equation-oriented (IDAES + ipopt) minimum reboiler duty of a benzene-toluene tray column meeting two purity specs;
+    system='benzene-toluene ideal'. Returns optimal reflux/boil-up, duties, products, the multipliers (MW per unit of
+    purity) and evidence (ipopt optimal, neighbours, multipliers vs finite differences)."""
+    return json.dumps(TO.eo_column_optimize(system, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_x_benzene, n_trays, feed_tray,
+                                            pressure_Pa, x_benzene_distillate_min, x_toluene_bottoms_min, reflux_ratio_min,
+                                            reflux_ratio_max, boilup_ratio_min, boilup_ratio_max), default=float)
+
+
+@beta_tool
 def optimize_design_multi(flowsheet_id: str, variables: list[dict[str, object]], objective: dict[str, object],
                           constraints: list[dict[str, object]] | None = None, maximize: bool = False, grid_points: int = 5,
                           max_evaluations: int = 150, tolerance: float = 1e-4) -> str:
@@ -751,7 +767,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
 

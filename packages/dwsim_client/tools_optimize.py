@@ -292,4 +292,22 @@ def _optimize_with_integers(fid, variables, objective, cons, maximize, grid_poin
             "note": "integer variable at a bound: widen the range" if at_bound else "integer_curve shows the objective at each stage count; report how flat it is"}
 
 
-OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi]
+def eo_column_optimize(system: str, feed_flow_mol_s: float, feed_T_K: float, feed_P_Pa: float, feed_x_benzene: float,
+                       n_trays: int, feed_tray: int, pressure_Pa: float, x_benzene_distillate_min: float,
+                       x_toluene_bottoms_min: float, reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0,
+                       boilup_ratio_min: float = 0.1, boilup_ratio_max: float = 20.0) -> dict:
+    """Equation-oriented column optimisation (IDAES + ipopt, the whole column and the purity specs as ONE NLP):
+    minimum reboiler duty of a tray column (total condenser, partial reboiler, n_trays equilibrium trays, feed_tray
+    counted from the top) meeting x_benzene in the distillate ≥ spec and x_toluene in the bottoms ≥ spec, varying reflux
+    and boil-up ratio. Only system='benzene-toluene ideal' (IDAES's verified configuration, liquid cp corrected).
+    Returns the optimum (RR, BR, duties, products), Lagrange multipliers = MW per unit of purity (the marginal cost of
+    each spec) and `evidence`: ipopt optimal, specs met, 8 neighbours ±1 % no better and feasible, multipliers = finite
+    differences within 5 % → verified. ~20 s. Use it for 'minimum energy/reflux for these purities' and to price a
+    purity spec; for other compounds use optimize_design_multi on the DWSIM column."""
+    from packages.eo.column_optimize import eo_column_optimize as _eo
+    return _eo(system, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_x_benzene, n_trays, feed_tray, pressure_Pa,
+               x_benzene_distillate_min, x_toluene_bottoms_min, (reflux_ratio_min, reflux_ratio_max),
+               (boilup_ratio_min, boilup_ratio_max))
+
+
+OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi, eo_column_optimize]

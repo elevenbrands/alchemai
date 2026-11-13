@@ -20,8 +20,8 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-13: **56 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
-fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 (**sin ipopt**), omlt 1.2.2, biosteam 2.54.0,
+Estado verificado el 2026-11-13: **57 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 + ipopt 3.13.2 (idaes-ext 3.4.2, `~/.idaes/bin`), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
 
@@ -41,7 +41,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | Flowsheet completo: corrientes, mezcladores, divisores, válvulas, bombas, compresores, intercambiadores, flash, columnas, reactores, reciclo | ✅ (12 tools base + `set_*`, `dof_check`, `sweep`) | DWSIM Fluent API | GPL-3 · proceso aparte | Un `solve()` puede no regresar (columna PR polar); falta timeout por llamada en el MCP |
 | Verificación de balances y convergencia (el sello) | ✅ (`solve` → `verify.py`) | propio | MIT | — |
 | Grados de libertad antes de resolver | ✅ (`dof_check`) | propio | MIT | Es contabilidad de la especificación, no física |
-| Modelado orientado a ecuaciones (optimización simultánea, flowsheets de IDAES) | 📦 | IDAES/Pyomo | BSD · en proceso | **Falta ipopt** (conda-forge o binario `idaes get-extensions`); sin él solo sirven los bloques explícitos (costeo) |
+| Modelado orientado a ecuaciones (optimización simultánea, flowsheets de IDAES) | ✅ columna (`eo_column_optimize`, M8a 2026-11-13: caso de IDAES reproducido, multiplicadores = diferencias finitas, DWSIM a 0.5 %) | IDAES/Pyomo + ipopt (idaes-ext) | BSD · en proceso; ipopt EPL ejecutable aparte | Solo benceno-tolueno ideal (cp líquido de `BT_ideal` corregido: venía 1000× menor); otras mezclas = M8b |
 | Dinámica (arranque, paro, transitorios) | ⬜ | DWSIM modo dinámico (`DWSIM.DynamicsManager.dll` presente) | GPL-3 · proceso aparte | Nunca probado desde la Fluent API |
 
 ## 3 · Reacción química
@@ -107,7 +107,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 |---|---|---|---|---|
 | Una variable (barrido + sección dorada), restricciones, infactibilidad | ✅ (`optimize_design`, bloque 21) | scipy + DWSIM | BSD/GPL | — |
 | 2-4 variables continuas + enteras (etapas), Nelder-Mead | ✅ (`optimize_design_multi`, bloques 24/26) | scipy + DWSIM | BSD/GPL | Sin gradientes: > 4 variables es lento |
-| NLP/MINLP riguroso (ecuaciones simultáneas) | 📦 | Pyomo + IDAES | BSD | **ipopt** (y para MINLP: Bonmin/Couenne o SCIP) |
+| NLP/MINLP riguroso (ecuaciones simultáneas) | ✅ NLP (M8a); MINLP 📦 (bonmin/couenne ya instalados con idaes-ext, sin tool) | Pyomo + IDAES | BSD | Tool MINLP (etapas/alimentación enteras) pendiente |
 | Modelos sustitutos (red neuronal sobre datos de DWSIM) embebidos en Pyomo | 📦 | OMLT | BSD | Bloque 32 del plan (tema 7 de estudio) |
 | Optimización bayesiana, experimentos | ⬜ | Summit | — | Fase 3 del plan |
 
@@ -153,7 +153,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 5 | ✅ 2026-11-09 (M5, 52 tools): pinch formal (curvas compuestas, MER, ΔTmin). M5b ✅ 2026-11-13 (55 tools): corrientes extraídas del flowsheet (`pinch_from_flowsheet`) | 6 | Sin dependencias; conecta con `flowsheet_cost` | ninguna |
 | 6 | ✅ M6a ✅ 2026-11-09 (53 tools): tanque de flujo continuo OpenFOAM vs CSTR (`vessel_residence_time_cfd`). M6b ✅ 2026-11-10 (54 tools): `stirred_tank_cfd` Rushton MRF, Np 4.85 ± 3.5 % vs ≈ 5, verificado con banda entre 3 mallas | 5 | Segundo motor externo; mezclado es pregunta frecuente | ninguna (OpenFOAM instalado) |
 | 7 | ✅ 2026-11-13 (M7, 56 tools): reactor tubular no isotérmico (FEniCSx, energía acoplada, P2 + SUPG) vs PFR 1-D (`nonisothermal_tubular_reactor`) | 3, 6 | Donde el PFR ideal y el campo se separan de verdad | ninguna |
-| 8 | ipopt → IDAES/Pyomo riguroso; OMLT (bloque 32) | 2, 9 | Abre optimización simultánea y sustitutos | **ipopt** (conda-forge; sin costo) |
+| 8 | M8a ✅ 2026-11-13 (57 tools): ipopt + `eo_column_optimize` (IDAES). Falta M8b otras mezclas y M8c OMLT (bloque 32) | 2, 9 | Abre optimización simultánea y sustitutos | **ipopt** (conda-forge; sin costo) |
 | 9 | Control: `pid_tuning`, respuesta dinámica | 12 | Tema de estudio del plan | `python-control` (BSD) |
 | 10 | P&ID mínimo desde HAZOP (DEXPI P&ID) | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
 | — | Layout/ruteo, 3D, LOPA, dispersión | 10, 11 | Investigación o decisión del owner | — |
