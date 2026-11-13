@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M7, M8a, M5b, M6a y M6b cerrados)
+Actualizado: 2026-11-13 (M1-M7, M8a, M8b, M5b, M6a y M6b cerrados)
 
 ## Dónde estamos
+**Bloque M8b (2026-11-13): `eo_column_optimize` para cualquier mezcla ideal, 57 tools, ✅.** La misma tool ahora recibe `components` (2 o más), fracciones de alimentación y `specs` de pureza o recuperación. El paquete de propiedades de IDAES se genera de `chemicals`/`thermo` (Psat Wagner-McGarry, cp gas Poling, densidad DIPPR 105, cp líquido ajustado a thermo, ΔHvap = DIPPR 106 en Tsat), con las fuentes citadas y comprobado en cada llamada. UNIFAC Dortmund rechaza las mezclas no ideales (azeótropo o |ln γi/γj| > 0.10). Evidencia: misma fuente a ≤ 2e-11 (sin errores de unidades); BT reproduce M8a (Q_reb −1.6 %, RR 0.5 %); **hexano-heptano vs DWSIM en el óptimo: Q_reb 0.55 %, Q_cond 0.39 %, T 0.03 K**; BTX con recuperaciones, alimentación subenfriada: DWSIM Q_reb 0.87 %; multiplicadores = diferencias finitas ≤ 0.16 %. Siguiente: **M8c OMLT** (sustitutos), en otra sesión.
+
 **Bloque M8a (2026-11-13): ipopt + `eo_column_optimize`, 57 tools, ✅.** ipopt de idaes-ext 3.4.2 (`idaes get-extensions`). Columna benceno-tolueno de IDAES optimizada como un NLP: carga mínima del rehervidor con dos purezas, multiplicadores = MW por unidad de pureza. Evidencia: caso de prueba de IDAES reproducido; vecinos ± 1 % y multiplicadores = diferencias finitas (0.16 %); DWSIM en el óptimo a 0.4-0.5 % en cargas. Hallazgo: `BT_ideal` de IDAES tiene el cp líquido 1000× menor (unidades J/kmol); corregido en copia propia (ΔHvap ≤ 2.3 % de DIPPR). 216 tests en verde.
 
 **Bloque M7 (2026-11-13): `nonisothermal_tubular_reactor`, 56 tools, ✅.** Campo 2-D acoplado c–T en FEniCSx (proceso aparte, P2 + SUPG, Newton con continuación en ΔH y pseudo-transitorio) contra el PFR 1-D no isotérmico (scipy): X, T de salida, punto caliente (T, z, r), perfiles radiales y dónde divergen. Evidencia: cierre de energía ≤ 1e-5; malla 2×; ΔH = 0 = M1 (0.78189); adiabático = PFR a 3e-6; modelo publicado de Rawlings & Ekerdt (fig. 6.35, o-xileno) reproducido por el PFR y por el campo con mezcla radial fuerte (T_max 719.365 vs 719.35 K). Sin caso 2-D publicado legible; con λ_er finito ese tubo se desboca y el solver lo reporta como no convergido. 210 tests en verde.

@@ -131,9 +131,11 @@ Hard rules:
    With a built flowsheet use pinch_from_flowsheet (extracts heaters/coolers/exchangers, segments CP on phase change,
    takes heaters/coolers as the current utilities): show the extracted stream table so the user can check it, say
    which units were not extracted (column condensers/reboilers, reactors) and that supply/target T are today's.
-16. Minimum energy (or reflux) of a benzene-toluene column for given purities, or the marginal cost of a purity spec:
-   eo_column_optimize (equation-oriented, IDAES + ipopt) and report RR, boil-up, Q_reboiler and the multipliers as
-   "MW per unit of purity", with the seal only if verified. Other mixtures: optimize_design_multi on the DWSIM column.
+16. Minimum energy (or reflux) of a column for given purities/recoveries, or the marginal cost of a spec:
+   eo_column_optimize (equation-oriented, IDAES + ipopt) for an IDEAL mixture (Raoult + ideal gas). Ask for every feed
+   value, the trays, feed tray, pressure and specs (no defaults). Report RR, boil-up, Q_reboiler and the multipliers as
+   "MW per unit of spec", the property sources and the ideal-mixture check, with the seal only if verified. If the tool
+   refuses the mixture as non-ideal, say why (UNIFAC) and use optimize_design_multi on the DWSIM column (NRTL/UNIQUAC).
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -731,16 +733,18 @@ def packed_column_hydraulics(flowsheet_id: str, gas_stream: str, liquid_stream: 
 
 
 @beta_tool
-def eo_column_optimize(system: str, feed_flow_mol_s: float, feed_T_K: float, feed_P_Pa: float, feed_x_benzene: float,
-                       n_trays: int, feed_tray: int, pressure_Pa: float, x_benzene_distillate_min: float,
-                       x_toluene_bottoms_min: float, reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0,
-                       boilup_ratio_min: float = 0.1, boilup_ratio_max: float = 20.0) -> str:
-    """Equation-oriented (IDAES + ipopt) minimum reboiler duty of a benzene-toluene tray column meeting two purity specs;
-    system='benzene-toluene ideal'. Returns optimal reflux/boil-up, duties, products, the multipliers (MW per unit of
-    purity) and evidence (ipopt optimal, neighbours, multipliers vs finite differences)."""
-    return json.dumps(TO.eo_column_optimize(system, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_x_benzene, n_trays, feed_tray,
-                                            pressure_Pa, x_benzene_distillate_min, x_toluene_bottoms_min, reflux_ratio_min,
-                                            reflux_ratio_max, boilup_ratio_min, boilup_ratio_max), default=float)
+def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: float, feed_P_Pa: float,
+                       feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
+                       reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0, boilup_ratio_min: float = 0.1,
+                       boilup_ratio_max: float = 20.0) -> str:
+    """Equation-oriented (IDAES + ipopt) minimum reboiler duty of a tray column for any IDEAL mixture of 2+ components
+    (English chemicals names), meeting purity/recovery specs: specs = [{"stream": "distillate"|"bottoms", "component",
+    "kind": "mole_fraction"|"recovery", "min"}]. Property package generated from chemicals/thermo and checked vs DIPPR;
+    non-ideal mixtures (UNIFAC azeotrope or |ln γi/γj| > 0.10) are refused. Returns optimal reflux/boil-up, duties,
+    products, multipliers (MW per unit of spec) and evidence (neighbours, multipliers vs finite differences)."""
+    return json.dumps(TO.eo_column_optimize(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays,
+                                            feed_tray, pressure_Pa, specs, reflux_ratio_min, reflux_ratio_max,
+                                            boilup_ratio_min, boilup_ratio_max), default=float)
 
 
 @beta_tool
