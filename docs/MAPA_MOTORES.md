@@ -124,10 +124,10 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 
 | Necesidad | Hoy | Motor | Licencia · cómo entra | Hueco |
 |---|---|---|---|---|
-| Exportar el flowsheet a estándares abiertos (SFILES 2.0, DEXPI Process) | ✅ (`export_flowsheet`; 12/12 ida y vuelta) | SFILES2, pyDEXPI | MIT | Validar contra el XSD oficial de DEXPI |
+| Exportar el flowsheet a estándares abiertos (SFILES 2.0, DEXPI Process) | ✅ (`export_flowsheet`; 12/12 ida y vuelta; XSD oficial DEXPI 2.0.1 válido, 2026-11-13) | SFILES2, pyDEXPI | MIT | Tipos contra `Plant.xml`/`Process.xml` oficiales (data.dexpi.org no respondió) |
 | Diagrama PFD con etiquetas y resultados | ✅ (app Mac: `LienzoDiagrama`, PDF) | propio SwiftUI | — | — |
 | Reporte PDF del caso (conversación, corrientes, equipos, balances, HAZOP) | ✅ (B8 de la app) | propio | — | — |
-| P&ID (instrumentación, lazos, válvulas) | ⬜ | DEXPI P&ID vía pyDEXPI | MIT | Generar instrumentación mínima desde reglas + HAZOP; nadie lo tiene abierto |
+| P&ID (instrumentación, lazos, válvulas) | ✅ (`pid_from_hazop`, bloque M10 2026-11-13: reglas con fuente + PSV/check/alarmas/disparos del HAZOP, tags ISA-5.1 trazados; 22 casos con ida y vuelta y XSD oficial; Skogestad 1997 Fig. 1 reproducida) | DEXPI P&ID vía pyDEXPI 2.1.0 | MIT · en proceso | Sin dibujo (pyDEXPI pide geometría: hueco de layout); bombas de desplazamiento positivo; SIL por LOPA |
 | Layout y ruteo de tubería | 🚫 hoy | ninguno abierto maduro | — | Hueco de investigación (fase 3): es diferenciador, no un motor que se instala |
 | 3D / CAD de planta | 🚫 | Plant 3D (Windows, COM) | decisión del owner (Parallels) | No construir sobre Aspen/E3D (sin API abierta) |
 
@@ -155,7 +155,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 7 | ✅ 2026-11-13 (M7, 56 tools): reactor tubular no isotérmico (FEniCSx, energía acoplada, P2 + SUPG) vs PFR 1-D (`nonisothermal_tubular_reactor`) | 3, 6 | Donde el PFR ideal y el campo se separan de verdad | ninguna |
 | 8 | M8a ✅ 2026-11-13 (57 tools): ipopt + `eo_column_optimize` (IDAES); M8b ✅ 2026-11-13: cualquier mezcla ideal (paquete IDAES generado de `chemicals`, cribado UNIFAC); M8c ✅ 2026-11-13 (58 tools): `optimize_design_surrogate` (OMLT, red sobre muestras de DWSIM, re-verificada en DWSIM). **Bloque 8 cerrado** | 2, 9 | Abre optimización simultánea y sustitutos | **ipopt** (conda-forge; sin costo) |
 | 9 ✅ | Control — hecho 2026-11-13 (M9, 61 tools): `fopdt_identify` (FOPDT/SOPDT por mínimos cuadrados + Smith y Sundaresan-Krishnaswamy), `pid_tuning` (SIMC por defecto, IMC, ZN último ciclo y curva de reacción, Cohen-Coon, Tyreus-Luyben; regla de la mitad), `pid_closed_loop` (márgenes exactos, Ms, IAE, sobrepaso) | 12 | Tema de estudio del plan | `python-control` 0.10.2 (BSD) |
-| 10 | P&ID mínimo desde HAZOP (DEXPI P&ID) | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
+| 10 ✅ | P&ID mínimo desde HAZOP (DEXPI P&ID) — hecho 2026-11-13 (M10, 62 tools): `pid_from_hazop`, DEXPI 2.0.1 con ida y vuelta, XSD oficial y Skogestad 1997 Fig. 1 | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
 | — | Layout/ruteo, 3D, LOPA, dispersión | 10, 11 | Investigación o decisión del owner | — |
 
 ## Reglas de admisión de un motor nuevo

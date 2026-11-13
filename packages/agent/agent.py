@@ -37,6 +37,7 @@ from packages.dwsim_client import tools_control as TCO  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
+from packages.pid.tool import pid_from_hazop as _pid  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -150,6 +151,13 @@ Hard rules:
    user asks otherwise; show the comparison table (Kc, τI, τD, Ms, GM, PM, IAE setpoint/load) and say which rules are
    out of their validity range. State τc and that it is a tuning choice (default τc = θ). Say a PID needs a
    second-order model (τ2 > θ) to pay off. Quote "verified" only when the tool says so; an unstable loop is a result.
+19. P&ID (instrumentation, control loops, relief/check/isolation valves, DEXPI P&ID): pid_from_hazop on the solved
+   flowsheet (or dexpi_path for a DEXPI Process file). Its rules and the HAZOP rows decide every element; show the
+   loop table and the valve table in Spanish with each tag, its rule/source and the HAZOP rows it answers, plus
+   no_instrumentadas and assumptions. Setpoints, alarm limits, PSV set pressures and relief loads are the user's:
+   leave them "por definir" (size PSVs with relief_valve_sizing, valves with control_valve_sizing, tune loops with
+   pid_tuning). Anything you add beyond the tool's output is a "propuesta" you list apart; never put it in the
+   table as if the tool produced it. Quote "verified" only when the tool says so (round trip + official XSD).
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -346,6 +354,19 @@ def hazop_from_dexpi(path: str) -> str:
     file. Returns rows and `missing` (data the file lacked). Use when the user provides a DEXPI file."""
     out = _hazop_dexpi(path)
     out.pop("markdown", None)
+    return json.dumps(out, ensure_ascii=False, default=float)
+
+
+@beta_tool
+def pid_from_hazop(flowsheet_id: str = "", dexpi_path: str = "") -> str:
+    """Minimal P&ID of a SOLVED flowsheet (or of a DEXPI Process file via dexpi_path) as a DEXPI P&ID (XML + JSON):
+    deterministic level/pressure/flow/temperature loops, LV column scheme, battery-limit and rotating-equipment
+    isolation, and the PSVs, check valves, alarms and trips the HAZOP rows ask for. Each element has an ISA-5.1 tag
+    and its trace (rule, source, HAZOP rows); setpoints and limits stay "por definir". Round trip + official DEXPI XSD
+    give `verified`. Use when the card or user asks for a P&ID, instrumentation, control loops or DEXPI P&ID."""
+    out = _pid(flowsheet_id or None, dexpi_path or None)
+    out.pop("markdown", None)
+    out.pop("reglas", None)
     return json.dumps(out, ensure_ascii=False, default=float)
 
 
@@ -843,7 +864,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
-               hazop_from_dexpi, close_flowsheet]
+               hazop_from_dexpi, pid_from_hazop, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

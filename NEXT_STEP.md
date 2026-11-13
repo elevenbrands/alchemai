@@ -1,8 +1,37 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M9 cerrados; M5b, M6a, M6b y M8a-c cerrados)
+Actualizado: 2026-11-13 (M1-M10 cerrados: el orden numerado del mapa está completo)
 
 ## Dónde estamos
+**Bloque M10 (2026-11-13): P&ID mínimo desde el HAZOP en DEXPI P&ID, 62 tools, ✅.** Paquete `packages/pid/` y tool `pid_from_hazop`.
+- Entrada: un flowsheet resuelto o un DEXPI Process.
+- Reglas deterministas, cada una con su fuente:
+  - nivel en todo inventario de líquido;
+  - presión en espacios de gas;
+  - flujo en la descarga de bombas y compresores;
+  - temperatura en calentadores, enfriadores y reactores;
+  - columna LV de Skogestad;
+  - cascadas;
+  - aislamiento en límites de batería y rotatorios.
+- Elementos que salen del HAZOP: PSV, check, alarmas (severidad ≥ 3) y disparos (≥ 4), solo donde una fila los pide.
+- Cada elemento lleva tag ISA-5.1 y su trazabilidad. Las consignas quedan «por definir».
+- Salida: XML y JSON DEXPI 2.0.1, más tablas en español.
+
+Evidencia (`tests/test_pid.py`, 31 tests):
+- Cobertura exacta en 22 casos: 12 de DWSIM y 10 HAZOP publicados. Sin espurios, y la prueba de mutación los detecta.
+- Ida y vuelta en pyDEXPI idéntica (XML y JSON), con 0 avisos del validador.
+- **XSD oficial DEXPI 2.0.1 válido** en los 22 casos y también en los DEXPI Process de `export_flowsheet`.
+- Skogestad 1997 Fig. 1 (LV) más el lazo de temperatura de 2007, reproducidos en 5 columnas.
+
+Pendiente:
+- dibujar el P&ID (hace falta acomodo; es el hueco de layout);
+- tipos contra `Plant.xml` oficial (`data.dexpi.org` no respondió);
+- bombas de desplazamiento positivo;
+- L/D > 6;
+- SIL por LOPA.
+
+Siguiente según el mapa: solo quedan temas de investigación (layout y ruteo, 3D, LOPA, dispersión). **Decisión del owner.**
+
 **Bloque M9 (2026-11-13): control de procesos, 61 tools, ✅.** Paquete `packages/dynamics/` y tres tools:
 - `fopdt_identify`: ajuste FOPDT/SOPDT a la prueba escalón del usuario (mínimos cuadrados, IC 95 %, autocorrelación de residuos), contrastado con Smith y Sundaresan-Krishnaswamy;
 - `pid_tuning`: SIMC (recomendada, τc = θ por defecto y declarado), IMC, ZN (último ciclo y curva de reacción), Cohen-Coon y Tyreus-Luyben, cada una con fuente y rango de validez, más la regla de la mitad para modelos de orden alto;
