@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-13: **67 tools** (M12), DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-13: **68 tools** (M13), DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 + ipopt 3.13.2 (idaes-ext 3.4.2, `~/.idaes/bin`), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0, CoolProp 8.0.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -70,7 +70,7 @@ SFILES2 1.2.0, pydexpi 2.1.0, CoolProp 8.0.0; fuera del entorno: OpenFOAM v2606 
 | Tubería en el flowsheet (dos fases, Beggs-Brill) | ✅ (kind `pipe`) | DWSIM Pipe Segment | GPL-3 | Solo lo que DWSIM da; sin ΔP bifásico propio |
 | Accesorios, válvulas de control, flujo compresible, dos fases propio | ✅ (4 tools, bloque M4a; ejemplos 1-3 de IEC 60534-2-1, EDO de momento, límites de una fase) | `fluids` (IEC 60534-2-1, Darby 3-K, Friedel/MSH/Chisholm/L-M) + forma cerrada isotérmica propia | MIT · en proceso | Bombas (eficiencia) sin tool; gas adiabático (Fanno) no cubierto; dos fases solo fricción horizontal |
 | **Campo de flujo con geometría**: tanque agitado, mezclado, tiempo de homogeneización, zonas muertas, turbulencia | ✅ flujo continuo (`vessel_residence_time_cfd`, M6a: tanque prismático, simpleFoam laminar/k-ε + edad media local → τ, σ²/τ², N, volumen estancado; teorema edad de salida = V/Q y estudio de malla); impulsor ✅ (`stirred_tank_cfd`, M6b: Rushton con mamparas, MRF k-ε, snappyHexMesh; Np, P, P/V, θ95 por correlación de Grenville; balance de torque, estabilidad, checkMesh e independencia de malla por banda entre 3 mallas (< 10 %; el GCI no aplica porque el aspa delgada salta con la malla) ✅; Np 4.85 ± 3.5 % vs ≈ 5; ~95 min por llamada) | OpenFOAM v2606 | **GPL-3 · proceso aparte** (`openfoam -c`, caso en $TMPDIR sin espacios) | Tiempo de mezclado por CFD (trazador transitorio); otros impulsores (pitched blade, hélice) |
-| Redes de tuberías (mallas, bombas en paralelo) | ⬜ | modelo propio (Hardy-Cross con `fluids`) | — | Baja prioridad hasta que un caso lo pida |
+| Redes de tuberías (mallas, bombas en paralelo) | ✅ (`pipe_network`, M13 2026-11-13: gradiente global de Todini-Pilati (el de EPANET) con contraste Hardy Cross; mallas, varias fuentes y sumideros, reservorios, tanques y fronteras de presión fija; bombas en serie y en paralelo con la curva del usuario, curva de sistema y curva combinada, NPSHa vs NPSHr, potencia hidráulica y al eje; check, PRV y FCV; residuo de masa por nodo ≤ 1e-9 m³/s; EPANET 2.2 Net1 y 5 variantes (H-W idéntico; D-W ≤ 0.1 %, explicado por Swamee-Jain y g = 32.2 ft/s²), Jeppson 1974 (redes de 4 y 5 lazos, 3 bombas desde 3 reservorios, 3 reservorios con H-W), Larock Ex. 2.7, Evett & Liu 12.11 y Cameron NPSH ej. 1-4 reproducidos; límite de un tubo = `pipe_hydraulics` exacto) | propio (numpy) con `fluids` Colebrook/Clamond; EPANET 2.2 vía WNTR solo para la referencia | MIT · en proceso (EPANET dominio público/MIT y WNTR BSD, en entorno desechable aparte) | Sin transitorios (golpe de ariete) ni simulación en el tiempo (tanques a nivel fijo); un solo fluido isotérmico; sin ejemplo publicado legible de bombas en paralelo con su curva |
 
 ## 6 · Calor
 
@@ -158,6 +158,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 10 ✅ | P&ID mínimo desde HAZOP (DEXPI P&ID) — hecho 2026-11-13 (M10, 62 tools): `pid_from_hazop`, DEXPI 2.0.1 con ida y vuelta, XSD oficial y Skogestad 1997 Fig. 1 | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
 | 11 ✅ | LOPA y SIL desde el HAZOP y el P&ID — hecho 2026-11-13 (M11, 63 tools): `lopa_from_hazop`, independencia por tags del P&ID, SIL por IEC 61511, ejemplos HSE/BSTG 2007, Kenexis y Casey 2019 reproducidos | 10 | Cierra la cadena HAZOP → P&ID → nivel de protección | ninguna |
 | 12 ✅ | Análisis de consecuencias — hecho 2026-11-13 (M12 + M12b, 67 tools): términos fuente y charco en ebullición, dispersión gaussiana y gas denso Britter-McQuaid, charco/bola de fuego/chorro Chamberlain, TNT y multi-energía, probits; enlace de severidad calculada a la LOPA. BST pendiente | 10 | Completa la seguridad: del HAZOP a qué pasa si la protección falla | ninguna (CoolProp ya en el entorno) |
+| 13 ✅ | Redes de tuberías y sistemas de bombeo — hecho 2026-11-13 (M13, 68 tools): `pipe_network` (gradiente global + Hardy Cross, bombas serie/paralelo, curva de sistema, NPSH, check/PRV/FCV); EPANET Net1, Jeppson 1974, Larock y Cameron reproducidos | 5 | Lo eligió el owner tras M12: la hidráulica pasa de un tubo a la red de planta | ninguna (WNTR + EPANET solo para regenerar la referencia, en entorno desechable) |
 | — | Layout/ruteo, 3D, árbol de fallas, BST | 10, 11 | Investigación o decisión del owner | — |
 
 ## Reglas de admisión de un motor nuevo

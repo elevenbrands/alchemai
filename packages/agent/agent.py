@@ -40,6 +40,7 @@ from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa:
 from packages.pid.tool import pid_from_hazop as _pid  # noqa: E402
 from packages.lopa.tool import lopa_from_hazop as _lopa  # noqa: E402
 from packages.consequence import tool as _CQ  # noqa: E402
+from packages.network import tool as _NW  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -179,6 +180,17 @@ Hard rules:
    source and the assumptions. Always say it is preliminary screening, not a substitute for Phast/EFFECTS in a real
    QRA. To feed a LOPA row, pass the tool's para_lopa.overrides_lopa to lopa_from_hazop (severity labelled
    "calculada") only with the user's severity_criterion; a suggested probability modifier needs the owner's OK.
+
+22. Pipe networks and pump systems (loops, several sources/sinks, reservoirs or fixed-pressure boundaries, pumps
+   in series/parallel, operating point vs system curve, NPSH, check/PRV/FCV valves): pipe_network. Use
+   pipe_hydraulics for ONE pipe of a solved stream; pipe_network for anything with a junction. Pipe lengths,
+   diameters (or NPS + schedule), roughness (or a material name from the fluids tables, then say it is a design
+   value), node elevations and demands, reservoir/tank levels, pump curves (points or {h0_m, r, n}), efficiencies,
+   NPSHr, atmospheric and vapour pressure are user data: ASK, never invent. Show in Spanish the pipe table (flow,
+   velocity, Re, f, head loss), the node table (head, pressure, continuity residual), each pump's duty point, head,
+   hydraulic and shaft power, NPSHa vs NPSHr, the system curve and the combined curve for parallel pumps, the
+   valve states, and the evidence (mass residual vs its tolerance, Hardy Cross agreement). Quote "verified" only
+   when the tool says so; list supuestos and avisos (curve extrapolation, transition Re, cavitation).
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -522,6 +534,25 @@ def explosion_overpressure(method: str = "tnt", flammable_mass_kg: float | None 
                                           endpoints_kPa, example_endpoints or None, receptor_distance_m, hazop_row,
                                           severity_criterion, charge_energy_J, congested_volume_m3, strength_class))
 
+
+@beta_tool
+def pipe_network(nodes: list[dict[str, object]], links: list[dict[str, object]], fluid: dict[str, object],
+                 atmospheric_pressure_Pa: float | None = None, system_curve: bool = True,
+                 system_curve_points: int = 11, hardy_cross_check: bool = True) -> str:
+    """Steady incompressible pipe network (global gradient of Todini-Pilati, as EPANET; Hardy Cross cross-check).
+    nodes: [{id, type: junction (elevation_m, demand_m3_s; negative = injection) | reservoir (head_m) | tank
+    (elevation_m, level_m) | pressure (elevation_m, pressure_Pa_g)}]. links: [{id, type, from, to}] with pipe
+    (length_m, diameter_m or nps_in+schedule, roughness_m or material, minor_loss_K, fittings [{name, count}] Darby 3-K,
+    check_valve, hazen_williams_C, or resistance {K, n} in SI), pump (curve_points [[q_m3_s, h_m], ...] or curve
+    {h0_m, r, n}, speed_ratio, efficiency or efficiency_points, npshr_m or npshr_points, centerline_elevation_m),
+    prv (diameter_m, setting_pressure_Pa_g, minor_loss_K) or fcv (diameter_m, setting_flow_m3_s). Parallel pumps =
+    several pumps between the same two nodes; series = pump, node, pump. fluid: {density_kg_m3, viscosity_Pa_s,
+    vapor_pressure_Pa} or {compound, temperature_K} (thermo). Friction = pipe_hydraulics' Colebrook/Clamond. Returns
+    flows, velocities, head losses, node heads/pressures, continuity residual per node, pump duty point, power,
+    NPSHa vs NPSHr (needs atmospheric_pressure_Pa and vapour pressure), system curve per pump station and evidence.
+    Every pipe, curve, elevation and demand is the user's: never assume them."""
+    return _cq(_NW.pipe_network(nodes, links, fluid, atmospheric_pressure_Pa, system_curve, system_curve_points,
+                                hardy_cross_check))
 
 @beta_tool
 def stream_transport_properties(flowsheet_id: str, stream: str) -> str:
@@ -1018,7 +1049,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
-               fire_radiation, explosion_overpressure, close_flowsheet]
+               fire_radiation, explosion_overpressure, pipe_network, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

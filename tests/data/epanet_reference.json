@@ -1,0 +1,1560 @@
+{
+ "source": "EPANET 2.2 via WNTR 1.5.0",
+ "net1_inp": "wntr/library/networks/Net1.inp",
+ "variants": [
+  {
+   "name": "net1_hw",
+   "note": "Net1 tal cual (Hazen-Williams C=100), t = 0",
+   "headloss": "H-W",
+   "kinematic_viscosity_m2_s": 1.02193344e-06,
+   "specific_gravity": 1.0,
+   "nodes": {
+    "10": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.0
+    },
+    "11": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00946352946
+    },
+    "12": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "13": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.00630901964
+    },
+    "21": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "22": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.01261803928
+    },
+    "23": {
+     "type": "junction",
+     "elevation_m": 210.312,
+     "demand_m3_s": 0.00946352946
+    },
+    "31": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00630901964
+    },
+    "32": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00630901964
+    },
+    "9": {
+     "type": "reservoir",
+     "head_m": 243.84,
+     "elevation_m": 243.84
+    },
+    "2": {
+     "type": "tank",
+     "elevation_m": 259.08000000000004,
+     "init_level_m": 36.576,
+     "head_m": 295.65600000000006
+    }
+   },
+   "links": {
+    "10": {
+     "type": "pipe",
+     "from": "10",
+     "to": "11",
+     "length_m": 3209.5440000000003,
+     "diameter_m": 0.4572,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "11": {
+     "type": "pipe",
+     "from": "11",
+     "to": "12",
+     "length_m": 1609.344,
+     "diameter_m": 0.35559999999999997,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "12": {
+     "type": "pipe",
+     "from": "12",
+     "to": "13",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "21": {
+     "type": "pipe",
+     "from": "21",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "22": {
+     "type": "pipe",
+     "from": "22",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "31": {
+     "type": "pipe",
+     "from": "31",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "110": {
+     "type": "pipe",
+     "from": "2",
+     "to": "12",
+     "length_m": 60.96,
+     "diameter_m": 0.4572,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "111": {
+     "type": "pipe",
+     "from": "11",
+     "to": "21",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "112": {
+     "type": "pipe",
+     "from": "12",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "113": {
+     "type": "pipe",
+     "from": "13",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "121": {
+     "type": "pipe",
+     "from": "21",
+     "to": "31",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "122": {
+     "type": "pipe",
+     "from": "22",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 100.0,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "9": {
+     "type": "pump",
+     "from": "9",
+     "to": "10",
+     "curve_points": [
+      [
+       0.0946352946,
+       76.2
+      ]
+     ],
+     "speed": 1.0
+    }
+   },
+   "epanet": {
+    "head_m": {
+     "10": 306.1250915527344,
+     "11": 300.2982177734375,
+     "12": 295.6772766113281,
+     "13": 295.3124084472656,
+     "21": 296.1274108886719,
+     "22": 295.3750915527344,
+     "23": 295.2430725097656,
+     "31": 294.8609619140625,
+     "32": 294.34210205078125,
+     "9": 243.83999633789062,
+     "2": 295.656005859375
+    },
+    "pressure_m": {
+     "10": 89.71708679199219,
+     "11": 83.89020538330078,
+     "12": 82.31727600097656,
+     "13": 83.47638702392578,
+     "21": 82.76741027832031,
+     "22": 83.5390853881836,
+     "23": 84.9310531616211,
+     "31": 81.5009536743164,
+     "32": 77.9341049194336,
+     "9": 0.0,
+     "2": 36.57599639892578
+    },
+    "flow_m3_s": {
+     "10": 0.11773740500211716,
+     "11": 0.07786637544631958,
+     "12": 0.008159779943525791,
+     "21": 0.012060204520821571,
+     "22": 0.007612770888954401,
+     "31": 0.0025747439358383417,
+     "110": -0.048338185995817184,
+     "111": 0.0304074976593256,
+     "112": 0.011904881335794926,
+     "113": 0.0018507594941183925,
+     "121": 0.008883764035999775,
+     "122": 0.0037342761643230915,
+     "9": 0.11773740500211716
+    },
+    "status": {
+     "10": 1,
+     "11": 1,
+     "12": 1,
+     "21": 1,
+     "22": 1,
+     "31": 1,
+     "110": 1,
+     "111": 1,
+     "112": 1,
+     "113": 1,
+     "121": 1,
+     "122": 1,
+     "9": 1
+    }
+   }
+  },
+  {
+   "name": "net1_dw",
+   "note": "Net1 con Darcy-Weisbach, \u03b5 = 0.15 mm en todos los tubos",
+   "headloss": "D-W",
+   "kinematic_viscosity_m2_s": 1.02193344e-06,
+   "specific_gravity": 1.0,
+   "nodes": {
+    "10": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.0
+    },
+    "11": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00946352946
+    },
+    "12": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "13": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.00630901964
+    },
+    "21": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "22": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.01261803928
+    },
+    "23": {
+     "type": "junction",
+     "elevation_m": 210.312,
+     "demand_m3_s": 0.00946352946
+    },
+    "31": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00630901964
+    },
+    "32": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00630901964
+    },
+    "9": {
+     "type": "reservoir",
+     "head_m": 243.84,
+     "elevation_m": 243.84
+    },
+    "2": {
+     "type": "tank",
+     "elevation_m": 259.08000000000004,
+     "init_level_m": 36.576,
+     "head_m": 295.65600000000006
+    }
+   },
+   "links": {
+    "10": {
+     "type": "pipe",
+     "from": "10",
+     "to": "11",
+     "length_m": 3209.5440000000003,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "11": {
+     "type": "pipe",
+     "from": "11",
+     "to": "12",
+     "length_m": 1609.344,
+     "diameter_m": 0.35559999999999997,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "12": {
+     "type": "pipe",
+     "from": "12",
+     "to": "13",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "21": {
+     "type": "pipe",
+     "from": "21",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "22": {
+     "type": "pipe",
+     "from": "22",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "31": {
+     "type": "pipe",
+     "from": "31",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "110": {
+     "type": "pipe",
+     "from": "2",
+     "to": "12",
+     "length_m": 60.96,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "111": {
+     "type": "pipe",
+     "from": "11",
+     "to": "21",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "112": {
+     "type": "pipe",
+     "from": "12",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "113": {
+     "type": "pipe",
+     "from": "13",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "121": {
+     "type": "pipe",
+     "from": "21",
+     "to": "31",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "122": {
+     "type": "pipe",
+     "from": "22",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "9": {
+     "type": "pump",
+     "from": "9",
+     "to": "10",
+     "curve_points": [
+      [
+       0.0946352946,
+       76.2
+      ]
+     ],
+     "speed": 1.0
+    }
+   },
+   "epanet": {
+    "head_m": {
+     "10": 301.9977111816406,
+     "11": 298.5257263183594,
+     "12": 295.66986083984375,
+     "13": 295.4840393066406,
+     "21": 296.0176696777344,
+     "22": 295.531494140625,
+     "23": 295.4540710449219,
+     "31": 295.3011169433594,
+     "32": 294.9781799316406,
+     "9": 243.83999633789062,
+     "2": 295.656005859375
+    },
+    "pressure_m": {
+     "10": 85.58971405029297,
+     "11": 82.11772155761719,
+     "12": 82.30986022949219,
+     "13": 83.6480484008789,
+     "21": 82.65766906738281,
+     "22": 83.69550323486328,
+     "23": 85.14207458496094,
+     "31": 81.94110107421875,
+     "32": 78.57015991210938,
+     "9": 0.0,
+     "2": 36.57599639892578
+    },
+    "flow_m3_s": {
+     "10": 0.12376337498426437,
+     "11": 0.08258365094661713,
+     "12": 0.007855412550270557,
+     "21": 0.013252237811684608,
+     "22": 0.007917136885225773,
+     "31": 0.002691391622647643,
+     "110": -0.054364144802093506,
+     "111": 0.031716179102659225,
+     "112": 0.010900567285716534,
+     "113": 0.001546392566524446,
+     "121": 0.009000411257147789,
+     "122": 0.0036176282446831465,
+     "9": 0.12376337498426437
+    },
+    "status": {
+     "10": 1,
+     "11": 1,
+     "12": 1,
+     "21": 1,
+     "22": 1,
+     "31": 1,
+     "110": 1,
+     "111": 1,
+     "112": 1,
+     "113": 1,
+     "121": 1,
+     "122": 1,
+     "9": 1
+    }
+   }
+  },
+  {
+   "name": "net1_dw_parallel",
+   "note": "net1_dw + una segunda bomba igual en paralelo (9b)",
+   "headloss": "D-W",
+   "kinematic_viscosity_m2_s": 1.02193344e-06,
+   "specific_gravity": 1.0,
+   "nodes": {
+    "10": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.0
+    },
+    "11": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00946352946
+    },
+    "12": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "13": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.00630901964
+    },
+    "21": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "22": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.01261803928
+    },
+    "23": {
+     "type": "junction",
+     "elevation_m": 210.312,
+     "demand_m3_s": 0.00946352946
+    },
+    "31": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00630901964
+    },
+    "32": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00630901964
+    },
+    "9": {
+     "type": "reservoir",
+     "head_m": 243.84,
+     "elevation_m": 243.84
+    },
+    "2": {
+     "type": "tank",
+     "elevation_m": 259.08000000000004,
+     "init_level_m": 36.576,
+     "head_m": 295.65600000000006
+    }
+   },
+   "links": {
+    "10": {
+     "type": "pipe",
+     "from": "10",
+     "to": "11",
+     "length_m": 3209.5440000000003,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "11": {
+     "type": "pipe",
+     "from": "11",
+     "to": "12",
+     "length_m": 1609.344,
+     "diameter_m": 0.35559999999999997,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "12": {
+     "type": "pipe",
+     "from": "12",
+     "to": "13",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "21": {
+     "type": "pipe",
+     "from": "21",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "22": {
+     "type": "pipe",
+     "from": "22",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "31": {
+     "type": "pipe",
+     "from": "31",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "110": {
+     "type": "pipe",
+     "from": "2",
+     "to": "12",
+     "length_m": 60.96,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "111": {
+     "type": "pipe",
+     "from": "11",
+     "to": "21",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "112": {
+     "type": "pipe",
+     "from": "12",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "113": {
+     "type": "pipe",
+     "from": "13",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "121": {
+     "type": "pipe",
+     "from": "21",
+     "to": "31",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "122": {
+     "type": "pipe",
+     "from": "22",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "9": {
+     "type": "pump",
+     "from": "9",
+     "to": "10",
+     "curve_points": [
+      [
+       0.0946352946,
+       76.2
+      ]
+     ],
+     "speed": 1.0
+    },
+    "9b": {
+     "type": "pump",
+     "from": "9",
+     "to": "10",
+     "curve_points": [
+      [
+       0.0946352946,
+       76.2
+      ]
+     ],
+     "speed": 1.0
+    }
+   },
+   "epanet": {
+    "head_m": {
+     "10": 314.2228088378906,
+     "11": 304.6109619140625,
+     "12": 295.74005126953125,
+     "13": 295.65118408203125,
+     "21": 298.1508483886719,
+     "22": 295.7974853515625,
+     "23": 295.6672668457031,
+     "31": 296.960693359375,
+     "32": 295.759765625,
+     "9": 243.83999633789062,
+     "2": 295.656005859375
+    },
+    "pressure_m": {
+     "10": 97.81478118896484,
+     "11": 88.20296478271484,
+     "12": 82.38005065917969,
+     "13": 83.81517791748047,
+     "21": 84.79084014892578,
+     "22": 83.96147918701172,
+     "23": 85.3552474975586,
+     "31": 83.60067749023438,
+     "32": 79.35176849365234,
+     "9": 0.0,
+     "2": 36.57599639892578
+    },
+    "flow_m3_s": {
+     "10": 0.20982779562473297,
+     "11": 0.14841145277023315,
+     "12": 0.005228158552199602,
+     "21": 0.03067297674715519,
+     "22": 0.010544391348958015,
+     "31": 0.005507281050086021,
+     "110": -0.1404285579919815,
+     "111": 0.05195280909538269,
+     "112": -0.006708804983645678,
+     "113": -0.0010808613151311874,
+     "121": 0.011816300451755524,
+     "122": 0.0008017385262064636,
+     "9": 0.10491389781236649,
+     "9b": 0.10491389781236649
+    },
+    "status": {
+     "10": 1,
+     "11": 1,
+     "12": 1,
+     "21": 1,
+     "22": 1,
+     "31": 1,
+     "110": 1,
+     "111": 1,
+     "112": 1,
+     "113": 1,
+     "121": 1,
+     "122": 1,
+     "9": 1,
+     "9b": 1
+    }
+   }
+  },
+  {
+   "name": "net1_dw_cv110",
+   "note": "net1_dw con v\u00e1lvula check en el tubo 110 (solo 2 \u2192 12)",
+   "headloss": "D-W",
+   "kinematic_viscosity_m2_s": 1.02193344e-06,
+   "specific_gravity": 1.0,
+   "nodes": {
+    "10": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.0
+    },
+    "11": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00946352946
+    },
+    "12": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "13": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.00630901964
+    },
+    "21": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "22": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.01261803928
+    },
+    "23": {
+     "type": "junction",
+     "elevation_m": 210.312,
+     "demand_m3_s": 0.00946352946
+    },
+    "31": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00630901964
+    },
+    "32": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00630901964
+    },
+    "9": {
+     "type": "reservoir",
+     "head_m": 243.84,
+     "elevation_m": 243.84
+    },
+    "2": {
+     "type": "tank",
+     "elevation_m": 259.08000000000004,
+     "init_level_m": 36.576,
+     "head_m": 295.65600000000006
+    }
+   },
+   "links": {
+    "10": {
+     "type": "pipe",
+     "from": "10",
+     "to": "11",
+     "length_m": 3209.5440000000003,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "11": {
+     "type": "pipe",
+     "from": "11",
+     "to": "12",
+     "length_m": 1609.344,
+     "diameter_m": 0.35559999999999997,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "12": {
+     "type": "pipe",
+     "from": "12",
+     "to": "13",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "21": {
+     "type": "pipe",
+     "from": "21",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "22": {
+     "type": "pipe",
+     "from": "22",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "31": {
+     "type": "pipe",
+     "from": "31",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "110": {
+     "type": "pipe",
+     "from": "2",
+     "to": "12",
+     "length_m": 60.96,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": true
+    },
+    "111": {
+     "type": "pipe",
+     "from": "11",
+     "to": "21",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "112": {
+     "type": "pipe",
+     "from": "12",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "113": {
+     "type": "pipe",
+     "from": "13",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "121": {
+     "type": "pipe",
+     "from": "21",
+     "to": "31",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "122": {
+     "type": "pipe",
+     "from": "22",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "9": {
+     "type": "pump",
+     "from": "9",
+     "to": "10",
+     "curve_points": [
+      [
+       0.0946352946,
+       76.2
+      ]
+     ],
+     "speed": 1.0
+    }
+   },
+   "epanet": {
+    "head_m": {
+     "10": 331.78057861328125,
+     "11": 330.62548828125,
+     "12": 329.9230041503906,
+     "13": 329.6220703125,
+     "21": 329.53411865234375,
+     "22": 329.5069580078125,
+     "23": 329.466064453125,
+     "31": 328.919921875,
+     "32": 328.73529052734375,
+     "9": 243.83999633789062,
+     "2": 295.656005859375
+    },
+    "pressure_m": {
+     "10": 115.37256622314453,
+     "11": 114.21746826171875,
+     "12": 116.56299591064453,
+     "13": 117.78607177734375,
+     "21": 116.17411041259766,
+     "22": 117.67095947265625,
+     "23": 119.15406036376953,
+     "31": 115.55989837646484,
+     "32": 112.32727813720703,
+     "9": 0.0,
+     "2": 36.57599639892578
+    },
+    "flow_m3_s": {
+     "10": 0.06939925998449326,
+     "11": 0.039502374827861786,
+     "12": 0.01022144965827465,
+     "21": 0.0026877494528889656,
+     "22": 0.00555109977722168,
+     "31": 0.001973047386854887,
+     "110": 0.0,
+     "111": 0.020433345809578896,
+     "112": 0.01981736347079277,
+     "113": 0.003912430256605148,
+     "121": 0.008282067254185677,
+     "122": 0.0043359724804759026,
+     "9": 0.06939925998449326
+    },
+    "status": {
+     "10": 1,
+     "11": 1,
+     "12": 1,
+     "21": 1,
+     "22": 1,
+     "31": 1,
+     "110": 0,
+     "111": 1,
+     "112": 1,
+     "113": 1,
+     "121": 1,
+     "122": 1,
+     "9": 1
+    }
+   }
+  },
+  {
+   "name": "net1_dw_prv",
+   "note": "net1_dw con el tubo 111 cambiado por una PRV (ajuste 81.0 m de presi\u00f3n)",
+   "headloss": "D-W",
+   "kinematic_viscosity_m2_s": 1.02193344e-06,
+   "specific_gravity": 1.0,
+   "nodes": {
+    "10": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.0
+    },
+    "11": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00946352946
+    },
+    "12": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "13": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.00630901964
+    },
+    "21": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "22": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.01261803928
+    },
+    "23": {
+     "type": "junction",
+     "elevation_m": 210.312,
+     "demand_m3_s": 0.00946352946
+    },
+    "31": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00630901964
+    },
+    "32": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00630901964
+    },
+    "9": {
+     "type": "reservoir",
+     "head_m": 243.84,
+     "elevation_m": 243.84
+    },
+    "2": {
+     "type": "tank",
+     "elevation_m": 259.08000000000004,
+     "init_level_m": 36.576,
+     "head_m": 295.65600000000006
+    }
+   },
+   "links": {
+    "10": {
+     "type": "pipe",
+     "from": "10",
+     "to": "11",
+     "length_m": 3209.5440000000003,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "11": {
+     "type": "pipe",
+     "from": "11",
+     "to": "12",
+     "length_m": 1609.344,
+     "diameter_m": 0.35559999999999997,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "12": {
+     "type": "pipe",
+     "from": "12",
+     "to": "13",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "21": {
+     "type": "pipe",
+     "from": "21",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "22": {
+     "type": "pipe",
+     "from": "22",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "31": {
+     "type": "pipe",
+     "from": "31",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "110": {
+     "type": "pipe",
+     "from": "2",
+     "to": "12",
+     "length_m": 60.96,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "112": {
+     "type": "pipe",
+     "from": "12",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "113": {
+     "type": "pipe",
+     "from": "13",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "121": {
+     "type": "pipe",
+     "from": "21",
+     "to": "31",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "122": {
+     "type": "pipe",
+     "from": "22",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "9": {
+     "type": "pump",
+     "from": "9",
+     "to": "10",
+     "curve_points": [
+      [
+       0.0946352946,
+       76.2
+      ]
+     ],
+     "speed": 1.0
+    },
+    "111v": {
+     "type": "valve",
+     "valve_type": "PRV",
+     "from": "11",
+     "to": "21",
+     "diameter_m": 0.254,
+     "setting": 81.0,
+     "minor_loss": 0.0
+    }
+   },
+   "epanet": {
+    "head_m": {
+     "10": 303.62689208984375,
+     "11": 300.2797546386719,
+     "12": 295.66876220703125,
+     "13": 295.168701171875,
+     "21": 294.3600158691406,
+     "22": 294.70965576171875,
+     "23": 294.7008972167969,
+     "31": 293.8256530761719,
+     "32": 293.7289733886719,
+     "9": 243.83999633789062,
+     "2": 295.656005859375
+    },
+    "pressure_m": {
+     "10": 87.21887969970703,
+     "11": 83.87174987792969,
+     "12": 82.30875396728516,
+     "13": 83.33269500732422,
+     "21": 81.0,
+     "22": 82.8736572265625,
+     "23": 84.3888931274414,
+     "31": 80.46562957763672,
+     "32": 77.32096862792969,
+     "9": 0.0,
+     "2": 36.57599639892578
+    },
+    "flow_m3_s": {
+     "10": 0.12142052501440048,
+     "11": 0.10590144991874695,
+     "12": 0.013455149717628956,
+     "21": -0.01108886580914259,
+     "22": 0.0023174001835286617,
+     "31": 0.0013718620175495744,
+     "110": -0.05202130228281021,
+     "112": 0.03096146509051323,
+     "113": 0.007146129384636879,
+     "121": 0.007680881768465042,
+     "122": 0.004937157966196537,
+     "9": 0.12142052501440048,
+     "111v": 0.006055545527487993
+    },
+    "status": {
+     "10": 1,
+     "11": 1,
+     "12": 1,
+     "21": 1,
+     "22": 1,
+     "31": 1,
+     "110": 1,
+     "112": 1,
+     "113": 1,
+     "121": 1,
+     "122": 1,
+     "9": 1,
+     "111v": 2
+    }
+   }
+  },
+  {
+   "name": "net1_dw_fcv",
+   "note": "net1_dw con el tubo 111 cambiado por una FCV (ajuste 0.004 m\u00b3/s)",
+   "headloss": "D-W",
+   "kinematic_viscosity_m2_s": 1.02193344e-06,
+   "specific_gravity": 1.0,
+   "nodes": {
+    "10": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.0
+    },
+    "11": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00946352946
+    },
+    "12": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "13": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.00630901964
+    },
+    "21": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00946352946
+    },
+    "22": {
+     "type": "junction",
+     "elevation_m": 211.836,
+     "demand_m3_s": 0.01261803928
+    },
+    "23": {
+     "type": "junction",
+     "elevation_m": 210.312,
+     "demand_m3_s": 0.00946352946
+    },
+    "31": {
+     "type": "junction",
+     "elevation_m": 213.36,
+     "demand_m3_s": 0.00630901964
+    },
+    "32": {
+     "type": "junction",
+     "elevation_m": 216.40800000000002,
+     "demand_m3_s": 0.00630901964
+    },
+    "9": {
+     "type": "reservoir",
+     "head_m": 243.84,
+     "elevation_m": 243.84
+    },
+    "2": {
+     "type": "tank",
+     "elevation_m": 259.08000000000004,
+     "init_level_m": 36.576,
+     "head_m": 295.65600000000006
+    }
+   },
+   "links": {
+    "10": {
+     "type": "pipe",
+     "from": "10",
+     "to": "11",
+     "length_m": 3209.5440000000003,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "11": {
+     "type": "pipe",
+     "from": "11",
+     "to": "12",
+     "length_m": 1609.344,
+     "diameter_m": 0.35559999999999997,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "12": {
+     "type": "pipe",
+     "from": "12",
+     "to": "13",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "21": {
+     "type": "pipe",
+     "from": "21",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.254,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "22": {
+     "type": "pipe",
+     "from": "22",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "31": {
+     "type": "pipe",
+     "from": "31",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "110": {
+     "type": "pipe",
+     "from": "2",
+     "to": "12",
+     "length_m": 60.96,
+     "diameter_m": 0.4572,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "112": {
+     "type": "pipe",
+     "from": "12",
+     "to": "22",
+     "length_m": 1609.344,
+     "diameter_m": 0.30479999999999996,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "113": {
+     "type": "pipe",
+     "from": "13",
+     "to": "23",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "121": {
+     "type": "pipe",
+     "from": "21",
+     "to": "31",
+     "length_m": 1609.344,
+     "diameter_m": 0.2032,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "122": {
+     "type": "pipe",
+     "from": "22",
+     "to": "32",
+     "length_m": 1609.344,
+     "diameter_m": 0.15239999999999998,
+     "roughness": 0.00015,
+     "minor_loss": 0.0,
+     "check_valve": false
+    },
+    "9": {
+     "type": "pump",
+     "from": "9",
+     "to": "10",
+     "curve_points": [
+      [
+       0.0946352946,
+       76.2
+      ]
+     ],
+     "speed": 1.0
+    },
+    "111v": {
+     "type": "valve",
+     "valve_type": "FCV",
+     "from": "11",
+     "to": "21",
+     "diameter_m": 0.254,
+     "setting": 0.004,
+     "minor_loss": 0.0
+    }
+   },
+   "epanet": {
+    "head_m": {
+     "10": 303.7720947265625,
+     "11": 300.43609619140625,
+     "12": 295.6686706542969,
+     "13": 295.135498046875,
+     "21": 294.1487731933594,
+     "22": 294.614990234375,
+     "23": 294.6091003417969,
+     "31": 293.63836669921875,
+     "32": 293.5638732910156,
+     "9": 243.83999633789062,
+     "2": 295.656005859375
+    },
+    "pressure_m": {
+     "10": 87.36408233642578,
+     "11": 84.0280990600586,
+     "12": 82.30866241455078,
+     "13": 83.29948425292969,
+     "21": 80.78878021240234,
+     "22": 82.77898406982422,
+     "23": 84.29708862304688,
+     "31": 80.27835083007812,
+     "32": 77.1558609008789,
+     "9": 0.0,
+     "2": 36.57599639892578
+    },
+    "flow_m3_s": {
+     "10": 0.12120950222015381,
+     "11": 0.10774596780538559,
+     "12": 0.013927722349762917,
+     "21": -0.012955953367054462,
+     "22": 0.0018448267364874482,
+     "31": 0.001183409825898707,
+     "110": -0.051810283213853836,
+     "112": 0.03254443034529686,
+     "113": 0.007618703413754702,
+     "121": 0.007492429576814175,
+     "122": 0.0051256101578474045,
+     "9": 0.12120950222015381,
+     "111v": 0.00400000624358654
+    },
+    "status": {
+     "10": 1,
+     "11": 1,
+     "12": 1,
+     "21": 1,
+     "22": 1,
+     "31": 1,
+     "110": 1,
+     "112": 1,
+     "113": 1,
+     "121": 1,
+     "122": 1,
+     "9": 1,
+     "111v": 2
+    }
+   }
+  }
+ ]
+}

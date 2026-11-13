@@ -1,8 +1,22 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M12b cerrados: consecuencias con multi-energía, Chamberlain, gas denso y charco en ebullición)
+Actualizado: 2026-11-13 (M1-M13 cerrados: redes de tuberías y sistemas de bombeo)
 
 ## Dónde estamos
+**Bloque M13 (2026-11-13): redes de tuberías y sistemas de bombeo, 68 tools, ✅.** Paquete `packages/network/` y tool `pipe_network`:
+- Gradiente global de Todini-Pilati (el de EPANET) con contraste Hardy Cross; misma fricción que `pipe_hydraulics`.
+- Mallas, varias fuentes y sumideros, reservorios, tanques y fronteras de presión fija; bombas en serie y en paralelo con la curva del usuario; curva de sistema por estación y curva combinada; NPSHa vs NPSHr; potencia; check, PRV y FCV.
+- Residuo de masa por nodo ≤ 1e-9 m³/s (tolerancia en el código).
+- Evidencia (35 tests): EPANET 2.2 Net1 y 5 variantes (corrido aparte vía WNTR); Jeppson 1974 (4 redes); Larock Ex. 2.7; Evett y Liu 12.11; Cameron NPSH 1-4; límite de un tubo exacto; paralelo y serie en forma cerrada.
+
+Pendiente:
+1. Un ejemplo publicado de **bombas en paralelo con su curva legible** (Larock Ex. 2.5, Karassik o Crane por biblioteca).
+2. El Hardy Cross clásico de Jeppson pp. 74-75 viendo la figura: la solución impresa no cierra (¿demanda o tubo mal transcrito?).
+3. Simulación en el tiempo (tanques que se llenan y vacían, controles) y transitorios (golpe de ariete): fuera de alcance.
+4. Leer la red desde un `.inp` de EPANET o desde el flowsheet de DWSIM.
+
+Siguiente: **decisión del owner** — pulir M13 (`.inp`, simulación en el tiempo) o pasar a otro tema (layout, 3D, árbol de fallas, BST).
+
 **Sub-bloque M12b (2026-11-13): consecuencias ampliadas, 67 tools, ✅** (las cuatro tools de M12 crecen, sin tools nuevas):
 - `explosion_overpressure(method="multi_energia")`: ajustes de Díaz Alonso 2006 (tesis abierta). La clase 3 lleva una errata corregida y documentada. Reproduce YB §5.6.3, C&L 6-12 y el anexo II.2 de la tesis.
 - `fire_radiation(kind="chorro")` con Chamberlain del TNO: el ejemplo YB §6.6.2 se reproduce paso a paso (0.417 kW/m²).
