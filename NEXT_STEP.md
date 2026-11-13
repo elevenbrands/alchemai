@@ -1,8 +1,27 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M13 cerrados: redes de tuberías y sistemas de bombeo)
+Actualizado: 2026-11-13 (M1-M14 cerrados: regresión de parámetros binarios VLE)
 
 ## Dónde estamos
+**Bloque M14 (2026-11-13): regresión de parámetros binarios desde datos VLE, 69 tools, ✅ en su núcleo.** Paquete `packages/vle/` y tool `vle_binary_regression`:
+- NRTL (α fijo o ajustado), UNIQUAC (r, q de grupos UNIFAC) y Wilson (V de thermo) desde Pxy, Txy o PTxy, uno o varios conjuntos.
+- Dos funciones objetivo: punto de burbuja (T o P, más y) y máxima verosimilitud de Britt-Luecke. Salen IC 95 %, correlación, AAD y residuos por punto.
+- Consistencia por conjunto: Redlich-Kister/Herington, Fredenslund, Van Ness directa y desviación ΔP/Δy. También el azeótropo de los datos contra el de cada modelo y UNIFAC Dortmund.
+- Cada ajuste se re-evalúa con las clases de `thermo`.
+- Evidencia (16 tests):
+  - Hartanto 2025: n-hexano + etanol, parámetros publicados dentro del IC 95 % con su misma función objetivo.
+  - Etanol + agua de Kamihama 2012 y Voutsas 2011: D = 3.85 contra 3.8 publicado, y los dos consistentes.
+  - Recuperación de parámetros sintéticos (≥ 24/30 dentro del IC) y rechazo de un conjunto que viola Gibbs-Duhem.
+
+Pendiente:
+1. **Página DECHEMA legible** (Gmehling y Onken, por biblioteca), para reproducir un ajuste publicado sin la correlación a-b de una sola isobara.
+2. **Conjunto inconsistente publicado con datos legibles.** Hoy el rechazo se prueba con un conjunto sintético. Bredig 1927 y el SI de ACS Omega 2025 no se pudieron abrir.
+3. Discrepancias de Hartanto 2025: la RMSD(T) de sus parámetros sale 0.79 K, no 0.38, y su Van Ness (ΔP 0.4 %) sale 1.9 %. Se podría cerrar con la isobara de 61.3 kPa de Ortega y Espiau.
+4. LLE; varias fuentes con pesos de calidad (TDE); asociación en el virial (Hayden-O'Connell).
+5. Usar los parámetros regresados en `eo_column_optimize` (hoy solo mezclas ideales, M8b) o mandarlos a DWSIM.
+
+Siguiente: **decisión del owner**: llevar los parámetros a la columna (M8b no ideal o DWSIM) o pasar a otro tema (layout, 3D, árbol de fallas, BST).
+
 **Bloque M13 (2026-11-13): redes de tuberías y sistemas de bombeo, 68 tools, ✅.** Paquete `packages/network/` y tool `pipe_network`:
 - Gradiente global de Todini-Pilati (el de EPANET) con contraste Hardy Cross; misma fricción que `pipe_hydraulics`.
 - Mallas, varias fuentes y sumideros, reservorios, tanques y fronteras de presión fija; bombas en serie y en paralelo con la curva del usuario; curva de sistema por estación y curva combinada; NPSHa vs NPSHr; potencia; check, PRV y FCV.

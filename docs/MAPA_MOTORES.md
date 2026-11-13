@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-13: **68 tools** (M13), DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-13: **69 tools** (M14), DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 + ipopt 3.13.2 (idaes-ext 3.4.2, `~/.idaes/bin`), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0, CoolProp 8.0.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -32,7 +32,7 @@ SFILES2 1.2.0, pydexpi 2.1.0, CoolProp 8.0.0; fuera del entorno: OpenFOAM v2606 
 | Equilibrio de fases (PR, SRK, NRTL, UNIQUAC…), flash PT/PH/PS, puntos de burbuja y rocío, azeótropos | ✅ (`list_property_packages`, `read_stream`, `sweep`) | DWSIM | GPL-3 · proceso aparte (pythonnet) | VLLE en polares no lo hace DWSIM-NRTL ni Fluxo (anotado bloque 12) |
 | Propiedades de compuestos puros (Psat DIPPR, Tfus, ΔHf, ω…) | ✅ parcial (dentro de HAZOP y de Fluxo) | `chemicals`, `thermo` | MIT · en proceso | Tool pública de propiedades (`compound_properties`) para que el agente consulte sin armar flowsheet |
 | Flash independiente de DWSIM (segunda opinión, VLLE con Michelsen) | 📦 | `thermo.Flash`, `FlashVLN` | MIT · en proceso | Segunda opinión termodinámica automática cuando DWSIM y `thermo` difieren |
-| Regresión de parámetros binarios con datos experimentales | ⬜ | DWSIM (regresión) o `thermo` + scipy | — | No explorado; depende de datos del usuario |
+| Regresión de parámetros binarios con datos experimentales | ✅ (`vle_binary_regression`, M14) | `thermo` (modelos y verificación) + scipy (mínimos cuadrados, máxima verosimilitud) | MIT/BSD · en proceso | NRTL/UNIQUAC/Wilson desde Pxy, Txy o PTxy con IC 95 %, Redlich-Kister/Herington, Fredenslund, Van Ness y UNIFAC Do. Falta: LLE, datos de varias fuentes con pesos de calidad (TDE), un ejemplo DECHEMA legible y usar los parámetros en `eo_column_optimize` |
 
 ## 2 · Balances de materia y energía (simulación estacionaria)
 
@@ -159,6 +159,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 11 ✅ | LOPA y SIL desde el HAZOP y el P&ID — hecho 2026-11-13 (M11, 63 tools): `lopa_from_hazop`, independencia por tags del P&ID, SIL por IEC 61511, ejemplos HSE/BSTG 2007, Kenexis y Casey 2019 reproducidos | 10 | Cierra la cadena HAZOP → P&ID → nivel de protección | ninguna |
 | 12 ✅ | Análisis de consecuencias — hecho 2026-11-13 (M12 + M12b, 67 tools): términos fuente y charco en ebullición, dispersión gaussiana y gas denso Britter-McQuaid, charco/bola de fuego/chorro Chamberlain, TNT y multi-energía, probits; enlace de severidad calculada a la LOPA. BST pendiente | 10 | Completa la seguridad: del HAZOP a qué pasa si la protección falla | ninguna (CoolProp ya en el entorno) |
 | 13 ✅ | Redes de tuberías y sistemas de bombeo — hecho 2026-11-13 (M13, 68 tools): `pipe_network` (gradiente global + Hardy Cross, bombas serie/paralelo, curva de sistema, NPSH, check/PRV/FCV); EPANET Net1, Jeppson 1974, Larock y Cameron reproducidos | 5 | Lo eligió el owner tras M12: la hidráulica pasa de un tubo a la red de planta | ninguna (WNTR + EPANET solo para regenerar la referencia, en entorno desechable) |
+| 14 ✅ | Regresión de parámetros binarios desde datos VLE — hecho 2026-11-13 (M14, 69 tools): `vle_binary_regression` (NRTL con α fijo o ajustado, UNIQUAC con r/q de grupos UNIFAC, Wilson con volúmenes de thermo; punto de burbuja o máxima verosimilitud Britt-Luecke; IC 95 % y correlación; Redlich-Kister/Herington, Fredenslund, Van Ness; azeótropo; UNIFAC Dortmund) | 1 | Lo eligió el owner tras M13: los casos reales con mezclas no ideales necesitan parámetros propios | ninguna |
 | — | Layout/ruteo, 3D, árbol de fallas, BST | 10, 11 | Investigación o decisión del owner | — |
 
 ## Reglas de admisión de un motor nuevo

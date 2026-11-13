@@ -1,0 +1,173 @@
+{
+ "citation": "Hartanto, D.; Schuur, B.; Kiss, A. A.; de Haan, A. B. J. Chem. Eng. Data 2025, 70, 4091-4104, doi:10.1021/acs.jced.5c00445 (copia Green Open Access, TU Delft repository). Tabla 2 (datos), Tabla 3 (Antoine extendida de Aspen Plus), Tabla 7 (prueba de Van Ness), Tabla 8 (NRTL), Tabla 9 (RMSD). Leído el 2026-11-13.",
+ "components": [
+  "n-hexane",
+  "ethanol"
+ ],
+ "uncertainty_k2": {
+  "T_K": 0.2,
+  "P_kPa": 0.2,
+  "x1": 0.006,
+  "y1": 0.006
+ },
+ "antoine_ext": {
+  "n-hexane": [
+   97.742,
+   -6995.5,
+   0,
+   0,
+   -12.702,
+   1.2381e-05,
+   2
+  ],
+  "ethanol": [
+   66.396,
+   -7122.3,
+   0,
+   0,
+   -7.142,
+   2.885e-06,
+   2
+  ]
+ },
+ "antoine_ext_T_range_K": {
+  "n-hexane": [
+   177.83,
+   507.6
+  ],
+  "ethanol": [
+   159.05,
+   514.0
+  ]
+ },
+ "published_nrtl": {
+  "a12": -10.342,
+  "a21": -3.854,
+  "b12": 4120.934,
+  "b21": 1829.392,
+  "alpha": 0.47,
+  "note": "tau_ij = A_ij + B_ij/T; ajustados por máxima verosimilitud (Britt-Luecke) a estos datos JUNTO con los de 61.3 kPa de Ortega y Espiau (no incluidos aquí); alpha fijo 0.47"
+ },
+ "published_van_ness": {
+  "dy_pct": 0.6,
+  "dP_pct": 0.4,
+  "result": "passed"
+ },
+ "published_rmsd_binary": {
+  "T_K": 0.38,
+  "P_kPa": 0.5,
+  "x1": 0.003,
+  "y1": 0.007,
+  "note": "RMSD del ajuste binario (101.3 + 61.3 kPa juntos)"
+ },
+ "points": [
+  {
+   "T_K": 351.55,
+   "P_Pa": 101300.0,
+   "x1": 0.0,
+   "y1": 0.0
+  },
+  {
+   "T_K": 347.18,
+   "P_Pa": 101300.0,
+   "x1": 0.015,
+   "y1": 0.144
+  },
+  {
+   "T_K": 345.39,
+   "P_Pa": 101300.0,
+   "x1": 0.021,
+   "y1": 0.197
+  },
+  {
+   "T_K": 340.46,
+   "P_Pa": 101300.0,
+   "x1": 0.064,
+   "y1": 0.381
+  },
+  {
+   "T_K": 338.61,
+   "P_Pa": 101300.0,
+   "x1": 0.092,
+   "y1": 0.451
+  },
+  {
+   "T_K": 336.82,
+   "P_Pa": 101300.0,
+   "x1": 0.116,
+   "y1": 0.497
+  },
+  {
+   "T_K": 335.9,
+   "P_Pa": 101300.0,
+   "x1": 0.132,
+   "y1": 0.529
+  },
+  {
+   "T_K": 335.35,
+   "P_Pa": 101300.0,
+   "x1": 0.141,
+   "y1": 0.548
+  },
+  {
+   "T_K": 334.26,
+   "P_Pa": 101300.0,
+   "x1": 0.162,
+   "y1": 0.567
+  },
+  {
+   "T_K": 332.51,
+   "P_Pa": 101300.0,
+   "x1": 0.252,
+   "y1": 0.606
+  },
+  {
+   "T_K": 331.39,
+   "P_Pa": 101300.0,
+   "x1": 0.577,
+   "y1": 0.645
+  },
+  {
+   "T_K": 331.26,
+   "P_Pa": 101300.0,
+   "x1": 0.687,
+   "y1": 0.654
+  },
+  {
+   "T_K": 331.52,
+   "P_Pa": 101300.0,
+   "x1": 0.802,
+   "y1": 0.665
+  },
+  {
+   "T_K": 332.35,
+   "P_Pa": 101300.0,
+   "x1": 0.895,
+   "y1": 0.708
+  },
+  {
+   "T_K": 334.07,
+   "P_Pa": 101300.0,
+   "x1": 0.958,
+   "y1": 0.765
+  },
+  {
+   "T_K": 336.1,
+   "P_Pa": 101300.0,
+   "x1": 0.978,
+   "y1": 0.843
+  },
+  {
+   "T_K": 339.32,
+   "P_Pa": 101300.0,
+   "x1": 0.99,
+   "y1": 0.939
+  },
+  {
+   "T_K": 342.15,
+   "P_Pa": 101300.0,
+   "x1": 1.0,
+   "y1": 1.0
+  }
+ ]
+}

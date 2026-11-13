@@ -41,6 +41,7 @@ from packages.pid.tool import pid_from_hazop as _pid  # noqa: E402
 from packages.lopa.tool import lopa_from_hazop as _lopa  # noqa: E402
 from packages.consequence import tool as _CQ  # noqa: E402
 from packages.network import tool as _NW  # noqa: E402
+from packages.vle import tool as _VLE  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -191,6 +192,19 @@ Hard rules:
    hydraulic and shaft power, NPSHa vs NPSHr, the system curve and the combined curve for parallel pumps, the
    valve states, and the evidence (mass residual vs its tolerance, Hardy Cross agreement). Quote "verified" only
    when the tool says so; list supuestos and avisos (curve extrapolation, transition Re, cavitation).
+
+23. Binary interaction parameters from the user's VLE data (isothermal Pxy, isobaric Txy or P-T-x-y): use
+   vle_binary_regression. It fits NRTL, UNIQUAC and Wilson (one or all), with 95 % intervals, correlation, AAD in T or P
+   and y, residuals per point, the azeotrope predicted vs the data's, Redlich-Kister/Herington area, Fredenslund point
+   and Van Ness tests, and the UNIFAC Dortmund prediction for the same points. The experimental points, their
+   uncertainties (sigma), the Antoine constants the user trusts and any reported azeotrope are user data: ASK, never
+   invent or "recall" a data set. NRTL alpha, ideal gas, default sigma, r/q from UNIFAC groups and Wilson volumes are
+   model choices the tool lists in supuestos: say them. Show in Spanish the parameter table (value ± IC95, units,
+   J/mol and cal/mol), the correlation, the statistics, the consistency verdict per set (consistente / inconsistente /
+   dudoso, with each test's number and criterion), the azeotrope comparison and the UNIFAC comparison. When the
+   parameters are strongly correlated (|ρ| > 0.98) say the individual values are not identifiable with these data.
+   Never call data "consistent" unless the tool says so, and never feed parameters from an inconsistent set to a
+   design without the user's OK. Regression here does not change eo_column_optimize (still ideal mixtures only).
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -553,6 +567,31 @@ def pipe_network(nodes: list[dict[str, object]], links: list[dict[str, object]],
     Every pipe, curve, elevation and demand is the user's: never assume them."""
     return _cq(_NW.pipe_network(nodes, links, fluid, atmospheric_pressure_Pa, system_curve, system_curve_points,
                                 hardy_cross_check))
+
+
+@beta_tool
+def vle_binary_regression(components: list[str], data_sets: list[dict[str, object]], models: list[str] | None = None,
+                          nrtl_alpha: float | str | None = None, temperature_dependence: str = "constante",
+                          objective: str = "bubble", sigma: dict[str, float] | None = None,
+                          psat: dict[str, object] | None = None, vapor_phase: str = "ideal",
+                          uniquac_rq: dict[str, list[float]] | None = None,
+                          wilson_volumes_m3_mol: dict[str, float] | None = None,
+                          reported_azeotropes: dict[str, object] | None = None, compare_unifac: bool = True,
+                          published_parameters: dict[str, object] | None = None, legendre_order: int = 4) -> str:
+    """Regress binary activity-model parameters (NRTL, UNIQUAC, Wilson) from the USER's VLE data.
+    components [name1, name2]; data_sets [{label, citation, points: [{T_K, P_Pa (or P_kPa), x1, y1}]}], each set
+    isothermal, isobaric or P-T-x-y. models subset of NRTL/UNIQUAC/Wilson (default all). nrtl_alpha number or "ajustar"
+    (default 0.3, labelled). temperature_dependence "constante" (energy parameters) or "a+b/T". objective "bubble"
+    (T or P plus y residuals) or "ml" (maximum likelihood, errors in T, P, x, y). sigma {T_K, P_Pa or P_rel, x1, y1}.
+    psat {name: {"antoine": {A, B, C, log, P_unit, T_unit}} or {"antoine_ext": [A1..A7] Aspen PLXANT}}, default
+    chemicals. vapor_phase "ideal" or "virial" (Tsonopoulos). uniquac_rq {name: [r, q]} (default UNIFAC groups);
+    wilson_volumes_m3_mol {name: V}. reported_azeotropes {label: {x1, T_K or P_Pa}}. published_parameters {model:
+    {a12, a21, b12, b21, alpha} or {d12_J_mol, d21_J_mol}} to compare. Returns parameters ± IC95, correlation, AAD,
+    residuals, azeotrope, consistency tests (Redlich-Kister/Herington, Fredenslund, Van Ness), UNIFAC Dortmund
+    comparison and an independent re-evaluation with thermo. Never invent data points."""
+    return _cq(_VLE.vle_binary_regression(components, data_sets, models, nrtl_alpha, temperature_dependence,
+                                          objective, sigma, psat, vapor_phase, uniquac_rq, wilson_volumes_m3_mol,
+                                          reported_azeotropes, compare_unifac, published_parameters, legendre_order))
 
 @beta_tool
 def stream_transport_properties(flowsheet_id: str, stream: str) -> str:
@@ -1049,7 +1088,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
-               fire_radiation, explosion_overpressure, pipe_network, close_flowsheet]
+               fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 
