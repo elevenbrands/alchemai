@@ -33,6 +33,7 @@ from packages.dwsim_client import tools_economics as TE  # noqa: E402
 from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.dwsim_client import tools_heat as TH  # noqa: E402
 from packages.dwsim_client import tools_energy as TEN  # noqa: E402
+from packages.dwsim_client import tools_control as TCO  # noqa: E402
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -143,6 +144,12 @@ Hard rules:
    the DWSIM value at that point and the error there; give the DWSIM numbers as the answer. If status is
    "not_verified", say so and why, never quote the surrogate value as the result; offer more samples, narrower bounds
    or optimize_design_multi. Say the surrogate is valid only inside the bounds.
+18. Process control (step test, PID tuning, loop performance): fopdt_identify on the user's step-test data
+   (time, output, Δu and step time are theirs: ask, never invent), then pid_tuning with K, τ, θ (or a full
+   process_model, reduced by the half rule) and pid_closed_loop to judge given settings. Recommend SIMC unless the
+   user asks otherwise; show the comparison table (Kc, τI, τD, Ms, GM, PM, IAE setpoint/load) and say which rules are
+   out of their validity range. State τc and that it is a tuning choice (default τc = θ). Say a PID needs a
+   second-order model (τ2 > θ) to pay off. Quote "verified" only when the tool says so; an unstable loop is a result.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -783,6 +790,46 @@ def optimize_design_surrogate(flowsheet_id: str, variables: list[dict[str, objec
 
 
 @beta_tool
+def fopdt_identify(time_s: list[float], output: list[float], input_change: float, step_time_s: float,
+                   baseline_output: float | None = None, final_output: float | None = None) -> str:
+    """Identify FOPDT (K, τ, θ) and SOPDT models from an open-loop step test by least squares: R², RMSE, residual
+    autocorrelation, 95 % CI, plus Smith and Sundaresan-Krishnaswamy two-point estimates as a cross-check, and
+    warnings (no steady state, overshoot, inverse response). time_s, output, input_change (Δu) and step_time_s are
+    the user's data. Next: pid_tuning with the fitted K, τ, θ."""
+    return json.dumps(TCO.fopdt_identify(time_s, output, input_change, step_time_s, baseline_output, final_output),
+                      default=float)
+
+
+@beta_tool
+def pid_tuning(gain: float | None = None, time_constant: float | None = None, dead_time: float | None = None,
+               second_time_constant: float | None = None, integrating: bool = False,
+               process_model: dict[str, object] | None = None, controller_type: str = "PI",
+               rules: list[str] | None = None, tau_c: float | None = None, evaluate_closed_loop: bool = True,
+               setpoint_step: float = 1.0, load_step: float = 1.0, derivative_filter_alpha: float = 0.01,
+               sampling_period: float | None = None) -> str:
+    """P/PI/PID settings from a FOPDT/SOPDT (gain, time_constant, dead_time, second_time_constant; integrating=true
+    with gain = slope) or a full process_model {gain, time_constants, lead_time_constants, dead_time, integrating}
+    reduced by Skogestad's half rule. Rules: SIMC (recommended, Skogestad 2003), IMC (Seborg/Rivera), ZN ultimate
+    cycle, ZN reaction curve, Cohen_Coon, Tyreus_Luyben; each with source, validity range and closed-loop Ms, GM,
+    PM, setpoint/load IAE, overshoot and settling time. tau_c default θ (in assumptions). summary = comparison table;
+    status 'verified' = exact margins match python-control and the simulation's integrated error its closed form."""
+    return json.dumps(TCO.pid_tuning(gain, time_constant, dead_time, second_time_constant, integrating, process_model,
+                                     controller_type, rules, tau_c, evaluate_closed_loop, setpoint_step, load_step,
+                                     derivative_filter_alpha, sampling_period), default=float)
+
+
+@beta_tool
+def pid_closed_loop(process_model: dict[str, object], controller: dict[str, object], setpoint_step: float = 1.0,
+                    load_step: float = 1.0, derivative_filter_alpha: float = 0.01) -> str:
+    """Closed-loop performance of a given controller {Kc, tau_I, tau_D, form series|ideal} (or {Kc: 0, KI}) on a
+    given process_model {gain, time_constants, lead_time_constants, dead_time, integrating}, exact dead time:
+    stability, GM, PM, Ms, Mt, setpoint and load-step metrics (overshoot, settling, IAE, peak, input TV),
+    trajectories and checks against python-control."""
+    return json.dumps(TCO.pid_closed_loop(process_model, controller, setpoint_step, load_step, derivative_filter_alpha),
+                      default=float)
+
+
+@beta_tool
 def close_flowsheet(flowsheet_id: str) -> str:
     """Discard a flowsheet when you no longer need it (e.g. between search iterations)."""
     return json.dumps(T.close_flowsheet(flowsheet_id))
@@ -795,7 +842,8 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
-               packed_column_hydraulics, hazop_preliminary, export_flowsheet, hazop_from_dexpi, close_flowsheet]
+               packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
+               hazop_from_dexpi, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

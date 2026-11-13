@@ -135,8 +135,8 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 
 | Necesidad | Hoy | Motor | Licencia · cómo entra | Hueco |
 |---|---|---|---|---|
-| Funciones de transferencia, sintonía PID, respuesta a escalón | ⬜ | `python-control` o scipy.signal | BSD | Bloque de estudio (Seborg) + tool `pid_tuning`; sin dependencias pesadas |
-| Simulación dinámica del flowsheet | ⬜ | DWSIM dinámico | GPL-3 | Ver §2 |
+| Funciones de transferencia, sintonía PID, respuesta a escalón | ✅ (3 tools, bloque M9 2026-11-13: `fopdt_identify`, `pid_tuning`, `pid_closed_loop`; Skogestad 2003 Tablas 2, 4 (22 de 25 filas) y 5-7, Seborg Ej. 12.4) | `packages/dynamics` propio (retardo exacto) + `python-control` 0.10.2 como contraste | BSD · en proceso | Reglas T1-T3 de ceros positivos sin automatizar; Cohen-Coon sin ejemplo publicado; ITAE/Åström-Hägglund (AMIGO) no incluidos; sin control multivariable ni anti-windup |
+| Simulación dinámica del flowsheet | ⬜ | DWSIM dinámico | GPL-3 | Ver §2; la Fluent API que usamos no expone el modo dinámico (el MCP oficial lo tiene en fuente, sin compilar): la prueba escalón para M9 viene del usuario |
 | RL / control avanzado | ⬜ | pc-gym (Python 3.11, venv aparte) | — | Fase 3 |
 
 ## Orden propuesto de incorporación
@@ -154,7 +154,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 6 | ✅ M6a ✅ 2026-11-09 (53 tools): tanque de flujo continuo OpenFOAM vs CSTR (`vessel_residence_time_cfd`). M6b ✅ 2026-11-10 (54 tools): `stirred_tank_cfd` Rushton MRF, Np 4.85 ± 3.5 % vs ≈ 5, verificado con banda entre 3 mallas | 5 | Segundo motor externo; mezclado es pregunta frecuente | ninguna (OpenFOAM instalado) |
 | 7 | ✅ 2026-11-13 (M7, 56 tools): reactor tubular no isotérmico (FEniCSx, energía acoplada, P2 + SUPG) vs PFR 1-D (`nonisothermal_tubular_reactor`) | 3, 6 | Donde el PFR ideal y el campo se separan de verdad | ninguna |
 | 8 | M8a ✅ 2026-11-13 (57 tools): ipopt + `eo_column_optimize` (IDAES); M8b ✅ 2026-11-13: cualquier mezcla ideal (paquete IDAES generado de `chemicals`, cribado UNIFAC); M8c ✅ 2026-11-13 (58 tools): `optimize_design_surrogate` (OMLT, red sobre muestras de DWSIM, re-verificada en DWSIM). **Bloque 8 cerrado** | 2, 9 | Abre optimización simultánea y sustitutos | **ipopt** (conda-forge; sin costo) |
-| 9 | Control: `pid_tuning`, respuesta dinámica | 12 | Tema de estudio del plan | `python-control` (BSD) |
+| 9 ✅ | Control — hecho 2026-11-13 (M9, 61 tools): `fopdt_identify` (FOPDT/SOPDT por mínimos cuadrados + Smith y Sundaresan-Krishnaswamy), `pid_tuning` (SIMC por defecto, IMC, ZN último ciclo y curva de reacción, Cohen-Coon, Tyreus-Luyben; regla de la mitad), `pid_closed_loop` (márgenes exactos, Ms, IAE, sobrepaso) | 12 | Tema de estudio del plan | `python-control` 0.10.2 (BSD) |
 | 10 | P&ID mínimo desde HAZOP (DEXPI P&ID) | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
 | — | Layout/ruteo, 3D, LOPA, dispersión | 10, 11 | Investigación o decisión del owner | — |
 

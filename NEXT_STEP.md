@@ -1,8 +1,21 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M8 cerrados: M8a, M8b y M8c; M5b, M6a y M6b cerrados)
+Actualizado: 2026-11-13 (M1-M9 cerrados; M5b, M6a, M6b y M8a-c cerrados)
 
 ## Dónde estamos
+**Bloque M9 (2026-11-13): control de procesos, 61 tools, ✅.** Paquete `packages/dynamics/` y tres tools:
+- `fopdt_identify`: ajuste FOPDT/SOPDT a la prueba escalón del usuario (mínimos cuadrados, IC 95 %, autocorrelación de residuos), contrastado con Smith y Sundaresan-Krishnaswamy;
+- `pid_tuning`: SIMC (recomendada, τc = θ por defecto y declarado), IMC, ZN (último ciclo y curva de reacción), Cohen-Coon y Tyreus-Luyben, cada una con fuente y rango de validez, más la regla de la mitad para modelos de orden alto;
+- `pid_closed_loop`: GM, PM, Ms, Mt, sobrepaso, asentamiento e IAE de consigna y de carga, con el retardo exacto.
+
+Evidencia (`tests/test_control.py`, 53 tests):
+- Skogestad 2003 Tabla 2 exacta; **Tabla 4: 22 de 25 filas** (ajustes, Ms e IAE sobre el modelo completo); Tablas 5-7 (ZN, Tyreus-Luyben; ZN-PID en retardo puro inestable).
+- Seborg Ej. 12.4: IMC 0.5/100, Skogestad 0.5/8, integrador 0.556/5.
+- FOPDT sintético con 1 % de ruido recuperado (τ 4.965 vs 5, verdad dentro del IC 95 %).
+- Márgenes = python-control (Padé 8) a ≤ 1e-6; error integrado = forma cerrada.
+
+Tres filas del artículo no cuadran con su propia regla (E5-PID, E8-PID, E3-PID; detalle en `APP.md`). La prueba escalón desde DWSIM dinámico queda pendiente: la Fluent API no expone la dinámica. 289 tests en verde (5 omitidos). Siguiente según el mapa: **bloque 10, P&ID mínimo desde HAZOP (DEXPI)**, en otra sesión.
+
 **Bloque M8c (2026-11-13): `optimize_design_surrogate`, 58 tools, ✅. Bloque 8 cerrado.** La tool hace cuatro cosas:
 - muestrea un flowsheet de DWSIM (hipercubo latino más las esquinas; conjunto apartado independiente);
 - entrena una red tanh por salida (numpy y scipy; sin dependencias nuevas);
