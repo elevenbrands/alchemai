@@ -25,6 +25,7 @@ Reglas:
 | Modelado/optimización | `idaes-pse` 2.13.0 + Pyomo, `omlt` 1.2.2 | ✅ importa |
 | TEA | `biosteam` 2.54.0 | ✅ importa |
 | Flowsheet como texto/grafo | `SFILES2` 1.2.0 (módulo `Flowsheet_Class`), `pydexpi` 2.1.0 | ✅ importa |
+| Consecuencias (M12) | modelos propios en Python puro + `CoolProp` 8.0.0 (MIT, flash isentálpico, Psat del agua) + `thermo` (propiedades) | ✅ ejemplos de Crowl & Louvar 4.ª ed., TNO Yellow Book 2005, NUREG-1805, NISTIR 6546 y PGS 1 reproducidos |
 | MCP | `mcp` 2.3.0, `fastmcp` 4.1.5 | ✅ |
 | Motor de simulación | DWSIM 10.2.12 arm64 en `~/Applications/DWSIM10/`, **Fluent API en proceso vía pythonnet + coreclr 10** (`packages/dwsim_client/fluent.py`) | ✅ headless verificado (mezclador y flash PR) |
 | Servidor MCP de DWSIM (opcional) | `~/tools/dwsim10/tools/DWSIM.MCPServer` (58 tools reales en fuente: flowsheet, thermo, streams, unitops, reactions, solve, dynamics, scenarios), stdio o SSE | ⏳ opcional: la Fluent API ya cubre fase 0-1; compilar solo si el agente lo necesita como proceso MCP |
@@ -58,6 +59,9 @@ packages/transport/     reactor_field.py (bloque M1): reactor tubular real vs PF
                         hydraulics.py (bloque 18): Darcy-Weisbach + Colebrook/Clamond, diámetro nominal B36.10M, LMTD·F (Fakheri), Gnielinski, U;
                         tools en dwsim_client/tools_transport.py (5) + kind `pipe` en add_unit (Pipe Segment de DWSIM, Beggs-Brill, adiabático)
 packages/pid/           rules.py (instrumentación mínima por reglas + HAZOP), dexpi_pid.py (DEXPI P&ID, ida y vuelta, XSD), tool.py (`pid_from_hazop`)
+packages/consequence/   source.py (descarga de líquido/gas, flash, evaporación de charco), dispersion.py (Pasquill-Gifford pluma/puff, Britter-McQuaid),
+                        fire.py (charco SFPE y TNO, factor de vista numérico, bola de fuego TNO, chorro fuente puntual), explosion.py (TNT, Kinney-Graham),
+                        effects.py (probits C&L/PGS 1), tool.py (`release_source_term`, `gas_dispersion`, `fire_radiation`, `explosion_overpressure`)
 packages/lopa/          data.py (tablas genéricas con fuente: eventos iniciadores, PFD, bandas SIL, criterios de EJEMPLO), engine.py (crédito con reglas I-1…I-6, frecuencia mitigada, PFD/RRF/SIL requeridos), from_pid.py (HAZOP + P&ID M10 → escenarios), tool.py (`lopa_from_hazop`)
 packages/hazop/         graph.py (grafo del proceso desde el flowsheet resuelto, con banderas inflamable/tóxico/hidratos/solidifica/inestable),
                         book/ (HAZOP publicados: reference.yaml + cases.py del bloque 17, heldout.yaml + heldout_cases.py del 25, score.py, PRECISION_RUBRIC.md),
@@ -71,6 +75,74 @@ docs/                   plan, decisiones, lecturas; MAPA_MOTORES.md = cobertura 
 
 ## Decisiones
 
+- 2026-11-13: **Análisis de consecuencias (bloque M12), 67 tools.** Paquete `packages/consequence/` y cuatro tools en `TOOLS` y `AGENT_TOOLS` (regla 21 del agente): `release_source_term`, `gas_dispersion`, `fire_radiation`, `explosion_overpressure`. Es cribado preliminar: cada salida lo dice y no sustituye a Phast/EFFECTS en un QRA real.
+  - **Paso 0, elección de motor (time-box ~30 min, 2026-11-13).** No hay una librería abierta, mantenida y general:
+    - **HyRAM+ (Sandia, `hyram` 6.1 en PyPI, sept 2025, repo activo 2026-11)**: GPL-3.0 y validado, pero solo cubre H₂, metano, propano y mezclas (chorro, llama de chorro, sobrepresión). Si entra, sería como proceso aparte y para contrastar el chorro de H₂/CH₄; queda pendiente.
+    - **Phast y ALOHA**: cerrados, gratis solo para usar: no se pueden embeber.
+    - **`pyprox`, `pydispersion`, `pyqra`, `openqra`**: no existen en PyPI.
+    - **`chemicals`/`thermo` (MIT)** dan propiedades (M, Tb, ΔHv, ΔHc neto, LFL, Psat), no modelos de consecuencia.
+    - **`CoolProp` 8.0.0 (MIT)** da el flash isentálpico y la Psat del agua. Hoy está solo como dependencia transitiva de thermosteam; se declara en `pyproject.toml`.
+    - **Decisión**: modelos publicados en Python puro (MIT), cada uno con su fuente, como en los bloques anteriores.
+  - **Modelos**:
+    - **Términos fuente** (Crowl & Louvar 4.ª ed., 2020): orificio de líquido (ec. 4-7/4-19) con vaciado de tanque (4-20); gas ahogado/subsónico (4-48/4-49/4-50), con frontera P_amb = P* incluida en ahogado y continua; flash por Cp(T−Tb)/ΔHv y forma integrada (4-87/4-91), más el isentálpico de CoolProp; evaporación de charco (3-12/3-18) y Mackay-Matsugu con el viento del usuario.
+    - **Dispersión gaussiana**:
+      - Pasquill-Gifford con Briggs, tabla 5-2 rural/urbana; puff con la tabla 5-3. Las clases mixtas promedian.
+      - Estabilidad desde viento + insolación/nubosidad; los bordes 2/3/5/6 m/s son inclusivos por abajo (Turner 1970), porque la copia leída de C&L tiene corruptas las etiquetas de la tabla 5-1.
+      - Distancia a cada umbral del usuario (ppm, mg/m³, fracción de LFL) como el último cruce, más el semiancho máximo (isopleta ec. 5-28).
+      - Probit tóxico en un receptor; dosis del puff.
+    - **Gas denso** (criterio de Britter-McQuaid según C&L cap. 5: continuo ≥ 0.15, instantáneo ≥ 0.20). Nube densa a nivel del suelo → **no se calcula** el gaussiano. Fuga elevada → se calcula con un aviso explícito de que puede subestimar.
+    - **Charco de fuego**:
+      - SFPE: Burgess o m''∞(1 − e^(−kβD)); altura de Thomas (sin viento / con viento, ρv) o Heskestad; inclinación AGA; SEP de Mudan-Croce o Shokri-Beyler.
+      - TNO Yellow Book: u_c con ρ_aire; inclinación tanΘ/cosΘ = 0.666 Fr^0.333 Re^0.117; SEP con hollín ς = 0.8.
+      - **Factor de vista**: integral numérica sobre el cilindro inclinado (cortes horizontales circulares), igual a Mudan analítico (vertical) y a los Fv/Fh impresos del YB (inclinado).
+      - Transmisividad de Bagster (YB ec. 6.29), con aviso fuera de 1e4–1e5 N/m; τ = 1 sin humedad.
+    - **Bola de fuego** (TNO YB §6.5.6): r = 3.24 M^0.325, t = 0.852 M^0.26, H = 2r, Fs = 0.00325 Psv^0.32, ΔH = ΔHc − ΔHv − Cp(2000 K − Ta).
+    - **Chorro**: fuente puntual con la fracción radiada del usuario.
+    - **Explosión**: equivalencia TNT (ec. 6-30) con Kinney-Graham superficial (6-29, = 2 × la forma de aire libre de arXiv 2408.04078). La eficiencia η siempre es del usuario.
+    - **Efectos**: probits de C&L tabla 2-5 (Eisenberg/Lees) y de PGS 1 (letalidad por hidrocarburo −36.38, 2.º grado, tímpano, ventanas pre/post 1975).
+  - **Datos del usuario nunca por defecto**: viento, estabilidad, temperatura, humedad, orificio, presión, inventario, η, tiempo de exposición y puntos finales. Si falta uno, la tool responde `faltan datos del usuario (no se suponen): …`. Único punto final de EJEMPLO: `epa_rmp` = 40 CFR 68.22(a)(2) (1 psi; 5 kW/m² durante 40 s; LFL), leído en Cornell LII; solo se aplica por nombre y sale etiquetado.
+  - **Enlace con la LOPA**: con `hazop_row` + `severity_criterion` del usuario ([{severidad, endpoint, distancia_min_m}]), cada tool devuelve `para_lopa.overrides_lopa` = {"<fila>": {severidad, severidad_fuente: "calculada …"}}. `lopa_from_hazop` acepta ahora `severidad`/`severidad_fuente` en `overrides` (`from_pid.build_scenarios`): la usa para `tolerable_by_severity` y la muestra como `severidad_usada` con `origen_severidad`. La probabilidad calculada en el receptor (probit) sale como `modificador_sugerido` y necesita el OK del owner.
+  - **Fuentes leídas (2026-11-13)**:
+    - Crowl & Louvar 4.ª ed. (2020), leída para verificar los números de sus ejemplos (no se reproduce texto del libro).
+    - TNO Yellow Book CPR 14E (2005), publications.tno.nl.
+    - NUREG-1805 cap. 5 (vía PDH Online) y NISTIR 6546.
+    - PGS 1 (2003, revisión neerlandesa del Green Book) deel 1A/2A/2B.
+    - arXiv 2408.04078 (Kinney-Graham).
+    - 40 CFR 68.22 en Cornell LII.
+    - **No legibles**: CCPS CPQRA y CCPS 2010 VCE/BLEVE; la 3.ª ed. de C&L (ejemplo de N₂ de 0.1 in); cualquier ejemplo de Baker-Strehlow-Tang; los ajustes de multi-energía (Díaz Alonso 2006/2008, solo resúmenes); Green Book inglés de 1992.
+    - Notas completas en la carpeta de notas de la sesión (`M12_examples_*.md`).
+  - **Evidencia** (`tests/test_consequence.py`, 79 tests):
+    - **C&L 4.ª ed.**:
+      - Ej. 4-1: 6.72 kg/s y 3.63e4 kg.
+      - Ej. 4-2: 3386 s, 10.4 lbm/s y 4506 gal, con ≤ 0.5 % por el π = 3.14 del libro.
+      - Ej. 4-4: N₂ ahogado, 0.527, 7.91 bar, 1.09e-2 kg/s; la tabla de P*/P0 para γ 1.67/1.40/1.32, y el aire ahogado sobre 27.8 psia.
+      - Ej. 4-6: flash 0.144/0.144 y 0.146 (vapor) con IAPWS-95 de CoolProp.
+      - Ej. 3-9: K 0.482 cm/s, 0.0714 kg/min.
+      - Ej. 5-1: (a) 35.0 mg/m³ = 25.6 ppm. (b) Por el método del libro, x = 589 m y σy 91.6 m; el **Cmax impreso (5.17e-4) es una errata ×10**, el correcto es 5.16e-5, y lo confirma el inciso (c). El máximo exacto del gaussiano cae en 593 m. (c) 2.64 kg/s.
+      - Ej. 5-2: puff 9.7/15.3 m, 8.85e-4 kg/m³ = 647 ppm.
+      - Ej. 6-10, 6-11 (214 kg TNT, 25 kPa) y 6-13 (probits −8.56 y 3.54 → 7.2 %). Ej. 2-2 (27.1 %) y la tabla 2-4.
+    - **TNO YB 2005**:
+      - §6.6.3, charco confinado de benceno, cadena completa: u_c 3.06866, u* 1.62937, L 46.7725, Θ 50.8286°, SEPmax 25.24e4, SEP 6.648e4, F 0.0964, q **4.581e3 W/m²**.
+      - §6.6.4, charco no confinado: 2.141e3 a 1 %. El L impreso (37.91) no sale de su propio L/D (37.98).
+      - §6.6.5, BLEVE de 19 775 kg de propano: r 80.68, t 11.15, H 161.37, F 0.09856, Fs 0.314, ΔH 41.153e6, SEP 28.02e4, q **20.26e3**. El 20.361e3 impreso es **errata**: no es el producto de sus propios factores. La τ de Bagster 0.67 cae fuera de su rango y sale con aviso.
+    - **NUREG-1805 ej. 5.11-1** (Shokri-Beyler + Heskestad): Q 771.52 kW, H 2.305 m, E 56.88, q **3.05 kW/m²**.
+    - **NISTIR 6546 problema 3** (fuente puntual): 9.7 kW/m² a 260 m y 690 m hasta 1.4 kW/m².
+    - **PGS 1**: tabla 4-4 de Eisenberg en 9 filas (la primera, 0.015 contra 0.0133 de la ecuación, es errata del impreso); tímpano 6.52; ventanas 6.086/4.968.
+    - **Límites**:
+      - Flujo ahogado continuo en su frontera.
+      - Criterio de gas denso exactamente en 0.15 y 0.20, y justo debajo.
+      - Las 6 clases de Pasquill en sus bordes de viento, de día y de noche.
+      - Factor de vista numérico contra Mudan en 5 geometrías.
+      - Inversión de distancias.
+      - La tool se niega con cloro denso y no pone el clima por defecto.
+    - **Enlace de punta a punta**: severidad calculada → `lopa_from_hazop` sobre un DEXPI publicado → `severidad_usada` 5 y frecuencia tolerable de esa severidad.
+  - Pendiente:
+    - multi-energía TNO y BST: hacen falta ajustes de curvas con fuente legible; los ejemplos de C&L 6-12 y YB §5.6.3 quedan listos para cuando los haya;
+    - chorro de fuego Chamberlain (YB §6.6.2 como test);
+    - modelo de gas denso (Britter-McQuaid);
+    - charco en ebullición;
+    - HyRAM+ como proceso aparte para contrastar H₂/CH₄;
+    - CCPS CPQRA cuando haya copia.
 - 2026-11-13: **LOPA y SIL desde el HAZOP y el P&ID (bloque M11), 63 tools.** Paquete `packages/lopa/` y tool `lopa_from_hazop(flowsheet_id | dexpi_path)` (en `TOOLS` y `AGENT_TOOLS`, regla 20 del agente).
   - Escenario = una fila del HAZOP con severidad ≥ 3, o una fila que el P&ID atendió con PSV o disparo; cada causa es un evento iniciador. f_mitigada = ΠCM × Σ_i f_IE,i × Π PFD_j acreditadas para i (el crédito es por evento iniciador, como en HSE/BSTG 2007).
   - Causas → tabla genérica por reglas fijas: falla de lazo BPCS 0.1/año **ligada al lazo real del P&ID** (controlador, transmisor, elemento final y esclavo de la cascada), sello de bomba, paro de bomba o compresor, agua de enfriamiento, fuego externo, error del operador 1e-2 por oportunidad (las oportunidades por año son del usuario). Salida bloqueada → la válvula de control de esa salida (gas/vapor o líquido) si hay una sola; si no, válvula manual = error del operador. La «falla de la check» no es evento iniciador (es la PFD de la capa). Dos causas que son la misma falla del mismo lazo se fusionan (sin doble conteo). Lo demás (taponamiento, runaway, blowby…) queda «por definir» y el escenario se marca incompleto.

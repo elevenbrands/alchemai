@@ -445,7 +445,9 @@ from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi  # noqa: E402
 from packages.pid.tool import pid_from_hazop  # noqa: E402
 from packages.lopa.tool import lopa_from_hazop  # noqa: E402
+from packages.consequence.tool import (explosion_overpressure, fire_radiation, gas_dispersion,  # noqa: E402
+                                       release_source_term)
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
          define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-         *SWEEP_TOOLS, *TRANSPORT_TOOLS, *FLOW_TOOLS, *HEAT_TOOLS, *ENERGY_TOOLS, *COSTING_TOOLS, *ECONOMICS_TOOLS, *OPTIMIZE_TOOLS, *MASS_TRANSFER_TOOLS, *KINETICS_TOOLS, *CONTROL_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, close_flowsheet]
+         *SWEEP_TOOLS, *TRANSPORT_TOOLS, *FLOW_TOOLS, *HEAT_TOOLS, *ENERGY_TOOLS, *COSTING_TOOLS, *ECONOMICS_TOOLS, *OPTIMIZE_TOOLS, *MASS_TRANSFER_TOOLS, *KINETICS_TOOLS, *CONTROL_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion, fire_radiation, explosion_overpressure, close_flowsheet]

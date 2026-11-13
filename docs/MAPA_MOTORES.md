@@ -20,9 +20,9 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-13: **63 tools** (M11), DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-13: **67 tools** (M12), DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 + ipopt 3.13.2 (idaes-ext 3.4.2, `~/.idaes/bin`), omlt 1.2.2, biosteam 2.54.0,
-SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
+SFILES2 1.2.0, pydexpi 2.1.0, CoolProp 8.0.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
 
 ## 1 · Termodinámica y propiedades
@@ -118,7 +118,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | HAZOP preliminar por reglas sobre el grafo (desde DWSIM o DEXPI) + propuestas LLM marcadas | ✅ (`hazop_preliminary`, `hazop_from_dexpi`; recall 30/30 apartado, 0 espurias) | propio + Claude | MIT | Precisión útil 76 %: sigue habiendo ruido |
 | Dimensionamiento de válvulas de alivio (API 520/521), ruido | ✅ (`relief_valve_sizing`, bloque M4a; ejemplos 1, 2, 4 y 5 de API 520 Parte I) · ruido 📦 | `fluids.safety_valve` + API 526 | MIT · en proceso | Conectar a la fila HAZOP «más presión»; ruido API 521 sin tool; la tasa de alivio sale del escenario (no la decide la tool) |
 | LOPA y SIL (capas de protección, reducción de riesgo, SIL de cada disparo) | ✅ (`lopa_from_hazop`, bloque M11 2026-11-13: HAZOP → P&ID M10 → hoja LOPA; ejemplo HSE/BSTG 2007 App. 1 y su variante SIL 2, dos ejemplos Kenexis y Casey 2019 reproducidos; bandas IEC 61511 en sus bordes; reglas de independencia I-1…I-6 sobre los tags del P&ID) · árbol de fallas ⬜ | propio (tablas genéricas con fuente) | MIT · en proceso | Tablas genéricas, no del sitio; CCPS 2001/2015 sin copia legible (valores vía fuentes secundarias, sus ejemplos no se reproducen); la frecuencia tolerable es del owner; causas fuera de la tabla (taponamiento, runaway…) quedan por definir; sin árbol de fallas ni verificación de PFDavg de la SIF (arquitectura, intervalo de prueba) |
-| Dispersión, incendio, explosión (consecuencias) | ⬜ | modelos propios (Gaussiano, TNT-equivalente) | — | Sin motor abierto maduro; por demanda |
+| Dispersión, incendio, explosión (consecuencias) | ✅ (`release_source_term`, `gas_dispersion`, `fire_radiation`, `explosion_overpressure`, bloque M12 2026-11-13: descarga, flash y evaporación; pluma/puff de Pasquill-Gifford con criterio de gas denso de Britter-McQuaid; charco SFPE y TNO, bola de fuego TNO, chorro como fuente puntual; TNT; probits; ejemplos de Crowl & Louvar 4.ª ed., TNO Yellow Book 2005, NUREG-1805, NISTIR 6546 y PGS 1 reproducidos; severidad calculada hacia `lopa_from_hazop`) · multi-energía/BST ⬜ · gas denso ⬜ | propio (modelos publicados con fuente) + CoolProp | MIT · en proceso | Cribado, no QRA (Phast/EFFECTS siguen siendo la herramienta validada); multi-energía y BST sin ajuste de curvas legible; chorro Chamberlain pendiente; sin modelo de gas denso (la nube densa a nivel del suelo no se calcula); HyRAM+ (GPL-3, solo H₂/CH₄/propano) como posible contraste en proceso aparte |
 
 ## 11 · Diseño de planta y documentación
 
@@ -157,7 +157,8 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 9 ✅ | Control — hecho 2026-11-13 (M9, 61 tools): `fopdt_identify` (FOPDT/SOPDT por mínimos cuadrados + Smith y Sundaresan-Krishnaswamy), `pid_tuning` (SIMC por defecto, IMC, ZN último ciclo y curva de reacción, Cohen-Coon, Tyreus-Luyben; regla de la mitad), `pid_closed_loop` (márgenes exactos, Ms, IAE, sobrepaso) | 12 | Tema de estudio del plan | `python-control` 0.10.2 (BSD) |
 | 10 ✅ | P&ID mínimo desde HAZOP (DEXPI P&ID) — hecho 2026-11-13 (M10, 62 tools): `pid_from_hazop`, DEXPI 2.0.1 con ida y vuelta, XSD oficial y Skogestad 1997 Fig. 1 | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
 | 11 ✅ | LOPA y SIL desde el HAZOP y el P&ID — hecho 2026-11-13 (M11, 63 tools): `lopa_from_hazop`, independencia por tags del P&ID, SIL por IEC 61511, ejemplos HSE/BSTG 2007, Kenexis y Casey 2019 reproducidos | 10 | Cierra la cadena HAZOP → P&ID → nivel de protección | ninguna |
-| — | Layout/ruteo, 3D, dispersión, árbol de fallas | 10, 11 | Investigación o decisión del owner | — |
+| 12 ✅ | Análisis de consecuencias — hecho 2026-11-13 (M12, 67 tools): términos fuente, dispersión gaussiana con criterio de gas denso, charco/bola de fuego/chorro, TNT, probits; enlace de severidad calculada a la LOPA. Multi-energía/BST, Chamberlain y gas denso pendientes | 10 | Completa la seguridad: del HAZOP a qué pasa si la protección falla | ninguna (CoolProp ya en el entorno) |
+| — | Layout/ruteo, 3D, árbol de fallas, multi-energía/BST y gas denso | 10, 11 | Investigación o decisión del owner | — |
 
 ## Reglas de admisión de un motor nuevo
 

@@ -1,8 +1,33 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M11 cerrados: LOPA/SIL cierra la cadena HAZOP → P&ID → nivel de protección)
+Actualizado: 2026-11-13 (M1-M12 cerrados: el análisis de consecuencias completa la seguridad, del HAZOP a qué pasa si la protección falla)
 
 ## Dónde estamos
+**Bloque M12 (2026-11-13): análisis de consecuencias, 67 tools, ✅ en su núcleo.** Paquete `packages/consequence/` y cuatro tools:
+- `release_source_term`: líquido y gas por orificio (ahogado/subsónico), vaciado de tanque, fracción de flash (CoolProp o Cp), evaporación de charco.
+- `gas_dispersion`: pluma y puff de Pasquill-Gifford (Briggs, rural/urbano), distancias a los umbrales del usuario y probit tóxico. Con el criterio de gas denso de Britter-McQuaid, una nube densa a nivel del suelo **no se calcula**.
+- `fire_radiation`: charco (SFPE o TNO, factor de vista numérico), bola de fuego TNO, chorro como fuente puntual.
+- `explosion_overpressure`: equivalencia TNT con Kinney-Graham y probits de sobrepresión.
+- Cada tool devuelve `para_lopa`: con el criterio de severidad del usuario, `lopa_from_hazop` recibe la severidad etiquetada «calculada» (override nuevo `severidad`).
+- Paso 0: sin librería abierta general (HyRAM+ es GPL-3 y solo H₂/CH₄/propano; Phast y ALOHA cerrados) → modelos publicados en Python puro.
+- Clima, orificio, inventario, η, exposición y puntos finales nunca por defecto. Único EJEMPLO: EPA RMP 40 CFR 68.22(a)(2). Toda salida dice «cribado, no sustituye a Phast/EFFECTS en un QRA real».
+
+Evidencia (`tests/test_consequence.py`, 79 tests):
+- Crowl & Louvar 4.ª ed., ejemplos 4-1, 4-2, 4-4, 4-6, 3-9, 5-1, 5-2, 6-10, 6-11, 6-13 y 2-2. **Errata hallada**: el Cmax de 5-1(b) está impreso ×10.
+- TNO Yellow Book 2005: charco confinado (4.581e3 W/m²) y no confinado, y la BLEVE (20.26e3; el 20.361e3 impreso es errata).
+- NUREG-1805 ej. 5.11-1 (3.05 kW/m²), NISTIR 6546 problema 3 y probits de PGS 1.
+- Límites: flujo ahogado en su frontera, gas denso en su umbral y bordes de las clases de Pasquill.
+
+Pendiente (siguiente sub-bloque, en orden):
+1. **Multi-energía TNO y Baker-Strehlow-Tang.** Hace falta un ajuste de curvas con fuente legible: Díaz Alonso 2006/2008, o el informe MSB 2017 de Johansson, que no se encontró. Tests listos para cuando lo haya: C&L ej. 6-12 (R̄ = 2.4 → 13.2 kPa) y YB §5.6.3 (tablas 5.6/5.7).
+2. **Chorro de fuego Chamberlain**, con YB §6.6.2 como test: 30 pasos, 0.417 kW/m², 10 erratas anotadas en la nota de la sesión.
+3. **Modelo de gas denso** (correlaciones de Britter-McQuaid), para que la nube densa tenga distancias.
+4. Charco en ebullición (criogénico, C&L ec. 4-107/4-108).
+5. HyRAM+ como proceso aparte para contrastar H₂/CH₄.
+6. CCPS CPQRA cuando haya copia legible.
+
+Siguiente: **decisión del owner** sobre el sub-bloque M12b (multi-energía/BST, Chamberlain, gas denso), o volver a los temas de investigación (layout, 3D, árbol de fallas).
+
 **Bloque M11 (2026-11-13): LOPA y SIL desde el HAZOP y el P&ID, 63 tools, ✅.** Paquete `packages/lopa/` y tool `lopa_from_hazop`.
 - Una fila del HAZOP = un escenario; cada causa = un evento iniciador de una tabla genérica con fuente, ligado al lazo real del P&ID cuando es una falla del BPCS.
 - Capas acreditables: las PSV, alarmas y checks del P&ID trazadas a esa fila, más las que declare el usuario. Seis reglas de independencia deterministas (I-1…I-6) sobre los tags.

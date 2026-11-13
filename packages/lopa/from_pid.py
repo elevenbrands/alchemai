@@ -237,7 +237,9 @@ def build_scenarios(spec: PidSpec, min_severity: int = DEFAULT_MIN_SEVERITY, tol
     for n, row in enumerate(spec.hazop_rows, start=1):
         ref = row_ref(n - 1, _RowView(row))
         ov = overrides.get(str(n), {})
-        if row["severity"] < min_severity and ref not in traced_refs and not ov:
+        sev = int(ov["severidad"]) if "severidad" in ov else row["severity"]
+        sev_src = ov.get("severidad_fuente", "usuario") if "severidad" in ov else "HAZOP"
+        if sev < min_severity and ref not in traced_refs and not ov:
             continue
         events = [classify_cause(c, row, pid) for c in row["causes"]]
         freqs = ov.get("frecuencias", {})
@@ -263,15 +265,15 @@ def build_scenarios(spec: PidSpec, min_severity: int = DEFAULT_MIN_SEVERITY, tol
         mods = [Modifier(m["nombre"], float(m["probabilidad"]), m.get("fuente", "usuario")) for m in src_mods]
         if "frecuencia_tolerable" in ov:
             tol, tsrc = float(ov["frecuencia_tolerable"]), "usuario (este escenario)"
-        elif str(row["severity"]) in tolerable_by_severity:
-            tol, tsrc = float(tolerable_by_severity[str(row["severity"])]), f"usuario (severidad {row['severity']})"
+        elif str(sev) in tolerable_by_severity:
+            tol, tsrc = float(tolerable_by_severity[str(sev)]), f"usuario (severidad {sev}, {sev_src})"
         else:
             tol, tsrc = tolerable, tolerable_source
         not_credited = [{"salvaguarda": s, "razón": "no es una capa verificable en el P&ID (procedimiento, inspección, "
                                                     "detección, diseño o control normal); declárala en capas si lo es"}
                         for s in row["safeguards"] if not _drawn(s, layers)]
         out.append(Scenario(ref, row["node"], row["deviation"], "; ".join(row["consequences"]), row["severity"], events,
-                            layers, mods, tol, tsrc, not_credited))
+                            layers, mods, tol, tsrc, not_credited, sev, sev_src))
     return out
 
 

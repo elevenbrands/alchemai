@@ -52,7 +52,7 @@ def worksheet(scenarios, allow_multiple_operator: bool = False) -> tuple[list[di
                           "crédito_por_causa": [{"causa": x["causa"], "acreditada": c["acreditada"], "razón": c["razón"]}
                                                 for x, c in zip(m["eventos"], per_ie)]})
         row = {"escenario": sc.ref, "nodo": sc.node, "desviación": sc.deviation, "consecuencia": sc.consequence,
-               "severidad_hazop": sc.severity, "eventos_iniciadores": [_ie_row(e) for e in sc.events],
+               "severidad_hazop": sc.severity, "severidad_usada": sc.severity_used, "origen_severidad": sc.severity_source, "eventos_iniciadores": [_ie_row(e) for e in sc.events],
                "frecuencias_intermedias": [{"causa": x["causa"], "f_IE": x["frecuencia_por_año"], "pfd_capas": x["pfd_capas"],
                                             "f_intermedia": x["frecuencia_intermedia"]} for x in m["eventos"]],
                "capas": capas,
@@ -145,7 +145,7 @@ def lopa_from_hazop(flowsheet_id: str | None = None, dexpi_path: str | None = No
     "kenexis_tmel_1e-5") applies a published EXAMPLE, labeled as such. Without any, gap and SIL stay «por definir».
     Each trip gets required PFD, RRF and SIL band (IEC 61511-1 Table 4; Table 5 if demand > 1/año).
     conditional_modifiers [{nombre, probabilidad, fuente, filas?, nodos?}] come only from the user.
-    overrides {"<fila>": {frecuencia_tolerable, frecuencias {"n.k": f}, oportunidades_por_año {"n.k": n},
+    overrides {"<fila>": {frecuencia_tolerable, severidad, severidad_fuente, frecuencias {"n.k": f}, oportunidades_por_año {"n.k": n},
     modificadores [...], capas [{tag, tipo, pfd, componentes, fuente, aplica_a}], pfd_sif {tag: pfd},
     tiempo_respuesta_min}}. alarm_response_min = minutes between alarm and consequence (user data; without it alarms
     get no credit)."""

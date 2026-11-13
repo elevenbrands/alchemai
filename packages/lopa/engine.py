@@ -79,6 +79,8 @@ class Scenario:
     tolerable: float | None = None
     tolerable_source: str = ""
     not_credited: list[dict] = field(default_factory=list)   # HAZOP safeguards that are not IPLs here, and why
+    severity_used: int | None = None      # severity after a user/calculated override (M12 consequence analysis)
+    severity_source: str = "HAZOP"
 
 
 def credit(ev: InitiatingEvent, i: int, layer: Layer, credited: list[Layer], allow_multiple_operator: bool = False,

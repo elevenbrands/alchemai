@@ -39,6 +39,7 @@ from packages.export.flowsheet_export import export_flowsheet as _export  # noqa
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
 from packages.pid.tool import pid_from_hazop as _pid  # noqa: E402
 from packages.lopa.tool import lopa_from_hazop as _lopa  # noqa: E402
+from packages.consequence import tool as _CQ  # noqa: E402
 
 MODEL = os.environ.get("ALCHEMAI_MODEL", "claude-opus-5-5")
 EFFORT = os.environ.get("ALCHEMAI_EFFORT", "high")
@@ -167,6 +168,16 @@ Hard rules:
    Show the LOPA sheet in Spanish (scenario, causes with frequency and source, credited layers and the ones denied with
    their independence rule, ΠCM, mitigated vs tolerable frequency, state) and the SIF table (required PFD, RRF, SIL,
    demand mode). Say the tables are generic literature values, not site data, and list scenarios left "incompleto".
+21. Consequence analysis (what happens if the protection fails: source term, toxic/flammable dispersion, pool fire,
+   fireball, jet fire, explosion overpressure): release_source_term → gas_dispersion | fire_radiation |
+   explosion_overpressure. Weather (wind, stability or insolation/cloud, temperature, humidity), hole size, pressure,
+   inventory, cloud mass, explosion efficiency, exposure time and END POINTS are user data: ASK, never invent. Offer
+   example_endpoints only if the user asks for an example and say it is an EXAMPLE (EPA RMP). If gas_dispersion says
+   the cloud is dense, do not give Gaussian distances: say a dense-gas model is needed. Show in Spanish the tables
+   (distance vs concentration / kW/m² / kPa, distances to each end point, receptor probabilities) with each model's
+   source and the assumptions. Always say it is preliminary screening, not a substitute for Phast/EFFECTS in a real
+   QRA. To feed a LOPA row, pass the tool's para_lopa.overrides_lopa to lopa_from_hazop (severity labelled
+   "calculada") only with the user's severity_criterion; a suggested probability modifier needs the owner's OK.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -391,13 +402,106 @@ def lopa_from_hazop(flowsheet_id: str = "", dexpi_path: str = "", tolerable_freq
     deterministic independence rules. tolerable_frequency (1/año) or tolerable_by_severity {"4": 1e-5} is the user's
     risk criterion (never assume it); example_criterion bstg_2007 | kenexis_tmel_1e-4 | kenexis_tmel_1e-5 applies a
     labeled EXAMPLE. alarm_response_min, conditional_modifiers [{nombre, probabilidad, fuente, filas?, nodos?}] and
-    overrides {"<fila>": {frecuencia_tolerable, frecuencias {"n.k": f}, oportunidades_por_año {"n.k": n},
+    overrides {"<fila>": {frecuencia_tolerable, severidad, severidad_fuente, frecuencias {"n.k": f}, oportunidades_por_año {"n.k": n},
     modificadores, capas [{tag, tipo, pfd, componentes, fuente, aplica_a}], pfd_sif {tag: pfd}}} are user data."""
     out = _lopa(flowsheet_id or None, dexpi_path or None, tolerable_frequency, tolerable_by_severity,
                 example_criterion or None, alarm_response_min, conditional_modifiers, overrides, min_severity)
     out.pop("markdown", None)
     out.pop("tablas", None)
     return json.dumps(out, ensure_ascii=False, default=float)
+
+
+def _cq(out: dict) -> str:
+    return json.dumps(out, ensure_ascii=False, default=float)
+
+
+@beta_tool
+def release_source_term(kind: str, hole_diameter_m: float | None = None, pressure_Pa: float | None = None,
+                        temperature_K: float | None = None, compound_name: str = "", density_kg_m3: float | None = None,
+                        molar_mass_kg_mol: float | None = None, gamma: float | None = None, liquid_head_m: float = 0.0,
+                        discharge_coefficient: float | None = None, tank_area_m2: float | None = None,
+                        ambient_pressure_Pa: float | None = None, coolprop_fluid: str = "",
+                        pool_diameter_m: float | None = None, pool_area_m2: float | None = None,
+                        wind_speed_m_s: float | None = None, schmidt: float | None = None) -> str:
+    """Source term of a loss of containment (Crowl & Louvar 4th ed.). kind: liquido (liquid through a hole, Cd 0.61
+    unless given; tank_area_m2 + liquid_head_m add the draining time) | gas (choked or subsonic hole flow, Cd 1.0
+    unless given, γ from thermo) | flash (flashing fraction; coolprop_fluid for the isenthalpic flash) | charco (pool
+    evaporation; Mackay-Matsugu with the user's wind). pressure_Pa is ABSOLUTE. Hole, pressure, temperature and pool
+    size are the user's: never assume them. Screening only."""
+    return _cq(_CQ.release_source_term(kind, hole_diameter_m, pressure_Pa, temperature_K, compound_name or None,
+                                       density_kg_m3, molar_mass_kg_mol, gamma, liquid_head_m, discharge_coefficient,
+                                       tank_area_m2, ambient_pressure_Pa, coolprop_fluid or None,
+                                       pool_diameter_m=pool_diameter_m, pool_area_m2=pool_area_m2,
+                                       wind_speed_m_s=wind_speed_m_s, schmidt=schmidt))
+
+
+@beta_tool
+def gas_dispersion(mode: str, wind_speed_m_s: float | None = None, ambient_temperature_K: float | None = None,
+                   stability_class: str = "", insolation: str = "", night_cloud: str = "",
+                   release_rate_kg_s: float | None = None, release_mass_kg: float | None = None,
+                   compound_name: str = "", molar_mass_kg_mol: float | None = None,
+                   release_temperature_K: float | None = None, release_height_m: float | None = None,
+                   terrain: str = "rural", thresholds: list[dict[str, object]] | None = None,
+                   receptor_distance_m: float | None = None, toxic_probit: dict[str, object] | None = None,
+                   exposure_time_s: float | None = None, hazop_row: int | None = None,
+                   severity_criterion: list[dict[str, object]] | None = None) -> str:
+    """Gaussian plume (mode continua, release_rate_kg_s) or puff (instantanea, release_mass_kg), Pasquill-Gifford with
+    Briggs coefficients. Weather is the user's: wind_speed_m_s, ambient_temperature_K and stability_class A-F (or
+    insolation fuerte|moderada|ligera|cubierto by day / night_cloud nublado|despejado). thresholds [{nombre, ppm |
+    mg_m3 | fraccion_lfl}] are the user's end points. Britter-McQuaid check: a dense ground-level cloud is not computed.
+    receptor_distance_m + toxic_probit {a, b, n, unidad_c, unidad_t} → probability; hazop_row + severity_criterion
+    [{severidad, endpoint, distancia_min_m}] → para_lopa (calculated severity for lopa_from_hazop)."""
+    return _cq(_CQ.gas_dispersion(mode, wind_speed_m_s, ambient_temperature_K, stability_class or None,
+                                  insolation or None, night_cloud or None, release_rate_kg_s, release_mass_kg,
+                                  compound_name or None, molar_mass_kg_mol, release_temperature_K, release_height_m,
+                                  terrain, thresholds, receptor_distance_m, toxic_probit, exposure_time_s,
+                                  hazop_row=hazop_row, severity_criterion=severity_criterion))
+
+
+@beta_tool
+def fire_radiation(kind: str, ambient_temperature_K: float | None = None, compound_name: str = "",
+                   heat_of_combustion_J_kg: float | None = None, pool_diameter_m: float | None = None,
+                   burning_rate_kg_m2s: float | None = None, wind_speed_m_s: float | None = None,
+                   relative_humidity: float | None = None, sep_method: str = "both", mass_kg: float | None = None,
+                   burst_pressure_Pa: float | None = None, pool_model: str = "sfpe",
+                   burning_rate_inf_kg_m2s: float | None = None, k_beta_m: float | None = None,
+                   flame_height: str = "thomas", transmissivity: float | None = None,
+                   radiant_fraction: float | None = None, release_rate_kg_s: float | None = None,
+                   distances_m: list[float] | None = None, endpoints_kW_m2: list[dict[str, object]] | None = None,
+                   example_endpoints: str = "", exposure_time_s: float | None = None,
+                   receptor_distance_m: float | None = None, hazop_row: int | None = None,
+                   severity_criterion: list[dict[str, object]] | None = None) -> str:
+    """Thermal radiation vs distance. kind charco (solid-flame pool fire; pool_model sfpe or tno, tno needs
+    radiant_fraction), bola_fuego (TNO BLEVE fireball from mass_kg and burst_pressure_Pa) or chorro (point source,
+    release_rate_kg_s and the user's radiant_fraction). ambient_temperature_K is the user's; relative_humidity gives
+    the transmissivity (else τ = 1). endpoints_kW_m2 [{nombre, kW_m2}] are the user's; example_endpoints "epa_rmp"
+    adds a labelled EXAMPLE. receptor_distance_m + exposure_time_s → burn-death probability; hazop_row +
+    severity_criterion → para_lopa. Screening only."""
+    return _cq(_CQ.fire_radiation(kind, ambient_temperature_K, compound_name or None, heat_of_combustion_J_kg,
+                                  pool_diameter_m, burning_rate_kg_m2s, wind_speed_m_s, relative_humidity, sep_method,
+                                  mass_kg, burst_pressure_Pa, pool_model, burning_rate_inf_kg_m2s, k_beta_m,
+                                  flame_height, transmissivity, None, radiant_fraction, release_rate_kg_s, distances_m,
+                                  endpoints_kW_m2, example_endpoints or None, exposure_time_s, receptor_distance_m,
+                                  None, hazop_row, severity_criterion))
+
+
+@beta_tool
+def explosion_overpressure(method: str = "tnt", flammable_mass_kg: float | None = None,
+                           efficiency: float | None = None, compound_name: str = "",
+                           heat_of_combustion_J_kg: float | None = None, tnt_mass_kg: float | None = None,
+                           ambient_pressure_Pa: float | None = None, distances_m: list[float] | None = None,
+                           endpoints_kPa: list[dict[str, object]] | None = None, example_endpoints: str = "",
+                           receptor_distance_m: float | None = None, hazop_row: int | None = None,
+                           severity_criterion: list[dict[str, object]] | None = None) -> str:
+    """Blast overpressure vs distance by TNT equivalence (Kinney-Graham surface burst). flammable_mass_kg and the
+    explosion efficiency are the user's (typically 1-10 %, never assumed); or tnt_mass_kg. endpoints_kPa
+    [{nombre, kPa}] are the user's; example_endpoints "epa_rmp" adds 1 psi as a labelled EXAMPLE. receptor_distance_m
+    → probits (lung hemorrhage, eardrum, structures, glass); hazop_row + severity_criterion → para_lopa. Multi-energy
+    and Baker-Strehlow-Tang are pending."""
+    return _cq(_CQ.explosion_overpressure(method, flammable_mass_kg, efficiency, compound_name or None,
+                                          heat_of_combustion_J_kg, tnt_mass_kg, ambient_pressure_Pa, distances_m,
+                                          endpoints_kPa, example_endpoints or None, receptor_distance_m, hazop_row,
+                                          severity_criterion))
 
 
 @beta_tool
@@ -894,7 +998,8 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
-               hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, close_flowsheet]
+               hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
+               fire_radiation, explosion_overpressure, close_flowsheet]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 
