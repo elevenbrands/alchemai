@@ -67,16 +67,17 @@ def _kill_group(proc: subprocess.Popen) -> None:
         pass
 
 
-def run_solver(payload: dict, timeout_s: int = DEFAULT_TIMEOUT_S, python: str | None = None) -> dict:
-    """Run the FEniCSx script in its own process group with the payload on stdin; return its JSON."""
+def run_solver(payload: dict, timeout_s: int = DEFAULT_TIMEOUT_S, python: str | None = None, solver: Path | None = None) -> dict:
+    """Run a FEniCSx script (default: the M1 isothermal one) in its own process group with the payload on stdin."""
+    script = Path(solver) if solver is not None else SOLVER
     py = python or fenicsx_python()
     if py is None:
         raise RuntimeError("FEniCSx no está instalado: falta el entorno micromamba `fenicsx` (~/mamba/envs/fenicsx) "
                            "o la variable ALCHEMAI_FENICSX_PYTHON. Ver transporte-lab/README.md para instalarlo.")
     env = {k: v for k, v in os.environ.items() if not k.startswith(("CONDA", "MAMBA", "PYTHON", "VIRTUAL_ENV"))}
     env["OMP_NUM_THREADS"] = env.get("OMP_NUM_THREADS", "1")
-    proc = subprocess.Popen([py, "-I", str(SOLVER)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            text=True, env=env, start_new_session=True, cwd=str(SOLVER.parent))
+    proc = subprocess.Popen([py, "-I", str(script)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            text=True, env=env, start_new_session=True, cwd=str(script.parent))
     try:
         out, err = proc.communicate(json.dumps(payload), timeout=timeout_s)
     except subprocess.TimeoutExpired:

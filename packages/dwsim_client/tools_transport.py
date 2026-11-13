@@ -6,6 +6,7 @@ from __future__ import annotations
 from packages.dwsim_client.tools import _s
 from packages.transport import hydraulics as H
 from packages.transport import reactor_field as RF
+from packages.transport import reactor_nonisothermal as RN
 from packages.transport import vessel_cfd as VC
 from packages.transport import stirred_tank as ST
 
@@ -96,6 +97,35 @@ def tubular_reactor_field(volumetric_flow_m3_s: float, tube_diameter_m: float, n
                                     k_1_s, A_1_s, E_J_mol, T_K, density_kg_m3, viscosity_Pa_s, reynolds, nz, nr, figure_path)
 
 
+def nonisothermal_tubular_reactor(volumetric_flow_m3_s: float, tube_diameter_m: float, n_tubes: int,
+                                  inlet_concentration_mol_m3: float, inlet_T_K: float, A_1_s: float, E_J_mol: float,
+                                  dH_J_mol: float, density_kg_m3: float, cp_J_kgK: float, diffusivity_m2_s: float,
+                                  thermal_conductivity_W_mK: float, wall: dict, velocity_profile: str, fluid_model: str,
+                                  tube_length_m: float | None = None, volume_m3: float | None = None,
+                                  axial_diffusivity_m2_s: float | None = None,
+                                  axial_thermal_conductivity_W_mK: float | None = None,
+                                  viscosity_Pa_s: float | None = None, nz: int = 300, nr: int = 30,
+                                  mesh_study: bool = True, figure_path: str | None = None) -> dict:
+    """Non-isothermal tubular reactor with coupled energy balance: first-order Arrhenius reaction A → products in a
+    bundle of n_tubes, solved as coupled 2-D axisymmetric concentration + temperature fields with FEniCSx (separate
+    process, P2 + SUPG + Newton with continuation on ΔH; seconds to a minute), next to the 1-D non-isothermal PFR (ideal
+    plug flow, same kinetics, scipy). ALL kinetic and thermal data come from the user, no defaults: feed concentration
+    and T, A_1_s (1/s per reactor volume) and E_J_mol, dH_J_mol (< 0 exothermic), ρ and cp at feed, radial diffusivity
+    and conductivity (empty tube: molecular; packed bed: effective D_er, λ_er), wall = {'mode': 'fixed_T', 'T_wall_K'} |
+    {'mode': 'coolant', 'U_W_m2K', 'T_coolant_K'} | {'mode': 'adiabatic'}, velocity_profile 'laminar' (Poiseuille,
+    empty tube) or 'plug' (packed bed), fluid_model 'liquid' or 'ideal_gas' (constant P, dilute reactant). Axial
+    values default to the radial ones (isotropy, stated in assumptions). Returns X and outlet T (mixing cup), the hot
+    spot T and its (z, r), radial T profiles at the hot spot and outlet, axial profiles, the 1-D PFR X / outlet T /
+    hot spot, `divergence` (where and by how much field and PFR part), the bundle energy balance and `evidence`:
+    energy and species closure (1e-5), mesh independence (2× mesh: ΔX < 2e-3, ΔT_out < 0.5 K, ΔT_hot < max(0.5 K,
+    2 % of the rise)) and Re < 2300 for laminar (needs viscosity_Pa_s) → verified."""
+    return RN.nonisothermal_tubular_reactor(volumetric_flow_m3_s, tube_diameter_m, n_tubes, inlet_concentration_mol_m3,
+                                            inlet_T_K, A_1_s, E_J_mol, dH_J_mol, density_kg_m3, cp_J_kgK, diffusivity_m2_s,
+                                            thermal_conductivity_W_mK, wall, velocity_profile, fluid_model, tube_length_m,
+                                            volume_m3, axial_diffusivity_m2_s, axial_thermal_conductivity_W_mK,
+                                            viscosity_Pa_s, nz, nr, mesh_study, figure_path)
+
+
 def vessel_residence_time_cfd(length_m: float, width_m: float, height_m: float, volumetric_flow_m3_s: float,
                               kinematic_viscosity_m2_s: float, inlet: dict, outlet: dict,
                               cells_per_max_dimension: int = 30, mesh_study: bool = True,
@@ -133,4 +163,4 @@ def stirred_tank_cfd(tank_diameter_m: float, liquid_height_m: float, impeller_di
 
 
 TRANSPORT_TOOLS = [stream_transport_properties, pipe_hydraulics, size_pipe, heat_exchanger_area, tube_film_coefficient,
-                   tubular_reactor_field, vessel_residence_time_cfd, stirred_tank_cfd]
+                   tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd]

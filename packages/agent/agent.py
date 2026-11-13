@@ -94,6 +94,13 @@ Hard rules:
    over-predicts, call tubular_reactor_field (FEniCSx field of one tube of the bundle) with k from the kinetics,
    the volumetric flow at reactor conditions, the diffusivity and ρ, μ from stream_transport_properties; report
    X_plug_flow and X_laminar side by side and the seal only if its evidence says verified.
+   If the reaction releases or absorbs heat and the card asks about a hot spot, runaway, wall/coolant temperature,
+   radial temperature profile, or how far the ideal PFR is from a cooled/adiabatic tube, call
+   nonisothermal_tubular_reactor instead: every kinetic and thermal number (A, E, ΔH, C and T of the feed, ρ, cp,
+   D and λ, U and coolant T or wall T) must come from the card or a tool; if one is missing report it as
+   under-specified, never invent it. Empty tube → velocity_profile 'laminar' with molecular D and λ (pass μ for Re);
+   packed bed → 'plug' with the effective D_er and λ_er; gas → fluid_model 'ideal_gas'. Report X, outlet T and hot
+   spot of the field next to the PFR's, where they diverge, the assumptions, and the seal only if verified.
    For a tank or basin that DWSIM models as an ideal CSTR, when the card asks about mixing quality, dead volume,
    short-circuiting or where to put the inlet and outlet, call vessel_residence_time_cfd (OpenFOAM) and report
    σ²/τ², N and the conversion of the real RTD next to the ideal CSTR. It has no impeller.
@@ -400,6 +407,30 @@ def kinetic_reactor_network(reactor: str, feed: str, T_K: float, P_Pa: float, me
     return json.dumps(TK.kinetic_reactor_network(reactor, feed, T_K, P_Pa, mechanism, energy, end_time_s, residence_times_s,
                                                  key_species, report_species, initial_state, custom_species,
                                                  custom_reactions), default=float)
+
+
+@beta_tool
+def nonisothermal_tubular_reactor(volumetric_flow_m3_s: float, tube_diameter_m: float, n_tubes: int,
+                                  inlet_concentration_mol_m3: float, inlet_T_K: float, A_1_s: float, E_J_mol: float,
+                                  dH_J_mol: float, density_kg_m3: float, cp_J_kgK: float, diffusivity_m2_s: float,
+                                  thermal_conductivity_W_mK: float, wall: dict, velocity_profile: str, fluid_model: str,
+                                  tube_length_m: float | None = None, volume_m3: float | None = None,
+                                  axial_diffusivity_m2_s: float | None = None,
+                                  axial_thermal_conductivity_W_mK: float | None = None,
+                                  viscosity_Pa_s: float | None = None, nz: int = 300, nr: int = 30,
+                                  mesh_study: bool = True) -> str:
+    """Non-isothermal tubular reactor (coupled energy balance) as a 2-D FEniCSx field vs the 1-D non-isothermal PFR.
+    First-order Arrhenius A_1_s/E_J_mol, dH_J_mol (< 0 exothermic), feed C and T, ρ and cp, radial diffusivity and
+    conductivity (packed bed: effective D_er, λ_er), wall {'mode':'fixed_T','T_wall_K'} | {'mode':'coolant','U_W_m2K',
+    'T_coolant_K'} | {'mode':'adiabatic'}, velocity_profile 'laminar'|'plug', fluid_model 'liquid'|'ideal_gas'; all
+    from the user, no defaults. Returns X, outlet T, hot spot (T, z, r), radial T profiles, the PFR's X/T/hot spot,
+    divergence, the bundle energy balance, assumptions and evidence (energy closure, mesh independence, Re)."""
+    return json.dumps(TT.nonisothermal_tubular_reactor(volumetric_flow_m3_s, tube_diameter_m, n_tubes, inlet_concentration_mol_m3,
+                                                       inlet_T_K, A_1_s, E_J_mol, dH_J_mol, density_kg_m3, cp_J_kgK,
+                                                       diffusivity_m2_s, thermal_conductivity_W_mK, wall, velocity_profile,
+                                                       fluid_model, tube_length_m, volume_m3, axial_diffusivity_m2_s,
+                                                       axial_thermal_conductivity_W_mK, viscosity_Pa_s, nz, nr, mesh_study),
+                      default=float)
 
 
 @beta_tool
@@ -718,7 +749,7 @@ def close_flowsheet(flowsheet_id: str) -> str:
 AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
                define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
-               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
+               heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,

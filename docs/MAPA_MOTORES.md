@@ -20,7 +20,7 @@ entradas SI y salida JSON, (3) la tool reproduce la referencia en un test, (4) s
 | ⬜ | Motor elegido, sin instalar |
 | 🚫 | Sin opción abierta razonable o decisión que es del owner |
 
-Estado verificado el 2026-11-13: **55 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
+Estado verificado el 2026-11-13: **56 tools**, DWSIM 10.2.12 (`~/Applications/DWSIM10`), thermo 0.6.1, chemicals 1.5.2,
 fluids 1.3.1, ht 1.2.0, cantera 3.2.0, idaes 2.13.0 + pyomo 6.10.1 (**sin ipopt**), omlt 1.2.2, biosteam 2.54.0,
 SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FEniCSx dolfinx 0.11.0
 (`~/mamba/envs/fenicsx`). Repo hermano `transporte-lab` guarda los casos de CFD/FEM.
@@ -50,7 +50,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 |---|---|---|---|---|
 | Reactores de conversión, equilibrio, CSTR y PFR cinéticos dentro del flowsheet | ✅ (`define_*_reaction`, `add_unit cstr/pfr`) | DWSIM | GPL-3 · proceso aparte | `WithIsothermalTemperature` roto en 10.2.12 (usar `Isothermal()`) |
 | Cinética detallada: mecanismos (GRI-Mech), llama adiabática, retardo de ignición, WSR, redes de reactores | ✅ (`adiabatic_flame`, `kinetic_reactor_network`, M2 2026-11-08: llama 2226 K, PFR/CSTR = analítico, ignición 4.53 ms, apagado 0.2-0.5 ms, S_L 0.378 m/s) | Cantera 3.2 (`IdealGasReactor`, `ReactorNet`, `FreeFlame`) | BSD · en proceso | Cinética propia solo isotérmica (sin termo real de las especies del usuario); catálisis de superficie y llamas de difusión sin tool |
-| **Reactor real con geometría**: perfil radial, laminar vs pistón, difusión radial | ✅ (`tubular_reactor_field`, M1 2026-11-08: pistón 0.7940 = analítico; laminar 0.7819, malla independiente, Re < 2300) | FEniCSx | LGPL-3 · **proceso aparte** en el env micromamba (`ALCHEMAI_FENICSX_PYTHON`) | No isotérmico (ahí el PFR ideal se separa más del campo); puntos calientes; la app de Mac empaquetada no lleva FEniCSx |
+| **Reactor real con geometría**: perfil radial, laminar vs pistón, difusión radial | ✅ (`tubular_reactor_field`, M1 2026-11-08: pistón 0.7940 = analítico; laminar 0.7819, malla independiente, Re < 2300) | FEniCSx | LGPL-3 · **proceso aparte** en el env micromamba (`ALCHEMAI_FENICSX_PYTHON`) | No isotérmico ✅ M7 2026-11-13 (`nonisothermal_tubular_reactor`); pendiente: cinética no de primer orden, varias reacciones, caso 2-D publicado; la app de Mac empaquetada no lleva FEniCSx |
 | Reactores multifásicos, catalíticos con transporte en el pellet (Thiele) | ⬜ | FEniCSx o modelo 1D propio (scipy) | — | Después del tubular no isotérmico |
 
 ## 4 · Separaciones
@@ -80,7 +80,7 @@ SFILES2 1.2.0, pydexpi 2.1.0; fuera del entorno: OpenFOAM v2606 (`openfoam`), FE
 | Lado coraza: Kern, Bell-Delaware, arreglo de tubos, claros | ✅ Kern (`shell_side_kern`, M4b) y Bell-Delaware (`shell_side_bell_delaware`, M4c: Jc/Jl/Jb/Js/Jr y Rl/Rb/Rs, claros TEMA por defecto declarados, arreglos 30/45/90) | `ht` | MIT · en proceso | Banco ideal con la correlación j/f de Taborek (hoy Žukauskas + ESDU); boquillas; validar contra un ejemplo publicado con datos legibles |
 | Ebullición, condensación, radiación, aislamiento | ✅ ebullición nucleada + flujo crítico y condensación (2 tools, bloque M4b; Incropera ej. 10.1 reproducido) · radiación y aislamiento 📦 | `ht` | MIT · en proceso | Ebullición en flujo (Chen) y película; radiación y aislamiento sin tool |
 | Integración energética (pinch, redes de intercambiadores) | ✅ targets (`pinch_analysis`, M5: tabla del problema, MER, curvas compuestas y gran compuesta, unidades mínimas, barrido de ΔTmin, ahorro vs servicios actuales) + extracción automática de corrientes desde el flowsheet (`pinch_from_flowsheet`, M5b: calentadores, enfriadores e intercambiadores, CP segmentado en cambio de fase, Kemp reproducido en DWSIM) + trade-off recuperación-costo (bloque 20) | propio + DWSIM | MIT | Diseño de la red (HEN) por el método del pinch, objetivo de área (Bath) y de costo (supertargeting), servicios múltiples, condensadores/rehervidores de columnas y reactores en la extracción |
-| **Campo de temperatura con geometría**: conducción en sólidos, puntos calientes, pared de reactor | 🧪 (`conduccion_2d.py`, orden 2 verificado contra analítico) | FEniCSx | LGPL-3 · proceso aparte | Entra junto con el reactor no isotérmico |
+| **Campo de temperatura con geometría**: conducción en sólidos, puntos calientes, pared de reactor | ✅ en el reactor (`nonisothermal_tubular_reactor`, M7 2026-11-13: T(z, r), punto caliente, pared fija/refrigerante/adiabática; cierre de energía ≤ 1e-5, malla 2×, límites ΔH = 0 y adiabático, modelo de Rawlings & Ekerdt reproducido); conducción en sólidos sigue 🧪 (`conduccion_2d.py`) | FEniCSx | LGPL-3 · proceso aparte | Conducción en sólidos/pared con espesor como tool |
 | Hornos y calderas (radiación de llama) | ⬜ | Cantera (llama) + `ht.radiation` | BSD/MIT | Sin caso de referencia elegido |
 
 ## 7 · Masa (transferencia)
@@ -152,7 +152,7 @@ Criterio: primero lo que el owner pidió (transporte con geometría), luego lo q
 | 4 | ✅ 2026-11-09 (M4a + M4b + M4c, 51 tools): alivio API 520, válvulas IEC, accesorios, gas compresible, dos fases, Kern, Bell-Delaware, ebullición, condensación | 5, 6, 10 | Librerías ya instaladas; cada tool = referencia + test | ninguna |
 | 5 | ✅ 2026-11-09 (M5, 52 tools): pinch formal (curvas compuestas, MER, ΔTmin). M5b ✅ 2026-11-13 (55 tools): corrientes extraídas del flowsheet (`pinch_from_flowsheet`) | 6 | Sin dependencias; conecta con `flowsheet_cost` | ninguna |
 | 6 | ✅ M6a ✅ 2026-11-09 (53 tools): tanque de flujo continuo OpenFOAM vs CSTR (`vessel_residence_time_cfd`). M6b ✅ 2026-11-10 (54 tools): `stirred_tank_cfd` Rushton MRF, Np 4.85 ± 3.5 % vs ≈ 5, verificado con banda entre 3 mallas | 5 | Segundo motor externo; mezclado es pregunta frecuente | ninguna (OpenFOAM instalado) |
-| 7 | Reactor tubular no isotérmico (FEniCSx, energía acoplada) | 3, 6 | Donde el PFR ideal y el campo se separan de verdad | ninguna |
+| 7 | ✅ 2026-11-13 (M7, 56 tools): reactor tubular no isotérmico (FEniCSx, energía acoplada, P2 + SUPG) vs PFR 1-D (`nonisothermal_tubular_reactor`) | 3, 6 | Donde el PFR ideal y el campo se separan de verdad | ninguna |
 | 8 | ipopt → IDAES/Pyomo riguroso; OMLT (bloque 32) | 2, 9 | Abre optimización simultánea y sustitutos | **ipopt** (conda-forge; sin costo) |
 | 9 | Control: `pid_tuning`, respuesta dinámica | 12 | Tema de estudio del plan | `python-control` (BSD) |
 | 10 | P&ID mínimo desde HAZOP (DEXPI P&ID) | 11 | Diferenciador; nadie lo tiene abierto | ninguna |
