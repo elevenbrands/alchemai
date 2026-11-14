@@ -146,7 +146,11 @@ Hard rules:
    when neither is given). If the tool says a pair has no parameters, ask for VLE data and run vle_binary_regression;
    never invent parameters. Report RR, boil-up, Q_reboiler and the multipliers as "MW per unit of spec", the property
    sources, the parameter source of every pair, the UNIFAC cross-check, the azeotropes found with those parameters and
-   any warnings (extrapolation, Psat of the regression), with the seal only if verified. If the specs cross an
+   any warnings (extrapolation, Psat of the regression), with the seal only if verified. ALWAYS say where the excess
+   enthalpy comes from (properties.excess_enthalpy.source.text) and how much of Q_reb it is
+   (first_order_share_of_reboiler_duty): with VLE-only parameters h^E is NOT validated by calorimetry and can even
+   have the wrong sign (ethanol-water: measured h^E is negative below ~363 K, the VLE-only NRTL gives it positive);
+   offer excess_enthalpy=False or a joint VLE + h^E regression when the user has calorimetric data. If the specs cross an
    azeotrope the tool refuses: explain it and offer entrainer/pressure-swing schemes on the DWSIM column
    (optimize_design_multi).
 17. Surrogate optimisation of a built DWSIM flowsheet (slow or many-variable flowsheets, or the user asks for a
@@ -210,6 +214,12 @@ Hard rules:
    J/mol and cal/mol), the correlation, the statistics, the consistency verdict per set (consistente / inconsistente /
    dudoso, with each test's number and criterion), the azeotrope comparison and the UNIFAC comparison. When the
    parameters are strongly correlated (|ρ| > 0.98) say the individual values are not identifiable with these data.
+   When the user ALSO has calorimetric data (heat of mixing / excess enthalpy h^E vs x at one or more temperatures),
+   pass them in excess_enthalpy_sets with temperature_dependence="a+b/T": the fit is joint, with separate weights and
+   separate AADs. h^E points, their uncertainties and the weights are user data/choices (ASK; defaults are listed in
+   supuestos). Report estadistica_hE per temperature, veredicto_conjunto (if representa_VLE_y_hE is false, say plainly
+   that one parameter set does NOT represent VLE and h^E, with the failing criteria) and, if asked for the
+   trade-off, the he_weight_scan table. Never pick the weight that "looks best" without saying so.
    Never call data "consistent" unless the tool says so, and never feed parameters from an inconsistent set to a
    design without the user's OK. To design a column with the fitted parameters, pass this tool's whole result to
    eo_column_optimize(activity_model="NRTL", binary_parameters=<result>) (NRTL model only; say the Psat source of
@@ -586,7 +596,10 @@ def vle_binary_regression(components: list[str], data_sets: list[dict[str, objec
                           uniquac_rq: dict[str, list[float]] | None = None,
                           wilson_volumes_m3_mol: dict[str, float] | None = None,
                           reported_azeotropes: dict[str, object] | None = None, compare_unifac: bool = True,
-                          published_parameters: dict[str, object] | None = None, legendre_order: int = 4) -> str:
+                          published_parameters: dict[str, object] | None = None, legendre_order: int = 4,
+                          excess_enthalpy_sets: list[dict[str, object]] | None = None,
+                          weights: dict[str, float] | None = None, he_weight_scan: list[float] | None = None,
+                          joint_tolerances: dict[str, float] | None = None) -> str:
     """Regress binary activity-model parameters (NRTL, UNIQUAC, Wilson) from the USER's VLE data.
     components [name1, name2]; data_sets [{label, citation, points: [{T_K, P_Pa (or P_kPa), x1, y1}]}], each set
     isothermal, isobaric or P-T-x-y. models subset of NRTL/UNIQUAC/Wilson (default all). nrtl_alpha number or "ajustar"
@@ -597,10 +610,17 @@ def vle_binary_regression(components: list[str], data_sets: list[dict[str, objec
     wilson_volumes_m3_mol {name: V}. reported_azeotropes {label: {x1, T_K or P_Pa}}. published_parameters {model:
     {a12, a21, b12, b21, alpha} or {d12_J_mol, d21_J_mol}} to compare. Returns parameters ± IC95, correlation, AAD,
     residuals, azeotrope, consistency tests (Redlich-Kister/Herington, Fredenslund, Van Ness), UNIFAC Dortmund
-    comparison and an independent re-evaluation with thermo. Never invent data points."""
+    comparison and an independent re-evaluation with thermo. Never invent data points.
+    Calorimetry (optional): excess_enthalpy_sets [{label, citation, T_K, points: [{x1, hE_J_mol, optional T_K,
+    sigma_hE_J_mol}]}] are fitted TOGETHER with the VLE (h^E = −R·T²·∂(g^E/RT)/∂T of the same parameters; use
+    temperature_dependence "a+b/T"). weights {"vle", "hE"} multiply the two blocks of the objective (default 1 and 1);
+    sigma also takes hE_J_mol and hE_rel; he_weight_scan [w, ...] repeats the fit with other h^E weights (0 = VLE only)
+    and returns the trade-off; joint_tolerances overrides the verdict's limits. Extra output per model: estadistica_hE
+    (AAD, bias, wrong-sign points, per set and temperature), residuos_hE, veredicto_conjunto.representa_VLE_y_hE."""
     return _cq(_VLE.vle_binary_regression(components, data_sets, models, nrtl_alpha, temperature_dependence,
                                           objective, sigma, psat, vapor_phase, uniquac_rq, wilson_volumes_m3_mol,
-                                          reported_azeotropes, compare_unifac, published_parameters, legendre_order))
+                                          reported_azeotropes, compare_unifac, published_parameters, legendre_order,
+                                          excess_enthalpy_sets, weights, he_weight_scan, joint_tolerances))
 
 @beta_tool
 def stream_transport_properties(flowsheet_id: str, stream: str) -> str:
@@ -1004,7 +1024,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                        feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
                        reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0, boilup_ratio_min: float = 0.1,
                        boilup_ratio_max: float = 20.0, activity_model: str = "ideal",
-                       binary_parameters: list | dict | None = None) -> str:
+                       binary_parameters: list | dict | None = None, excess_enthalpy: bool = True) -> str:
     """Equation-oriented (IDAES + ipopt) minimum reboiler duty of a tray column for a mixture of 2+ components
     (English chemicals names), meeting purity/recovery specs: specs = [{"stream": "distillate"|"bottoms", "component",
     "kind": "mole_fraction"|"recovery", "min"}]. Property package generated from chemicals/thermo and checked vs DIPPR.
@@ -1012,12 +1032,17 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     activity_model="NRTL": NRTL liquid + ideal gas; binary_parameters = the user's pairs [{"components": [i, j],
     "b_ij_K", "b_ji_K" (or dg_*_J_mol / dg_*_cal_mol), optional "a_ij", "a_ji", "alpha", "source"}] and/or the whole
     result of vle_binary_regression; missing pairs come from thermo's ChemSep NRTL bank or are refused (never
-    invented). Specs across an azeotrope predicted with those parameters are refused. Returns optimal reflux/boil-up,
+    invented). Specs across an azeotrope predicted with those parameters are refused. excess_enthalpy=True (default)
+    adds NRTL's h^E (Gibbs-Helmholtz, same parameters) to the liquid enthalpy, False keeps ideal mixing in enthalpy;
+    properties.excess_enthalpy.source says where that h^E comes from (VLE-only parameters = not validated by
+    calorimetry, parameters fitted to h^E data with their citation, or term off) and its share of Q_reb. A user pair
+    may carry "hE_source": citation of the h^E data its parameters were fitted to. Returns optimal reflux/boil-up,
     duties, products, multipliers (MW per unit of spec), parameter source per pair, UNIFAC cross-check, warnings and
     evidence (neighbours, multipliers vs finite differences, NRTL vs thermo)."""
     return json.dumps(TO.eo_column_optimize(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays,
                                             feed_tray, pressure_Pa, specs, reflux_ratio_min, reflux_ratio_max,
-                                            boilup_ratio_min, boilup_ratio_max, activity_model, binary_parameters),
+                                            boilup_ratio_min, boilup_ratio_max, activity_model, binary_parameters,
+                                            excess_enthalpy),
                       default=float)
 
 

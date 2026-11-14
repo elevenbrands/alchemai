@@ -554,9 +554,9 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
                "Líquido NRTL (Raoult modificado, sin factor de Poynting) y vapor gas ideal (|B·P/RT| ≤ "
                f"{IP.MAX_B_P_RT}, Tsonopoulos sin términos polares; no capta la asociación en el vapor de ácidos "
                "carboxílicos). Parámetros binarios: una fuente etiquetada por par (properties.binary_parameters).",
-               ("Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros (Gibbs-Helmholtz); "
-                "h^E no es un dato calorimétrico: con parámetros ajustados solo a VLE es una extrapolación del modelo "
-                "(su peso en Q_reb está en properties.excess_enthalpy)." if excess_enthalpy else
+               ("Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros (Gibbs-Helmholtz). "
+                "Origen de ese h^E: " + NP.excess_enthalpy_source(params, True)["text"] +
+                " (su peso en Q_reb está en properties.excess_enthalpy)." if excess_enthalpy else
                 "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E (excess_enthalpy=False, pedido por el usuario)."),
                "Paquete puro generado de chemicals/thermo (fuentes en properties.provenance.sources), igual que M8b.",
                "Azeótropos buscados solo en pares binarios con estos parámetros; con 3+ compuestos y un azeótropo "

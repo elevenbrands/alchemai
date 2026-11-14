@@ -3,6 +3,11 @@
 Data (T, P, x1, y1), their uncertainties and any reported azeotrope are the USER's: missing ones raise, never default.
 Model choices that are not data (NRTL α = 0.3 when not given, ideal gas, default σ, r/q from UNIFAC groups, Wilson
 volumes at 298.15 K, Psat from chemicals) are listed in `supuestos` with their source.
+
+M15c: optional calorimetric sets (`excess_enthalpy_sets`: T, x1, h^E) are fitted together with the VLE sets, with
+separate weights (`weights`), separate statistics (`estadistica_hE`, per set and per temperature) and a stated verdict
+on whether ONE parameter set represents both (`representa_VLE_y_hE`, tolerances JOINT_TOLERANCES or the user's).
+Without `excess_enthalpy_sets` the tool returns exactly what it returned before.
 """
 from __future__ import annotations
 
@@ -17,6 +22,17 @@ from packages.vle.equilibrium import DataError, Psat, System, VaporPhase
 DEFAULT_SIGMA = {"T_K": 0.1, "P_rel": 0.001, "x1": 0.001, "y1": 0.005}
 SIGMA_NOTE = ("σ por defecto (supuesto, no del usuario): T 0.1 K, P 0.1 %, x 0.001, y 0.005, valores típicos de un "
               "ebullómetro de recirculación; con las incertidumbres reales de la medición cambian los pesos y los IC")
+DEFAULT_SIGMA_HE = {"hE_J_mol": 5.0, "hE_rel": 0.01}
+SIGMA_HE_NOTE = ("σ de h^E por defecto (supuesto, no del usuario): 5 J/mol + 1 % de |h^E|, orden típico de un calorímetro "
+                 "de flujo isotérmico; da sigma['hE_J_mol'] / sigma['hE_rel'] o sigma_hE_J_mol por punto o por conjunto")
+# Stated tolerances of the verdict «one parameter set represents VLE and h^E» (tool choices, MOCKS.md). Δy ≤ 0.01 is
+# the criterion of Fredenslund's point test (Fredenslund, Gmehling y Rasmussen 1977); the others are engineering choices.
+JOINT_TOLERANCES = {"AAD_T_K": 0.5, "AAD_P_pct": 1.0, "AAD_y": 0.01, "AAD_hE_rel_of_max": 0.10}
+JOINT_TOL_NOTE = ("tolerancias del veredicto (elección de la tool, no datos): AAD_T ≤ 0.5 K, AAD_P ≤ 1 %, AAD_y ≤ 0.01 "
+                  "(criterio de la prueba de punto de Fredenslund) y, por cada conjunto de h^E, AAD ≤ 10 % del máximo "
+                  "|h^E| medido en ese conjunto; da joint_tolerances para usar las tuyas")
+HE_OBJECTIVE = ("más el bloque calorimétrico Σ[(h^E_calc − h^E)/σ_hE]² con h^E_calc = −R·T²·∂(g^E/RT)/∂T de los mismos "
+                "parámetros (Gibbs-Helmholtz): S = w_vle·S_vle + w_hE·S_hE")
 OBJECTIVES = {
     "bubble": ("Mínimos cuadrados de punto de burbuja: isobáricos Σ[(T_calc−T)/σT]² + Σ[(y_calc−y)/σy]² a (P, x) "
                "medidos; isotérmicos o P-T-x-y Σ[(P_calc−P)/(σP·P)]² + Σ[(y_calc−y)/σy]² a (T, x) medidos"),
@@ -197,6 +213,76 @@ def _refine_az(system, lng, s, x0):
     return None
 
 
+def _he_sets(excess_enthalpy_sets, sig, supuestos, note_default: bool) -> list[dict]:
+    """Calorimetric sets of the user: every point needs T (its own or the set's), x1 and h^E; σ per point from the
+    point, the set, or the labelled default. Points with x1 = 0 or 1 (h^E = 0 by definition) are left out."""
+    sets, defaulted = [], False
+    for i, s in enumerate(excess_enthalpy_sets):
+        label = s.get("label") or f"hE_{i + 1}"
+        pts = []
+        for k, q in enumerate(s.get("points") or []):
+            T = q.get("T_K", s.get("T_K"))
+            h = q.get("hE_J_mol")
+            miss = [n for n, v in (("T_K", T), ("x1", q.get("x1")), ("hE_J_mol", h)) if v is None]
+            if miss:
+                raise MissingData(f"conjunto de h^E {label}, punto {k + 1}: faltan datos del usuario (no se suponen): {miss}")
+            x1 = float(q["x1"])
+            if not 0 <= x1 <= 1:
+                raise MissingData(f"conjunto de h^E {label}, punto {k + 1}: x1 fuera de [0, 1]")
+            if x1 in (0.0, 1.0):
+                continue
+            sg = q.get("sigma_hE_J_mol", s.get("sigma_hE_J_mol"))
+            if sg is None:
+                sg = sig["hE_J_mol"] + sig["hE_rel"] * abs(float(h))
+                defaulted = True
+            if float(sg) <= 0:
+                raise MissingData(f"conjunto de h^E {label}, punto {k + 1}: σ de h^E debe ser > 0")
+            pts.append({"T_K": float(T), "x1": x1, "hE_J_mol": float(h), "sigma_J_mol": float(sg)})
+        if not pts:
+            raise MissingData(f"conjunto de h^E {label}: sin puntos con 0 < x1 < 1")
+        sets.append({"label": label, "points": pts, "citation": s.get("citation")})
+    if defaulted and note_default:
+        supuestos.append(SIGMA_HE_NOTE)
+    return sets
+
+
+def _he_stats(model, p, he: RG.HEData, labels) -> tuple[dict, list[dict]]:
+    """AAD, RMSD, bias and sign mismatches of h^E, overall and per set × temperature; residual rows per point."""
+    calc = M.excess_enthalpy(model, he.T, he.x, p)
+    e = calc - he.h
+
+    def block(m):
+        return {"n": int(m.sum()), "AAD_hE_J_mol": float(np.mean(np.abs(e[m]))), "RMSD_hE_J_mol": float(np.sqrt(np.mean(e[m] ** 2))),
+                "max_hE_J_mol": float(np.max(np.abs(e[m]))), "sesgo_hE_J_mol": float(np.mean(e[m])),
+                "max_abs_hE_medido_J_mol": float(np.max(np.abs(he.h[m]))),
+                "signo_contrario": int(np.sum(np.sign(calc[m]) != np.sign(he.h[m]))),
+                "hE_medido_min_max_J_mol": [float(he.h[m].min()), float(he.h[m].max())],
+                "hE_calc_min_max_J_mol": [float(calc[m].min()), float(calc[m].max())]}
+    out = block(np.ones(he.n, bool))
+    per = []
+    for i, lab in enumerate(labels):
+        for T in sorted(set(np.round(he.T[he.set == i], 3))):
+            m = (he.set == i) & (np.abs(he.T - T) < 2e-3)
+            per.append({"conjunto": lab, "T_K": float(T), **block(m)})
+    out["por_conjunto_y_T"] = per
+    rows = [{"conjunto": labels[he.set[k]], "T_K": float(he.T[k]), "x1": float(he.x[k]), "hE_J_mol": float(he.h[k]),
+             "hE_calc_J_mol": float(calc[k]), "dhE_J_mol": float(e[k]), "sigma_J_mol": float(he.sig[k])} for k in range(he.n)]
+    return out, rows
+
+
+def _joint_verdict(st_vle: dict, st_he: dict, tol: dict) -> dict:
+    checks = []
+    for key in ("AAD_T_K", "AAD_P_pct", "AAD_y"):
+        if key in st_vle:
+            checks.append({"criterio": key, "valor": st_vle[key], "tolerancia": tol[key], "cumple": bool(st_vle[key] <= tol[key])})
+    for b in st_he["por_conjunto_y_T"]:
+        lim = tol["AAD_hE_rel_of_max"] * b["max_abs_hE_medido_J_mol"]
+        checks.append({"criterio": f"AAD_hE {b['conjunto']} {b['T_K']:.2f} K", "valor": b["AAD_hE_J_mol"], "tolerancia": lim,
+                       "cumple": bool(b["AAD_hE_J_mol"] <= lim)})
+    return {"representa_VLE_y_hE": all(c["cumple"] for c in checks), "criterios": checks,
+            "no_cumple": [c["criterio"] for c in checks if not c["cumple"]]}
+
+
 def _published(model, spec, fixed):
     p = dict(fixed)
     if "d12_J_mol" in spec:
@@ -216,17 +302,21 @@ def vle_binary_regression(components: list[str], data_sets: list[dict], models: 
                           vapor_phase: str = "ideal", uniquac_rq: dict | None = None,
                           wilson_volumes_m3_mol: dict | None = None, reported_azeotropes: dict | None = None,
                           compare_unifac: bool = True, published_parameters: dict | None = None,
-                          legendre_order: int = 4) -> dict:
+                          legendre_order: int = 4, excess_enthalpy_sets: list[dict] | None = None,
+                          weights: dict | None = None, he_weight_scan: list[float] | None = None,
+                          joint_tolerances: dict | None = None) -> dict:
     try:
         return _run(components, data_sets, models, nrtl_alpha, temperature_dependence, objective, sigma, psat,
                     vapor_phase, uniquac_rq, wilson_volumes_m3_mol, reported_azeotropes, compare_unifac,
-                    published_parameters, legendre_order)
+                    published_parameters, legendre_order, excess_enthalpy_sets, weights, he_weight_scan,
+                    joint_tolerances)
     except (MissingData, DataError, ValueError) as e:
         return {"ok": False, "error": str(e)}
 
 
 def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, objective, sigma, psat, vapor_phase,
-         uniquac_rq, wilson_volumes, reported_az, compare_unifac, published, legendre_order) -> dict:
+         uniquac_rq, wilson_volumes, reported_az, compare_unifac, published, legendre_order,
+         excess_enthalpy_sets=None, weights=None, he_weight_scan=None, joint_tolerances=None) -> dict:
     if not components or len(components) != 2:
         raise MissingData("components: se esperan exactamente dos compuestos [1, 2]")
     if not data_sets:
@@ -275,6 +365,46 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
     if not sigma or any(sigma.get(k) is None for k in ("T_K", "y1")):
         supuestos.append(SIGMA_NOTE)
 
+    he = he_labels = he_sets = tol = None
+    w_vle = w_he = 1.0
+    if not excess_enthalpy_sets and (weights or he_weight_scan or joint_tolerances):
+        raise MissingData("weights, he_weight_scan y joint_tolerances solo aplican con excess_enthalpy_sets")
+    if excess_enthalpy_sets:
+        sig_he = dict(DEFAULT_SIGMA_HE)
+        user_keys = [k for k in sig_he if sigma and sigma.get(k) is not None]
+        for k in user_keys:
+            sig_he[k] = float(sigma[k])
+        he_sets = _he_sets(excess_enthalpy_sets, sig_he, supuestos, note_default=len(user_keys) < len(sig_he))
+        he_labels = [s_["label"] for s_ in he_sets]
+        he = RG.HEData(he_sets)
+        sig = {**sig, **sig_he}
+        if weights:
+            unknown = [k for k in weights if k not in ("vle", "hE")]
+            if unknown:
+                raise MissingData(f"weights: claves desconocidas {unknown}; se esperan 'vle' y 'hE'")
+            w_vle, w_he = float(weights.get("vle", 1.0)), float(weights.get("hE", 1.0))
+            if w_vle <= 0 or w_he < 0:
+                raise MissingData("weights: vle > 0 y hE ≥ 0 (hE = 0 deja h^E fuera del ajuste y solo lo predice)")
+        else:
+            supuestos.append("pesos de los bloques VLE y h^E = 1 y 1 (mínimos cuadrados ponderados por σ, sin peso extra); "
+                             "da weights={'vle': .., 'hE': ..} para cambiarlos")
+        tol = dict(JOINT_TOLERANCES)
+        if joint_tolerances:
+            unknown = [k for k in joint_tolerances if k not in tol]
+            if unknown:
+                raise MissingData(f"joint_tolerances: claves desconocidas {unknown}; disponibles {list(tol)}")
+            tol.update({k: float(v) for k, v in joint_tolerances.items()})
+        else:
+            supuestos.append(JOINT_TOL_NOTE)
+        for s_ in he_sets:
+            for p_ in ps:
+                Ts = [q["T_K"] for q in s_["points"]]
+                if p_.T_range and (min(Ts) < p_.T_range[0] or max(Ts) > p_.T_range[1]):
+                    avisos.append(f"{s_['label']}: T fuera del rango de la Psat de {p_.name} ({p_.T_range})")
+        if temperature_dependence == "constante":
+            avisos.append("h^E con dependencia 'constante' (τ = b/T): los mismos dos parámetros deben dar g^E y su "
+                          "derivada en T; usa temperature_dependence='a+b/T' para separar nivel (a) y pendiente (b)")
+
     fixed = {}
     fit_alpha = isinstance(nrtl_alpha, str) and nrtl_alpha.lower().startswith("ajust")
     if "NRTL" in models and not fit_alpha:
@@ -317,7 +447,7 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
             fx["V"] = (vols[n1], vols[n2])
         if n_inner < len(names) + 1:
             raise MissingData(f"{model}: {n_inner} puntos con 0 < x1 < 1 no bastan para {len(names)} parámetros")
-        r = RG.fit(system, model, d, fx, names, objective, sig)
+        r = RG.fit(system, model, d, fx, names, objective, sig, he, w_vle, w_he)
         p = r["p"]
         Tc, Pc, yc = RG.predict(system, model, p, d)
         lng = lambda T, x, p=p, model=model: M.ln_gamma(model, T, x, p)
@@ -368,6 +498,39 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
                 "clase": {"NRTL": "thermo.nrtl.NRTL", "UNIQUAC": "thermo.uniquac.UNIQUAC",
                           "Wilson": "thermo.wilson.Wilson"}[model]},
         }
+        if he is not None:
+            st_he, rows_he = _he_stats(model, p, he, he_labels)
+            om = out_models[model]
+            om["estadistica_hE"] = st_he
+            om["residuos_hE"] = rows_he
+            om["arranques_conjuntos"] = r.get("starts")
+            om["verificacion_thermo"]["max_dif_hE_J_mol"] = float(max(
+                abs(M.thermo_excess_enthalpy(model, T_, x_, p) - c_) for T_, x_, c_ in
+                zip(he.T, he.x, M.excess_enthalpy(model, he.T, he.x, p))))
+            om["veredicto_conjunto"] = _joint_verdict(om["estadistica"], st_he, tol)
+            if not om["veredicto_conjunto"]["representa_VLE_y_hE"]:
+                avisos.append(f"{model}: un solo juego de parámetros NO representa VLE y h^E dentro de las tolerancias "
+                              f"(falla: {', '.join(om['veredicto_conjunto']['no_cumple'])})")
+            if he_weight_scan:
+                scan = []
+                for w in he_weight_scan:
+                    w = float(w)
+                    if w < 0:
+                        raise MissingData("he_weight_scan: pesos ≥ 0")
+                    rs = RG.fit(system, model, d, fx, names, objective, sig, he, w_vle, w)
+                    Ts_, Ps_, ys_ = RG.predict(system, model, rs["p"], d)
+                    sv, sh = _stats(d, Ts_, Ps_, ys_), _he_stats(model, rs["p"], he, he_labels)[0]
+                    scan.append({"peso_hE": w, "peso_vle": w_vle,
+                                 "parametros": {n: float(v) for n, v in zip(names, rs["theta"])},
+                                 **{k: v for k, v in sv.items() if k.startswith("AAD")},
+                                 "AAD_hE_J_mol": sh["AAD_hE_J_mol"],
+                                 "AAD_hE_por_conjunto_y_T": [{"conjunto": b["conjunto"], "T_K": b["T_K"],
+                                                              "AAD_hE_J_mol": b["AAD_hE_J_mol"]} for b in sh["por_conjunto_y_T"]],
+                                 "representa_VLE_y_hE": _joint_verdict(sv, sh, tol)["representa_VLE_y_hE"],
+                                 "convergencia": rs["success"]})
+                om["compromiso_VLE_hE"] = {"nota": "mismo ajuste repetido con otros pesos del bloque h^E (peso 0 = solo "
+                                                   "VLE, h^E predicho); los parámetros reportados arriba son los del "
+                                                   "peso pedido en weights", "barrido": scan}
         if r["latent"] is not None:
             out_models[model]["valores_verdaderos_estimados"] = [
                 {"x1_medido": float(x0), "x1_estimado": float(x1), "T_medida_K": float(t0), "T_estimada_K": float(t1)}
@@ -452,8 +615,12 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
             "conjuntos": [{"label": s["label"], "tipo": s["kind"], "n": len(s["points"]), "cita": s["citation"]}
                           for s in sets],
             "psat": [p.source for p in ps], "fase_vapor": vap.source,
-            "objetivo": {"tipo": objective, "descripcion": OBJECTIVES[objective], "sigmas": sig,
-                         "dependencia_T": temperature_dependence},
+            **({} if he is None else {"conjuntos_hE": [
+                {"label": s_["label"], "n": len(s_["points"]), "cita": s_["citation"],
+                 "T_K": sorted({q["T_K"] for q in s_["points"]})} for s_ in he_sets]}),
+            "objetivo": {"tipo": objective, "descripcion": OBJECTIVES[objective] + ("" if he is None else "; " + HE_OBJECTIVE),
+                         "sigmas": sig, "dependencia_T": temperature_dependence,
+                         **({} if he is None else {"pesos": {"vle": w_vle, "hE": w_he}, "tolerancias_veredicto": tol})},
             "modelos": out_models, "mejor_modelo": {"modelo": best, "criterio": f"menor {key}, luego AAD_y"},
             "consistencia": cons, "azeotropo": azr, "unifac_dortmund": unifac,
             "supuestos": supuestos, "avisos": avisos,

@@ -10,6 +10,9 @@ any fitted set independently (see `thermo_ln_gamma`).
 With a_ij = 0 (the default) these are the classic temperature-independent energy parameters of the DECHEMA Chemistry
 Data Series (Gmehling & Onken): tau_12 = Δg_12/RT for NRTL, tau_12 = exp(-Δu_12/RT) for UNIQUAC, Λ_12 = (V_2/V_1)
 exp(-Δλ_12/RT) for Wilson. UNIQUAC uses z = 10.
+
+Excess enthalpy (M15c): h^E = −R·T²·∂(g^E/RT)/∂T at constant x (Gibbs-Helmholtz), analytic for the three models with
+d(a + b/T)/dT = −b/T² (`excess_enthalpy`); `thermo_excess_enthalpy` is the same quantity from thermo's GibbsExcess.HE().
 """
 from __future__ import annotations
 
@@ -74,8 +77,38 @@ def ln_gamma(model: str, T, x1, p: dict) -> tuple[np.ndarray, np.ndarray]:
     raise ValueError(f"modelo desconocido: {model}")
 
 
-def thermo_ln_gamma(model: str, T: float, x1: float, p: dict) -> tuple[float, float]:
-    """Same quantity computed by `thermo`'s own GibbsExcess classes (independent implementation)."""
+def excess_enthalpy(model: str, T, x1, p: dict) -> np.ndarray:
+    """h^E [J/mol] = −R·T²·∂(g^E/RT)/∂T at temperatures T [K] and liquid fractions x1 (same parameters as ln_gamma).
+    Only the energy part depends on T: the UNIQUAC combinatorial term and the Wilson volume ratio drop out."""
+    T = np.asarray(T, float)
+    x1 = np.asarray(x1, float)
+    x2 = 1.0 - x1
+    e12, e21 = _pair(p.get("a12", 0.0), p.get("a21", 0.0), T, p["b12"], p["b21"])
+    d12, d21 = -p["b12"] / T ** 2, -p["b21"] / T ** 2          # d e_ij / dT
+    if model == "NRTL":
+        al = p["alpha"]
+        G12, G21 = np.exp(-al * e12), np.exp(-al * e21)
+        D1, D2 = x1 + x2 * G21, x2 + x1 * G12
+        # d/dT of tau·G/D with G' = −alpha·G·tau', D' = x_other·G'
+        t21 = d21 * G21 * (1 - al * e21) / D1 + e21 * G21 * al * x2 * G21 * d21 / D1 ** 2
+        t12 = d12 * G12 * (1 - al * e12) / D2 + e12 * G12 * al * x1 * G12 * d12 / D2 ** 2
+        dge = x1 * x2 * (t21 + t12)
+    elif model == "UNIQUAC":
+        q1, q2 = p["q"]
+        sq = x1 * q1 + x2 * q2
+        th1, th2 = x1 * q1 / sq, x2 * q2 / sq
+        t12, t21 = np.exp(e12), np.exp(e21)
+        dge = -q1 * x1 * th2 * t21 * d21 / (th1 + th2 * t21) - q2 * x2 * th1 * t12 * d12 / (th2 + th1 * t12)
+    elif model == "Wilson":
+        V1, V2 = p["V"]
+        L12, L21 = V2 / V1 * np.exp(e12), V1 / V2 * np.exp(e21)
+        dge = -x1 * x2 * L12 * d12 / (x1 + L12 * x2) - x2 * x1 * L21 * d21 / (x2 + L21 * x1)
+    else:
+        raise ValueError(f"modelo desconocido: {model}")
+    return -R * T ** 2 * dge
+
+
+def _thermo_ge(model: str, T: float, x1: float, p: dict):
     xs = [float(x1), 1.0 - float(x1)]
     a = [[0.0, p.get("a12", 0.0)], [p.get("a21", 0.0), 0.0]]
     b = [[0.0, p["b12"]], [p["b21"], 0.0]]
@@ -93,8 +126,18 @@ def thermo_ln_gamma(model: str, T: float, x1: float, p: dict) -> tuple[float, fl
         ge = Wilson(T=float(T), xs=xs, lambda_as=aw, lambda_bs=b)
     else:
         raise ValueError(model)
-    g = ge.gammas()
+    return ge
+
+
+def thermo_ln_gamma(model: str, T: float, x1: float, p: dict) -> tuple[float, float]:
+    """Same quantity computed by `thermo`'s own GibbsExcess classes (independent implementation)."""
+    g = _thermo_ge(model, T, x1, p).gammas()
     return float(np.log(g[0])), float(np.log(g[1]))
+
+
+def thermo_excess_enthalpy(model: str, T: float, x1: float, p: dict) -> float:
+    """h^E [J/mol] from thermo's GibbsExcess.HE() (independent implementation)."""
+    return float(_thermo_ge(model, T, x1, p).HE())
 
 
 def energy_parameters(model: str, p: dict) -> dict:

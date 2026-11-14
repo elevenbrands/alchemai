@@ -1,0 +1,3542 @@
+{
+ "1_by_isotherm": {
+  "a_kamihama_vle_only": {
+   "rows": [
+    {
+     "set": "Nagamachi2006_298.15K",
+     "T_K": 298.15,
+     "n": 12,
+     "measured_min_max_J_mol": [
+      -770.0,
+      -148.0
+     ],
+     "model_min_max_J_mol": [
+      54.719944755120906,
+      534.4862125027306
+     ],
+     "AAD_J_mol": 851.0707083560918,
+     "bias_J_mol": 851.0707083560918,
+     "wrong_sign_points": 12,
+     "mean_expanded_uncertainty_of_data_J_mol": 13.333333333333334
+    },
+    {
+     "set": "Nagamachi2006_323.15K",
+     "T_K": 323.15,
+     "n": 15,
+     "measured_min_max_J_mol": [
+      -414.0,
+      -18.0
+     ],
+     "model_min_max_J_mol": [
+      22.15463868313725,
+      580.7385955109177
+     ],
+     "AAD_J_mol": 533.1299326669068,
+     "bias_J_mol": 533.1299326669068,
+     "wrong_sign_points": 15,
+     "mean_expanded_uncertainty_of_data_J_mol": 5.8
+    },
+    {
+     "set": "Brandt2014_333.15K",
+     "T_K": 333.15,
+     "n": 22,
+     "measured_min_max_J_mol": [
+      -308.0,
+      41.8
+     ],
+     "model_min_max_J_mol": [
+      30.434250102200167,
+      596.02917545107
+     ],
+     "AAD_J_mol": 485.04537959406537,
+     "bias_J_mol": 485.04537959406537,
+     "wrong_sign_points": 18,
+     "mean_expanded_uncertainty_of_data_J_mol": 4.463636363636362
+    },
+    {
+     "set": "Brandt2014_363.15K",
+     "T_K": 363.15,
+     "n": 21,
+     "measured_min_max_J_mol": [
+      -59.2,
+      366.0
+     ],
+     "model_min_max_J_mol": [
+      40.54859590487081,
+      643.7229623619377
+     ],
+     "AAD_J_mol": 272.6515865116373,
+     "bias_J_mol": 272.6515865116373,
+     "wrong_sign_points": 7,
+     "mean_expanded_uncertainty_of_data_J_mol": 4.461904761904762
+    },
+    {
+     "set": "Brandt2014_383.15K",
+     "T_K": 383.15,
+     "n": 13,
+     "measured_min_max_J_mol": [
+      12.0,
+      579.0
+     ],
+     "model_min_max_J_mol": [
+      88.05840846239506,
+      671.3658476076744
+     ],
+     "AAD_J_mol": 163.92335611154525,
+     "bias_J_mol": 78.75291573011378,
+     "wrong_sign_points": 0,
+     "mean_expanded_uncertainty_of_data_J_mol": 5.1
+    }
+   ],
+   "AAD_all_points_J_mol": 442.62027454868206,
+   "parameters": {
+    "a_ij": 0.0,
+    "a_ji": 0.0,
+    "b_ij_K": -51.26244374049498,
+    "b_ji_K": 687.4526578258977,
+    "alpha": 0.3,
+    "source_kind": "vle_binary_regression"
+   },
+   "hE_basis": {
+    "kind": "solo_VLE"
+   }
+  },
+  "b_chemsep": {
+   "rows": [
+    {
+     "set": "Nagamachi2006_298.15K",
+     "T_K": 298.15,
+     "n": 12,
+     "measured_min_max_J_mol": [
+      -770.0,
+      -148.0
+     ],
+     "model_min_max_J_mol": [
+      89.10202655784714,
+      579.4613738454744
+     ],
+     "AAD_J_mol": 892.7372222491289,
+     "bias_J_mol": 892.7372222491289,
+     "wrong_sign_points": 12,
+     "mean_expanded_uncertainty_of_data_J_mol": 13.333333333333334
+    },
+    {
+     "set": "Nagamachi2006_323.15K",
+     "T_K": 323.15,
+     "n": 15,
+     "measured_min_max_J_mol": [
+      -414.0,
+      -18.0
+     ],
+     "model_min_max_J_mol": [
+      33.401904149765286,
+      616.8543799535868
+     ],
+     "AAD_J_mol": 568.351430459445,
+     "bias_J_mol": 568.351430459445,
+     "wrong_sign_points": 15,
+     "mean_expanded_uncertainty_of_data_J_mol": 5.8
+    },
+    {
+     "set": "Brandt2014_333.15K",
+     "T_K": 333.15,
+     "n": 22,
+     "measured_min_max_J_mol": [
+      -308.0,
+      41.8
+     ],
+     "model_min_max_J_mol": [
+      38.18138959983676,
+      633.8525108108994
+     ],
+     "AAD_J_mol": 508.5198247724018,
+     "bias_J_mol": 508.5198247724018,
+     "wrong_sign_points": 18,
+     "mean_expanded_uncertainty_of_data_J_mol": 4.463636363636362
+    },
+    {
+     "set": "Brandt2014_363.15K",
+     "T_K": 363.15,
+     "n": 21,
+     "measured_min_max_J_mol": [
+      -59.2,
+      366.0
+     ],
+     "model_min_max_J_mol": [
+      38.2514348012995,
+      673.7206841273747
+     ],
+     "AAD_J_mol": 291.39511658840064,
+     "bias_J_mol": 291.39511658840064,
+     "wrong_sign_points": 7,
+     "mean_expanded_uncertainty_of_data_J_mol": 4.461904761904762
+    },
+    {
+     "set": "Brandt2014_383.15K",
+     "T_K": 383.15,
+     "n": 13,
+     "measured_min_max_J_mol": [
+      12.0,
+      579.0
+     ],
+     "model_min_max_J_mol": [
+      110.1453896883078,
+      694.2887352902163
+     ],
+     "AAD_J_mol": 146.8086100674582,
+     "bias_J_mol": 103.18817124889307,
+     "wrong_sign_points": 0,
+     "mean_expanded_uncertainty_of_data_J_mol": 5.1
+    }
+   ],
+   "AAD_all_points_J_mol": 463.29353792900525,
+   "parameters": {
+    "a_ij": 0.0,
+    "a_ji": 0.0,
+    "b_ij_K": -29.166654483541816,
+    "b_ji_K": 624.8676222389441,
+    "alpha": 0.2937,
+    "source_kind": "banco ChemSep NRTL (thermo)"
+   },
+   "hE_basis": {
+    "kind": "solo_VLE"
+   }
+  },
+  "c_no_excess_term": {
+   "rows": [
+    {
+     "set": "Nagamachi2006_298.15K",
+     "T_K": 298.15,
+     "n": 12,
+     "measured_min_max_J_mol": [
+      -770.0,
+      -148.0
+     ],
+     "model_min_max_J_mol": [
+      0.0,
+      0.0
+     ],
+     "AAD_J_mol": 497.25,
+     "bias_J_mol": 497.25,
+     "wrong_sign_points": null,
+     "mean_expanded_uncertainty_of_data_J_mol": 13.333333333333334
+    },
+    {
+     "set": "Nagamachi2006_323.15K",
+     "T_K": 323.15,
+     "n": 15,
+     "measured_min_max_J_mol": [
+      -414.0,
+      -18.0
+     ],
+     "model_min_max_J_mol": [
+      0.0,
+      0.0
+     ],
+     "AAD_J_mol": 187.33333333333334,
+     "bias_J_mol": 187.33333333333334,
+     "wrong_sign_points": null,
+     "mean_expanded_uncertainty_of_data_J_mol": 5.8
+    },
+    {
+     "set": "Brandt2014_333.15K",
+     "T_K": 333.15,
+     "n": 22,
+     "measured_min_max_J_mol": [
+      -308.0,
+      41.8
+     ],
+     "model_min_max_J_mol": [
+      0.0,
+      0.0
+     ],
+     "AAD_J_mol": 139.66363636363636,
+     "bias_J_mol": 130.48181818181817,
+     "wrong_sign_points": null,
+     "mean_expanded_uncertainty_of_data_J_mol": 4.463636363636362
+    },
+    {
+     "set": "Brandt2014_363.15K",
+     "T_K": 363.15,
+     "n": 21,
+     "measured_min_max_J_mol": [
+      -59.2,
+      366.0
+     ],
+     "model_min_max_J_mol": [
+      0.0,
+      0.0
+     ],
+     "AAD_J_mol": 151.68571428571428,
+     "bias_J_mol": -126.49523809523808,
+     "wrong_sign_points": null,
+     "mean_expanded_uncertainty_of_data_J_mol": 4.461904761904762
+    },
+    {
+     "set": "Brandt2014_383.15K",
+     "T_K": 383.15,
+     "n": 13,
+     "measured_min_max_J_mol": [
+      12.0,
+      579.0
+     ],
+     "model_min_max_J_mol": [
+      0.0,
+      0.0
+     ],
+     "AAD_J_mol": 322.9769230769231,
+     "bias_J_mol": -322.9769230769231,
+     "wrong_sign_points": null,
+     "mean_expanded_uncertainty_of_data_J_mol": 5.1
+    }
+   ],
+   "AAD_all_points_J_mol": 231.73132530120483,
+   "parameters": null,
+   "hE_basis": null
+  }
+ },
+ "2_reference_column": {
+  "column": {
+   "feed_mol_s": 100.0,
+   "z_ethanol": 0.1,
+   "T_feed_K": 350.0,
+   "n_trays": 20,
+   "feed_tray": 14,
+   "x_D": 0.7,
+   "x_B_water": 0.995,
+   "parameters": "regresión de Kamihama 2012 (M15b)"
+  },
+  "solved_M15b": {
+   "hE_on": {
+    "Q_reb_kW": 1030.022989938933,
+    "Q_cond_kW": 917.2433742788553,
+    "RR": 0.7008078175950011,
+    "D_mol_s": 13.668647485638393,
+    "B_mol_s": 86.33135251436201,
+    "T_D_K": 351.6890244415601,
+    "T_B_K": 371.6785595951147
+   },
+   "hE_off": {
+    "Q_reb_kW": 1070.7737615487604,
+    "Q_cond_kW": 925.72932656908,
+    "RR": 0.7030043290271579,
+    "D_mol_s": 13.668654500573165,
+    "B_mol_s": 86.3313454994268,
+    "T_D_K": 351.68902598789225,
+    "T_B_K": 371.6785598070815
+   },
+   "source": "notebooks/26_eo_nrtl_ethanol_water.json (re-solves completos de M15b)"
+  },
+  "streams_hE_J_mol": {
+   "feed": {
+    "x_ethanol": 0.1,
+    "T_K": 350.0,
+    "flow_mol_s": 100.0,
+    "measured": {
+     "hE_J_mol": -154.38235384952668,
+     "interpolation_spread_J_mol": 8.723247408804582,
+     "quadratic_J_mol": -145.6591064407221,
+     "isotherms_K": [
+      333.15,
+      363.15
+     ],
+     "hE_at_isotherms_J_mol": [
+      -301.3946334083968,
+      -39.6517024430497
+     ]
+    },
+    "a_kamihama_vle_only": 387.9031277391767,
+    "b_chemsep": 378.3833062992339,
+    "c_no_excess_term": 0.0
+   },
+   "distillate": {
+    "x_ethanol": 0.7,
+    "T_K": 351.68902598789225,
+    "flow_mol_s": 13.668654500573165,
+    "measured": {
+     "hE_J_mol": 198.36945472579092,
+     "interpolation_spread_J_mol": 2.048389964849463,
+     "quadratic_J_mol": 196.32106476094145,
+     "isotherms_K": [
+      333.15,
+      363.15
+     ],
+     "hE_at_isotherms_J_mol": [
+      36.58250425365031,
+      298.3874403562309
+     ]
+    },
+    "a_kamihama_vle_only": 313.7187427189524,
+    "b_chemsep": 378.955630632303,
+    "c_no_excess_term": 0.0
+   },
+   "bottoms": {
+    "x_ethanol": 0.004999999999999893,
+    "T_K": 371.6785598070815,
+    "flow_mol_s": 86.3313454994268,
+    "measured": {
+     "hE_J_mol": -3.853970474247026,
+     "interpolation_spread_J_mol": 0.4788109320723972,
+     "quadratic_J_mol": -3.3751595421746288,
+     "isotherms_K": [
+      363.15,
+      383.15
+     ],
+     "hE_at_isotherms_J_mol": [
+      -6.998781925200524,
+      0.3759953457339209
+     ]
+    },
+    "a_kamihama_vle_only": 25.894162201211856,
+    "b_chemsep": 24.39843296615336,
+    "c_no_excess_term": 0.0
+   }
+  },
+  "method": "ESTIMACIÓN por balance de entalpía a primer orden sobre la columna resuelta SIN h^E (flujos y reflujo fijos); no es un re-solve",
+  "estimate_check_vs_solved_on_off": {
+   "solved_dQ_reb_kW": -40.750771609827325,
+   "estimated_dQ_reb_kW": -39.56939698638418,
+   "solved_dQ_cond_kW": -8.485952290224645,
+   "estimated_dQ_cond_kW": -7.302675180457083
+  },
+  "duties_estimated": {
+   "a_kamihama_vle_only": {
+    "Q_reb_kW": 1031.2043645623762,
+    "Q_cond_kW": 918.4266513886229,
+    "dQ_reb_pct_of_no_excess": -3.695402185532755,
+    "dQ_cond_pct_of_no_excess": -0.7888564152463566
+   },
+   "b_chemsep": {
+    "Q_reb_kW": 1031.4003490902585,
+    "Q_cond_kW": 916.9080816082961,
+    "dQ_reb_pct_of_no_excess": -3.6770991102314974,
+    "dQ_cond_pct_of_no_excess": -0.9528967817706393
+   },
+   "c_no_excess_term": {
+    "Q_reb_kW": 1070.7737615487604,
+    "Q_cond_kW": 925.72932656908,
+    "dQ_reb_pct_of_no_excess": 0.0,
+    "dQ_cond_pct_of_no_excess": -0.0
+   },
+   "measured": {
+    "Q_reb_kW": 1083.9731219305434,
+    "Q_cond_kW": 921.1117264823532,
+    "dQ_reb_pct_of_no_excess": 1.2326936702942342,
+    "dQ_cond_pct_of_no_excess": -0.498806719653184
+   },
+   "measured_quadratic_in_T": {
+    "Q_reb_kW": 1083.1618168133784,
+    "Q_cond_kW": 921.159408448775,
+    "dQ_reb_pct_of_no_excess": 1.1569255532279785,
+    "dQ_cond_pct_of_no_excess": -0.49365597363561065
+   }
+  },
+  "error_of_each_option_vs_measured_hE_pct": {
+   "a_solved_hE_on": {
+    "Q_reb": -4.9770728535709186,
+    "Q_cond": -0.41996557988365213
+   },
+   "c_solved_hE_off": {
+    "Q_reb": -1.2176833645353713,
+    "Q_cond": 0.5013072740221114
+   },
+   "b_chemsep_estimate": {
+    "Q_reb": -4.850007050604111,
+    "Q_cond": -0.45636644862946385
+   }
+  }
+ },
+ "3_joint_fit": {
+  "vle_only_reference": {
+   "form": "tau = b/T",
+   "stats": {
+    "n_puntos": 21,
+    "AAD_T_K": 0.11428702396907349,
+    "RMSD_T_K": 0.13430038564444843,
+    "max_T_K": 0.2802156115638468,
+    "sesgo_T_K": 0.03852157075492154,
+    "AAD_y": 0.0038548722823486697,
+    "RMSD_y": 0.004826868320196394,
+    "max_y": 0.01041664840958939,
+    "sesgo_y": -0.0038165163246654636
+   },
+   "azeotrope_x1": [
+    0.8851645604366675
+   ]
+  },
+  "fits": {
+   "J_all_T": {
+    "why": "todos los datos de h^E (298-383 K), α = 0.3, pesos 1 y 1",
+    "parameters": [
+     {
+      "nombre": "a12",
+      "valor": -2.588670038322015,
+      "ic95": 0.2247959071458116,
+      "error_estandar": 0.11354683392190837,
+      "unidad": "-"
+     },
+     {
+      "nombre": "a21",
+      "valor": 4.199864414272864,
+      "ic95": 0.9062400196768313,
+      "error_estandar": 0.4577515948316917,
+      "unidad": "-"
+     },
+     {
+      "nombre": "b12",
+      "valor": 971.3149722232521,
+      "ic95": 167.73357339848593,
+      "error_estandar": 84.72403454148461,
+      "unidad": "K"
+     },
+     {
+      "nombre": "b21",
+      "valor": -1144.2905740297076,
+      "ic95": 169.16954814349504,
+      "error_estandar": 85.44936085172674,
+      "unidad": "K"
+     }
+    ],
+    "fixed": {
+     "alpha": 0.3
+    },
+    "weights": {
+     "vle": 1.0,
+     "hE": 1.0
+    },
+    "sigmas": {
+     "T_K": 0.1,
+     "P_rel": 0.001,
+     "x1": 0.001,
+     "y1": 0.005,
+     "hE_J_mol": 5.0,
+     "hE_rel": 0.01
+    },
+    "vle_stats": {
+     "n_puntos": 21,
+     "AAD_T_K": 1.3480105848351946,
+     "RMSD_T_K": 1.8205338514878524,
+     "max_T_K": 4.100488973571771,
+     "sesgo_T_K": 1.3480105848351946,
+     "AAD_y": 0.02758549072334497,
+     "RMSD_y": 0.03964984505457342,
+     "max_y": 0.0967171294046894,
+     "sesgo_y": -0.006594530616440283
+    },
+    "hE_stats": {
+     "n": 83,
+     "AAD_hE_J_mol": 106.60986035494761,
+     "RMSD_hE_J_mol": 130.38994124192013,
+     "max_hE_J_mol": 355.0813134903393,
+     "sesgo_hE_J_mol": 25.057038175306865,
+     "max_abs_hE_medido_J_mol": 770.0,
+     "signo_contrario": 14,
+     "hE_medido_min_max_J_mol": [
+      -770.0,
+      579.0
+     ],
+     "hE_calc_min_max_J_mol": [
+      -613.81275774914,
+      618.2735339265097
+     ],
+     "por_conjunto_y_T": [
+      {
+       "conjunto": "Nagamachi2006_298.15K",
+       "T_K": 298.15,
+       "n": 12,
+       "AAD_hE_J_mol": 157.97029517756962,
+       "RMSD_hE_J_mol": 190.69391045902233,
+       "max_hE_J_mol": 355.0813134903393,
+       "sesgo_hE_J_mol": 118.45566271711078,
+       "max_abs_hE_medido_J_mol": 770.0,
+       "signo_contrario": 0,
+       "hE_medido_min_max_J_mol": [
+        -770.0,
+        -148.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -613.81275774914,
+        -5.572615196169396
+       ]
+      },
+      {
+       "conjunto": "Nagamachi2006_323.15K",
+       "T_K": 323.15,
+       "n": 15,
+       "AAD_hE_J_mol": 92.0931041003527,
+       "RMSD_hE_J_mol": 108.79486990288177,
+       "max_hE_J_mol": 191.01627914197343,
+       "sesgo_hE_J_mol": 64.47232623014806,
+       "max_abs_hE_medido_J_mol": 414.0,
+       "signo_contrario": 5,
+       "hE_medido_min_max_J_mol": [
+        -414.0,
+        -18.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -350.8004052173397,
+        141.01627914197343
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_333.15K",
+       "T_K": 333.15,
+       "n": 22,
+       "AAD_hE_J_mol": 76.14369742537714,
+       "RMSD_hE_J_mol": 90.51407272308043,
+       "max_hE_J_mol": 199.8666241548649,
+       "sesgo_hE_J_mol": 43.90784959714433,
+       "max_abs_hE_medido_J_mol": 308.0,
+       "signo_contrario": 2,
+       "hE_medido_min_max_J_mol": [
+        -308.0,
+        41.8
+       ],
+       "hE_calc_min_max_J_mol": [
+        -269.9151805327754,
+        209.0784826104563
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_363.15K",
+       "T_K": 363.15,
+       "n": 21,
+       "AAD_hE_J_mol": 99.84781839055735,
+       "RMSD_hE_J_mol": 120.78813886600952,
+       "max_hE_J_mol": 201.67283754340963,
+       "sesgo_hE_J_mol": -37.30211202878329,
+       "max_abs_hE_medido_J_mol": 366.0,
+       "signo_contrario": 4,
+       "hE_medido_min_max_J_mol": [
+        -59.2,
+        366.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -99.7442983694183,
+        456.82212958580044
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_383.15K",
+       "T_K": 383.15,
+       "n": 13,
+       "AAD_hE_J_mol": 138.43175202034797,
+       "RMSD_hE_J_mol": 154.5678543204803,
+       "max_hE_J_mol": 246.38497902587443,
+       "sesgo_hE_J_mol": -37.80361661844667,
+       "max_abs_hE_medido_J_mol": 579.0,
+       "signo_contrario": 3,
+       "hE_medido_min_max_J_mol": [
+        12.0,
+        579.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -37.82188705214083,
+        618.2735339265097
+       ]
+      }
+     ]
+    },
+    "verdict": {
+     "representa_VLE_y_hE": false,
+     "criterios": [
+      {
+       "criterio": "AAD_T_K",
+       "valor": 1.3480105848351946,
+       "tolerancia": 0.5,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_y",
+       "valor": 0.02758549072334497,
+       "tolerancia": 0.01,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Nagamachi2006_298.15K 298.15 K",
+       "valor": 157.97029517756962,
+       "tolerancia": 77.0,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Nagamachi2006_323.15K 323.15 K",
+       "valor": 92.0931041003527,
+       "tolerancia": 41.400000000000006,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_333.15K 333.15 K",
+       "valor": 76.14369742537714,
+       "tolerancia": 30.8,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_363.15K 363.15 K",
+       "valor": 99.84781839055735,
+       "tolerancia": 36.6,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_383.15K 383.15 K",
+       "valor": 138.43175202034797,
+       "tolerancia": 57.900000000000006,
+       "cumple": false
+      }
+     ],
+     "no_cumple": [
+      "AAD_T_K",
+      "AAD_y",
+      "AAD_hE Nagamachi2006_298.15K 298.15 K",
+      "AAD_hE Nagamachi2006_323.15K 323.15 K",
+      "AAD_hE Brandt2014_333.15K 333.15 K",
+      "AAD_hE Brandt2014_363.15K 363.15 K",
+      "AAD_hE Brandt2014_383.15K 383.15 K"
+     ]
+    },
+    "azeotrope_x1": [
+     0.9572228750997425
+    ],
+    "starts": {
+     "n": 7,
+     "costs": [
+      17004.58103183868,
+      17004.581034854324,
+      17004.581036308882,
+      17004.581051155343,
+      17004.58105447283,
+      17004.581057764324,
+      17004.581066844697
+     ]
+    },
+    "thermo_check": 1.1394718057999853e-08,
+    "all_isotherms_including_not_fitted": [
+     {
+      "set": "Nagamachi2006_298.15K",
+      "T_K": 298.15,
+      "n": 12,
+      "measured_min_max_J_mol": [
+       -770.0,
+       -148.0
+      ],
+      "model_min_max_J_mol": [
+       -613.8164427786122,
+       -5.574759111901917
+      ],
+      "AAD_J_mol": 157.96955157424745,
+      "bias_J_mol": 118.45240467253034,
+      "wrong_sign_points": 0,
+      "mean_expanded_uncertainty_of_data_J_mol": 13.333333333333334
+     },
+     {
+      "set": "Nagamachi2006_323.15K",
+      "T_K": 323.15,
+      "n": 15,
+      "measured_min_max_J_mol": [
+       -414.0,
+       -18.0
+      ],
+      "model_min_max_J_mol": [
+       -350.803117850017,
+       141.01400279025768
+      ],
+      "AAD_J_mol": 92.09317721162911,
+      "bias_J_mol": 64.46966481227504,
+      "wrong_sign_points": 5,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.8
+     },
+     {
+      "set": "Brandt2014_333.15K",
+      "T_K": 333.15,
+      "n": 22,
+      "measured_min_max_J_mol": [
+       -308.0,
+       41.8
+      ],
+      "model_min_max_J_mol": [
+       -269.91755243995897,
+       209.07515715910088
+      ],
+      "AAD_J_mol": 76.14368204644043,
+      "bias_J_mol": 43.905694058809885,
+      "wrong_sign_points": 2,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.463636363636362
+     },
+     {
+      "set": "Brandt2014_363.15K",
+      "T_K": 363.15,
+      "n": 21,
+      "measured_min_max_J_mol": [
+       -59.2,
+       366.0
+      ],
+      "model_min_max_J_mol": [
+       -99.74562639948833,
+       456.81957027055955
+      ],
+      "AAD_J_mol": 99.84863240533468,
+      "bias_J_mol": -37.30402384418527,
+      "wrong_sign_points": 4,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.461904761904762
+     },
+     {
+      "set": "Brandt2014_383.15K",
+      "T_K": 383.15,
+      "n": 13,
+      "measured_min_max_J_mol": [
+       12.0,
+       579.0
+      ],
+      "model_min_max_J_mol": [
+       -37.82268129142513,
+       618.2708132075487
+      ],
+      "AAD_J_mol": 138.43228436720716,
+      "bias_J_mol": -37.805449432028325,
+      "wrong_sign_points": 3,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.1
+     }
+    ],
+    "AAD_all_points_J_mol": 106.61005131774478,
+    "weight_scan": [
+     {
+      "peso_hE": 0.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -3.4455719515570697,
+       "a21": 8.353698044570228,
+       "b12": 1186.88366426767,
+       "b21": -2318.916719601576
+      },
+      "AAD_T_K": 0.06914027087661691,
+      "AAD_y": 0.0023946645076777027,
+      "AAD_hE_J_mol": 472.03059073618783,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 884.2979316750401
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 475.98535234882473
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 402.4147337449994
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 339.17059927692196
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 419.3443721973382
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.01,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.8904648039991772,
+       "a21": 5.021594151088542,
+       "b12": 635.9704566703948,
+       "b21": -1135.7944235778232
+      },
+      "AAD_T_K": 0.08187000732895978,
+      "AAD_y": 0.002759343458853077,
+      "AAD_hE_J_mol": 137.2889714064705,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 215.87832355590956
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 99.54401014662682
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 72.1195841976362
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 154.92780023335712
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 190.08999497063374
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.1,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -2.065997224221997,
+       "a21": 4.761252783938957,
+       "b12": 742.2112777395472,
+       "b21": -1137.6688627333474
+      },
+      "AAD_T_K": 0.19748008916138815,
+      "AAD_y": 0.007254699089753981,
+      "AAD_hE_J_mol": 129.81928041787225,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 187.96457266035839
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 96.87087291132822
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 75.12319831561916
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 144.97966308997783
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 182.2368477889243
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 1.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -2.588670038322015,
+       "a21": 4.199864414272864,
+       "b12": 971.3149722232521,
+       "b21": -1144.2905740297076
+      },
+      "AAD_T_K": 1.3480105848351946,
+      "AAD_y": 0.02758549072334497,
+      "AAD_hE_J_mol": 106.60986035494761,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 157.97029517756962
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 92.0931041003527
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 76.14369742537714
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 99.84781839055735
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 138.43175202034797
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 10.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -2.928991805528448,
+       "a21": 4.459592175074586,
+       "b12": 958.0335919889826,
+       "b21": -1250.8861556857405
+      },
+      "AAD_T_K": 3.2753750811669313,
+      "AAD_y": 0.056698799782234396,
+      "AAD_hE_J_mol": 86.89721690925757,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 175.93845272989563
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 84.13743044463249
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 71.46149142995388
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 56.02299646483092
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 83.88541360151598
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 100.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -3.0224278441387638,
+       "a21": 5.696516356112197,
+       "b12": 726.3271749563946,
+       "b21": -1467.9258048135448
+      },
+      "AAD_T_K": 5.299343479135324,
+      "AAD_y": 0.08749500685770183,
+      "AAD_hE_J_mol": 81.55571553921403,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 184.45259932957333
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 75.51588482989482
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 62.63057075411902
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 47.06433964282167
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 81.28701817396836
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     }
+    ],
+    "seconds": 2.7467098236083984
+   },
+   "J_column_T": {
+    "why": "solo las isotermas que acotan la columna (333-383 K), α = 0.3, pesos 1 y 1",
+    "parameters": [
+     {
+      "nombre": "a12",
+      "valor": -2.066587311031761,
+      "ic95": 0.3228611071801584,
+      "error_estandar": 0.1626075524329416,
+      "unidad": "-"
+     },
+     {
+      "nombre": "a21",
+      "valor": 3.690912850843448,
+      "ic95": 0.893178307968025,
+      "error_estandar": 0.4498452595091711,
+      "unidad": "-"
+     },
+     {
+      "nombre": "b12",
+      "valor": 811.7843584036742,
+      "ic95": 181.7503191849003,
+      "error_estandar": 91.53773526543489,
+      "unidad": "K"
+     },
+     {
+      "nombre": "b21",
+      "valor": -934.6038082967788,
+      "ic95": 173.438457384927,
+      "error_estandar": 87.35150324988173,
+      "unidad": "K"
+     }
+    ],
+    "fixed": {
+     "alpha": 0.3
+    },
+    "weights": {
+     "vle": 1.0,
+     "hE": 1.0
+    },
+    "sigmas": {
+     "T_K": 0.1,
+     "P_rel": 0.001,
+     "x1": 0.001,
+     "y1": 0.005,
+     "hE_J_mol": 5.0,
+     "hE_rel": 0.01
+    },
+    "vle_stats": {
+     "n_puntos": 21,
+     "AAD_T_K": 0.7245038727509506,
+     "RMSD_T_K": 1.195935373740189,
+     "max_T_K": 2.9948115883551623,
+     "sesgo_T_K": 0.7245038727509506,
+     "AAD_y": 0.019444485062059768,
+     "RMSD_y": 0.02914428187359097,
+     "max_y": 0.07078313145164655,
+     "sesgo_y": -0.004920878579369181
+    },
+    "hE_stats": {
+     "n": 56,
+     "AAD_hE_J_mol": 104.75690314067474,
+     "RMSD_hE_J_mol": 127.8520858425781,
+     "max_hE_J_mol": 287.9894810681523,
+     "sesgo_hE_J_mol": 0.2756500207035672,
+     "max_abs_hE_medido_J_mol": 579.0,
+     "signo_contrario": 11,
+     "hE_medido_min_max_J_mol": [
+      -308.0,
+      579.0
+     ],
+     "hE_calc_min_max_J_mol": [
+      -197.9344546995306,
+      526.1687707994893
+     ],
+     "por_conjunto_y_T": [
+      {
+       "conjunto": "Brandt2014_333.15K",
+       "T_K": 333.15,
+       "n": 22,
+       "AAD_hE_J_mol": 94.58521749374658,
+       "RMSD_hE_J_mol": 113.19584517768921,
+       "max_hE_J_mol": 223.8770405219716,
+       "sesgo_hE_J_mol": 94.58521749374658,
+       "max_abs_hE_medido_J_mol": 308.0,
+       "signo_contrario": 3,
+       "hE_medido_min_max_J_mol": [
+        -308.0,
+        41.8
+       ],
+       "hE_calc_min_max_J_mol": [
+        -197.9344546995306,
+        255.07704052197158
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_363.15K",
+       "T_K": 363.15,
+       "n": 21,
+       "AAD_hE_J_mol": 93.14795819674798,
+       "RMSD_hE_J_mol": 114.02845927431059,
+       "max_hE_J_mol": 177.04096448107393,
+       "sesgo_hE_J_mol": -43.678056430050894,
+       "max_abs_hE_medido_J_mol": 366.0,
+       "signo_contrario": 4,
+       "hE_medido_min_max_J_mol": [
+        -59.2,
+        366.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -90.14099824675415,
+        419.59576141183163
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_383.15K",
+       "T_K": 383.15,
+       "n": 13,
+       "AAD_hE_J_mol": 140.72343606797338,
+       "RMSD_hE_J_mol": 166.51169092379993,
+       "max_hE_J_mol": 287.9894810681523,
+       "sesgo_hE_J_mol": -88.32301528245817,
+       "max_abs_hE_medido_J_mol": 579.0,
+       "signo_contrario": 4,
+       "hE_medido_min_max_J_mol": [
+        12.0,
+        579.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -45.52796518446291,
+        526.1687707994893
+       ]
+      }
+     ]
+    },
+    "verdict": {
+     "representa_VLE_y_hE": false,
+     "criterios": [
+      {
+       "criterio": "AAD_T_K",
+       "valor": 0.7245038727509506,
+       "tolerancia": 0.5,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_y",
+       "valor": 0.019444485062059768,
+       "tolerancia": 0.01,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_333.15K 333.15 K",
+       "valor": 94.58521749374658,
+       "tolerancia": 30.8,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_363.15K 363.15 K",
+       "valor": 93.14795819674798,
+       "tolerancia": 36.6,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_383.15K 383.15 K",
+       "valor": 140.72343606797338,
+       "tolerancia": 57.900000000000006,
+       "cumple": false
+      }
+     ],
+     "no_cumple": [
+      "AAD_T_K",
+      "AAD_y",
+      "AAD_hE Brandt2014_333.15K 333.15 K",
+      "AAD_hE Brandt2014_363.15K 363.15 K",
+      "AAD_hE Brandt2014_383.15K 383.15 K"
+     ]
+    },
+    "azeotrope_x1": [
+     0.8947720663010943
+    ],
+    "starts": {
+     "n": 7,
+     "costs": [
+      11789.845712535294,
+      11789.845715269676,
+      11789.845717387076,
+      11789.845720307285,
+      11789.8457248871,
+      11789.845783767465,
+      11789.845787568425
+     ]
+    },
+    "thermo_check": 9.697032510302961e-09,
+    "all_isotherms_including_not_fitted": [
+     {
+      "set": "Nagamachi2006_298.15K",
+      "T_K": 298.15,
+      "n": 12,
+      "measured_min_max_J_mol": [
+       -770.0,
+       -148.0
+      ],
+      "model_min_max_J_mol": [
+       -410.0516100459889,
+       71.14791728447133
+      ],
+      "AAD_J_mol": 277.93652448341805,
+      "bias_J_mol": 277.93652448341805,
+      "wrong_sign_points": 2,
+      "mean_expanded_uncertainty_of_data_J_mol": 13.333333333333334
+     },
+     {
+      "set": "Nagamachi2006_323.15K",
+      "T_K": 323.15,
+      "n": 15,
+      "measured_min_max_J_mol": [
+       -414.0,
+       -18.0
+      ],
+      "model_min_max_J_mol": [
+       -247.72317190906145,
+       190.9300657977542
+      ],
+      "AAD_J_mol": 143.17512519322645,
+      "bias_J_mol": 143.17512519322645,
+      "wrong_sign_points": 6,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.8
+     },
+     {
+      "set": "Brandt2014_333.15K",
+      "T_K": 333.15,
+      "n": 22,
+      "measured_min_max_J_mol": [
+       -308.0,
+       41.8
+      ],
+      "model_min_max_J_mol": [
+       -197.93591224565313,
+       255.07500979517746
+      ],
+      "AAD_J_mol": 94.58377388117525,
+      "bias_J_mol": 94.58377388117525,
+      "wrong_sign_points": 3,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.463636363636362
+     },
+     {
+      "set": "Brandt2014_363.15K",
+      "T_K": 363.15,
+      "n": 21,
+      "measured_min_max_J_mol": [
+       -59.2,
+       366.0
+      ],
+      "model_min_max_J_mol": [
+       -90.14194707146713,
+       419.5942086758082
+      ],
+      "AAD_J_mol": 93.14874345760981,
+      "bias_J_mol": -43.679332323723465,
+      "wrong_sign_points": 4,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.461904761904762
+     },
+     {
+      "set": "Brandt2014_383.15K",
+      "T_K": 383.15,
+      "n": 13,
+      "measured_min_max_J_mol": [
+       12.0,
+       579.0
+      ],
+      "model_min_max_J_mol": [
+       -45.528534251858694,
+       526.1670733078699
+      ],
+      "AAD_J_mol": 140.7241096626763,
+      "bias_J_mol": -88.324204960753,
+      "wrong_sign_points": 4,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.1
+     }
+    ],
+    "AAD_all_points_J_mol": 136.7378944013237,
+    "weight_scan": [
+     {
+      "peso_hE": 0.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -3.4455719515570697,
+       "a21": 8.353698044570228,
+       "b12": 1186.88366426767,
+       "b21": -2318.916719601576
+      },
+      "AAD_T_K": 0.06914027087661691,
+      "AAD_y": 0.0023946645076777027,
+      "AAD_hE_J_mol": 382.62827796019184,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 402.4147337449994
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 339.17059927692196
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 419.3443721973382
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.01,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.375598409620073,
+       "a21": 3.9661910944808096,
+       "b12": 447.5363396057354,
+       "b21": -747.735422470378
+      },
+      "AAD_T_K": 0.08577275949621599,
+      "AAD_y": 0.0027639739012527142,
+      "AAD_hE_J_mol": 128.02109313432854,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 131.69646262593957
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 95.08964957295639
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 174.99818436304946
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.1,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.4062467656195645,
+       "a21": 3.905691175371115,
+       "b12": 471.75956259671966,
+       "b21": -755.5246998496351
+      },
+      "AAD_T_K": 0.10427724514634173,
+      "AAD_y": 0.003525903307651121,
+      "AAD_hE_J_mol": 126.68175426147127,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 130.53017519990715
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 94.85200527648885
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 171.58632872601294
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 1.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -2.066587311031761,
+       "a21": 3.690912850843448,
+       "b12": 811.7843584036742,
+       "b21": -934.6038082967788
+      },
+      "AAD_T_K": 0.7245038727509506,
+      "AAD_y": 0.019444485062059768,
+      "AAD_hE_J_mol": 104.75690314067474,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 94.58521749374658
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 93.14795819674798
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 140.72343606797338
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 10.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -3.0206622104133767,
+       "a21": 4.155950089979741,
+       "b12": 1033.1096732461588,
+       "b21": -1217.2425577935321
+      },
+      "AAD_T_K": 3.404245022007236,
+      "AAD_y": 0.0595201699406918,
+      "AAD_hE_J_mol": 65.27289946229557,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 75.32477545671883
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 51.84189915145299
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 69.9582636661712
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 100.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -3.1722691261503986,
+       "a21": 5.528220918369533,
+       "b12": 805.833201193531,
+       "b21": -1483.6729410518958
+      },
+      "AAD_T_K": 5.405315711666144,
+      "AAD_y": 0.08933400401793626,
+      "AAD_hE_J_mol": 56.60658225235533,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 70.69888150788188
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 39.00898301518012
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 61.18496689536263
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     }
+    ],
+    "seconds": 2.614556312561035
+   },
+   "J_363": {
+    "why": "solo la isoterma más cercana a la columna (363.15 K), α = 0.3, pesos 1 y 1",
+    "parameters": [
+     {
+      "nombre": "a12",
+      "valor": -1.0968071988829473,
+      "ic95": 0.09468424731240001,
+      "error_estandar": 0.0473185737204753,
+      "unidad": "-"
+     },
+     {
+      "nombre": "a21",
+      "valor": 3.2028624038448177,
+      "ic95": 0.22362348000165128,
+      "error_estandar": 0.11175612020418516,
+      "unidad": "-"
+     },
+     {
+      "nombre": "b12",
+      "valor": 326.11952347849893,
+      "ic95": 37.858843183458255,
+      "error_estandar": 18.920005312370215,
+      "unidad": "K"
+     },
+     {
+      "nombre": "b21",
+      "valor": -431.7873492995865,
+      "ic95": 60.79676439955773,
+      "error_estandar": 30.383260783761735,
+      "unidad": "K"
+     }
+    ],
+    "fixed": {
+     "alpha": 0.3
+    },
+    "weights": {
+     "vle": 1.0,
+     "hE": 1.0
+    },
+    "sigmas": {
+     "T_K": 0.1,
+     "P_rel": 0.001,
+     "x1": 0.001,
+     "y1": 0.005,
+     "hE_J_mol": 5.0,
+     "hE_rel": 0.01
+    },
+    "vle_stats": {
+     "n_puntos": 21,
+     "AAD_T_K": 0.14039296253369166,
+     "RMSD_T_K": 0.14818998798090696,
+     "max_T_K": 0.1906184301053031,
+     "sesgo_T_K": 0.06788081214898241,
+     "AAD_y": 0.0033929335850502902,
+     "RMSD_y": 0.004593653038038665,
+     "max_y": 0.009670897190402483,
+     "sesgo_y": -0.0030456686976118703
+    },
+    "hE_stats": {
+     "n": 21,
+     "AAD_hE_J_mol": 36.64010246974829,
+     "RMSD_hE_J_mol": 41.42005472044348,
+     "max_hE_J_mol": 78.6149733714069,
+     "sesgo_hE_J_mol": 8.045227376354147,
+     "max_abs_hE_medido_J_mol": 366.0,
+     "signo_contrario": 2,
+     "hE_medido_min_max_J_mol": [
+      -59.2,
+      366.0
+     ],
+     "hE_calc_min_max_J_mol": [
+      -10.926484829221899,
+      360.8721960995341
+     ],
+     "por_conjunto_y_T": [
+      {
+       "conjunto": "Brandt2014_363.15K",
+       "T_K": 363.15,
+       "n": 21,
+       "AAD_hE_J_mol": 36.64010246974829,
+       "RMSD_hE_J_mol": 41.42005472044348,
+       "max_hE_J_mol": 78.6149733714069,
+       "sesgo_hE_J_mol": 8.045227376354147,
+       "max_abs_hE_medido_J_mol": 366.0,
+       "signo_contrario": 2,
+       "hE_medido_min_max_J_mol": [
+        -59.2,
+        366.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -10.926484829221899,
+        360.8721960995341
+       ]
+      }
+     ]
+    },
+    "verdict": {
+     "representa_VLE_y_hE": false,
+     "criterios": [
+      {
+       "criterio": "AAD_T_K",
+       "valor": 0.14039296253369166,
+       "tolerancia": 0.5,
+       "cumple": true
+      },
+      {
+       "criterio": "AAD_y",
+       "valor": 0.0033929335850502902,
+       "tolerancia": 0.01,
+       "cumple": true
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_363.15K 363.15 K",
+       "valor": 36.64010246974829,
+       "tolerancia": 36.6,
+       "cumple": false
+      }
+     ],
+     "no_cumple": [
+      "AAD_hE Brandt2014_363.15K 363.15 K"
+     ]
+    },
+    "azeotrope_x1": [
+     0.8979917967947442
+    ],
+    "starts": {
+     "n": 7,
+     "costs": [
+      465.1590276282746,
+      465.15902762832087,
+      465.1590276287469,
+      465.15902762946433,
+      465.15902763053987,
+      465.15902763109136,
+      465.159027632933
+     ]
+    },
+    "thermo_check": 6.651475814578589e-09,
+    "all_isotherms_including_not_fitted": [
+     {
+      "set": "Nagamachi2006_298.15K",
+      "T_K": 298.15,
+      "n": 12,
+      "measured_min_max_J_mol": [
+       -770.0,
+       -148.0
+      ],
+      "model_min_max_J_mol": [
+       -30.848554103291196,
+       275.098041548761
+      ],
+      "AAD_J_mol": 611.7019860482152,
+      "bias_J_mol": 611.7019860482152,
+      "wrong_sign_points": 8,
+      "mean_expanded_uncertainty_of_data_J_mol": 13.333333333333334
+     },
+     {
+      "set": "Nagamachi2006_323.15K",
+      "T_K": 323.15,
+      "n": 15,
+      "measured_min_max_J_mol": [
+       -414.0,
+       -18.0
+      ],
+      "model_min_max_J_mol": [
+       -22.17332690682785,
+       314.5540402861102
+      ],
+      "AAD_J_mol": 328.9213230300694,
+      "bias_J_mol": 328.9213230300694,
+      "wrong_sign_points": 12,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.8
+     },
+     {
+      "set": "Brandt2014_333.15K",
+      "T_K": 333.15,
+      "n": 22,
+      "measured_min_max_J_mol": [
+       -308.0,
+       41.8
+      ],
+      "model_min_max_J_mol": [
+       -18.67168856329103,
+       327.32777865402124
+      ],
+      "AAD_J_mol": 240.07741080829348,
+      "bias_J_mol": 240.07741080829348,
+      "wrong_sign_points": 11,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.463636363636362
+     },
+     {
+      "set": "Brandt2014_363.15K",
+      "T_K": 363.15,
+      "n": 21,
+      "measured_min_max_J_mol": [
+       -59.2,
+       366.0
+      ],
+      "model_min_max_J_mol": [
+       -10.926577828108032,
+       360.8721722111115
+      ],
+      "AAD_J_mol": 36.640153042336905,
+      "bias_J_mol": 8.045107016255026,
+      "wrong_sign_points": 2,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.461904761904762
+     },
+     {
+      "set": "Brandt2014_383.15K",
+      "T_K": 383.15,
+      "n": 13,
+      "measured_min_max_J_mol": [
+       12.0,
+       579.0
+      ],
+      "model_min_max_J_mol": [
+       -7.73152595992936,
+       379.94194096608277
+      ],
+      "AAD_J_mol": 130.8272799923614,
+      "bias_J_mol": -130.8272799923614,
+      "wrong_sign_points": 2,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.1
+     }
+    ],
+    "AAD_all_points_J_mol": 241.2788502361669,
+    "weight_scan": [
+     {
+      "peso_hE": 0.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -3.4455719515570697,
+       "a21": 8.353698044570228,
+       "b12": 1186.88366426767,
+       "b21": -2318.916719601576
+      },
+      "AAD_T_K": 0.06914027087661691,
+      "AAD_y": 0.0023946645076777027,
+      "AAD_hE_J_mol": 339.17059927692196,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 339.17059927692196
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.01,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.1250723200466166,
+       "a21": 3.18067960134145,
+       "b12": 354.77630881846636,
+       "b21": -459.76294179895206
+      },
+      "AAD_T_K": 0.09074391845240912,
+      "AAD_y": 0.003000766994504353,
+      "AAD_hE_J_mol": 38.348774299771456,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 38.348774299771456
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.1,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.0852641292063259,
+       "a21": 3.1093630335422446,
+       "b12": 338.7601043535596,
+       "b21": -430.80246281357194
+      },
+      "AAD_T_K": 0.09278241222529816,
+      "AAD_y": 0.0030228104900186462,
+      "AAD_hE_J_mol": 37.8330225706026,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 37.8330225706026
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 1.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.0968071988829473,
+       "a21": 3.2028624038448177,
+       "b12": 326.11952347849893,
+       "b21": -431.7873492995865
+      },
+      "AAD_T_K": 0.14039296253369166,
+      "AAD_y": 0.0033929335850502902,
+      "AAD_hE_J_mol": 36.64010246974829,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 36.64010246974829
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 10.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.172905509062709,
+       "a21": 3.8489970673061134,
+       "b12": 258.4353415058729,
+       "b21": -447.7424929483121
+      },
+      "AAD_T_K": 0.7136571583049355,
+      "AAD_y": 0.016828443072261383,
+      "AAD_hE_J_mol": 28.869238368953148,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 28.869238368953148
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 100.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.2632027426261083,
+       "a21": 5.317665524544264,
+       "b12": 149.3128627286309,
+       "b21": -483.3195868400049
+      },
+      "AAD_T_K": 2.1770496237520898,
+      "AAD_y": 0.050128689962768924,
+      "AAD_hE_J_mol": 11.845885841842009,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 11.845885841842009
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     }
+    ],
+    "seconds": 1.4930129051208496
+   },
+   "J_all_T_alpha_fit": {
+    "why": "todos los datos, α ajustado (5 parámetros), pesos 1 y 1",
+    "parameters": [
+     {
+      "nombre": "a12",
+      "valor": -8.411312110525301,
+      "ic95": 7.334310726404613,
+      "error_estandar": 3.7043275397850297,
+      "unidad": "-"
+     },
+     {
+      "nombre": "a21",
+      "valor": 11.57452974862214,
+      "ic95": 10.055909103052253,
+      "error_estandar": 5.078920489952043,
+      "unidad": "-"
+     },
+     {
+      "nombre": "b12",
+      "valor": 2397.3199918128553,
+      "ic95": 1245.7728186251486,
+      "error_estandar": 629.2003069538584,
+      "unidad": "K"
+     },
+     {
+      "nombre": "b21",
+      "valor": -2958.1995353304833,
+      "ic95": 1965.6199434851267,
+      "error_estandar": 992.772240094612,
+      "unidad": "K"
+     },
+     {
+      "nombre": "alpha",
+      "valor": 0.05000000000000001,
+      "ic95": 0.05992232495705893,
+      "error_estandar": 0.030264864261511197,
+      "unidad": "-"
+     }
+    ],
+    "fixed": {},
+    "weights": {
+     "vle": 1.0,
+     "hE": 1.0
+    },
+    "sigmas": {
+     "T_K": 0.1,
+     "P_rel": 0.001,
+     "x1": 0.001,
+     "y1": 0.005,
+     "hE_J_mol": 5.0,
+     "hE_rel": 0.01
+    },
+    "vle_stats": {
+     "n_puntos": 21,
+     "AAD_T_K": 0.5113994863526754,
+     "RMSD_T_K": 0.6727021484163601,
+     "max_T_K": 1.605946322468867,
+     "sesgo_T_K": -0.00998245533312348,
+     "AAD_y": 0.015084839333706518,
+     "RMSD_y": 0.018857151738134667,
+     "max_y": 0.04042271946667622,
+     "sesgo_y": -0.0031965699480369105
+    },
+    "hE_stats": {
+     "n": 83,
+     "AAD_hE_J_mol": 87.88469519699052,
+     "RMSD_hE_J_mol": 113.76935692977185,
+     "max_hE_J_mol": 378.36682309891813,
+     "sesgo_hE_J_mol": 34.389287602101774,
+     "max_abs_hE_medido_J_mol": 770.0,
+     "signo_contrario": 7,
+     "hE_medido_min_max_J_mol": [
+      -770.0,
+      579.0
+     ],
+     "hE_calc_min_max_J_mol": [
+      -614.3088975794298,
+      608.3371944840848
+     ],
+     "por_conjunto_y_T": [
+      {
+       "conjunto": "Nagamachi2006_298.15K",
+       "T_K": 298.15,
+       "n": 12,
+       "AAD_hE_J_mol": 167.1537493945665,
+       "RMSD_hE_J_mol": 205.3520553947237,
+       "max_hE_J_mol": 378.36682309891813,
+       "sesgo_hE_J_mol": 82.62074051718855,
+       "max_abs_hE_medido_J_mol": 770.0,
+       "signo_contrario": 0,
+       "hE_medido_min_max_J_mol": [
+        -770.0,
+        -148.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -614.3088975794298,
+        -99.8530087780428
+       ]
+      },
+      {
+       "conjunto": "Nagamachi2006_323.15K",
+       "T_K": 323.15,
+       "n": 15,
+       "AAD_hE_J_mol": 84.28778383031792,
+       "RMSD_hE_J_mol": 102.94121971241535,
+       "max_hE_J_mol": 202.57243180556247,
+       "sesgo_hE_J_mol": 51.79434259394912,
+       "max_abs_hE_medido_J_mol": 414.0,
+       "signo_contrario": 4,
+       "hE_medido_min_max_J_mol": [
+        -414.0,
+        -18.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -296.8620254677768,
+        47.650824545013386
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_333.15K",
+       "T_K": 333.15,
+       "n": 22,
+       "AAD_hE_J_mol": 72.74200789406831,
+       "RMSD_hE_J_mol": 85.33935557387397,
+       "max_hE_J_mol": 151.78370647468708,
+       "sesgo_hE_J_mol": 55.27161585055908,
+       "max_abs_hE_medido_J_mol": 308.0,
+       "signo_contrario": 2,
+       "hE_medido_min_max_J_mol": [
+        -308.0,
+        41.8
+       ],
+       "hE_calc_min_max_J_mol": [
+        -202.7988530988272,
+        117.43395454640263
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_363.15K",
+       "T_K": 363.15,
+       "n": 21,
+       "AAD_hE_J_mol": 59.41067822620063,
+       "RMSD_hE_J_mol": 73.4081439113,
+       "max_hE_J_mol": 151.56741446537455,
+       "sesgo_hE_J_mol": -2.423570548221127,
+       "max_abs_hE_medido_J_mol": 366.0,
+       "signo_contrario": 1,
+       "hE_medido_min_max_J_mol": [
+        -59.2,
+        366.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        -29.264913386976843,
+        412.53070553263467
+       ]
+      },
+      {
+       "conjunto": "Brandt2014_383.15K",
+       "T_K": 383.15,
+       "n": 13,
+       "AAD_hE_J_mol": 90.48611805699457,
+       "RMSD_hE_J_mol": 102.25726017939118,
+       "max_hE_J_mol": 149.06261165837054,
+       "sesgo_hE_J_mol": -6.087209333900686,
+       "max_abs_hE_medido_J_mol": 579.0,
+       "signo_contrario": 0,
+       "hE_medido_min_max_J_mol": [
+        12.0,
+        579.0
+       ],
+       "hE_calc_min_max_J_mol": [
+        5.657328456013777,
+        608.3371944840848
+       ]
+      }
+     ]
+    },
+    "verdict": {
+     "representa_VLE_y_hE": false,
+     "criterios": [
+      {
+       "criterio": "AAD_T_K",
+       "valor": 0.5113994863526754,
+       "tolerancia": 0.5,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_y",
+       "valor": 0.015084839333706518,
+       "tolerancia": 0.01,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Nagamachi2006_298.15K 298.15 K",
+       "valor": 167.1537493945665,
+       "tolerancia": 77.0,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Nagamachi2006_323.15K 323.15 K",
+       "valor": 84.28778383031792,
+       "tolerancia": 41.400000000000006,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_333.15K 333.15 K",
+       "valor": 72.74200789406831,
+       "tolerancia": 30.8,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_363.15K 363.15 K",
+       "valor": 59.41067822620063,
+       "tolerancia": 36.6,
+       "cumple": false
+      },
+      {
+       "criterio": "AAD_hE Brandt2014_383.15K 383.15 K",
+       "valor": 90.48611805699457,
+       "tolerancia": 57.900000000000006,
+       "cumple": false
+      }
+     ],
+     "no_cumple": [
+      "AAD_T_K",
+      "AAD_y",
+      "AAD_hE Nagamachi2006_298.15K 298.15 K",
+      "AAD_hE Nagamachi2006_323.15K 323.15 K",
+      "AAD_hE Brandt2014_333.15K 333.15 K",
+      "AAD_hE Brandt2014_363.15K 363.15 K",
+      "AAD_hE Brandt2014_383.15K 383.15 K"
+     ]
+    },
+    "azeotrope_x1": [
+     0.8414084912660696
+    ],
+    "starts": {
+     "n": 7,
+     "costs": [
+      8058.966429760088,
+      8058.966429764171,
+      8058.966429782158,
+      8058.966429872812,
+      34004.74185674252,
+      34004.741917596824,
+      34004.74205619563
+     ]
+    },
+    "thermo_check": 1.13234364107484e-08,
+    "all_isotherms_including_not_fitted": [
+     {
+      "set": "Nagamachi2006_298.15K",
+      "T_K": 298.15,
+      "n": 12,
+      "measured_min_max_J_mol": [
+       -770.0,
+       -148.0
+      ],
+      "model_min_max_J_mol": [
+       -614.3142155814209,
+       -99.85523168274642
+      ],
+      "AAD_J_mol": 167.1542428492605,
+      "bias_J_mol": 82.61703918520381,
+      "wrong_sign_points": 0,
+      "mean_expanded_uncertainty_of_data_J_mol": 13.333333333333334
+     },
+     {
+      "set": "Nagamachi2006_323.15K",
+      "T_K": 323.15,
+      "n": 15,
+      "measured_min_max_J_mol": [
+       -414.0,
+       -18.0
+      ],
+      "model_min_max_J_mol": [
+       -296.8659063416356,
+       47.64833303780608
+      ],
+      "AAD_J_mol": 84.28790879800519,
+      "bias_J_mol": 51.79136036279066,
+      "wrong_sign_points": 4,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.8
+     },
+     {
+      "set": "Brandt2014_333.15K",
+      "T_K": 333.15,
+      "n": 22,
+      "measured_min_max_J_mol": [
+       -308.0,
+       41.8
+      ],
+      "model_min_max_J_mol": [
+       -202.80165551317788,
+       117.43164819321086
+      ],
+      "AAD_J_mol": 72.74183768396125,
+      "bias_J_mol": 55.26917175339145,
+      "wrong_sign_points": 2,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.463636363636362
+     },
+     {
+      "set": "Brandt2014_363.15K",
+      "T_K": 363.15,
+      "n": 21,
+      "measured_min_max_J_mol": [
+       -59.2,
+       366.0
+      ],
+      "model_min_max_J_mol": [
+       -29.26590308271636,
+       412.52721158599877
+      ],
+      "AAD_J_mol": 59.4112144164079,
+      "bias_J_mol": -2.4257070749168057,
+      "wrong_sign_points": 1,
+      "mean_expanded_uncertainty_of_data_J_mol": 4.461904761904762
+     },
+     {
+      "set": "Brandt2014_383.15K",
+      "T_K": 383.15,
+      "n": 13,
+      "measured_min_max_J_mol": [
+       12.0,
+       579.0
+      ],
+      "model_min_max_J_mol": [
+       5.656891529615343,
+       608.3341444994663
+      ],
+      "AAD_J_mol": 90.48612365124268,
+      "bias_J_mol": -6.089274876234664,
+      "wrong_sign_points": 0,
+      "mean_expanded_uncertainty_of_data_J_mol": 5.1
+     }
+    ],
+    "AAD_all_points_J_mol": 87.88488054721773,
+    "weight_scan": [
+     {
+      "peso_hE": 0.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": 3.453493401557539,
+       "a21": -0.1258463198499617,
+       "b12": -1091.5430488449374,
+       "b21": 570.1992921214437,
+       "alpha": 0.5576495644586041
+      },
+      "AAD_T_K": 0.04299935787311088,
+      "AAD_y": 0.0027003604556858733,
+      "AAD_hE_J_mol": 879.4395561782916,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 1042.732829425325
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 969.1252625289434
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 751.4501145554196
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 778.1471265158181
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 1005.4475457468266
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.01,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -9.029533364263996,
+       "a21": 14.267455969862574,
+       "b12": 2045.7813178160943,
+       "b21": -3099.3114626938445,
+       "alpha": 0.05000000000000001
+      },
+      "AAD_T_K": 0.1314342069523951,
+      "AAD_y": 0.0033184201817757775,
+      "AAD_hE_J_mol": 102.26154175926179,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 139.54310590598226
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 79.69800228034983
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 67.022540854305
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 103.92037001908763
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 150.83823013431882
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 0.1,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -8.862825048128034,
+       "a21": 13.307164530102838,
+       "b12": 2196.2336824579556,
+       "b21": -3074.359390478318,
+       "alpha": 0.05000000000000001
+      },
+      "AAD_T_K": 0.2541767940679544,
+      "AAD_y": 0.007569564357508042,
+      "AAD_hE_J_mol": 93.84199129292773,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 148.00083046857898
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 80.43138632700283
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 66.98551894511746
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 80.38656690641436
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 126.50809191982518
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 1.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -8.411312110525301,
+       "a21": 11.57452974862214,
+       "b12": 2397.3199918128553,
+       "b21": -2958.1995353304833,
+       "alpha": 0.05000000000000001
+      },
+      "AAD_T_K": 0.5113994863526754,
+      "AAD_y": 0.015084839333706518,
+      "AAD_hE_J_mol": 87.88469519699052,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 167.1537493945665
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 84.28778383031792
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 72.74200789406831
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 59.41067822620063
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 90.48611805699457
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 10.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -8.38733068032189,
+       "a21": 11.293706907117164,
+       "b12": 2424.29702113375,
+       "b21": -2940.69412764486,
+       "alpha": 0.05000000000000001
+      },
+      "AAD_T_K": 0.48362092191474304,
+      "AAD_y": 0.017001963910652756,
+      "AAD_hE_J_mol": 87.31706117439923,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 175.02606469601366
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 86.81341273173271
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 74.88513672537343
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 55.119918307315366
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 79.9854475180879
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     },
+     {
+      "peso_hE": 100.0,
+      "peso_vle": 1.0,
+      "parametros": {
+       "a12": -1.245363524461655,
+       "a21": 4.163062814722786,
+       "b12": 128.58875995046802,
+       "b21": -1079.214172259021,
+       "alpha": 0.9999999999999999
+      },
+      "AAD_T_K": 8.041782681166623,
+      "AAD_y": 0.12852172817675503,
+      "AAD_hE_J_mol": 65.51095411302745,
+      "AAD_hE_por_conjunto_y_T": [
+       {
+        "conjunto": "Nagamachi2006_298.15K",
+        "T_K": 298.15,
+        "AAD_hE_J_mol": 161.45488303810933
+       },
+       {
+        "conjunto": "Nagamachi2006_323.15K",
+        "T_K": 323.15,
+        "AAD_hE_J_mol": 53.72198097647908
+       },
+       {
+        "conjunto": "Brandt2014_333.15K",
+        "T_K": 333.15,
+        "AAD_hE_J_mol": 49.409898885500404
+       },
+       {
+        "conjunto": "Brandt2014_363.15K",
+        "T_K": 363.15,
+        "AAD_hE_J_mol": 37.9579696437594
+       },
+       {
+        "conjunto": "Brandt2014_383.15K",
+        "T_K": 383.15,
+        "AAD_hE_J_mol": 62.306595559755685
+       }
+      ],
+      "representa_VLE_y_hE": false,
+      "convergencia": true
+     }
+    ],
+    "seconds": 4.411852121353149
+   }
+  }
+ },
+ "4_columns": {
+  "J_all_T": {
+   "hE_on": {
+    "ok": true,
+    "RR": 1.268984827345425,
+    "BR": 0.3922420647449615,
+    "x_D": 0.7000002857053639,
+    "x_B_heavy": 0.9949999949145061,
+    "T_D_K": 352.3173594983748,
+    "T_B_K": 372.34791481970154,
+    "D_mol_s": 13.668696989936683,
+    "B_mol_s": 86.33130301006332,
+    "Q_reb_kW": 1391.6450345733729,
+    "Q_cond_kW": 1222.4522008507176,
+    "verified": true,
+    "reasons": [],
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": true,
+     "source": {
+      "class": "ajustado_a_hE",
+      "of_parameters": "ajustado_a_hE",
+      "pairs": [
+       {
+        "i": "ethanol",
+        "j": "water",
+        "parameter_source": "vle_binary_regression",
+        "kind": "ajustado_a_hE",
+        "text": "parámetros ajustados a datos calorimétricos de h^E además del VLE",
+        "data": [
+         "Nagamachi, M. Y.; Francesconi, A. Z. Measurement and correlation of excess molar enthalpy for (1,2-propanediol, or 1,3-propanediol, or 1,4-butanediol + water) at the temperatures (298.15, 323.15, and 343.15) K. J. Chem. Thermodyn. 38 (2006) 461-466, doi:10.1016/j.jct.2005.06.018. Conjunto 4 del archivo ThermoML: etanol + agua (sistema de prueba del calorímetro), 298.15 y 323.15 K, 101 kPa.",
+         "Nagamachi, M. Y.; Francesconi, A. Z. Measurement and correlation of excess molar enthalpy for (1,2-propanediol, or 1,3-propanediol, or 1,4-butanediol + water) at the temperatures (298.15, 323.15, and 343.15) K. J. Chem. Thermodyn. 38 (2006) 461-466, doi:10.1016/j.jct.2005.06.018. Conjunto 4 del archivo ThermoML: etanol + agua (sistema de prueba del calorímetro), 298.15 y 323.15 K, 101 kPa.",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa)."
+        ],
+        "T_K": [
+         298.15,
+         323.15,
+         333.15,
+         363.15,
+         383.15
+        ],
+        "weights": {
+         "vle": 1.0,
+         "hE": 1.0
+        },
+        "AAD_hE_J_mol": 106.60986035494761,
+        "AAD_hE_by_set_and_T": [
+         {
+          "set": "Nagamachi2006_298.15K",
+          "T_K": 298.15,
+          "AAD_hE_J_mol": 157.97029517756962,
+          "max_abs_measured_J_mol": 770.0,
+          "wrong_sign_points": 0,
+          "n": 12
+         },
+         {
+          "set": "Nagamachi2006_323.15K",
+          "T_K": 323.15,
+          "AAD_hE_J_mol": 92.0931041003527,
+          "max_abs_measured_J_mol": 414.0,
+          "wrong_sign_points": 5,
+          "n": 15
+         },
+         {
+          "set": "Brandt2014_333.15K",
+          "T_K": 333.15,
+          "AAD_hE_J_mol": 76.14369742537714,
+          "max_abs_measured_J_mol": 308.0,
+          "wrong_sign_points": 2,
+          "n": 22
+         },
+         {
+          "set": "Brandt2014_363.15K",
+          "T_K": 363.15,
+          "AAD_hE_J_mol": 99.84781839055735,
+          "max_abs_measured_J_mol": 366.0,
+          "wrong_sign_points": 4,
+          "n": 21
+         },
+         {
+          "set": "Brandt2014_383.15K",
+          "T_K": 383.15,
+          "AAD_hE_J_mol": 138.43175202034797,
+          "max_abs_measured_J_mol": 579.0,
+          "wrong_sign_points": 3,
+          "n": 13
+         }
+        ],
+        "represents_VLE_and_hE": false,
+        "fails": [
+         "AAD_T_K",
+         "AAD_y",
+         "AAD_hE Nagamachi2006_298.15K 298.15 K",
+         "AAD_hE Nagamachi2006_323.15K 323.15 K",
+         "AAD_hE Brandt2014_333.15K 333.15 K",
+         "AAD_hE Brandt2014_363.15K 363.15 K",
+         "AAD_hE Brandt2014_383.15K 383.15 K"
+        ]
+       }
+      ],
+      "text": "h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs)"
+     },
+     "streams": {
+      "feed": {
+       "T_K": 350.0,
+       "hE_J_mol": -143.85373130200023,
+       "flow_mol_s": 100.0
+      },
+      "distillate": {
+       "T_K": 352.3173594983748,
+       "hE_J_mol": 371.7621910955843,
+       "flow_mol_s": 13.668696989936683
+      },
+      "bottoms": {
+       "T_K": 372.34791481970154,
+       "hE_J_mol": -7.424859525485304,
+       "flow_mol_s": 86.33130301006332
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 363.1578549503659,
+     "first_order_effect_on_reboiler_duty_W": 18825.880075098677,
+     "first_order_share_of_reboiler_duty": 0.013527788773284416,
+     "share_meaning": "fracción de este Q_reb que corresponde al término h^E (ya incluido)",
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros (Gibbs-Helmholtz). Origen de ese h^E: h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs) (su peso en Q_reb está en properties.excess_enthalpy).",
+    "warnings": [
+     "ethanol/water: los parámetros (vle_binary_regression) vienen de datos en 351.3-368.2 K y la columna opera en 352.3-372.3 K: extrapolación",
+     "ethanol/water: la regresión usó Psat ['thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)', 'thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)']; la columna usa Wagner-McGarry. Si difieren, el equilibrio de la columna no reproduce exactamente el ajuste",
+     "ethanol en water: γ∞ NRTL 3.15 vs UNIFAC 5.93 (difieren más de e^0.5); revisa la fuente de los parámetros"
+    ],
+    "seconds": 59.30016016960144
+   },
+   "hE_off": {
+    "ok": true,
+    "RR": 1.2582365417219676,
+    "BR": 0.3889917831021593,
+    "x_D": 0.70000028867985,
+    "x_B_heavy": 0.9949999949089698,
+    "T_D_K": 352.317359480016,
+    "T_B_K": 372.3479148188193,
+    "D_mol_s": 13.668698643179733,
+    "B_mol_s": 86.33130135682029,
+    "Q_reb_kW": 1378.5035262974357,
+    "Q_cond_kW": 1228.1356878400018,
+    "verified": true,
+    "reasons": [],
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": false,
+     "source": {
+      "class": "termino_de_exceso_apagado",
+      "of_parameters": "ajustado_a_hE",
+      "pairs": [
+       {
+        "i": "ethanol",
+        "j": "water",
+        "parameter_source": "vle_binary_regression",
+        "kind": "ajustado_a_hE",
+        "text": "parámetros ajustados a datos calorimétricos de h^E además del VLE",
+        "data": [
+         "Nagamachi, M. Y.; Francesconi, A. Z. Measurement and correlation of excess molar enthalpy for (1,2-propanediol, or 1,3-propanediol, or 1,4-butanediol + water) at the temperatures (298.15, 323.15, and 343.15) K. J. Chem. Thermodyn. 38 (2006) 461-466, doi:10.1016/j.jct.2005.06.018. Conjunto 4 del archivo ThermoML: etanol + agua (sistema de prueba del calorímetro), 298.15 y 323.15 K, 101 kPa.",
+         "Nagamachi, M. Y.; Francesconi, A. Z. Measurement and correlation of excess molar enthalpy for (1,2-propanediol, or 1,3-propanediol, or 1,4-butanediol + water) at the temperatures (298.15, 323.15, and 343.15) K. J. Chem. Thermodyn. 38 (2006) 461-466, doi:10.1016/j.jct.2005.06.018. Conjunto 4 del archivo ThermoML: etanol + agua (sistema de prueba del calorímetro), 298.15 y 323.15 K, 101 kPa.",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa)."
+        ],
+        "T_K": [
+         298.15,
+         323.15,
+         333.15,
+         363.15,
+         383.15
+        ],
+        "weights": {
+         "vle": 1.0,
+         "hE": 1.0
+        },
+        "AAD_hE_J_mol": 106.60986035494761,
+        "AAD_hE_by_set_and_T": [
+         {
+          "set": "Nagamachi2006_298.15K",
+          "T_K": 298.15,
+          "AAD_hE_J_mol": 157.97029517756962,
+          "max_abs_measured_J_mol": 770.0,
+          "wrong_sign_points": 0,
+          "n": 12
+         },
+         {
+          "set": "Nagamachi2006_323.15K",
+          "T_K": 323.15,
+          "AAD_hE_J_mol": 92.0931041003527,
+          "max_abs_measured_J_mol": 414.0,
+          "wrong_sign_points": 5,
+          "n": 15
+         },
+         {
+          "set": "Brandt2014_333.15K",
+          "T_K": 333.15,
+          "AAD_hE_J_mol": 76.14369742537714,
+          "max_abs_measured_J_mol": 308.0,
+          "wrong_sign_points": 2,
+          "n": 22
+         },
+         {
+          "set": "Brandt2014_363.15K",
+          "T_K": 363.15,
+          "AAD_hE_J_mol": 99.84781839055735,
+          "max_abs_measured_J_mol": 366.0,
+          "wrong_sign_points": 4,
+          "n": 21
+         },
+         {
+          "set": "Brandt2014_383.15K",
+          "T_K": 383.15,
+          "AAD_hE_J_mol": 138.43175202034797,
+          "max_abs_measured_J_mol": 579.0,
+          "wrong_sign_points": 3,
+          "n": 13
+         }
+        ],
+        "represents_VLE_and_hE": false,
+        "fails": [
+         "AAD_T_K",
+         "AAD_y",
+         "AAD_hE Nagamachi2006_298.15K 298.15 K",
+         "AAD_hE Nagamachi2006_323.15K 323.15 K",
+         "AAD_hE Brandt2014_333.15K 333.15 K",
+         "AAD_hE Brandt2014_363.15K 363.15 K",
+         "AAD_hE Brandt2014_383.15K 383.15 K"
+        ]
+       }
+      ],
+      "text": "término de exceso apagado (excess_enthalpy=False): entalpía del líquido = Σ x·h_i; si se encendiera: h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs)"
+     },
+     "streams": {
+      "feed": {
+       "T_K": 350.0,
+       "hE_J_mol": -143.85373130200023,
+       "flow_mol_s": 100.0
+      },
+      "distillate": {
+       "T_K": 352.317359480016,
+       "hE_J_mol": 371.7621915586368,
+       "flow_mol_s": 13.668698643179733
+      },
+      "bottoms": {
+       "T_K": 372.3479148188193,
+       "hE_J_mol": -7.4248595335811665,
+       "flow_mol_s": 86.33130135682029
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 363.1578549503659,
+     "first_order_effect_on_reboiler_duty_W": 18825.88070761743,
+     "first_order_share_of_reboiler_duty": 0.01365675194040485,
+     "share_meaning": "fracción de este Q_reb que el término h^E cambiaría si se incluyera (está apagado)",
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E (excess_enthalpy=False, pedido por el usuario).",
+    "warnings": [
+     "ethanol/water: los parámetros (vle_binary_regression) vienen de datos en 351.3-368.2 K y la columna opera en 352.3-372.3 K: extrapolación",
+     "ethanol/water: la regresión usó Psat ['thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)', 'thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)']; la columna usa Wagner-McGarry. Si difieren, el equilibrio de la columna no reproduce exactamente el ajuste",
+     "ethanol en water: γ∞ NRTL 3.15 vs UNIFAC 5.93 (difieren más de e^0.5); revisa la fuente de los parámetros"
+    ],
+    "seconds": 24.443583965301514
+   },
+   "streams_hE_J_mol": {
+    "feed": {
+     "x_ethanol": 0.1,
+     "T_K": 350.0,
+     "flow_mol_s": 100.0,
+     "measured": {
+      "hE_J_mol": -154.38235384952668,
+      "interpolation_spread_J_mol": 8.723247408804582,
+      "quadratic_J_mol": -145.6591064407221,
+      "isotherms_K": [
+       333.15,
+       363.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       -301.3946334083968,
+       -39.6517024430497
+      ]
+     },
+     "model": -143.85373130200023
+    },
+    "distillate": {
+     "x_ethanol": 0.7000002857053639,
+     "T_K": 352.3173594983748,
+     "flow_mol_s": 13.668696989936683,
+     "measured": {
+      "hE_J_mol": 203.8526511825379,
+      "interpolation_spread_J_mol": 2.001709486736786,
+      "quadratic_J_mol": 201.8509416958011,
+      "isotherms_K": [
+       333.15,
+       363.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       36.582464247391684,
+       298.38720623492867
+      ]
+     },
+     "model": 371.7621910955843
+    },
+    "bottoms": {
+     "x_ethanol": 0.005000005085493919,
+     "T_K": 372.34791481970154,
+     "flow_mol_s": 86.33130301006332,
+     "measured": {
+      "hE_J_mol": -3.6071568551682236,
+      "interpolation_spread_J_mol": 0.48625912531860704,
+      "quadratic_J_mol": -3.1208977298496166,
+      "isotherms_K": [
+       363.15,
+       383.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       -6.998789202721015,
+       0.3759960916329848
+      ]
+     },
+     "model": -7.424859525482619
+    }
+   },
+   "hE_effect_solved_pct": {
+    "Q_reb": 0.9533169865175717,
+    "Q_cond": -0.46277353923979136
+   },
+   "estimate_check": {
+    "solved_dQ_reb_kW": 13.141508275937213,
+    "estimated_dQ_reb_kW": 7.3506396091605435,
+    "solved_dQ_cond_kW": -5.68348698928412,
+    "estimated_dQ_cond_kW": -11.475241098456214
+   },
+   "with_measured_hE_estimate": {
+    "Q_reb_kW": 1390.1244002942442,
+    "Q_cond_kW": 1221.8433365666326,
+    "method": "re-solve sin h^E + balance de entalpía con el h^E medido"
+   },
+   "hE_on_vs_measured_estimate_pct": {
+    "Q_reb_kW": 0.10938835968974381,
+    "Q_cond_kW": 0.049831616367113085
+   },
+   "hE_off_vs_measured_estimate_pct": {
+    "Q_reb_kW": -0.8359592849639053,
+    "Q_cond_kW": 0.5149883855855464
+   },
+   "vs_M15b_reference_pct": {
+    "hE_on": {
+     "Q_reb_kW": 35.108152746753674,
+     "Q_cond_kW": 33.274574134898515,
+     "RR": 81.07458214439825
+    },
+    "hE_off": {
+     "Q_reb_kW": 28.739008724268423,
+     "Q_cond_kW": 32.666823075779014,
+     "RR": 78.97991374578868
+    }
+   },
+   "dwsim_ExpData_like_for_like": {
+    "ok": true,
+    "mode": "ExpData",
+    "values": {
+     "x_D": 0.6922353526821123,
+     "x_B_heavy": 0.9937660506492493,
+     "T_D_K": 352.65196701088473,
+     "T_B_K": 372.15072344390944,
+     "Q_reb_kW": 1376.8258363421373,
+     "Q_cond_kW": 1226.7145825255595,
+     "RR": 1.2582365417219676,
+     "D_mol_s": 13.66869864317971,
+     "B_mol_s": 86.33130135682029
+    },
+    "parameters_held_by_dwsim": null,
+    "dev_eo_vs_dwsim_pct": {
+     "x_D": 1.1217190754057693,
+     "x_B_heavy": 0.12416848602490038,
+     "T_D_K": -0.09488321693053026,
+     "T_B_K": 0.0529869653577375,
+     "Q_reb_kW": 0.12185200996486234,
+     "Q_cond_kW": 0.11584645154509854
+    }
+   },
+   "dwsim_ExpData_plus_measured_hE": {
+    "Q_reb_kW": 1388.237272652134,
+    "Q_cond_kW": 1220.1948339219657,
+    "method": "DWSIM «ExpData» + balance de entalpía con el h^E medido",
+    "eo_hE_on_dev_pct": {
+     "Q_reb_kW": 0.2454740258290844,
+     "Q_cond_kW": 0.18500053155414697
+    }
+   }
+  },
+  "J_column_T": {
+   "hE_on": {
+    "ok": true,
+    "RR": 1.0539302289290837,
+    "BR": 0.35760507600009106,
+    "x_D": 0.7000003103105406,
+    "x_B_heavy": 0.9949999961809228,
+    "T_D_K": 351.7757132916743,
+    "T_B_K": 372.20540765457645,
+    "D_mol_s": 13.668657808502138,
+    "B_mol_s": 86.3313421914979,
+    "Q_reb_kW": 1272.1824432314945,
+    "Q_cond_kW": 1107.2701345201676,
+    "verified": true,
+    "reasons": [],
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": true,
+     "source": {
+      "class": "ajustado_a_hE",
+      "of_parameters": "ajustado_a_hE",
+      "pairs": [
+       {
+        "i": "ethanol",
+        "j": "water",
+        "parameter_source": "vle_binary_regression",
+        "kind": "ajustado_a_hE",
+        "text": "parámetros ajustados a datos calorimétricos de h^E además del VLE",
+        "data": [
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa)."
+        ],
+        "T_K": [
+         333.15,
+         363.15,
+         383.15
+        ],
+        "weights": {
+         "vle": 1.0,
+         "hE": 1.0
+        },
+        "AAD_hE_J_mol": 104.75690314067474,
+        "AAD_hE_by_set_and_T": [
+         {
+          "set": "Brandt2014_333.15K",
+          "T_K": 333.15,
+          "AAD_hE_J_mol": 94.58521749374658,
+          "max_abs_measured_J_mol": 308.0,
+          "wrong_sign_points": 3,
+          "n": 22
+         },
+         {
+          "set": "Brandt2014_363.15K",
+          "T_K": 363.15,
+          "AAD_hE_J_mol": 93.14795819674798,
+          "max_abs_measured_J_mol": 366.0,
+          "wrong_sign_points": 4,
+          "n": 21
+         },
+         {
+          "set": "Brandt2014_383.15K",
+          "T_K": 383.15,
+          "AAD_hE_J_mol": 140.72343606797338,
+          "max_abs_measured_J_mol": 579.0,
+          "wrong_sign_points": 4,
+          "n": 13
+         }
+        ],
+        "represents_VLE_and_hE": false,
+        "fails": [
+         "AAD_T_K",
+         "AAD_y",
+         "AAD_hE Brandt2014_333.15K 333.15 K",
+         "AAD_hE Brandt2014_363.15K 363.15 K",
+         "AAD_hE Brandt2014_383.15K 383.15 K"
+        ]
+       }
+      ],
+      "text": "h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs)"
+     },
+     "streams": {
+      "feed": {
+       "T_K": 350.0,
+       "hE_J_mol": -119.8364825735514,
+       "flow_mol_s": 100.0
+      },
+      "distillate": {
+       "T_K": 351.7757132916743,
+       "hE_J_mol": 360.93182726640197,
+       "flow_mol_s": 13.668657808502138
+      },
+      "bottoms": {
+       "T_K": 372.20540765457645,
+       "hE_J_mol": -7.137641292344885,
+       "flow_mol_s": 86.3313421914979
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 362.01590062534063,
+     "first_order_effect_on_reboiler_duty_W": 16300.899743607399,
+     "first_order_share_of_reboiler_duty": 0.01281333493504373,
+     "share_meaning": "fracción de este Q_reb que corresponde al término h^E (ya incluido)",
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros (Gibbs-Helmholtz). Origen de ese h^E: h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs) (su peso en Q_reb está en properties.excess_enthalpy).",
+    "warnings": [
+     "ethanol/water: los parámetros (vle_binary_regression) vienen de datos en 351.3-368.2 K y la columna opera en 351.8-372.2 K: extrapolación",
+     "ethanol/water: la regresión usó Psat ['thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)', 'thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)']; la columna usa Wagner-McGarry. Si difieren, el equilibrio de la columna no reproduce exactamente el ajuste"
+    ],
+    "seconds": 64.3811411857605
+   },
+   "hE_off": {
+    "ok": true,
+    "RR": 1.0442482280423855,
+    "BR": 0.3548420818883189,
+    "x_D": 0.7000003133471585,
+    "x_B_heavy": 0.9949999961993269,
+    "T_D_K": 351.7757132763549,
+    "T_B_K": 372.2054076579517,
+    "D_mol_s": 13.668659638272507,
+    "B_mol_s": 86.3313403617275,
+    "Q_reb_kW": 1260.7469711518836,
+    "Q_cond_kW": 1112.1345520942548,
+    "verified": true,
+    "reasons": [],
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": false,
+     "source": {
+      "class": "termino_de_exceso_apagado",
+      "of_parameters": "ajustado_a_hE",
+      "pairs": [
+       {
+        "i": "ethanol",
+        "j": "water",
+        "parameter_source": "vle_binary_regression",
+        "kind": "ajustado_a_hE",
+        "text": "parámetros ajustados a datos calorimétricos de h^E además del VLE",
+        "data": [
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa).",
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa)."
+        ],
+        "T_K": [
+         333.15,
+         363.15,
+         383.15
+        ],
+        "weights": {
+         "vle": 1.0,
+         "hE": 1.0
+        },
+        "AAD_hE_J_mol": 104.75690314067474,
+        "AAD_hE_by_set_and_T": [
+         {
+          "set": "Brandt2014_333.15K",
+          "T_K": 333.15,
+          "AAD_hE_J_mol": 94.58521749374658,
+          "max_abs_measured_J_mol": 308.0,
+          "wrong_sign_points": 3,
+          "n": 22
+         },
+         {
+          "set": "Brandt2014_363.15K",
+          "T_K": 363.15,
+          "AAD_hE_J_mol": 93.14795819674798,
+          "max_abs_measured_J_mol": 366.0,
+          "wrong_sign_points": 4,
+          "n": 21
+         },
+         {
+          "set": "Brandt2014_383.15K",
+          "T_K": 383.15,
+          "AAD_hE_J_mol": 140.72343606797338,
+          "max_abs_measured_J_mol": 579.0,
+          "wrong_sign_points": 4,
+          "n": 13
+         }
+        ],
+        "represents_VLE_and_hE": false,
+        "fails": [
+         "AAD_T_K",
+         "AAD_y",
+         "AAD_hE Brandt2014_333.15K 333.15 K",
+         "AAD_hE Brandt2014_363.15K 363.15 K",
+         "AAD_hE Brandt2014_383.15K 383.15 K"
+        ]
+       }
+      ],
+      "text": "término de exceso apagado (excess_enthalpy=False): entalpía del líquido = Σ x·h_i; si se encendiera: h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs)"
+     },
+     "streams": {
+      "feed": {
+       "T_K": 350.0,
+       "hE_J_mol": -119.8364825735514,
+       "flow_mol_s": 100.0
+      },
+      "distillate": {
+       "T_K": 351.7757132763549,
+       "hE_J_mol": 360.9318276401054,
+       "flow_mol_s": 13.668659638272507
+      },
+      "bottoms": {
+       "T_K": 372.2054076579517,
+       "hE_J_mol": -7.137641266514998,
+       "flow_mol_s": 86.3313403617275
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 362.01590062534063,
+     "first_order_effect_on_reboiler_duty_W": 16300.90042442796,
+     "first_order_share_of_reboiler_duty": 0.012929557474593508,
+     "share_meaning": "fracción de este Q_reb que el término h^E cambiaría si se incluyera (está apagado)",
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E (excess_enthalpy=False, pedido por el usuario).",
+    "warnings": [
+     "ethanol/water: los parámetros (vle_binary_regression) vienen de datos en 351.3-368.2 K y la columna opera en 351.8-372.2 K: extrapolación",
+     "ethanol/water: la regresión usó Psat ['thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)', 'thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)']; la columna usa Wagner-McGarry. Si difieren, el equilibrio de la columna no reproduce exactamente el ajuste"
+    ],
+    "seconds": 68.92238116264343
+   },
+   "streams_hE_J_mol": {
+    "feed": {
+     "x_ethanol": 0.1,
+     "T_K": 350.0,
+     "flow_mol_s": 100.0,
+     "measured": {
+      "hE_J_mol": -154.38235384952668,
+      "interpolation_spread_J_mol": 8.723247408804582,
+      "quadratic_J_mol": -145.6591064407221,
+      "isotherms_K": [
+       333.15,
+       363.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       -301.3946334083968,
+       -39.6517024430497
+      ]
+     },
+     "model": -119.8364825735514
+    },
+    "distillate": {
+     "x_ethanol": 0.7000003103105406,
+     "T_K": 351.7757132916743,
+     "flow_mol_s": 13.668657808502138,
+     "measured": {
+      "hE_J_mol": 199.1257858449518,
+      "interpolation_spread_J_mol": 2.04240343797926,
+      "quadratic_J_mol": 197.08338240697253,
+      "isotherms_K": [
+       333.15,
+       363.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       36.58246080201664,
+       298.3871860722027
+      ]
+     },
+     "model": 360.93182726640197
+    },
+    "bottoms": {
+     "x_ethanol": 0.00500000381907717,
+     "T_K": 372.20540765457645,
+     "flow_mol_s": 86.3313421914979,
+     "measured": {
+      "hE_J_mol": -3.65970393481752,
+      "interpolation_spread_J_mol": 0.48504081768857654,
+      "quadratic_J_mol": -3.1746631171289437,
+      "isotherms_K": [
+       363.15,
+       383.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       -6.998787390434156,
+       0.37599590588517023
+      ]
+     },
+     "model": -7.137641292346227
+    }
+   },
+   "hE_effect_solved_pct": {
+    "Q_reb": 0.9070394251403879,
+    "Q_cond": -0.43739469877336346
+   },
+   "estimate_check": {
+    "solved_dQ_reb_kW": 11.435472079610918,
+    "estimated_dQ_reb_kW": 6.215695204056006,
+    "solved_dQ_cond_kW": -4.864417574087156,
+    "estimated_dQ_cond_kW": -10.085205220371398
+   },
+   "with_measured_hE_estimate": {
+    "Q_reb_kW": 1273.027042769596,
+    "Q_cond_kW": 1106.5705529050178,
+    "method": "re-solve sin h^E + balance de entalpía con el h^E medido"
+   },
+   "hE_on_vs_measured_estimate_pct": {
+    "Q_reb_kW": -0.06634576562206673,
+    "Q_cond_kW": 0.06322069689215226
+   },
+   "hE_off_vs_measured_estimate_pct": {
+    "Q_reb_kW": -0.9646355658710748,
+    "Q_cond_kW": 0.5028146804223255
+   },
+   "vs_M15b_reference_pct": {
+    "hE_on": {
+     "Q_reb_kW": 23.510101780050398,
+     "Q_cond_kW": 20.717158125095537,
+     "RR": 50.38790984751158
+    },
+    "hE_off": {
+     "Q_reb_kW": 17.74167582593238,
+     "Q_cond_kW": 20.136039787788327,
+     "RR": 48.54079625476173
+    }
+   },
+   "dwsim_ExpData_like_for_like": {
+    "ok": true,
+    "mode": "ExpData",
+    "values": {
+     "x_D": 0.6921425468675759,
+     "x_B_heavy": 0.9937528036636365,
+     "T_D_K": 352.0928347740116,
+     "T_B_K": 371.9766528288722,
+     "Q_reb_kW": 1259.0475972667452,
+     "Q_cond_kW": 1110.997146939413,
+     "RR": 1.0442482280423855,
+     "D_mol_s": 13.668659638272501,
+     "B_mol_s": 86.3313403617275
+    },
+    "parameters_held_by_dwsim": null,
+    "dev_eo_vs_dwsim_pct": {
+     "x_D": 1.1352815276483685,
+     "x_B_heavy": 0.12550329730818266,
+     "T_D_K": -0.09006758057437114,
+     "T_B_K": 0.0614970932556691,
+     "Q_reb_kW": 0.13497296598059538,
+     "Q_cond_kW": 0.10237696451114164
+    }
+   },
+   "dwsim_ExpData_plus_measured_hE": {
+    "Q_reb_kW": 1271.1392932398226,
+    "Q_cond_kW": 1105.2328530068467,
+    "method": "DWSIM «ExpData» + balance de entalpía con el h^E medido",
+    "eo_hE_on_dev_pct": {
+     "Q_reb_kW": 0.08206417638252361,
+     "Q_cond_kW": 0.18433052435768982
+    }
+   }
+  },
+  "J_363": {
+   "hE_on": {
+    "ok": true,
+    "RR": 0.7021118384619819,
+    "BR": 0.2952108561482759,
+    "x_D": 0.7000003645011723,
+    "x_B_heavy": 0.9949999988110064,
+    "T_D_K": 351.7752711056677,
+    "T_B_K": 371.51954444317664,
+    "D_mol_s": 13.66866187486487,
+    "B_mol_s": 86.33133812513518,
+    "Q_reb_kW": 1066.1716815881664,
+    "Q_cond_kW": 917.3559085444228,
+    "verified": true,
+    "reasons": [],
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": true,
+     "source": {
+      "class": "ajustado_a_hE",
+      "of_parameters": "ajustado_a_hE",
+      "pairs": [
+       {
+        "i": "ethanol",
+        "j": "water",
+        "parameter_source": "vle_binary_regression",
+        "kind": "ajustado_a_hE",
+        "text": "parámetros ajustados a datos calorimétricos de h^E además del VLE",
+        "data": [
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa)."
+        ],
+        "T_K": [
+         363.15
+        ],
+        "weights": {
+         "vle": 1.0,
+         "hE": 1.0
+        },
+        "AAD_hE_J_mol": 36.64010246974829,
+        "AAD_hE_by_set_and_T": [
+         {
+          "set": "Brandt2014_363.15K",
+          "T_K": 363.15,
+          "AAD_hE_J_mol": 36.64010246974829,
+          "max_abs_measured_J_mol": 366.0,
+          "wrong_sign_points": 2,
+          "n": 21
+         }
+        ],
+        "represents_VLE_and_hE": false,
+        "fails": [
+         "AAD_hE Brandt2014_363.15K 363.15 K"
+        ]
+       }
+      ],
+      "text": "h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs)"
+     },
+     "streams": {
+      "feed": {
+       "T_K": 350.0,
+       "hE_J_mol": -3.072143985716609,
+       "flow_mol_s": 100.0
+      },
+      "distillate": {
+       "T_K": 351.7752711056677,
+       "hE_J_mol": 335.786717241576,
+       "flow_mol_s": 13.66866187486487
+      },
+      "bottoms": {
+       "T_K": 371.51954444317664,
+       "hE_J_mol": -2.3435016292936632,
+       "flow_mol_s": 86.33133812513518
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 358.9650180738424,
+     "first_order_effect_on_reboiler_duty_W": 4694.651867062265,
+     "first_order_share_of_reboiler_duty": 0.004403279460648519,
+     "share_meaning": "fracción de este Q_reb que corresponde al término h^E (ya incluido)",
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros (Gibbs-Helmholtz). Origen de ese h^E: h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs) (su peso en Q_reb está en properties.excess_enthalpy).",
+    "warnings": [
+     "ethanol/water: los parámetros (vle_binary_regression) vienen de datos en 351.3-368.2 K y la columna opera en 351.8-371.5 K: extrapolación",
+     "ethanol/water: la regresión usó Psat ['thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)', 'thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)']; la columna usa Wagner-McGarry. Si difieren, el equilibrio de la columna no reproduce exactamente el ajuste"
+    ],
+    "seconds": 150.41246008872986
+   },
+   "hE_off": {
+    "ok": true,
+    "RR": 0.6965240666831828,
+    "BR": 0.2953971959044551,
+    "x_D": 0.7,
+    "x_B_heavy": 0.9949999999999999,
+    "T_D_K": 351.7752726480771,
+    "T_B_K": 371.5195448075286,
+    "D_mol_s": 13.668670490132481,
+    "B_mol_s": 86.33132950986752,
+    "Q_reb_kW": 1066.2511714002876,
+    "Q_cond_kW": 922.1298045883233,
+    "verified": true,
+    "reasons": [],
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": false,
+     "source": {
+      "class": "termino_de_exceso_apagado",
+      "of_parameters": "ajustado_a_hE",
+      "pairs": [
+       {
+        "i": "ethanol",
+        "j": "water",
+        "parameter_source": "vle_binary_regression",
+        "kind": "ajustado_a_hE",
+        "text": "parámetros ajustados a datos calorimétricos de h^E además del VLE",
+        "data": [
+         "Brandt, S.; Horstmann, S.; Steinigeweg, S.; Gmehling, J. Phase equilibria and excess properties for binary systems in reactive distillation processes. Part II. Ethyl acetate synthesis. Fluid Phase Equilib. 376 (2014) 48-54, doi:10.1016/j.fluid.2014.05.031. Conjunto 4 del archivo ThermoML: etanol + agua, 333.15 K (1824 kPa), 363.15 K (1203 kPa) y 383.15 K (1500 kPa)."
+        ],
+        "T_K": [
+         363.15
+        ],
+        "weights": {
+         "vle": 1.0,
+         "hE": 1.0
+        },
+        "AAD_hE_J_mol": 36.64010246974829,
+        "AAD_hE_by_set_and_T": [
+         {
+          "set": "Brandt2014_363.15K",
+          "T_K": 363.15,
+          "AAD_hE_J_mol": 36.64010246974829,
+          "max_abs_measured_J_mol": 366.0,
+          "wrong_sign_points": 2,
+          "n": 21
+         }
+        ],
+        "represents_VLE_and_hE": false,
+        "fails": [
+         "AAD_hE Brandt2014_363.15K 363.15 K"
+        ]
+       }
+      ],
+      "text": "término de exceso apagado (excess_enthalpy=False): entalpía del líquido = Σ x·h_i; si se encendiera: h^E de parámetros ajustados a datos calorimétricos (citados en pairs); OJO: el ajuste conjunto de ethanol/water no representa VLE y h^E dentro de sus tolerancias (ver AAD por conjunto en pairs)"
+     },
+     "streams": {
+      "feed": {
+       "T_K": 350.0,
+       "hE_J_mol": -3.072143985716609,
+       "flow_mol_s": 100.0
+      },
+      "distillate": {
+       "T_K": 351.7752726480771,
+       "hE_J_mol": 335.7868492029409,
+       "flow_mol_s": 13.668670490132481
+      },
+      "bottoms": {
+       "T_K": 371.5195448075286,
+       "hE_J_mol": -2.343501105954457,
+       "flow_mol_s": 86.33132950986752
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 358.9650180738424,
+     "first_order_effect_on_reboiler_duty_W": 4694.656629061572,
+     "first_order_share_of_reboiler_duty": 0.004402955659027476,
+     "share_meaning": "fracción de este Q_reb que el término h^E cambiaría si se incluyera (está apagado)",
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E (excess_enthalpy=False, pedido por el usuario).",
+    "warnings": [
+     "ethanol/water: los parámetros (vle_binary_regression) vienen de datos en 351.3-368.2 K y la columna opera en 351.8-371.5 K: extrapolación",
+     "ethanol/water: la regresión usó Psat ['thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)', 'thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)']; la columna usa Wagner-McGarry. Si difieren, el equilibrio de la columna no reproduce exactamente el ajuste"
+    ],
+    "seconds": 146.07817888259888
+   },
+   "streams_hE_J_mol": {
+    "feed": {
+     "x_ethanol": 0.1,
+     "T_K": 350.0,
+     "flow_mol_s": 100.0,
+     "measured": {
+      "hE_J_mol": -154.38235384952668,
+      "interpolation_spread_J_mol": 8.723247408804582,
+      "quadratic_J_mol": -145.6591064407221,
+      "isotherms_K": [
+       333.15,
+       363.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       -301.3946334083968,
+       -39.6517024430497
+      ]
+     },
+     "model": -3.072143985716609
+    },
+    "distillate": {
+     "x_ethanol": 0.7000003645011723,
+     "T_K": 351.7752711056677,
+     "flow_mol_s": 13.66866187486487,
+     "measured": {
+      "hE_J_mol": 199.12189651885683,
+      "interpolation_spread_J_mol": 2.042434553495468,
+      "quadratic_J_mol": 197.07946196536136,
+      "isotherms_K": [
+       333.15,
+       363.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       36.582453213893835,
+       298.3871416656532
+      ]
+     },
+     "model": 335.78671724141367
+    },
+    "bottoms": {
+     "x_ethanol": 0.005000001188993575,
+     "T_K": 371.51954444317664,
+     "flow_mol_s": 86.33133812513518,
+     "measured": {
+      "hE_J_mol": -3.912606535296903,
+      "interpolation_spread_J_mol": 0.4763970302822722,
+      "quadratic_J_mol": -3.436209505014631,
+      "isotherms_K": [
+       363.15,
+       383.15
+      ],
+      "hE_at_isotherms_J_mol": [
+       -6.998783626692196,
+       0.3759955201258187
+      ]
+     },
+     "model": -2.343501629290984
+    }
+   },
+   "hE_effect_solved_pct": {
+    "Q_reb": -0.0074550738375145365,
+    "Q_cond": -0.5177032582773688
+   },
+   "estimate_check": {
+    "solved_dQ_reb_kW": -0.07948981212120998,
+    "estimated_dQ_reb_kW": -3.091981326291682,
+    "solved_dQ_cond_kW": -4.773896043900436,
+    "estimated_dQ_cond_kW": -7.786637955353716
+   },
+   "with_measured_hE_estimate": {
+    "Q_reb_kW": 1079.455872717931,
+    "Q_cond_kW": 917.5123163802317,
+    "method": "re-solve sin h^E + balance de entalpía con el h^E medido"
+   },
+   "hE_on_vs_measured_estimate_pct": {
+    "Q_reb_kW": -1.230637719012706,
+    "Q_cond_kW": -0.017046946729382118
+   },
+   "hE_off_vs_measured_estimate_pct": {
+    "Q_reb_kW": -1.2232738411432909,
+    "Q_cond_kW": 0.5032617138381879
+   },
+   "vs_M15b_reference_pct": {
+    "hE_on": {
+     "Q_reb_kW": 3.509503380247514,
+     "Q_cond_kW": 0.012268746629651162,
+     "RR": 0.18607396125458475
+    },
+    "hE_off": {
+     "Q_reb_kW": -0.42236654565865894,
+     "Q_cond_kW": -0.38883093334605157,
+     "RR": -0.9217955105543574
+    }
+   },
+   "dwsim_ExpData_like_for_like": {
+    "ok": true,
+    "mode": "ExpData",
+    "values": {
+     "x_D": 0.6923010760235006,
+     "x_B_heavy": 0.9937778704580912,
+     "T_D_K": 352.0764616624231,
+     "T_B_K": 371.1647821600243,
+     "Q_reb_kW": 1063.9237329033085,
+     "Q_cond_kW": 921.259604459398,
+     "RR": 0.6965240666831828,
+     "D_mol_s": 13.668670490132484,
+     "B_mol_s": 86.33132950986752
+    },
+    "parameters_held_by_dwsim": null,
+    "dev_eo_vs_dwsim_pct": {
+     "x_D": 1.112077424568092,
+     "x_B_heavy": 0.12297814010946428,
+     "T_D_K": -0.08554647843366237,
+     "T_B_K": 0.09558090221806204,
+     "Q_reb_kW": 0.21875990026349879,
+     "Q_cond_kW": 0.09445764524060873
+    }
+   },
+   "dwsim_ExpData_plus_measured_hE": {
+    "Q_reb_kW": 1076.967017623033,
+    "Q_cond_kW": 916.4812084743485,
+    "method": "DWSIM «ExpData» + balance de entalpía con el h^E medido",
+    "eo_hE_on_dev_pct": {
+     "Q_reb_kW": -1.0023831610640022,
+     "Q_cond_kW": 0.09544113528856535
+    }
+   }
+  }
+ }
+}

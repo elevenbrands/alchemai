@@ -32,6 +32,16 @@ R = 8.314462618
 CAL = 4.184
 CHEMSEP_TABLE = "ChemSep NRTL"
 SOURCE_KINDS = ("usuario", "vle_binary_regression", "banco ChemSep NRTL (thermo)")
+# Where the h^E of a pair comes from (M15c). NRTL's h^E is the temperature derivative of g^E: parameters fitted to VLE
+# alone fix g^E on the data's isobar/isotherm, not that derivative, so their h^E is an extrapolation of the model.
+HE_KINDS = ("solo_VLE", "ajustado_a_hE", "declarado_por_el_usuario", "no_declarado")
+HE_KIND_TEXT = {
+    "solo_VLE": "parámetros ajustados solo a VLE: su h^E NO está validado con calorimetría",
+    "ajustado_a_hE": "parámetros ajustados a datos calorimétricos de h^E además del VLE",
+    "declarado_por_el_usuario": "parámetros del usuario, que declara la procedencia de su h^E (hE_source)",
+    "no_declarado": "parámetros del usuario sin procedencia de h^E declarada (hE_source): tratar como no validado",
+}
+HE_CLASS_OFF = "termino_de_exceso_apagado"
 GAMMA_CHECK_TOL = 1e-8            # Pyomo ln γ vs thermo.nrtl.NRTL (same parameters → must agree to round-off)
 HE_CHECK_TOL = 1e-4               # analytic h^E vs a central finite difference of g^E/RT (relative)
 UNIFAC_LN_GINF_WARN = 0.5         # |ln γ∞(NRTL) − ln γ∞(UNIFAC)| above which the cross-check warns
@@ -100,6 +110,10 @@ def _user_pair(item: dict, names: list[str], cas: dict) -> tuple[tuple[str, str]
          "form": unit + ("; tau = a + b/T" if aij is not None else "; forma tau = b/T (sin término a, tal como se dio)")}
     if item.get("T_range_K"):
         p["T_range_K"] = [float(t) for t in item["T_range_K"]]
+    hs = item.get("hE_source")
+    if hs is not None and (not isinstance(hs, str) or not hs.strip()):
+        raise ValueError(f"{where}: hE_source debe ser la cita de los datos de h^E con los que se ajustaron los parámetros")
+    p["hE_basis"] = {"kind": HE_KINDS[2], "data": [hs.strip()]} if hs else {"kind": HE_KINDS[3]}
     return (i, j), p
 
 
@@ -130,7 +144,30 @@ def _regression_pair(res: dict, names: list[str], cas: dict) -> tuple[tuple[str,
          "regression_statistics": nrtl.get("estadistica")}
     if Ts:
         p["T_range_K"] = [float(min(Ts)), float(max(Ts))]
+    p["hE_basis"] = _regression_he_basis(res, nrtl)
     return (i, j), p
+
+
+def _regression_he_basis(res: dict, nrtl: dict) -> dict:
+    """h^E provenance of a vle_binary_regression result: fitted to calorimetric sets (weight > 0), only compared with
+    them (weight 0), or VLE only."""
+    he_sets = res.get("conjuntos_hE") or []
+    if not he_sets:
+        return {"kind": HE_KINDS[0]}
+    weights = ((res.get("objetivo") or {}).get("pesos")) or {}
+    st = nrtl.get("estadistica_hE") or {}
+    verdict = nrtl.get("veredicto_conjunto") or {}
+    out = {"kind": HE_KINDS[1] if weights.get("hE", 0) > 0 else HE_KINDS[0],
+           "data": [c.get("cita") or c.get("label") for c in he_sets],
+           "T_K": sorted({float(t) for c in he_sets for t in c.get("T_K", [])}),
+           "weights": weights, "AAD_hE_J_mol": st.get("AAD_hE_J_mol"),
+           "AAD_hE_by_set_and_T": [{"set": b["conjunto"], "T_K": b["T_K"], "AAD_hE_J_mol": b["AAD_hE_J_mol"],
+                                    "max_abs_measured_J_mol": b["max_abs_hE_medido_J_mol"], "wrong_sign_points": b["signo_contrario"],
+                                    "n": b["n"]} for b in st.get("por_conjunto_y_T", [])],
+           "represents_VLE_and_hE": verdict.get("representa_VLE_y_hE"), "fails": verdict.get("no_cumple")}
+    if out["kind"] == HE_KINDS[0]:
+        out["note"] = "h^E medido solo comparado (peso 0 en el ajuste), no ajustado"
+    return out
 
 
 def _chemsep_pair(i: str, j: str, cas: dict) -> dict | None:
@@ -142,7 +179,7 @@ def _chemsep_pair(i: str, j: str, cas: dict) -> dict | None:
     al = IPDB.get_ip_asymmetric_matrix(CHEMSEP_TABLE, pair, "alphaij")
     return {"a_ij": 0.0, "a_ji": 0.0, "b_ij_K": float(b[0][1]), "b_ji_K": float(b[1][0]), "alpha": float(al[0][1]),
             "source_kind": SOURCE_KINDS[2], "source": SOURCES["chemsep"],
-            "form": "tau = b/T (forma del banco ChemSep)",
+            "form": "tau = b/T (forma del banco ChemSep)", "hE_basis": {"kind": HE_KINDS[0]},
             "dg_cal_mol_as_in_chemsep": [float(b[0][1]) * R / CAL, float(b[1][0]) * R / CAL]}
 
 
@@ -577,18 +614,49 @@ def excess_enthalpy_report(params: dict, P_Pa: float, feed: dict, opt: dict, inc
         xs = [float(opt[k]["mole_fractions"][c]) for c in names]
         rows[k] = {"T_K": opt[k]["T_K"], "hE_J_mol": excess_enthalpy_numeric(params, opt[k]["T_K"], xs),
                    "flow_mol_s": opt[k]["flow_mol_s"]}
-    out = {"included_in_liquid_enthalpy": included, "streams": rows, "formula": SOURCES["excess_enthalpy"],
-           "feed_T_bubble_K": tb}
+    out = {"included_in_liquid_enthalpy": included, "source": excess_enthalpy_source(params, included), "streams": rows,
+           "formula": SOURCES["excess_enthalpy"], "feed_T_bubble_K": tb}
     if liquid_feed:
         dq = sum(rows[k]["flow_mol_s"] * rows[k]["hE_J_mol"] for k in ("distillate", "bottoms")) - \
             rows["feed"]["flow_mol_s"] * rows["feed"]["hE_J_mol"]
         out["first_order_effect_on_reboiler_duty_W"] = dq
         out["first_order_share_of_reboiler_duty"] = dq / opt["reboiler_duty_W"]
+        out["share_meaning"] = ("fracción de este Q_reb que corresponde al término h^E (ya incluido)" if included else
+                                "fracción de este Q_reb que el término h^E cambiaría si se incluyera (está apagado)")
     else:
         out["note"] = "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden"
     out["basis"] = ("h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE "
                     "su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)")
     return out
+
+
+def excess_enthalpy_source(params: dict, included: bool) -> dict:
+    """Where the h^E of the liquid enthalpy comes from, pair by pair, and one class for the whole mixture: the term is
+    off; every pair fitted to h^E data; or at least one pair whose h^E was never checked against calorimetry."""
+    pairs = []
+    for p in params["pairs"]:
+        hb = p.get("hE_basis") or {"kind": HE_KINDS[3]}
+        pairs.append({"i": p["i"], "j": p["j"], "parameter_source": p["source_kind"], "kind": hb["kind"],
+                      "text": HE_KIND_TEXT[hb["kind"]], **{k: v for k, v in hb.items() if k != "kind"}})
+    kinds = {q["kind"] for q in pairs}
+    if kinds <= {HE_KINDS[1]}:
+        of_params, text = HE_KINDS[1], "h^E de parámetros ajustados a datos calorimétricos (citados en pairs)"
+        bad = [f"{q['i']}/{q['j']}" for q in pairs if q.get("represents_VLE_and_hE") is False]
+        if bad:
+            text += ("; OJO: el ajuste conjunto de " + ", ".join(bad) + " no representa VLE y h^E dentro de sus "
+                     "tolerancias (ver AAD por conjunto en pairs)")
+    elif kinds <= {HE_KINDS[1], HE_KINDS[2]}:
+        of_params, text = HE_KINDS[2], "h^E de parámetros cuya procedencia calorimétrica declara el usuario (hE_source)"
+    else:
+        of_params = HE_KINDS[0] if HE_KINDS[3] not in kinds else HE_KINDS[3]
+        text = ("h^E de parámetros de equilibrio SIN validación calorimétrica (" +
+                ", ".join(f"{q['i']}/{q['j']}: {q['kind']}" for q in pairs if q["kind"] in (HE_KINDS[0], HE_KINDS[3])) +
+                "): es una extrapolación del modelo, puede tener hasta el signo contrario al medido")
+    if not included:
+        return {"class": HE_CLASS_OFF, "of_parameters": of_params, "pairs": pairs,
+                "text": "término de exceso apagado (excess_enthalpy=False): entalpía del líquido = Σ x·h_i; "
+                        "si se encendiera: " + text}
+    return {"class": of_params, "of_parameters": of_params, "pairs": pairs, "text": text}
 
 
 def parameter_range_warnings(params: dict, T_lo: float, T_hi: float) -> list[str]:

@@ -320,8 +320,11 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     Binary NRTL with two specs: a McCabe-Thiele check with the same NRTL runs first (`shortcut`: N_min, R_min) and
     REFUSES columns with too few trays, a reflux bound that cannot reach the specs, or a product closer than 0.03 K
     (dew − bubble) to an azeotrope; relay the Spanish reason. excess_enthalpy=True (default) adds NRTL's h^E to the
-    liquid enthalpy; it comes from VLE parameters, not calorimetry, and its share of the duty is in
-    properties.excess_enthalpy (pass False for ideal mixing, e.g. to compare with DWSIM's «ExpData» mode).
+    liquid enthalpy; properties.excess_enthalpy.source says where it comes from (parameters fitted to VLE only = NOT
+    validated by calorimetry, possibly the wrong sign as in ethanol-water below ~363 K; parameters fitted to h^E data
+    by vle_binary_regression(excess_enthalpy_sets=...), with their citation; or term off) and
+    first_order_share_of_reboiler_duty its share of the duty (pass False for ideal mixing, e.g. to compare with
+    DWSIM's «ExpData» mode). A user pair may add "hE_source": citation of the h^E data behind its parameters.
     Returns the optimum (RR, BR, duties, products), Lagrange multipliers = MW per unit of each spec, `warnings`
     (parameter extrapolation, Psat source of a regression) and `evidence`: ipopt optimal, specs met, properties
     verified, 8 neighbours ±1 % no better and feasible, multipliers = finite differences within 5 %, NRTL γ and h^E

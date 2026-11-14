@@ -1,8 +1,33 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M15b cerrados: etanol-agua en la columna EO con NRTL)
+Actualizado: 2026-11-13 (M1-M15c cerrados: h^E de etanol-agua contrastado con calorimetría)
 
 ## Dónde estamos
+**Bloque M15c (2026-11-13): h^E de etanol-agua contra calorimetría y ajuste conjunto VLE + h^E, 69 tools (mismas tools), ✅ con un resultado negativo declarado.**
+- Datos reales: 83 puntos de h^E en 5 isotermas (298.15-383.15 K), de los archivos ThermoML del NIST (Nagamachi y Francesconi 2006; Brandt et al. 2014). Guardados con cita en `tests/data/he_ethanol_water_thermoml.json`.
+- La hipótesis se confirma: el h^E medido es negativo por debajo de ~363 K y el de parámetros solo-VLE es positivo siempre. AAD global 443 J/mol con el término (regresión de Kamihama), 463 (ChemSep), 232 sin término.
+- Columna de referencia de M15b: Q_reb 1030.0 kW con el término, 1070.8 sin él, ≈ 1084 con el h^E medido (estimación por balance de entalpía). Encendido −5.0 %, apagado −1.2 %.
+- `vle_binary_regression` ajusta VLE + h^E a la vez (pesos y AAD separados, IC 95 %, veredicto). Sintético recuperado 12/12. Etanol-agua real: un juego NRTL (a + b/T) no representa ambos, y la tool lo dice.
+- Los juegos conjuntos corren en `eo_column_optimize` de punta a punta (6 re-solves con sello; DWSIM «ExpData» con los mismos a + b/T: cargas ≤ 0.22 %). No mejoran la carga: el que conserva el VLE (solo 363 K) queda igual que apagado (−1.2 %).
+- La salida de la columna dice de dónde viene h^E y cuánto pesa en Q_reb. El valor por defecto de `excess_enthalpy` no se tocó.
+- Tests: 16 rápidos + 1 lento nuevos (`tests/test_excess_enthalpy.py`); suite completa 544 passed, 13 skipped.
+
+Pendiente (decisiones del owner marcadas):
+1. **Owner: valor por defecto de `excess_enthalpy`.** Evidencia: un solo sistema (etanol-agua), que es un caso difícil conocido.
+   - A. Dejarlo encendido (hoy). Es consistente con Gibbs-Helmholtz y es lo que hace Aspen con sus parámetros; con parámetros solo-VLE puede dar el signo contrario (etanol-agua: Q_reb −5.0 %). Ya sale etiquetado.
+   - B. Apagarlo por defecto. Etanol-agua queda en −1.2 %. Cambia los números de referencia de M15/M15b (metanol-agua 1497.6 → 1507.8 kW).
+   - C. Condicional: encendido solo si todos los pares vienen de un ajuste con h^E que pase el veredicto; si no, apagado con aviso. En etanol-agua equivale a B. También cambia las referencias con parámetros solo-VLE.
+   - D. (Capacidad nueva, otro bloque) llevar el h^E medido a la entalpía líquida como correlación propia de los datos (Redlich-Kister en x, polinomio en T), con γ de los parámetros de VLE. Es la única vía que mete el h^E real en la columna; rompe la consistencia formal entre γ y h^E.
+   - Recomendación: C como política y D para etanol-agua. Mientras no se decida, sigue A.
+2. **Owner: tolerancias del veredicto** (`JOINT_TOLERANCES`: AAD_T 0.5 K, AAD_y 0.01, AAD_hE 10 % del máximo) y σ de h^E por defecto (5 J/mol + 1 %). Son elecciones mías, en `MOCKS.md`.
+3. Las cargas «con h^E medido» son una estimación (flujos y reflujo fijos): reproduce el par resuelto con/sin a 1.2 kW en la referencia y a 3-6 kW en los juegos conjuntos. Un re-solve exacto pide la opción D.
+4. No hay isoterma medida cerca de 350 K: la alimentación se interpola entre 333.15 y 363.15 K (±9 J/mol según el orden de la interpolación). Larkin 1975 (298-383 K), Ott 1986-87, Costigan 1980, Lama y Lu 1965 y Boyne y Williamson 1967 no se buscaron uno por uno: ThermoML bastó.
+5. Dependencia en T más rica (e·ln T, f·T) en la tool y en la columna: el ensayo fuera de la tool baja el AAD de h^E de 107 a 49 J/mol y tampoco cumple las tolerancias (`notebooks/27b`).
+6. UNIQUAC y Wilson también ajustan h^E en la tool, pero solo NRTL está probado con datos reales y solo NRTL entra a la columna.
+7. Siguen abiertos de M15b: respuesta de DWSIM al issue #137; x_D +1.1 % vs DWSIM (Psat); `simulate_column_nrtl` frágil en etanol-agua; destilado más allá de x 0.82; ε en la ruta ideal (**owner**).
+
+Siguiente: **decisión del owner** sobre el pendiente 1 (y, si elige D, ese bloque), o pasar a otro tema (layout, 3D, árbol de fallas, BST).
+
 **Bloque M15b (2026-11-13): etanol-agua cerrado en `eo_column_optimize` con NRTL, 69 tools (misma tool), ✅.**
 - El Q_reb +6.5 % vs DWSIM no era nuestro: DWSIM 10.2.12 suma −R·T²·Σx·∂γ/∂T como «exceso» (debería ser ∂ln γ/∂T). Cierre término a término: 54.55 de 54.58 kW.
 - Igual con igual (`excess_enthalpy=False` vs DWSIM «ExpData»): etanol-agua Q_reb +0.20 %, Q_cond +0.09 %; metanol-agua −0.49 %, −0.72 %.
@@ -11,7 +36,7 @@ Actualizado: 2026-11-13 (M1-M15b cerrados: etanol-agua en la columna EO con NRTL
 - Metanol-agua de M15 sin cambios (RR 4.4911, Q_reb 1497.6 kW).
 
 Pendiente (decisiones del owner marcadas):
-1. **Owner**: h^E de etanol-agua pesa −3.8 % en Q_reb y viene de parámetros de VLE. ¿Se deja por defecto (consistente con Gibbs-Helmholtz) o se busca h^E calorimétrico publicado y parámetros con dependencia en T?
+1. ~~**Owner**: h^E de etanol-agua pesa −3.8 % en Q_reb y viene de parámetros de VLE. ¿Se deja por defecto o se busca h^E calorimétrico publicado?~~ → contrastado en M15c; queda la decisión del valor por defecto (pendiente 1 de M15c).
 2. ~~¿Reportar a DWSIM la fórmula del término de exceso?~~ → reportado el 2026-11-13 con OK del owner: https://github.com/DanWBR/dwsim10/issues/137 (fórmula confirmada en su fuente, `master` 9ab62b6; medido solo NRTL en 10.2.12). Falta: respuesta del mantenedor; si lo corrige, re-medir y volver a comparar con h^E contra «LiqCp_Excess».
 3. x_D +0.9 a +1.1 % vs DWSIM en etanol-agua: atribuido a la Psat de DWSIM (T_D +0.30 K), sin auditar.
 4. `simulate_column_nrtl` (RR y D fijos) sigue frágil en etanol-agua; con 1 o 3+ specs y en multicomponentes la ruta es el NLP de M15.
