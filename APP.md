@@ -9,6 +9,9 @@ flowsheet, lo resuelve en un motor determinista (DWSIM 10), reporta resultados *
 (balances cerrados, convergencia) y genera un HAZOP preliminar sobre el grafo del proceso.
 Plan completo (12 meses): `docs/PLAN_12_MESES.md`.
 
+**Primer cliente (decisión del owner, 2026-11-14): plantas con vapor.** Oferta inicial: diagnóstico de vapor
+(costo real del vapor, eficiencia de caldera, ahorros en pesos). Definición y lo que falta validar: `docs/CLIENTE_Y_PRODUCTO.md`.
+
 Reglas:
 - **Verdad = motor + reglas deterministas. La IA solo propone.** Todo resultado lleva evidencia
   o se marca «no verificado».

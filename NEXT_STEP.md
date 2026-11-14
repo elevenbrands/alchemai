@@ -3,6 +3,8 @@
 Actualizado: 2026-11-14 (M1-M18 cerrados: hornos y calderas, 76 tools; M18 con la sección radiante parcial y la de convección sin validar)
 
 ## Dónde estamos
+**Decisión del owner (2026-11-14): el primer cliente son las plantas con vapor.** Definición del cliente, el problema, la oferta (diagnóstico de vapor) y las hipótesis sin validar en `docs/CLIENTE_Y_PRODUCTO.md`. Motivo: DWSIM ya trae su propio asistente de IA, así que «IA que arma simulaciones» no es lo nuevo; lo que se vende es el estudio comprobado. 0 conversaciones con plantas hasta hoy.
+
 **Bloque M18 (2026-11-14): hornos y calderas, 76 tools, ✅ parcial.** Fila «Hornos y calderas» del mapa: ⬜ → ✅ parcial.
 - `combustion_efficiency` ✅: de un combustible (gas por composición molar, o líquido/sólido por análisis elemental con poder calorífico medido), el aire (temperatura, humedad) y el exceso de aire o el O2 medido (base seca o húmeda; CO medido opcional) da aire estequiométrico y real, gases húmedos y secos, HHV y LHV, punto de rocío del agua, llama adiabática (ruta de Cantera existente) y, con la temperatura de chimenea y la pérdida por paredes, la eficiencia en base HHV y LHV con el desglose de pérdidas, más combustible y aire para una carga. Entalpías de los polinomios NASA de Cantera. Nada de operación se supone.
 - `fired_heater_radiant` (parcial): hogar de una zona bien mezclada. `rating` da pared divisoria, carga radiante, flujo medio y temperatura de pared de tubo; `sizing` da área y número de tubos con el flujo admisible del usuario.
