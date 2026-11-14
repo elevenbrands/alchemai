@@ -452,7 +452,7 @@ def test_tools_are_registered_with_spanish_descriptions():
     from packages.agent import agent as AG
     from packages.dwsim_client import tools as T
     names = {f.__name__ for f in T.TOOLS}
-    assert {"utility_costs", "list_utility_price_references"} <= names and len(T.TOOLS) == 73
+    assert {"utility_costs", "list_utility_price_references"} <= names and len(T.TOOLS) >= 73
     for name in ("utility_costs", "list_utility_price_references"):
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
     assert "no tu contrato" in TU.utility_costs.__doc__ and "nunca hay tipo de cambio por defecto" in TU.utility_costs.__doc__

@@ -1,8 +1,24 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-14 (M1-M17 cerrados: costo de servicios por región, 73 tools)
+Actualizado: 2026-11-14 (M1-M18 cerrados: hornos y calderas, 76 tools; M18 con la sección radiante parcial y la de convección sin validar)
 
 ## Dónde estamos
+**Bloque M18 (2026-11-14): hornos y calderas, 76 tools, ✅ parcial.** Fila «Hornos y calderas» del mapa: ⬜ → ✅ parcial.
+- `combustion_efficiency` ✅: de un combustible (gas por composición molar, o líquido/sólido por análisis elemental con poder calorífico medido), el aire (temperatura, humedad) y el exceso de aire o el O2 medido (base seca o húmeda; CO medido opcional) da aire estequiométrico y real, gases húmedos y secos, HHV y LHV, punto de rocío del agua, llama adiabática (ruta de Cantera existente) y, con la temperatura de chimenea y la pérdida por paredes, la eficiencia en base HHV y LHV con el desglose de pérdidas, más combustible y aire para una carga. Entalpías de los polinomios NASA de Cantera. Nada de operación se supone.
+- `fired_heater_radiant` (parcial): hogar de una zona bien mezclada. `rating` da pared divisoria, carga radiante, flujo medio y temperatura de pared de tubo; `sizing` da área y número de tubos con el flujo admisible del usuario.
+- `fired_heater_convection` (sin validar contra literatura): banco de tubos lisos fila por fila hasta la chimenea, para que la temperatura de chimenea sea un resultado.
+- Validación de la combustión: DOE Steam Tip Sheet #4 (25 valores) +0.30 a +0.64 puntos de eficiencia; ORNL/TM-2001/263 Tabla B.1 (180 valores) +0.28 a +0.58 puntos de pérdida; el resultado queda entre las dos tablas. Pares exceso ↔ O2 de ambas a ≤ 0.5 puntos. Horno de Al-Haj Ibrahim 2008: PCS +0.02 %, aire +0.09 %, gases +0.08 %.
+- Sección radiante contra las cartas de Kern (vía FOSSEE): alpha 0.935 contra 0.937; factor de intercambio 0.626 y 0.525 contra 0.635 y 0.56; emisividad del gas +7 % a trayectoria corta y −20 % a trayectoria larga (≈ 2 % en la carga del ejemplo).
+- Enlace con M17: la eficiencia se pasa a `utility_costs` como dato del usuario, en la misma base que el precio del combustible; la tool avisa cuánto se desvía el costo con la base equivocada (−9.8 % en el ejemplo). `utilities.py` no cambió.
+- Evidencia: `notebooks/31_hornos_y_calderas.py` y `.json`, `tests/test_fired_heaters.py` (19 pruebas, sin red), filas M18 de `BENCHMARK.md`, MOCKS `EMISIVIDAD-GAS-M18`, `SUPUESTOS-HORNOS-M18`, `ENTRADAS-ILUSTRATIVAS-M18`, `HORNOS-PENDIENTES-M18`. Suite completa 619 passed, 22 skipped (antes 600 y 22).
+
+No cubierto en M18:
+1. Ningún ejemplo publicado completo de hogar reproducido. Kern, Lobo y Evans 1939, Wimpress, Couper y Serth no se pudieron abrir; CORE respondió con un desafío anti-bots (no se evadió). El ejemplo de Al-Haj Ibrahim 2010 no cierra consigo mismo (dice 1278 K; su ecuación da 966 K).
+2. La eficiencia de Al-Haj Ibrahim 2008 (75.78 %) no se reproduce (73.2 %): su poder calorífico neto no es consistente con su gas.
+3. La emisividad del gas (WSGG de Smith 1982, leída de una reproducción) difiere 20 % de las cartas de Kern a trayectorias largas; sin tercera fuente para decidir.
+4. Convección: sin ejemplo publicado; tubos lisos solamente.
+5. Sin flujo pico, zonas múltiples, llama luminosa, tubos aletados, rocío ácido, calderas de condensación, inquemados de sólidos, tiro ni caída de presión. La llama de equilibrio no sale con aire bajo 300 K ni con especies fuera de GRI-Mech 3.0 (se da la de combustión completa).
+
 **Bloque M17 (2026-11-14): costo de servicios por región, 73 tools, ✅ con límites declarados.** Fila «Costo de servicios (vapor, agua, electricidad) por región» del mapa: ⬜ → ✅.
 - `utility_costs`: de los precios que la planta paga (combustible por GJ, electricidad, agua) al costo de cada nivel: vapor por tonelada y por GJ entregado, calor a fuego directo, agua de torre por m³ y por GJ, refrigeración por GJ a cada temperatura, electricidad efectiva con tarifa horaria y cargo por demanda. Devuelve el dict `prices` (USD) de `annual_cost`/`flowsheet_cost`, el desglose (combustible, agua, electricidad), de dónde vino cada precio, supuestos y lo no incluido. Eficiencias, retorno de condensado, purga, ciclos y perfil de carga son obligatorios: no hay valores típicos.
 - `list_utility_price_references`: 10 referencias publicadas leídas el 2026-11-14 (EIA: EE. UU., Texas, Luisiana, agosto 2026; Eurostat: UE-27, DE, ES, FR, NL, 2026-S1; CFE GDMTH: Oriente y Golfo Norte, noviembre 2026). Solo se usan si se nombran; el resultado lo dice primero con fuente, periodo y antigüedad. Sin precios ni referencia la tool se niega.
@@ -337,6 +353,16 @@ Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CS
 en DWSIM 10.2.12 (usar `Isothermal()`); un `solve()` de DWSIM puede no regresar (columna PR polar; también una vez la columna shortcut con Sonnet): el arnés ya mata el grupo al vencer el timeout, pero el servidor MCP no tiene timeout por llamada; en Fluxo usar NRTL para polares (solo motor; la UI aún no lo expone).
 
 ## Decisiones pendientes del owner
+- **M18, hornos y calderas** (2026-11-14):
+  1. ¿Ofrecer valores típicos etiquetados como supuesto (pérdida por paredes, emisividad de tubo, flujo medio admisible por servicio, convección en el hogar, exceso de aire por tipo de quemador)? Hoy se exigen todos.
+  2. Emisividad del gas: se queda la WSGG de Smith 1982 o se busca otra (Leckner, Bordbar 2014, Alberti 2018, cartas de Hottel de una fuente legible). Hoy difiere 20 % de las cartas de Kern a trayectorias largas.
+  3. Criterio de aceptación de la eficiencia: el resultado queda entre dos tablas del DOE que difieren ≈ 0.8 puntos entre sí. ¿Basta ±0.6 puntos o hace falta un caso con composición declarada (ASME PTC 4, API 560 anexo G)?
+  4. Aire seco por defecto: `air.yaml` de Cantera (21/78/1) o una composición estándar citada (20.95 % O2).
+  5. Temperatura de referencia: 25 °C (datos NASA) fija, o también 15 °C / 60 °F como en API 560.
+  6. ¿Conectar la eficiencia calculada a `utility_costs` de forma automática? Hoy es un dato que el usuario pasa.
+  7. Convección: ¿buscar un ejemplo publicado y añadir tubos aletados (ESCOA, `ht.air_cooler`)?
+  8. Alcance siguiente: flujo pico y temperatura máxima de metal (API 530), modelo de zonas, rocío ácido, calderas de condensación, sólidos con inquemados, tiro.
+  9. ¿Ampliar `adiabatic_flame` (aire bajo 300 K, especies fuera de GRI-Mech 3.0)? Hoy esos casos dan solo la temperatura de combustión completa.
 - **M17, costo de servicios** (2026-11-14):
   1. ¿Ofrecer valores típicos etiquetados como supuesto (eficiencia de caldera, purga, ciclos de concentración, η de segunda ley) cuando el usuario no los da? Hoy se exigen.
   2. Refresco del banco: cada cuánto, quién, y si pasado cierto tiempo la tool debe negarse en vez de avisar (hoy avisa a partir de 365 días).

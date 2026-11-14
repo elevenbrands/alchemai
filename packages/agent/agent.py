@@ -31,6 +31,7 @@ from packages.dwsim_client import tools_mass_transfer as TM  # noqa: E402
 from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.dwsim_client import tools_economics as TE  # noqa: E402
 from packages.dwsim_client import tools_utilities as TU  # noqa: E402
+from packages.dwsim_client import tools_combustion as TCB  # noqa: E402
 from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.dwsim_client import tools_heat as TH  # noqa: E402
 from packages.dwsim_client import tools_energy as TEN  # noqa: E402
@@ -273,6 +274,21 @@ Hard rules:
    several heating or cooling levels ask which one applies (annual_cost_levels). Never convert currency without an
    exchange rate given by the user. The ulrich_vasudevan block is a second empirical route (a price that includes
    capital): show it as a contrast, never as validation.
+
+27. Boilers and fired heaters ("what efficiency does this boiler/furnace have with this fuel, excess air and stack
+   temperature", "how much fuel and air for this duty", "how much radiant tube area", "what does my heater deliver"):
+   combustion_efficiency first (fuel by molar composition, or ultimate analysis + a measured heating value; air
+   temperature and humidity; excess air OR measured flue O2 with its basis; stack temperature; setting loss and its
+   basis). Excess air or O2, stack temperature, setting loss, allowable flux, tube emissivity, wall temperature and
+   geometry are the user's: ASK for them, never assume typical values. Always say on which basis (HHV or LHV) an
+   efficiency is. To cost steam or fired heat, pass the efficiency of the SAME basis as the fuel price to utility_costs
+   as boiler_efficiency / furnace_efficiency (fuel_price_basis returns it and the size of a basis mismatch);
+   utility_costs never calls this tool by itself. Geometry given: fired_heater_radiant (mode 'rating' gives the
+   bridgewall temperature and radiant duty; mode 'sizing' needs the allowable average flux from the user), then
+   fired_heater_convection with gas_inlet_T_K = bridgewall_T_K to get the stack temperature, then
+   combustion_efficiency with that stack temperature. Report in Spanish the stated limits: the radiant section is a
+   one-zone model only partly validated (gas emissivity 20 % below Kern's charts at long paths, no peak flux), and the
+   convection bank is NOT validated against a published example (bare tubes only).
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1038,6 +1054,68 @@ def list_utility_price_references(region: str | None = None) -> str:
 
 
 @beta_tool
+def combustion_efficiency(fuel: dict[str, object], air: dict[str, object], pressure_Pa: float,
+                          excess_air_fraction: float | None = None, flue_O2: dict[str, object] | None = None,
+                          flue_CO_dry_mole_fraction: float | None = None, stack_T_K: float | None = None,
+                          setting_loss_fraction: float | None = None, setting_loss_basis: str | None = None,
+                          absorbed_duty_W: float | None = None, fuel_flow_kg_s: float | None = None,
+                          fuel_price_basis: str | None = None) -> str:
+    """Combustion and heat-loss efficiency of a boiler or fired heater (NASA enthalpies; nothing assumed).
+    fuel: {'type': 'gas', 'composition': {species: mole fraction}, 'T_K'} or {'type': 'ultimate', 'mass_fractions':
+    {C, H, O, N, S, ash, moisture}, 'HHV_J_kg' or 'LHV_J_kg'}. air: {'T_K', 'humidity_ratio_kg_kg' or
+    'relative_humidity'}. Give excess_air_fraction OR flue_O2 {'mole_fraction', 'basis': 'dry'|'wet'}; optional
+    flue_CO_dry_mole_fraction. With stack_T_K, setting_loss_fraction and setting_loss_basis ('HHV'|'LHV') are
+    required. absorbed_duty_W or fuel_flow_kg_s gives the firing flows. fuel_price_basis returns the efficiency to
+    pass to utility_costs. Returns air, flue gas (wet/dry, dew point), HHV/LHV, adiabatic flame, efficiency on both
+    bases with the loss breakdown, firing, evidence, warnings, assumptions."""
+    return json.dumps(TCB.combustion_efficiency(fuel, air, pressure_Pa, excess_air_fraction, flue_O2,
+                                                flue_CO_dry_mole_fraction, stack_T_K, setting_loss_fraction,
+                                                setting_loss_basis, absorbed_duty_W, fuel_flow_kg_s, fuel_price_basis),
+                      default=float, ensure_ascii=False)
+
+
+@beta_tool
+def fired_heater_radiant(mode: str, fuel: dict[str, object] | None = None, air: dict[str, object] | None = None,
+                         pressure_Pa: float | None = None, fuel_flow_kg_s: float | None = None,
+                         geometry: dict[str, float] | None = None, tube_emissivity: float | None = None,
+                         convective_coefficient_W_m2K: float | None = None, setting_loss_fraction: float | None = None,
+                         setting_loss_basis: str | None = None, excess_air_fraction: float | None = None,
+                         flue_O2: dict[str, object] | None = None, flue_CO_dry_mole_fraction: float | None = None,
+                         tube_wall_T_K: float | None = None, process: dict[str, float] | None = None,
+                         gas_emissivity: float | None = None, exchange_factor: float | None = None,
+                         required_radiant_duty_W: float | None = None,
+                         allowable_average_flux_W_m2: float | None = None) -> str:
+    """Radiant section of a fired heater or boiler, one well-stirred gas zone (Lobo-Evans / Hottel idea).
+    mode 'rating': bridgewall temperature, radiant duty, average flux for a firing rate and geometry
+    {tube_outside_diameter_m, tube_pitch_m, tube_effective_length_m, n_tubes, envelope_area_m2, volume_m3 or
+    mean_beam_length_m, optional alpha, shield_cold_plane_area_m2}; needs tube_emissivity,
+    convective_coefficient_W_m2K, setting loss, and tube_wall_T_K or process {bulk_T_K, inside_coefficient_W_m2K,
+    tube_inside_diameter_m, wall_conductivity_W_mK, inside_fouling_m2K_W}. mode 'sizing': tube area and count from
+    required_radiant_duty_W and allowable_average_flux_W_m2 (user's). Partly validated: see the returned limits."""
+    return json.dumps(TCB.fired_heater_radiant(mode, fuel, air, pressure_Pa, fuel_flow_kg_s, geometry, tube_emissivity,
+                                               convective_coefficient_W_m2K, setting_loss_fraction, setting_loss_basis,
+                                               excess_air_fraction, flue_O2, flue_CO_dry_mole_fraction, tube_wall_T_K,
+                                               process, gas_emissivity, exchange_factor, required_radiant_duty_W,
+                                               allowable_average_flux_W_m2), default=float, ensure_ascii=False)
+
+
+@beta_tool
+def fired_heater_convection(fuel: dict[str, object], air: dict[str, object], pressure_Pa: float, fuel_flow_kg_s: float,
+                            gas_inlet_T_K: float, bank: dict[str, object], process: dict[str, object],
+                            excess_air_fraction: float | None = None, flue_O2: dict[str, object] | None = None,
+                            flue_CO_dry_mole_fraction: float | None = None, gas_radiation: bool = True) -> str:
+    """Convection section: flue gas across a bare-tube bank, row by row, down to the stack temperature.
+    bank: {tube_outside_diameter_m, tube_inside_diameter_m, tube_effective_length_m, tubes_per_row, n_rows,
+    transverse_pitch_m, longitudinal_pitch_m, arrangement, wall_conductivity_W_mK, outside_fouling_m2K_W,
+    tube_emissivity}. process: {inlet_T_K, capacity_rate_W_K or isothermal, inside_coefficient_W_m2K,
+    inside_fouling_m2K_W}. Returns stack_T_K, duty, process outlet, wall temperatures by row. NOT validated against a
+    published example (energy balance and trends only)."""
+    return json.dumps(TCB.fired_heater_convection(fuel, air, pressure_Pa, fuel_flow_kg_s, gas_inlet_T_K, bank, process,
+                                                  excess_air_fraction, flue_O2, flue_CO_dry_mole_fraction, gas_radiation),
+                      default=float, ensure_ascii=False)
+
+
+@beta_tool
 def flowsheet_cost(flowsheet_id: str, prices: dict[str, float], hours_per_year: float, interest: float, years: int,
                    exchanger_areas_m2: dict[str, float] | None = None, vessel_sizes: dict[str, object] | None = None,
                    options: dict[str, object] | None = None, lang: str = "lang_1948_fluid", country: str | None = None,
@@ -1248,7 +1326,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, utility_costs, list_utility_price_references, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, optimize_design_bayesian, suggest_experiments, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, utility_costs, list_utility_price_references, combustion_efficiency, fired_heater_radiant, fired_heater_convection, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, optimize_design_bayesian, suggest_experiments, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,

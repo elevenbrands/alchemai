@@ -1,0 +1,784 @@
+{
+ "1_doe_tip_sheet_4": {
+  "fuente": "U.S. DOE, Steam Tip Sheet #4, «Improve Your Boiler's Combustion Efficiency», DOE/GO-102012-3405, enero 2012 (https://www.energy.gov/sites/prod/files/2014/05/f16/steam4_boiler_efficiency.pdf), leída 2026-11-14",
+  "supuesto_para_comparar": "metano puro, aire seco 20.9 % O2 / 79.1 % N2 a 70 °F, combustión completa, sin pérdida por paredes; la hoja solo dice «natural gas», aire sin vapor de agua y combustión completa",
+  "tabla": [
+   {
+    "exceso_%": 9.5,
+    "publicado": [
+     85.4,
+     83.1,
+     80.8,
+     78.4,
+     76.0
+    ],
+    "calculado": [
+     85.7,
+     83.45,
+     81.17,
+     78.86,
+     76.52
+    ]
+   },
+   {
+    "exceso_%": 15.0,
+    "publicado": [
+     85.2,
+     82.8,
+     80.4,
+     77.9,
+     75.4
+    ],
+    "calculado": [
+     85.5,
+     83.16,
+     80.78,
+     78.37,
+     75.93
+    ]
+   },
+   {
+    "exceso_%": 28.1,
+    "publicado": [
+     84.7,
+     82.1,
+     79.5,
+     76.7,
+     74.0
+    ],
+    "calculado": [
+     85.05,
+     82.47,
+     79.86,
+     77.21,
+     74.53
+    ]
+   },
+   {
+    "exceso_%": 44.9,
+    "publicado": [
+     84.1,
+     81.2,
+     78.2,
+     75.2,
+     72.1
+    ],
+    "calculado": [
+     84.46,
+     81.58,
+     78.67,
+     75.73,
+     72.74
+    ]
+   },
+   {
+    "exceso_%": 81.6,
+    "publicado": [
+     82.8,
+     79.3,
+     75.6,
+     71.9,
+     68.2
+    ],
+    "calculado": [
+     83.17,
+     79.65,
+     76.09,
+     72.48,
+     68.82
+    ]
+   }
+  ],
+  "diferencia_puntos_calculado_menos_publicado": {
+   "min": 0.2970305417010053,
+   "media": 0.4375951676944572,
+   "max": 0.6391538675362511,
+   "rms": 0.4483506786325823,
+   "n": 25
+  },
+  "pares_exceso_O2": [
+   {
+    "exceso_%": 9.5,
+    "O2_seco_publicado_%": 2.0,
+    "O2_seco_calculado_%": 2.004543160020191
+   },
+   {
+    "exceso_%": 15.0,
+    "O2_seco_publicado_%": 3.0,
+    "O2_seco_calculado_%": 2.9985652797704416
+   },
+   {
+    "exceso_%": 28.1,
+    "O2_seco_publicado_%": 5.0,
+    "O2_seco_calculado_%": 4.991840203994902
+   },
+   {
+    "exceso_%": 44.9,
+    "O2_seco_publicado_%": 7.0,
+    "O2_seco_calculado_%": 6.979620676831535
+   },
+   {
+    "exceso_%": 81.6,
+    "O2_seco_publicado_%": 10.0,
+    "O2_seco_calculado_%": 9.96459246275197
+   }
+  ],
+  "sensibilidad": {
+   "CH4, aire 20.9 % O2, 70 °F (caso base)": {
+    "min": 0.2970305417010053,
+    "media": 0.4375951676944572,
+    "max": 0.6391538675362511,
+    "rms": 0.4483506786325823,
+    "n": 25
+   },
+   "CH4, aire 21 % O2 + 1 % Ar (air.yaml de Cantera)": {
+    "min": 0.3261312792100455,
+    "media": 0.5107260166285374,
+    "max": 0.7720780958421471,
+    "rms": 0.5261862814722718,
+    "n": 25
+   },
+   "CH4, aire a 100 °F": {
+    "min": 0.2642166340797587,
+    "media": 0.38258925880330197,
+    "max": 0.5593252660151649,
+    "rms": 0.3913967697840484,
+    "n": 25
+   },
+   "gas 90/5/5 (CH4/C2H6/N2)": {
+    "min": 0.40998644185390276,
+    "media": 0.5367725954433041,
+    "max": 0.7243418665191399,
+    "rms": 0.5441078175414074,
+    "n": 25
+   },
+   "gas 85/10/3/2 (CH4/C2H6/C3H8/N2)": {
+    "min": 0.662787045544249,
+    "media": 0.8084610586150773,
+    "max": 1.0148665828967154,
+    "rms": 0.8147113989205912,
+    "n": 25
+   }
+  }
+ },
+ "2_ornl_steam_survey_guide": {
+  "fuente": "G. Harrell, Steam System Survey Guide, ORNL/TM-2001/263, mayo 2002, Tabla B.1 y Tabla 3 (https://www.energy.gov/sites/prod/files/2014/04/f15/steam_survey_guide.pdf), leída 2026-11-14",
+  "supuesto_para_comparar": "metano puro, aire seco de air.yaml a 70 °F (la temperatura del ejemplo de la guía); la guía da un gas de 23 000 Btu/lb sin composición y no dice la base del O2",
+  "diferencia_puntos_de_perdida_calculado_menos_publicado": {
+   "CH4, O2 en base húmeda": {
+    "min": 0.2787802970073088,
+    "media": 0.3946285274203917,
+    "max": 0.5831176119232708,
+    "rms": 0.4041503412753525,
+    "n": 180
+   },
+   "CH4, O2 en base seca": {
+    "min": -1.9506339446344896,
+    "media": -0.33844287992424565,
+    "max": 0.250920034181048,
+    "rms": 0.6033290835052065,
+    "n": 180
+   },
+   "CH4 + 2.1 % N2 (23 000 Btu/lb, el gas de la guía), O2 húmedo": {
+    "min": 0.2972053411501072,
+    "media": 0.41711687666959896,
+    "max": 0.6097538527626654,
+    "rms": 0.4273098227089173,
+    "n": 180
+   }
+  },
+  "tabla_3_O2_contra_exceso": [
+   {
+    "O2_%": 1.5,
+    "exceso_publicado_%": 8.5,
+    "exceso_calculado_base_wet_%": 8.500000000000018,
+    "exceso_calculado_base_dry_%": 6.8846153846154
+   },
+   {
+    "O2_%": 3.0,
+    "exceso_publicado_%": 18.0,
+    "exceso_calculado_base_wet_%": 18.416666666666682,
+    "exceso_calculado_base_dry_%": 14.916666666666668
+   },
+   {
+    "O2_%": 7.0,
+    "exceso_publicado_%": 55.0,
+    "exceso_calculado_base_wet_%": 55.250000000000064,
+    "exceso_calculado_base_dry_%": 44.75000000000007
+   }
+  ]
+ },
+ "3_ibrahim_2008_ejemplo_2": {
+  "fuente": "H. Al-Haj Ibrahim y M. Al-Qassimi, Periodica Polytechnica Chem. Eng. 52/2 (2008) 61-69, ejemplo 2; composición del gas de la Tabla 3 de Al-Haj Ibrahim, «Fired Process Heaters» (IntechOpen 2010), que suma 0.99915 y se normaliza",
+  "comparacion": {
+   "poder_calorifico_superior_kJ_kmol": {
+    "publicado": 976029.6,
+    "calculado": 976200.0625556206,
+    "diferencia_%": 0.017464896107721728
+   },
+   "aire_humedo_kmol_h": {
+    "publicado": 1589.014,
+    "calculado": 1590.3655888505962,
+    "diferencia_%": 0.08505833495464632
+   },
+   "gases_kmol_h": {
+    "publicado": 1720.9,
+    "calculado": 1722.2717921983096,
+    "diferencia_%": 0.07971364973615724
+   },
+   "CO2": {
+    "publicado": 0.08234,
+    "calculado": 0.08227995884637922,
+    "diferencia_%": -0.07291857374396304
+   },
+   "H2O": {
+    "publicado": 0.15968,
+    "calculado": 0.15969318594275775,
+    "diferencia_%": 0.008257729682958903
+   },
+   "O2": {
+    "publicado": 0.0382,
+    "calculado": 0.03820153399061968,
+    "diferencia_%": 0.0040156822504799905
+   },
+   "N2_mas_Ar": {
+    "publicado": 0.7179,
+    "calculado": 0.7197625600006808,
+    "diferencia_%": 0.2594456053323313
+   }
+  },
+  "inconsistencia_de_la_fuente": {
+   "poder_calorifico_neto_publicado_kJ_kmol": 927844.41,
+   "poder_calorifico_inferior_calculado_kJ_kmol": 884096.7336913495,
+   "agua_formada_mol_por_mol_de_gas": 2.0930791172496623,
+   "superior_menos_neto_publicados_entre_calor_latente_del_agua_formada": 0.5231644783546153,
+   "nota": "La diferencia entre los dos poderes caloríficos publicados equivale al calor latente de la mitad del agua que forma ese gas. Por eso su eficiencia (75.78 %) no se reproduce."
+  },
+  "eficiencia_sobre_el_calor_total_de_entrada_%": {
+   "publicada": 75.78,
+   "calculada": 73.23735813797448
+  }
+ },
+ "4_seccion_radiante": {
+  "kern_cap_19": {
+   "fuente": "D. Q. Kern, Process Heat Transfer (1950), cap. 19, ejemplos 19.1, 19.4 y 19.5, según el cuaderno «Chapter 19: Furnace Calculations» del Python Textbook Companion de FOSSEE, IIT Bombay (tbc-python.fossee.in), leído 2026-11-14. Son lecturas de cartas; el libro no se abrió.",
+   "alpha_paso_8.5_in_tubo_5_in": {
+    "carta_Fig_19.11": 0.937,
+    "calculado": 0.9351694622375729
+   },
+   "factor_de_intercambio": [
+    {
+     "ejemplo": "19.1",
+     "emisividad_del_gas": 0.496,
+     "AR_entre_alphaAcp": 1.09,
+     "carta_Fig_19.15": 0.635,
+     "calculado_tubo_0.9": 0.6260575477775392,
+     "calculado_tubo_negro": 0.6728632256724478
+    },
+    {
+     "ejemplo": "19.5",
+     "emisividad_del_gas": 0.265,
+     "AR_entre_alphaAcp": 2.49,
+     "carta_Fig_19.15": 0.56,
+     "calculado_tubo_0.9": 0.5247045103539573,
+     "calculado_tubo_negro": 0.5571889026116819
+    }
+   ],
+   "emisividad_del_gas": [
+    {
+     "ejemplo": "19.4 (banco, pL 0.13 atm·ft, 1500 °F)",
+     "cartas_Figs_19.12_19.13": 0.10778412835108801,
+     "WSGG_Smith_1982": 0.1154469557728321
+    },
+    {
+     "ejemplo": "19.1 (hogar, pL 3.5 atm·ft, 1730 °F)",
+     "cartas_Figs_19.12_19.13": 0.496,
+     "WSGG_Smith_1982": 0.39798317775199066
+    }
+   ],
+   "coeficiente_de_radiacion_del_gas_ej_19.4_Btu_h_ft2_F": {
+    "Kern": 2.52,
+    "calculado": 3.0382399839224083
+   },
+   "nota_tubo": "La transcripción no dice qué emisividad de tubo usa la Fig. 19.15; se dan los dos extremos."
+  },
+  "ibrahim_2010": {
+   "fuente": "H. Al-Haj Ibrahim, «Fired Process Heaters», cap. 16 de Matlab - Modelling, Programming and Simulations, Sciyo/IntechOpen 2010 (CC BY-NC-SA 3.0), ec. (30), Tablas 2-6 y Apéndice 3",
+   "temperatura_efectiva_que_dice_el_texto_K": 1278.0,
+   "raiz_de_su_propia_ecuacion_30_K": 965.6224453552151,
+   "este_motor_con_sus_entradas_K": 948.5794166035141,
+   "calor_radiante_publicado_kJ_h": 61820000.0,
+   "calor_radiante_de_este_motor_kJ_h": 56345245.51326933,
+   "nota": "Con F = 0.97, alpha = 0.835, su temperatura de pared y su coeficiente de convección. El texto da 1278 K, pero la ecuación que publica se anula en 966 K; además su tabla 6 dice 800 °C a la salida del hogar. No sirve como validación cuantitativa."
+  },
+  "comprobaciones_internas_horno_ilustrativo": [
+   {
+    "caso": "combustible 0.2 kg/s",
+    "pared_divisoria_K": 1056.9323801039225,
+    "carga_radiante_MW": 5.783812203163998,
+    "fraccion_absorbida_del_PCI": 0.5998367104927697,
+    "flujo_medio_kW_m2": 22.371009576377368,
+    "emisividad_del_gas": 0.4541713154673756,
+    "factor_de_intercambio": 0.6305737839633146,
+    "cierre_del_balance": 5.983445547169237e-14
+   },
+   {
+    "caso": "combustible 0.3 kg/s",
+    "pared_divisoria_K": 1139.245312336685,
+    "carga_radiante_MW": 8.018879741100681,
+    "fraccion_absorbida_del_PCI": 0.5544230779263148,
+    "flujo_medio_kW_m2": 31.01595092970816,
+    "emisividad_del_gas": 0.44282485729861154,
+    "factor_de_intercambio": 0.6230237971444462,
+    "cierre_del_balance": 7.971493583809338e-14
+   },
+   {
+    "caso": "combustible 0.4 kg/s",
+    "pared_divisoria_K": 1202.0439049335596,
+    "carga_radiante_MW": 10.015257706441837,
+    "fraccion_absorbida_del_PCI": 0.5193390644740381,
+    "flujo_medio_kW_m2": 38.73767304168895,
+    "emisividad_del_gas": 0.4337129467393751,
+    "factor_de_intercambio": 0.6168132420597421,
+    "cierre_del_balance": 3.2619428950696805e-14
+   },
+   {
+    "caso": "exceso de aire 5 %",
+    "pared_divisoria_K": 1149.6966196322371,
+    "carga_radiante_MW": 8.398035628946142,
+    "fraccion_absorbida_del_PCI": 0.5806378088039613,
+    "flujo_medio_kW_m2": 32.48247503180307,
+    "emisividad_del_gas": 0.44976204056189195,
+    "factor_de_intercambio": 0.6276635725775581,
+    "cierre_del_balance": 1.1746328079348918e-12
+   },
+   {
+    "caso": "exceso de aire 15 %",
+    "pared_divisoria_K": 1139.245312336685,
+    "carga_radiante_MW": 8.018879741100681,
+    "fraccion_absorbida_del_PCI": 0.5544230779263148,
+    "flujo_medio_kW_m2": 31.01595092970816,
+    "emisividad_del_gas": 0.44282485729861154,
+    "factor_de_intercambio": 0.6230237971444462,
+    "cierre_del_balance": 7.971493583809338e-14
+   },
+   {
+    "caso": "exceso de aire 30 %",
+    "pared_divisoria_K": 1123.293913124074,
+    "carga_radiante_MW": 7.475292057930815,
+    "fraccion_absorbida_del_PCI": 0.5168395792137498,
+    "flujo_medio_kW_m2": 28.913426705435892,
+    "emisividad_del_gas": 0.43401024832906354,
+    "factor_de_intercambio": 0.6170180012518185,
+    "cierre_del_balance": 9.006463139159764e-16
+   },
+   {
+    "caso": "exceso de aire 60 %",
+    "pared_divisoria_K": 1090.9031910359554,
+    "carga_radiante_MW": 6.476093332246885,
+    "fraccion_absorbida_del_PCI": 0.44775526184778114,
+    "flujo_medio_kW_m2": 25.048660098949057,
+    "emisividad_del_gas": 0.420422972897428,
+    "factor_de_intercambio": 0.6075098919045313,
+    "cierre_del_balance": 6.343564553228192e-12
+   }
+  ],
+  "sensibilidad_a_la_emisividad_del_gas": [
+   {
+    "caso": "emisividad × 0.8",
+    "pared_divisoria_K": 1159.4318228634331,
+    "carga_radiante_MW": 7.856344717494787,
+    "fraccion_absorbida_del_PCI": 0.5431854523516935,
+    "flujo_medio_kW_m2": 30.38728726604441,
+    "emisividad_del_gas": 0.35425988583888923,
+    "factor_de_intercambio": 0.5563633544875863,
+    "cierre_del_balance": 4.402850850854112e-12
+   },
+   {
+    "caso": "emisividad × 1.0",
+    "pared_divisoria_K": 1139.245312333948,
+    "carga_radiante_MW": 8.018879741016466,
+    "fraccion_absorbida_del_PCI": 0.5544230779204922,
+    "flujo_medio_kW_m2": 31.01595092938243,
+    "emisividad_del_gas": 0.44282485729861154,
+    "factor_de_intercambio": 0.6230237971444462,
+    "cierre_del_balance": 7.417156306019982e-12
+   },
+   {
+    "caso": "emisividad × 1.25",
+    "pared_divisoria_K": 1121.4743368562392,
+    "carga_radiante_MW": 8.161500933474114,
+    "fraccion_absorbida_del_PCI": 0.5642838668402469,
+    "flujo_medio_kW_m2": 31.56759056604266,
+    "emisividad_del_gas": 0.5535310716232644,
+    "factor_de_intercambio": 0.6890725485410871,
+    "cierre_del_balance": 1.0656516519508411e-11
+   }
+  ]
+ },
+ "5_horno_de_ejemplo": {
+  "aviso": "Geometría y operación ILUSTRATIVAS (MOCKS.md, ENTRADAS-ILUSTRATIVAS-M18): no describen ningún horno real.",
+  "radiante": {
+   "bridgewall_T_K": 1128.907287776728,
+   "radiant_duty_W": 8101901.0790696405,
+   "average_flux_W_m2_tube_outside": 31337.066325835865,
+   "tube_wall_T_K": 654.6296601269916,
+   "absorbed_fraction_of_LHV": 0.5601631497588416,
+   "heat_release_LHV_W": 14463466.728501558,
+   "radiation": {
+    "gas_emissivity": 0.4442885512416677,
+    "exchange_factor": 0.6240090454718992,
+    "alpha": 0.9220108027121573,
+    "alpha_from": "factor de visión exacto de una fila + rerradiación del refractario",
+    "cold_plane_area_m2": 146.304,
+    "equivalent_cold_plane_area_m2": 134.89386847999947,
+    "envelope_area_m2": 396,
+    "refractory_to_sink_area_ratio": 1.9356412152915192,
+    "mean_beam_length_m": 4.581818181818182,
+    "pL_atm_m": 1.18594527308701,
+    "p_H2O_Pa": 17794.077973173207,
+    "p_CO2_Pa": 8432.607597282227,
+    "tube_emissivity": 0.85,
+    "gas_emissivity_source": "Smith, Shen y Friedman, J. Heat Transfer 104 (1982) 602-608; coeficientes leídos de la Tabla 7 de Marzouk y Huckaby 2011 (arXiv:2411.18467)"
+   }
+  },
+  "conveccion": {
+   "stack_T_K": 733.6493695138175,
+   "duty_W": 3048040.1544511053,
+   "process_outlet_T_K": 570.8006692321667,
+   "max_tube_wall_T_K": 613.1339761826241,
+   "mass_velocity_kg_m2s": 1.4198250163381005,
+   "gas_radiation_share_of_duty": 0.3746450525685814,
+   "warnings": [],
+   "filas": [
+    {
+     "row": 1,
+     "gas_in_K": 1128.907287776728,
+     "gas_out_K": 1071.7702218274633,
+     "process_K": 566.9995541658243,
+     "tube_wall_K": 613.1339761826241,
+     "duty_W": 456133.80796108133,
+     "flux_W_m2": 26463.96553234741,
+     "h_convection_W_m2K": 31.02531477303316,
+     "h_radiation_W_m2K": 23.292636739445374,
+     "U_W_m2K": 49.61938951669005,
+     "Reynolds": 3686.028092418134,
+     "gas_emissivity": 0.15523070177049553
+    },
+    {
+     "row": 2,
+     "gas_in_K": 1071.7702218274633,
+     "gas_out_K": 1021.5744625646006,
+     "process_K": 559.8917593503236,
+     "tube_wall_K": 600.0251824010693,
+     "duty_W": 396801.569899011,
+     "flux_W_m2": 23021.628490832543,
+     "h_convection_W_m2K": 30.281870267270886,
+     "h_radiation_W_m2K": 21.261340055138216,
+     "U_W_m2K": 47.29364586012862,
+     "Reynolds": 3817.7935753372076,
+     "gas_emissivity": 0.1608773384094691
+    },
+    {
+     "row": 3,
+     "gas_in_K": 1021.5744625646006,
+     "gas_out_K": 977.1886457534135,
+     "process_K": 553.687529684001,
+     "tube_wall_K": 588.8553129160479,
+     "duty_W": 347705.99005969986,
+     "flux_W_m2": 20173.201757313596,
+     "h_convection_W_m2K": 29.607775284786133,
+     "h_radiation_W_m2K": 19.532084088521174,
+     "U_W_m2K": 45.26244610747821,
+     "Reynolds": 3944.3305697215756,
+     "gas_emissivity": 0.16590746709013027
+    },
+    {
+     "row": 4,
+     "gas_in_K": 977.1886457534135,
+     "gas_out_K": 937.7166368071075,
+     "process_K": 548.2347317501163,
+     "tube_wall_K": 579.2479708400898,
+     "duty_W": 306629.76200646255,
+     "flux_W_m2": 17790.04167483959,
+     "h_convection_W_m2K": 28.9867531080409,
+     "h_radiation_W_m2K": 18.051380132247584,
+     "U_W_m2K": 43.47327246815568,
+     "Reynolds": 4065.846599190926,
+     "gas_emissivity": 0.17040724549525668
+    },
+    {
+     "row": 5,
+     "gas_in_K": 937.7166368071075,
+     "gas_out_K": 902.4230666420026,
+     "process_K": 543.4131656416712,
+     "tube_wall_K": 570.9196403058386,
+     "duty_W": 271958.1710069507,
+     "flux_W_m2": 15778.465744381447,
+     "h_convection_W_m2K": 28.414942703288588,
+     "h_radiation_W_m2K": 16.776110406217036,
+     "U_W_m2K": 41.89084205908529,
+     "Reynolds": 4182.547201910505,
+     "gas_emissivity": 0.17444899800049601
+    },
+    {
+     "row": 6,
+     "gas_in_K": 902.4230666420026,
+     "gas_out_K": 870.7142972343851,
+     "process_K": 539.1263687134344,
+     "tube_wall_K": 563.649073680996,
+     "duty_W": 242457.46038146372,
+     "flux_W_m2": 14066.89388641635,
+     "h_convection_W_m2K": 27.890218814026028,
+     "h_radiation_W_m2K": 15.671378340061827,
+     "U_W_m2K": 40.48699122849888,
+     "Reynolds": 4294.639725456955,
+     "gas_emissivity": 0.1780936959470812
+    },
+    {
+     "row": 7,
+     "gas_in_K": 870.7142972343851,
+     "gas_out_K": 842.106184335475,
+     "process_K": 535.296152035452,
+     "tube_wall_K": 557.2610775536109,
+     "duty_W": 217168.54097643122,
+     "flux_W_m2": 12599.681678497322,
+     "h_convection_W_m2K": 27.409297017710283,
+     "h_radiation_W_m2K": 14.709094834915549,
+     "U_W_m2K": 39.237399169777696,
+     "Reynolds": 4402.30486457254,
+     "gas_emissivity": 0.18139207433089521
+    },
+    {
+     "row": 8,
+     "gas_in_K": 842.106184335475,
+     "gas_out_K": 816.1991253971344,
+     "process_K": 531.8585800646889,
+     "tube_wall_K": 551.6157264239561,
+     "duty_W": 195340.09551512895,
+     "flux_W_m2": 11333.239204314577,
+     "h_convection_W_m2K": 26.968519133582994,
+     "h_radiation_W_m2K": 13.866548359487535,
+     "U_W_m2K": 38.121308715270125,
+     "Reynolds": 4505.702091632445,
+     "gas_emissivity": 0.18438664187409465
+    },
+    {
+     "row": 9,
+     "gas_in_K": 816.1991253971344,
+     "gas_out_K": 792.659874076842,
+     "process_K": 528.760926603451,
+     "tube_wall_K": 546.6002353759831,
+     "duty_W": 176378.31983340828,
+     "flux_W_m2": 10233.115141342305,
+     "h_convection_W_m2K": 26.56423940855965,
+     "h_radiation_W_m2K": 13.12526273904606,
+     "U_W_m2K": 37.12107994479234,
+     "Reynolds": 4604.975915410128,
+     "gas_emissivity": 0.18711330607509513
+    },
+    {
+     "row": 10,
+     "gas_in_K": 792.659874076842,
+     "gas_out_K": 771.2079943314524,
+     "process_K": 525.9593587595357,
+     "tube_wall_K": 542.1228915122026,
+     "duty_W": 159809.8214364281,
+     "flux_W_m2": 9271.844209769855,
+     "h_convection_W_m2K": 26.193010399919572,
+     "h_radiation_W_m2K": 12.470114140998941,
+     "U_W_m2K": 36.22173879485584,
+     "Reynolds": 4700.260124910103,
+     "gas_emissivity": 0.18960261747249268
+    },
+    {
+     "row": 11,
+     "gas_in_K": 771.2079943314524,
+     "gas_out_K": 751.6055857796515,
+     "process_K": 523.4171599289821,
+     "tube_wall_K": 538.1084873035126,
+     "duty_W": 145254.03823000565,
+     "flux_W_m2": 8427.346962804222,
+     "h_convection_W_m2K": 25.851662266594293,
+     "h_radiation_W_m2K": 11.888646813231508,
+     "U_W_m2K": 35.41056372236461,
+     "Reynolds": 4791.68073072333,
+     "gas_emissivity": 0.19188073775199385
+    },
+    {
+     "row": 12,
+     "gas_in_K": 751.6055857796515,
+     "gas_out_K": 733.6493695138175,
+     "process_K": 521.1033548008568,
+     "tube_wall_K": 534.4948558549555,
+     "duty_W": 132402.5771450339,
+     "flux_W_m2": 7681.73105524138,
+     "h_convection_W_m2K": 25.5373258610659,
+     "h_radiation_W_m2K": 11.370540811344167,
+     "U_W_m2K": 34.67672484866511,
+     "Reynolds": 4879.358032250881,
+     "gas_emissivity": 0.19397020282593325
+    }
+   ]
+  },
+  "conveccion_sin_radiacion_del_gas": {
+   "stack_T_K": 820.3036454530321,
+   "duty_W": 2403332.011497453
+  },
+  "eficiencia_con_la_chimenea_calculada": {
+   "stack_T_K": 733.6493695138175,
+   "absorbed_J_per_kg_fuel": 37166470.778762005,
+   "LHV": {
+    "efficiency": 0.7709037841983376,
+    "losses_fraction_of_heating_value": {
+     "dry_gas": 0.16900634094629086,
+     "water_from_hydrogen_sensible": 0.038205723349207354,
+     "fuel_moisture_sensible": 0.0,
+     "air_moisture_sensible": 0.002711892615463279,
+     "unburned_CO": 0.0,
+     "setting": 0.02
+    },
+    "credits_fraction_of_heating_value": {
+     "fuel_sensible": 8.293344100492606e-05,
+     "air_sensible": 0.0007448076682941336
+    },
+    "check_one_minus_losses_plus_credits": 0.7709037841983376,
+    "efficiency_on_total_input": 0.7702662031968479
+   },
+   "HHV": {
+    "efficiency": 0.6952968837604203,
+    "losses_fraction_of_heating_value": {
+     "dry_gas": 0.1524309318547519,
+     "water_from_hydrogen_sensible": 0.03445867166697181,
+     "fuel_moisture_sensible": 0.0,
+     "air_moisture_sensible": 0.0024459219467774665,
+     "unburned_CO": 0.0,
+     "setting": 0.01803848672200926,
+     "water_latent": 0.09807566389953697
+    },
+    "credits_fraction_of_heating_value": {
+     "fuel_sensible": 7.479968871889486e-05,
+     "air_sensible": 0.0006717601617487203
+    },
+    "check_one_minus_losses_plus_credits": 0.6952968837604202,
+    "efficiency_on_total_input": 0.6947781902585927
+   },
+   "definition": "efficiency = calor absorbido ÷ poder calorífico quemado (base indicada). efficiency_on_total_input divide entre poder calorífico + calor sensible de combustible y aire sobre 298.15 K.",
+   "stack_loss_only_efficiency_HHV": 0.7133353704824295
+  },
+  "combustion": {
+   "fuel": {
+    "type": "gas",
+    "molar_mass_kg_kmol": 16.703229999999994,
+    "LHV_J_kg": 48211555.76167186,
+    "HHV_J_kg": 53454102.336475484,
+    "heating_value_source": "calculados de las entalpías de formación a 298.15 K. Polinomios NASA Glenn de 9 coeficientes distribuidos con Cantera 3.2.0 (nasa_gas.yaml; agua líquida de nasa_condensed.yaml)",
+    "elements_mol_per_kg": {
+     "C": 60.467346734733354,
+     "H": 238.27726733092945,
+     "O": 0.0,
+     "N": 2.3947464053359746,
+     "S": 0.0
+    },
+    "LHV_J_mol": 805288.7045450301,
+    "HHV_J_mol": 892856.1657696872,
+    "LHV_J_Nm3": 35927982.45432443,
+    "HHV_J_Nm3": 39834807.662094735,
+    "normal_m3_definition": "0 °C y 101 325 Pa, gas ideal",
+    "composition": {
+     "CH4": 0.95,
+     "C2H6": 0.03,
+     "N2": 0.02
+    }
+   },
+   "air": {
+    "stoichiometric_dry_air_kg_per_kg_fuel": 16.559343540711822,
+    "stoichiometric_dry_air_mol_per_kg_fuel": 571.603159845075,
+    "excess_air_fraction": 0.15,
+    "equivalence_ratio": 0.8695652173913044,
+    "dry_air_kg_per_kg_fuel": 19.043245071818593,
+    "moist_air_kg_per_kg_fuel": 19.195591032393143,
+    "humidity_ratio_kg_kg": 0.008,
+    "excess_air_from": "dato del usuario",
+    "stoichiometric_dry_air_mol_per_mol_fuel": 9.54761904761905
+   },
+   "flue_gas": {
+    "kg_per_kg_fuel": 20.195591032393143,
+    "mol_per_kg_fuel": 726.5669411525209,
+    "molar_mass_kg_kmol": 27.79591237712766,
+    "wet_mole_fractions": {
+     "CO2": 0.08322336636844044,
+     "H2O": 0.1756138956148355,
+     "N2": 0.7073338717675252,
+     "Ar": 0.009047254927111342,
+     "O2": 0.024781611322087598
+    },
+    "dry_mole_fractions": {
+     "CO2": 0.10095192765349831,
+     "N2": 0.8580128510233223,
+     "Ar": 0.010974535935268918,
+     "O2": 0.03006068538791053
+    },
+    "ash_kg_per_kg_fuel": 0.0,
+    "water_mole_fraction": 0.1756138956148355,
+    "water_partial_pressure_Pa": 17794.077973173207,
+    "water_dew_point_K": 330.7034808319566,
+    "note": "Punto de rocío del agua pura (IAPWS-95). El punto de rocío ácido (SO3/H2SO4) es más alto y NO se calcula.",
+    "mol_per_mol_fuel": 12.13601472846702
+   },
+   "adiabatic_flame": {
+    "T_adiabatic_complete_combustion_K": 2110.553270100693,
+    "complete_combustion_note": "Balance de entalpía propio sin disociación ni pérdidas (tope superior), con el combustible y el aire a sus temperaturas.",
+    "equilibrium": {
+     "T_adiabatic_equilibrium_K": 2079.6518617463626,
+     "T_adiabatic_complete_combustion_K": 2109.767589694772,
+     "mechanism": "gri30.yaml",
+     "engine": "Cantera 3.2.0",
+     "verified": true,
+     "products_mole_fractions": {
+      "N2": 0.7046515241778195,
+      "H2O": 0.17357113737521584,
+      "CO2": 0.08175071840699238,
+      "O2": 0.02355028157338635,
+      "AR": 0.009032180741160889,
+      "NO": 0.0030057523406898717,
+      "OH": 0.002268350039434095,
+      "CO": 0.0013339843586601887,
+      "H2": 0.0005822881256311697
+     }
+    },
+    "equilibrium_note": "adiabatic_flame de Cantera (GRI-Mech 3.0, con disociación) con combustible y aire a air.T_K."
+   }
+  },
+  "cierre_de_la_cadena": {
+   "suma_de_secciones_W": 11149941.233520746,
+   "absorbido_segun_combustion_efficiency_W": 11149941.2336286
+  },
+  "dimensionamiento_con_flujo_admisible_del_usuario_32_kW_m2": {
+   "tube_area_required_m2": 253.18440872092626,
+   "area_per_tube_m2": 4.30900848366376,
+   "n_tubes": 59,
+   "tube_area_installed_m2": 254.23150053616183,
+   "average_flux_installed_W_m2": 31868.203043222915,
+   "cold_plane_area_m2": 143.8656,
+   "alpha": 0.9220108027121573,
+   "equivalent_cold_plane_area_m2": 132.64563733866615,
+   "next_step": "Con el número de tubos define el hogar (área de envolvente y volumen) y evalúalo con mode='rating': el balance dirá si ese fuego entrega la carga y a qué temperatura de pared divisoria.",
+   "assumptions": [
+    "El flujo medio admisible es dato del usuario; el flujo pico (circunferencial y longitudinal) no se calcula."
+   ]
+  }
+ },
+ "6_enlace_con_utility_costs": {
+  "precio_ilustrativo": {
+   "fuel_per_GJ": 5.0,
+   "fuel_basis": "HHV"
+  },
+  "regla": "Pasa a utility_costs (boiler_efficiency o furnace_efficiency) la eficiencia de la MISMA base que el precio del combustible (prices.fuel_basis). Es un dato que tú pasas: utility_costs no llama a esta herramienta.",
+  "eficiencia_a_pasar_base_HHV": 0.6952968837604203,
+  "calor_a_fuego_directo_USD_GJ": 7.191172744739151,
+  "con_la_base_equivocada_USD_GJ": 6.485893703582604,
+  "aviso_de_la_herramienta": "Si pasaras la eficiencia en base LHV (0.7709) con un precio en base HHV, el costo del calor saldría -9.8 % respecto al correcto.",
+  "nota": "utility_costs no cambia: la eficiencia sigue siendo un dato que el usuario pasa. Esta herramienta solo la calcula y dice en qué base está."
+ }
+}
