@@ -50,6 +50,12 @@ def _h_liq(T: float) -> float:
     return _cp().PropsSI("H", "T", T, "Q", 0, "Water")
 
 
+def _T_liq(h: float) -> float:
+    """Inverse of _h_liq: temperature of saturated liquid water with enthalpy h (J/kg)."""
+    from scipy.optimize import brentq
+    return brentq(lambda T: _h_liq(T) - h, 273.16, 647.0, xtol=1e-10, rtol=1e-13)
+
+
 def _need(d: dict, keys: list[str], where: str) -> None:
     miss = [k for k in keys if d.get(k) is None]
     if miss:
@@ -266,7 +272,7 @@ def electricity_cost(resolved: dict, spec: dict | None, hours_per_year: float | 
 # ------------------------------------------------------------------------------------------------------------ steam
 STEAM_REQUIRED = ["name", "pressure_Pa", "boiler_efficiency", "feedwater_T_K", "condensate_return_fraction",
                   "blowdown_fraction", "makeup_water_T_K", "feedwater_heating"]
-STEAM_OPTIONAL = ["superheat_K", "condensate_T_K", "auxiliary_power_kWh_per_tonne"]
+STEAM_OPTIONAL = ["superheat_K", "condensate_T_K", "auxiliary_power_kWh_per_tonne", "blowdown_heat_recovery"]
 
 
 def steam_level(level: dict, fuel_per_GJ: float, water_per_m3: float, electricity_per_kWh: float | None = None) -> dict:
@@ -278,6 +284,9 @@ def steam_level(level: dict, fuel_per_GJ: float, water_per_m3: float, electricit
     water from feedwater_T_K to steam, as the DOE benchmark does) or 'deaerator_steam' (the feed water is heated from the
     condensate + make-up mix to feedwater_T_K with steam taken from the boiler: needs condensate_T_K if there is return).
     Optional auxiliary_power_kWh_per_tonne (fans, feed pumps), charged at the electricity price.
+    Optional blowdown_heat_recovery {flash_pressure_Pa and/or drain_T_K} (only with 'deaerator_steam'): the blow-down is
+    flashed at flash_pressure_Pa and the flash steam goes to the deaerator; the remaining liquid (or all of it, without a
+    flash tank) heats the make-up water in an exchanger and leaves at drain_T_K. Both are the plant's: no typical values.
     """
     CP = _cp()
     where = f"steam[{level.get('name', '?')}]"
@@ -312,7 +321,6 @@ def steam_level(level: dict, fuel_per_GJ: float, water_per_m3: float, electricit
         "del condensado ni el vapor de flasheo).",
         "Agua y vapor: IAPWS-95 (CoolProp). Las corrientes líquidas se evalúan en la línea de saturación a su temperatura; el "
         "trabajo de la bomba de alimentación no se cobra aparte.",
-        "La purga se descarga como líquido saturado a la presión de la caldera, sin recuperar su calor.",
     ]
     not_included = ["Capital, mano de obra y mantenimiento de la caldera", "Pérdidas de distribución y trampas de vapor",
                     "Tratamiento químico (inclúyelo en el precio del agua de repuesto si lo quieres cobrar)"]
@@ -323,11 +331,49 @@ def steam_level(level: dict, fuel_per_GJ: float, water_per_m3: float, electricit
         if not (273.16 < T_c <= T_sat):
             raise ValueError(f"{where}: condensate_T_K = {T_c} debe estar entre 273.16 K y la saturación ({T_sat:.2f} K).")
         h_c = _h_liq(T_c)
+    # Blow-down heat recovery: flash fraction x returned to the deaerator as steam, liquid cooled against the make-up water.
+    rec = level.get("blowdown_heat_recovery")
+    x_fl, h_fl_g, q_liq, h_drain, rec_out = 0.0, 0.0, 0.0, h_f, None
+    if rec is not None:
+        rw = f"{where}.blowdown_heat_recovery"
+        if mode != "deaerator_steam":
+            raise ValueError(f"{rw}: solo con feedwater_heating='deaerator_steam'. Con 'not_charged' calentar el agua de "
+                             f"alimentación no se cobra, así que recuperar el calor de la purga no cambiaría el combustible.")
+        if not isinstance(rec, dict):
+            raise ValueError(f"{rw}: dict con flash_pressure_Pa y/o drain_T_K.")
+        _known(rec, ["flash_pressure_Pa", "drain_T_K"], rw)
+        P_fl, T_dr = rec.get("flash_pressure_Pa"), rec.get("drain_T_K")
+        if P_fl is None and T_dr is None:
+            raise ValueError(f"{rw}: da flash_pressure_Pa (tanque de flasheo), drain_T_K (temperatura a la que sale la purga "
+                             f"del intercambiador) o los dos. Son datos de TU planta; no se suponen.")
+        T_liq, h_liq = T_sat, h_f                                                 # liquid that reaches the exchanger
+        if P_fl is not None:
+            P_fl = float(P_fl)
+            p_da = CP.PropsSI("P", "T", T_fw, "Q", 0, "Water")
+            if not (p_da <= P_fl < P):
+                raise ValueError(f"{rw}: flash_pressure_Pa = {P_fl} debe estar entre la presión de saturación del agua de "
+                                 f"alimentación ({p_da:.0f} Pa a {T_fw} K; si no, el vapor de flasheo no entra al desaireador) "
+                                 f"y la presión de la caldera ({P} Pa).")
+            h_liq, h_fl_g = CP.PropsSI("H", "P", P_fl, "Q", 0, "Water"), CP.PropsSI("H", "P", P_fl, "Q", 1, "Water")
+            T_liq = CP.PropsSI("T", "P", P_fl, "Q", 0, "Water")
+            x_fl = (h_f - h_liq) / (h_fl_g - h_liq)
+        if T_dr is not None:
+            T_dr = float(T_dr)
+            if not (T_mu < T_dr <= T_liq):
+                raise ValueError(f"{rw}: drain_T_K = {T_dr} debe estar entre la temperatura del agua de repuesto ({T_mu} K) y "
+                                 f"la del líquido de purga que entra al intercambiador ({T_liq:.2f} K).")
+            h_drain = _h_liq(T_dr)
+            q_liq = h_liq - h_drain
+        else:
+            h_drain = h_liq
+        rec_out = {"flash_pressure_Pa": P_fl, "drain_T_K": T_dr, "flash_steam_fraction_of_blowdown": x_fl,
+                   "liquid_to_exchanger_T_K": T_liq}
     if mode == "deaerator_steam":
         if r > 0 and h_c is None:
             raise ValueError(f"{where}: con feedwater_heating='deaerator_steam' y retorno de condensado da condensate_T_K.")
         hc = h_c if r > 0 else h_mu
-        den = (h_s - h_mu) - (h_fw - h_mu) / (1.0 - beta)
+        den = ((h_s - h_mu) - (h_fw - h_mu) / (1.0 - beta)
+               + beta / (1.0 - beta) * (x_fl * (h_fl_g - h_mu) + (1.0 - x_fl) * q_liq))
         gross = ((h_s - h_mu) - r * (hc - h_mu)) / den                           # kg generated per kg delivered
         if gross < 1.0 - 1e-9:
             raise ValueError(f"{where}: la mezcla de condensado y repuesto ya está más caliente que feedwater_T_K = {T_fw} K; "
@@ -343,10 +389,27 @@ def steam_level(level: dict, fuel_per_GJ: float, water_per_m3: float, electricit
     feed = gross / (1.0 - beta)
     blowdown = beta * feed
     deaerator = gross - 1.0
-    makeup = feed - r - deaerator                                                 # kg per kg delivered
+    flash_steam = x_fl * blowdown
+    makeup = feed - r - deaerator - flash_steam                                   # kg per kg delivered
     if makeup < -1e-9:
         raise ValueError(f"{where}: el balance de agua da repuesto negativo ({makeup:.4f} kg/kg); revisa las fracciones.")
     makeup = max(makeup, 0.0)
+    if rec_out is None:
+        assumptions.append("La purga se descarga como líquido saturado a la presión de la caldera, sin recuperar su calor.")
+    else:
+        q_hx = (1.0 - x_fl) * blowdown * q_liq                                    # J per kg delivered, into the make-up
+        h_mu_out = h_mu + q_hx / makeup if makeup > 0 else None
+        if q_hx > 0 and (makeup <= 0 or h_mu_out > _h_liq(rec_out["liquid_to_exchanger_T_K"])):
+            raise ValueError(f"{where}.blowdown_heat_recovery: el agua de repuesto ({makeup:.4f} kg por kg de vapor) no puede "
+                             f"absorber el calor de la purga hasta drain_T_K = {rec_out['drain_T_K']} K sin pasar de la "
+                             f"temperatura de la purga; sube drain_T_K.")
+        rec_out.update({"heat_to_makeup_GJ_per_tonne": q_hx / 1e6,
+                        "flash_steam_heat_GJ_per_tonne": flash_steam * (h_fl_g - h_mu) / 1e6 if x_fl else 0.0,
+                        "makeup_T_after_exchanger_K": _T_liq(h_mu_out) if q_hx > 0 else T_mu,
+                        "blowdown_to_drain_kg_per_kg_delivered": blowdown - flash_steam})
+        assumptions.append("Recuperación de calor de purga: flasheo adiabático a flash_pressure_Pa con el vapor de flasheo "
+                           "enviado íntegro al desaireador; el líquido cede calor al agua de repuesto en un intercambiador sin "
+                           "pérdidas y sale a drain_T_K. Sin pérdidas de calor en el tanque ni en las tuberías.")
     absorbed = gross * (h_s - h_fw) + blowdown * (h_f - h_fw)                     # J per kg delivered, taken up in the boiler
     fuel = absorbed / eta
     q_del = h_s - h_f
@@ -367,9 +430,10 @@ def steam_level(level: dict, fuel_per_GJ: float, water_per_m3: float, electricit
     balance = {"boiler_residual_fraction": boiler_res / (eta * fuel)}
     if mode == "deaerator_steam":
         island_in = r * (h_c if r > 0 else 0.0) + makeup * h_mu + eta * fuel
-        island_out = 1.0 * h_s + blowdown * h_f
+        island_out = 1.0 * h_s + (blowdown - flash_steam) * h_drain
         balance["island_residual_fraction"] = (island_in - island_out) / (eta * fuel)
-        deaer_res = (r * (h_c if r > 0 else 0.0) + makeup * h_mu + deaerator * h_s) - feed * h_fw
+        deaer_res = (r * (h_c if r > 0 else 0.0) + makeup * h_mu + flash_steam * h_fl_g
+                     + (blowdown - flash_steam) * q_liq + deaerator * h_s) - feed * h_fw
         balance["deaerator_residual_fraction"] = deaer_res / (feed * h_fw)
     elif h_c is not None or r == 0:
         free = feed * h_fw - (r * (h_c or 0.0) + makeup * h_mu)
@@ -382,7 +446,9 @@ def steam_level(level: dict, fuel_per_GJ: float, water_per_m3: float, electricit
         "fuel_GJ_per_tonne": fuel / 1e6, "fuel_GJ_per_GJ_delivered": fuel / q_del,
         "floor_fuel_per_GJ_over_efficiency": fuel_per_GJ / eta,
         "mass_per_kg_delivered": {"generated": gross, "feedwater": feed, "blowdown": blowdown, "deaerator_steam": deaerator,
-                                  "makeup": makeup, "condensate_return": r},
+                                  "makeup": makeup, "condensate_return": r,
+                                  **({"blowdown_flash_steam": flash_steam} if rec_out is not None else {})},
+        **({"blowdown_heat_recovery": rec_out} if rec_out is not None else {}),
         "makeup_m3_per_tonne": makeup * 1000.0 / rho_mu,
         "enthalpy_J_kg": {"steam": h_s, "saturated_liquid": h_f, "feedwater": h_fw, "makeup": h_mu,
                           **({"condensate": h_c} if h_c is not None else {})},

@@ -1,0 +1,648 @@
+{
+ "doe": {
+  "lectura": "metano puro y aire seco a 70 °F (las hojas no lo dicen); precio 8 USD/MMBtu en base PCS",
+  "fuentes": {
+   "#3": "DOE/GO-102012-3412",
+   "#4": "DOE/GO-102012-3405",
+   "#8": "DOE/GO-102012-3410",
+   "#9": "DOE/GO-102012-3406",
+   "#10": "DOE/GO-102012-3408",
+   "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/ (steam3_recovery, steam4_boiler_efficiency, steam8_boiler, steam9_blowdown, steam10_boiler_blowdown).pdf",
+   "leidas": "2026-11-14"
+  },
+  "tip_4": {
+   "datos": "500 000 MMBtu/año, 8 000 h; 44.9 % de exceso de aire y chimenea − aire = 400 °F → 9.5 % y 300 °F",
+   "doe": {
+    "E1": 78.2,
+    "E2": 83.1,
+    "MMBtu": 29482,
+    "USD": 235856
+   },
+   "motor": {
+    "E1": 78.75108286044485,
+    "E2": 83.49050385751423,
+    "MMBtu": 28382.994341234968,
+    "USD": 227063.95472988067,
+    "verified": true
+   },
+   "dif_pct": {
+    "MMBtu": -3.7277174505292443,
+    "USD": -3.7277174505288557
+   },
+   "explicacion": "La hoja lee E1 y E2 de su tabla; el motor los calcula y quedan 0.4-0.6 puntos por encima (el mismo desfase medido en M18 contra las 25 celdas). El ahorro depende del cociente E1/E2.",
+   "sensibilidad": {
+    "gas natural 95/3/2 (CH4/C2H6/N2)": {
+     "E1": 78.8171048338898,
+     "E2": 83.55864946891293,
+     "MMBtu": 28372.554278699656,
+     "USD": 226980.43422959652,
+     "verified": true
+    },
+    "aire a 60 °F": {
+     "E1": 78.76921131572453,
+     "E2": 83.50398371028611,
+     "MMBtu": 28350.57792565139,
+     "USD": 226804.62340521114,
+     "verified": true
+    },
+    "aire a 80 °F": {
+     "E1": 78.73278253002414,
+     "E2": 83.47692126137107,
+     "MMBtu": 28415.870276844344,
+     "USD": 227326.9622147549,
+     "verified": true
+    }
+   }
+  },
+  "tip_3": {
+   "datos": "45 000 lb/h de vapor a 150 psig, alimentación a 117 °F, chimenea 500 → 250 °F, 15 % de exceso de aire, 8 400 h",
+   "doe": {
+    "carga_MMBtu_h": 50.0,
+    "eficiencia": 80.0,
+    "recuperable_MMBtu_h": 4.6,
+    "USD": 386400
+   },
+   "motor": {
+    "carga_MMBtu_h": 49.992734220741504,
+    "eficiencia_antes": 80.12746452319878,
+    "eficiencia_despues": 85.99831454077666,
+    "recuperado_MMBtu_h": 3.4128557768355066,
+    "ahorro_combustible_pct": 6.826703580096538,
+    "USD": 286223.84293333674,
+    "checks": {
+     "water_dew_point_K": 329.68059435993865,
+     "margin_over_water_dew_point_K": 64.58051675117247,
+     "economizer_heat_J_per_kg_feedwater": 176406.72304265315,
+     "feedwater_T_after_economizer_K": 362.4590842275077
+    },
+    "verified": true
+   },
+   "dif_pct": {
+    "USD": -25.925506487231697
+   },
+   "con_la_tabla_del_tip_4": {
+    "eficiencia_500F": 79.65,
+    "eficiencia_250F": 85.68,
+    "USD": 296887.1164284922,
+    "motor_vs_tabla_pct": -3.591692904506283,
+    "nota": "tabla del Tip Sheet #4 a 15 % de exceso; 430 °F interpolado, 180 °F extrapolado 20 °F; aire a 70 °F es nuestra lectura"
+   },
+   "explicacion": "La diferencia es de la hoja, no del motor. Su tabla da 4.6 MMBtu/h recuperables y la hoja divide entre 0.80: 5.75 MMBtu/h de combustible, 9.2 % de los 62.5 MMBtu/h que quema la caldera. La tabla de combustión del propio DOE (Tip Sheet #4) da para el mismo cambio 6.0 puntos de eficiencia, 7.0 % del combustible; el motor da 5.9 puntos y 6.8 %. La hoja #3 no dice cómo se calculó su tabla."
+  },
+  "tip_9": {
+   "datos": "100 000 lb/h a 150 psig, purga 8 % → 6 % de la alimentación, repuesto a 60 °F, caldera de 80 %, 8 760 h, agua 0.004 USD/gal",
+   "doe": {
+    "combustible_USD": 62913,
+    "agua_USD": 9718,
+    "total_USD": 72631,
+    "repuesto_lb_h": 2313
+   },
+   "motor": {
+    "combustible_USD": 62884.52233839966,
+    "agua_USD": 9719.817441654857,
+    "total_USD": 72604.33978005499,
+    "repuesto_lb_h": 2314.948854462702,
+    "chimenea_para_80_pct_K": 536.1164804035736,
+    "verified": true
+   },
+   "dif_pct": {
+    "combustible": -0.045265146472650564,
+    "agua": 0.018701807520660196,
+    "total": -0.03670639251147634
+   },
+   "explicacion": "Mismo volumen de control que la hoja (el agua entra a la temperatura del repuesto). La diferencia es el redondeo de sus entalpías (338.5 y 28 Btu/lb) y de la densidad (8.34 lb/gal) frente a IAPWS-95."
+  },
+  "tip_10": {
+   "datos": "50 000 lb/h a 150 psig, purga 3 200 lb/h (6.0 % de la alimentación), se recupera 90 % de la energía de la purga hacia el repuesto a 60 °F, caldera de 80 %, 8 000 h",
+   "doe": {
+    "tabla_MMBtu_h_por_100000_lb_h": 1.7,
+    "MMBtu": 8500,
+    "USD": 68000
+   },
+   "motor": {
+    "tanque sin calentador, sin retorno": {
+     "MMBtu": 8939.594781088132,
+     "USD": 71516.75824870542,
+     "verified": true
+    },
+    "desaireador a 227 °F, sin retorno": {
+     "MMBtu": 8957.216706857786,
+     "USD": 71657.73365486227,
+     "verified": true
+    },
+    "desaireador a 227 °F, 50 % de retorno a 180 °F": {
+     "MMBtu": 8957.21670685784,
+     "USD": 71657.73365486274,
+     "verified": true
+    }
+   },
+   "drenaje_equivalente_a_90_pct_F": 91.07009420532296,
+   "su_formula_con_sus_entalpias_MMBtu": 8942.4,
+   "su_tabla_sin_redondear_MMBtu_h": 1.7837234042553194,
+   "dif_pct": {
+    "contra_la_hoja": 5.171703306919206,
+    "contra_su_formula": -0.031369866164210336
+   },
+   "explicacion": "La hoja lee 1.7 MMBtu/h de una tabla redondeada; con sus propias entalpías la celda vale 1.78. Con su fórmula sin redondear salen 8 942 MMBtu/año, que es lo que da el motor. El 90 % se tradujo a una temperatura de drenaje equivalente (91 °F); la hoja no dice cómo llega el agua a la caldera y el resultado cambia menos de 0.3 % entre los tres arreglos probados."
+  },
+  "tip_8": {
+   "datos": "10 000 lb/h más de condensado a 180 °F con 12 % de pérdida por flasheo (8 800 lb/h netos), 8 000 h, caldera de 80 %, repuesto a 55 °F, agua 0.004 USD/gal. La hoja no da el flujo de vapor ni la presión.",
+   "doe": {
+    "combustible_USD": 88000,
+    "agua_USD": 33760,
+    "total_USD": 121760
+   },
+   "motor": {
+    "50 000 lb/h a 100 psig, 30 % de retorno, sin purga": {
+     "combustible_USD": 87977.06420706306,
+     "agua_USD": 33763.114013927494,
+     "total_USD": 121740.17822099105,
+     "verified": true
+    },
+    "100 000 lb/h a 150 psig, 50 % de retorno, purga 5 %": {
+     "combustible_USD": 87977.0642070435,
+     "agua_USD": 33763.11401392758,
+     "total_USD": 121740.17822097056,
+     "verified": true
+    }
+   },
+   "dif_pct": {
+    "combustible": -0.026063401064713165,
+    "agua": 0.009223974903704857,
+    "total": -0.016279384862805113
+   },
+   "explicacion": "La hoja usa cp = 1 Btu/lb·°F y 8.34 lb/gal; el motor IAPWS-95. El resultado no depende del flujo de vapor, de la presión ni de la purga elegidos (dos juegos distintos dan lo mismo)."
+  }
+ },
+ "measur": {
+  "caso": "Boiler(desaireador 0.3631 MPa, eficiencia 72.4 %, purga 3.7 %, vapor saturado a 5.5766 MPa, 10 864 kg/h)",
+  "fuente": "ORNL-AMO/MEASUR-Tools-Suite, rama develop, tests/cpp/steamModeler/Boiler.unit.cpp, segundo caso (getFuelEnergy)",
+  "measur_kJ_h": 33344279.478971004,
+  "motor_kJ_h": 33345365.16613508,
+  "dif_pct": 0.0032559922752639636,
+  "explicacion": "Mismo balance de caldera (vapor + purga − alimentación) ÷ eficiencia. MEASUR usa IAPWS-IF97; este motor IAPWS-95.",
+  "herramientas_del_doe": {
+   "leido": "2026-11-14",
+   "MEASUR": "vigente: v1.10.0 del 2026-10-21 (github.com/ORNL-AMO/AMO-Tools-Desktop, último push 2026-11-13), web en measur.ornl.gov y de escritorio; licencia propia de UT-Battelle «OPEN SOURCE LICENSE (Permissive)» (el package.json dice MIT; GitHub no la reconoce como estándar). Su módulo de vapor es el sucesor de SSAT/SSMT: modela caldera, turbinas, tanques de flasheo, desaireador y hasta tres cabezales y compara escenarios; calculadoras sueltas de pérdida por chimenea, caldera, purga, tanque de flasheo, desaireador y economizador.",
+   "SSMT_SSAT": "la página antigua del Steam System Modeler (energy.gov/node/903516) responde 404 el 2026-11-14; el repositorio AMO-Tools-Suite está archivado y remite a MEASUR-Tools-Suite.",
+   "no_verificado": "no se instaló ni se usó MEASUR: lo que hace se leyó de su README, su lista de calculadoras, la página del DOE y su código de pruebas. En el árbol del repositorio no hay archivos de traducción."
+  }
+ },
+ "coherencia": {
+  "linea_base_vs_llamadas_directas_dif_relativa": {
+   "eficiencia": 0.0,
+   "costo_por_tonelada": 0.0,
+   "combustible_por_tonelada": 0.0,
+   "agua_por_tonelada": 0.0
+  },
+  "medidas": {
+   "reduce_excess_air": {
+    "ahorro_MXN_año": 268693.86268052645,
+    "ahorro_GJ_año": 2828.3564492687,
+    "ahorro_agua_m3_año": 0.0,
+    "puntos_de_eficiencia": 2.0705636677054495,
+    "peor_residuo": 4.824440674653751e-11
+   },
+   "reduce_stack_temperature": {
+    "ahorro_MXN_año": 521289.53075185977,
+    "ahorro_GJ_año": 5487.258218440649,
+    "ahorro_agua_m3_año": 0.0,
+    "puntos_de_eficiencia": 4.1191046600119074,
+    "peor_residuo": 4.824440674653751e-11
+   },
+   "reduce_blowdown": {
+    "ahorro_MXN_año": 145187.24167772755,
+    "ahorro_GJ_año": 1029.5244688729872,
+    "ahorro_agua_m3_año": 1246.9057140735822,
+    "puntos_de_eficiencia": 0.0,
+    "peor_residuo": 4.824456239876125e-11
+   },
+   "recover_blowdown_heat": {
+    "ahorro_MXN_año": 240283.7155665122,
+    "ahorro_GJ_año": 2336.691265389847,
+    "ahorro_agua_m3_año": 481.527509328389,
+    "puntos_de_eficiencia": 0.0,
+    "peor_residuo": 4.824456239876125e-11
+   },
+   "increase_condensate_return": {
+    "ahorro_MXN_año": 586582.61059081,
+    "ahorro_GJ_año": 2835.194494087831,
+    "ahorro_agua_m3_año": 8348.398254012294,
+    "puntos_de_eficiencia": 0.0,
+    "peor_residuo": 4.824456239876125e-11
+   }
+  },
+  "todas_ahorran": true,
+  "combinado_MXN_año": 1475571.6918600071,
+  "suma_individuales_MXN_año": 1762036.961267436,
+  "combinado_sobre_suma": 0.8374238022785997,
+  "evidence": {
+   "baseline_residuals": {
+    "boiler_residual_fraction": 1.774783390265946e-16,
+    "island_residual_fraction": 0.0,
+    "deaerator_residual_fraction": 4.931963188820982e-16,
+    "combustion_mass_balance_error": 0.0,
+    "combustion_energy_balance_error": 4.824456239876125e-11,
+    "cost_breakdown_residual_fraction": 0.0
+   },
+   "worst_residual_fraction": 4.824456239876125e-11,
+   "steam_side_duty_vs_efficiency_times_fuel": 0.0,
+   "annual_fuel_two_routes_difference_fraction": 0.0,
+   "measures_direction": {
+    "reduce_excess_air": {
+     "cost_per_tonne_saving": 8.142977748601822,
+     "saves": true
+    },
+    "reduce_stack_temperature": {
+     "cost_per_tonne_saving": 15.798087113506426,
+     "saves": true
+    },
+    "reduce_blowdown": {
+     "cost_per_tonne_saving": 4.400012961101027,
+     "saves": true
+    },
+    "recover_blowdown_heat": {
+     "cost_per_tonne_saving": 7.281986010733306,
+     "saves": true
+    },
+    "increase_condensate_return": {
+     "cost_per_tonne_saving": 17.776844986731135,
+     "saves": true
+    }
+   },
+   "combined_not_above_sum": {
+    "combined_per_tonne": 44.71835468593912,
+    "sum_per_tonne": 53.399908820673716,
+    "holds": true
+   },
+   "input_output_cross_check": {
+    "input_output_efficiency": 0.7528378350033128,
+    "heat_loss_efficiency": 0.7858314290719148,
+    "basis": "HHV",
+    "difference_points": -3.299359406860203,
+    "steam_from_fuel_over_steam_measured": 1.0438256322073092,
+    "meaning": "Eficiencia por entradas y salidas (calor al vapor medido ÷ combustible medido) contra la del método de pérdidas. Una diferencia grande indica un medidor descalibrado, una purga distinta de la declarada, combustible que se usa en otro equipo o vapor que no se mide."
+   },
+   "verified": true,
+   "reasons": []
+  }
+ },
+ "negativas": {
+  "sin precio de combustible (la referencia mexicana no trae gas)": "se niega: Faltan precios; no se suponen. «fuel_per_GJ» (combustible por GJ (di la base en fuel_basis: HHV o LHV)), para el vapor: la referencia «MX-CFE-GDMTH-GOLFO-NORTE-2026-11» no lo trae; dalo en prices= o nombra una referencia en reference=. Referencias publicadas d",
+  "sin precio del agua": "se niega: Faltan datos para el diagnóstico de vapor; no se suponen. water_cost: lo que pagas por el agua de repuesto (price_per_m3, o bill con importe y volumen; incluye el tratamiento si quieres cobrarlo), para el costo del vapor. El agua nunca viene del banco de refer",
+  "sin O2 ni exceso de aire": "se niega: Faltan datos para el diagnóstico de vapor; no se suponen. combustion.flue_O2 {'mole_fraction', 'basis': 'dry'|'wet'} o combustion.excess_air_fraction (uno solo): el O2 medido en chimenea, para saber cuánto aire sobra.",
+  "sin temperatura de chimenea": "se niega: Faltan datos para el diagnóstico de vapor; no se suponen. combustion.stack_T_K: temperatura de los gases en la chimenea, para la pérdida por chimenea.",
+  "sin pérdida por paredes": "se niega: Faltan datos para el diagnóstico de vapor; no se suponen. combustion.setting_loss_fraction y setting_loss_basis ('HHV'|'LHV'): pérdida por paredes y radiación de la envolvente como fracción del poder calorífico (hoja de datos del fabricante o prueba), para la ",
+  "sin purga": "se niega: Faltan datos para el diagnóstico de vapor; no se suponen. boiler.blowdown_fraction: purga como fracción del agua de alimentación (0 si de verdad no hay), para el calor y el agua que se van por la purga.",
+  "sin reparto horario para la tarifa de CFE": "se niega: El precio de electricidad disponible es por periodo horario ['base', 'intermedia', 'punta'] (referencia MX-CFE-GDMTH-GOLFO-NORTE-2026-11): da electricity={'time_of_use_fractions': {periodo: fracción de TU energía}} (suman 1). El perfil de carga es de tu planta",
+  "sin horas ni producción": {
+   "cifras_anuales": null,
+   "costo_por_tonelada": 348.67959993945595,
+   "ahorro_por_tonelada": 4.400012961101027
+  },
+  "medidas sin objetivo": {
+   "reduce_excess_air": "no evaluada: falta el dato",
+   "reduce_stack_temperature": "no evaluada: falta el dato",
+   "recover_blowdown_heat": "no evaluada: falta el dato",
+   "increase_condensate_return": "no evaluada: falta el dato"
+  },
+  "retorno sin inversión": "no calculado: falta la inversión (cotización del proveedor). No se estima.",
+  "datos faltantes listados": [
+   "las horas de operación al año y la producción de vapor (o el consumo de combustible) → impide las cifras anuales: combustible, agua, costo y ahorros al año, y el retorno simple. Se dan solo las cifras por tonelada de vapor y en porcentaje",
+   "el oxígeno (O2) o el exceso de aire que el quemador puede sostener sin producir monóxido de carbono. Lo da el fabricante del quemador o una prueba de afinación → impide evaluar la medida «Bajar el exceso de aire (afinar la combustión)»",
+   "la temperatura de chimenea a la que se llegaría con un economizador o un precalentador de aire. La da el proveedor del equipo → impide evaluar la medida «Bajar la temperatura de chimenea (economizador o precalentador de aire)»",
+   "la presión del tanque de flasheo y/o la temperatura a la que saldría la purga del intercambiador. Las da el proveedor del equipo → impide evaluar la medida «Recuperar el calor de la purga»",
+   "el porcentaje del vapor que se podría regresar como condensado después de las obras. Sale de un levantamiento de la red de condensado → impide evaluar la medida «Regresar más condensado»",
+   "la inversión de «Bajar la purga» (cotización del proveedor, en MXN) → impide el retorno simple de «Bajar la purga»",
+   "el monóxido de carbono (CO) medido en la chimenea → impide contar la pérdida por combustión incompleta: se tomó combustión completa"
+  ],
+  "chimenea bajo el punto de rocío del agua": {
+   "punto_de_rocio_K": 326.71716778407443,
+   "resultado": "no evaluada: el objetivo (324.7 K) está en o bajo el punto de rocío del agua de los gases (326.7 K, combustion_efficiency (M18, método de pérdidas, entalpías NASA)): habría condensación y el balance con el agua como vapor ya no vale (no se modelan calderas de condensación)"
+  }
+ },
+ "planta_ilustrativa": {
+  "AVISO": "CASO ILUSTRATIVO. No es una planta real ni un cliente: todos los datos de operación, precios, objetivos e inversiones de este documento son inventados para mostrar el formato (MOCKS.md, ENTRADAS-ILUSTRATIVAS-M19).",
+  "entradas": {
+   "currency": "MXN",
+   "fuel": {
+    "type": "gas",
+    "composition": {
+     "CH4": 0.92,
+     "C2H6": 0.05,
+     "C3H8": 0.01,
+     "N2": 0.015,
+     "CO2": 0.005
+    },
+    "T_K": 298.15
+   },
+   "combustion": {
+    "site_pressure_Pa": 95000.0,
+    "air": {
+     "T_K": 303.15,
+     "relative_humidity": 0.5
+    },
+    "flue_O2": {
+     "mole_fraction": 0.065,
+     "basis": "dry"
+    },
+    "stack_T_K": 503.15,
+    "setting_loss_fraction": 0.015,
+    "setting_loss_basis": "HHV"
+   },
+   "boiler": {
+    "steam_pressure_Pa": 900000.0,
+    "blowdown_fraction": 0.08,
+    "auxiliary_power_kWh_per_tonne": 5.0
+   },
+   "water": {
+    "feedwater_heating": "deaerator_steam",
+    "feedwater_T_K": 368.15,
+    "makeup_water_T_K": 295.15,
+    "condensate_return_fraction": 0.45,
+    "condensate_T_K": 358.15
+   },
+   "fuel_cost": {
+    "bill": {
+     "amount": 10925000.0,
+     "energy_GJ": 115000.0,
+     "basis": "HHV",
+     "period": "12 recibos mensuales (ilustrativos)"
+    }
+   },
+   "water_cost": {
+    "price_per_m3": 38.0
+   },
+   "electricity_cost": {
+    "time_of_use_fractions": {
+     "base": 0.3,
+     "intermedia": 0.58,
+     "punta": 0.12
+    },
+    "load_factor": 0.75
+   },
+   "reference": "MX-CFE-GDMTH-GOLFO-NORTE-2026-11",
+   "operation": {
+    "hours_per_year": 6000.0,
+    "steam_generated_kg_s": 1.6666666666666665,
+    "fuel_consumption": {
+     "from_fuel_bill": true
+    },
+    "annual_basis": "steam"
+   },
+   "measures": {
+    "reduce_excess_air": {
+     "target_flue_O2": {
+      "mole_fraction": 0.03,
+      "basis": "dry"
+     },
+     "stack_T_K_after": 493.15,
+     "investment": 400000.0
+    },
+    "reduce_stack_temperature": {
+     "target_stack_T_K": 423.15,
+     "device": "economizer",
+     "investment": 2800000.0
+    },
+    "reduce_blowdown": {
+     "target_blowdown_fraction": 0.05,
+     "investment": 250000.0
+    },
+    "recover_blowdown_heat": {
+     "flash_pressure_Pa": 120000.0,
+     "drain_T_K": 313.15
+    }
+   },
+   "today": "2026-11-14"
+  },
+  "titulares": {
+   "annual_cost": 11700776.922697814,
+   "cost_per_tonne": 354.60119993945597,
+   "efficiency": 0.7858314290719148,
+   "combined_annual_saving": 912470.9147381075,
+   "combined_saving_per_tonne": 27.653145035892464
+  },
+  "linea_base": {
+   "eficiencia_PCS": 0.7858314290719148,
+   "costo_MXN_por_tonelada": 354.60119993945597,
+   "costo_MXN_por_GJ": 174.63983512842321,
+   "desglose_MXN_por_tonelada": {
+    "fuel": 317.1896369211645,
+    "water": 24.55975301829148,
+    "power": 12.85181
+   },
+   "anual": {
+    "steam_delivered_tonne": 32997.00318187188,
+    "steam_generated_tonne": 36000.0,
+    "fuel_GJ": 110171.6574604679,
+    "fuel_basis": "HHV",
+    "fuel_GJ_HHV": 110171.6574604679,
+    "fuel_GJ_LHV": 99469.2078686459,
+    "fuel_kg": 2078039.8515876404,
+    "fuel_Nm3": 2685444.914380216,
+    "makeup_water_m3": 21326.269697119777,
+    "electricity_kWh": 164985.01590935938,
+    "cost": {
+     "fuel": 10466307.458744451,
+     "water": 810398.2484905515,
+     "power": 424071.21546281286,
+     "total": 11700776.922697814
+    },
+    "heat_delivered_GJ": 66999.47302454521,
+    "average_firing_kW": 5100.539697243885
+   },
+   "perdidas": {
+    "dry_gas": 0.08631983129506175,
+    "water_from_hydrogen_sensible": 0.015532346631891354,
+    "fuel_moisture_sensible": -1.885895554548254e-18,
+    "air_moisture_sensible": 0.0024133314397818523,
+    "unburned_CO": 0.0,
+    "setting": 0.015,
+    "water_latent": 0.09714340183782995
+   },
+   "punto_de_rocio_agua_K": 326.71716778407443
+  },
+  "precios": {
+   "fuel_per_GJ": 95.0,
+   "fuel_basis": "HHV",
+   "boiler_makeup_water_per_m3": 38.0,
+   "electricity_per_kWh": 2.5703620000000003
+  },
+  "medidas": [
+   {
+    "id": "reduce_excess_air",
+    "estado": "evaluated",
+    "razon": null,
+    "ahorro_MXN_año": 268693.86268052645,
+    "ahorro_GJ_año": 2828.3564492687,
+    "eficiencia_nueva": 0.8065370657489693,
+    "costo_nuevo_MXN_t": 346.45822219085414,
+    "inversion_MXN": 400000.0,
+    "retorno_años": 1.4886830536788065,
+    "nota_retorno": "inversión (dato de la planta) ÷ ahorro anual (calculado). Sin impuestos, financiamiento ni mantenimiento."
+   },
+   {
+    "id": "reduce_stack_temperature",
+    "estado": "evaluated",
+    "razon": null,
+    "ahorro_MXN_año": 521289.53075185977,
+    "ahorro_GJ_año": 5487.258218440649,
+    "eficiencia_nueva": 0.8270224756720339,
+    "costo_nuevo_MXN_t": 338.80311282594954,
+    "inversion_MXN": 2800000.0,
+    "retorno_años": 5.37129528759486,
+    "nota_retorno": "inversión (dato de la planta) ÷ ahorro anual (calculado). Sin impuestos, financiamiento ni mantenimiento."
+   },
+   {
+    "id": "reduce_blowdown",
+    "estado": "evaluated",
+    "razon": null,
+    "ahorro_MXN_año": 145187.24167772755,
+    "ahorro_GJ_año": 1029.5244688729872,
+    "eficiencia_nueva": 0.7858314290719148,
+    "costo_nuevo_MXN_t": 350.20118697835494,
+    "inversion_MXN": 250000.0,
+    "retorno_años": 1.7219143852524286,
+    "nota_retorno": "inversión (dato de la planta) ÷ ahorro anual (calculado). Sin impuestos, financiamiento ni mantenimiento."
+   },
+   {
+    "id": "recover_blowdown_heat",
+    "estado": "evaluated",
+    "razon": null,
+    "ahorro_MXN_año": 240283.7155665122,
+    "ahorro_GJ_año": 2336.691265389847,
+    "eficiencia_nueva": 0.7858314290719148,
+    "costo_nuevo_MXN_t": 347.31921392872266,
+    "inversion_MXN": null,
+    "retorno_años": null,
+    "nota_retorno": "no calculado: falta la inversión (cotización del proveedor). No se estima."
+   },
+   {
+    "id": "increase_condensate_return",
+    "estado": "not_evaluated",
+    "razon": "no evaluada: falta el dato"
+   }
+  ],
+  "combinado": {
+   "ahorro_MXN_año": 912470.9147381075,
+   "ahorro_GJ_año": 8995.574996199866,
+   "suma_individuales_MXN_año": 1175454.350676626,
+   "combinado_sobre_suma": 0.7762708217574432,
+   "eficiencia": 0.8367775446776132
+  },
+  "cruce_entradas_salidas": {
+   "input_output_efficiency": 0.7528378350033128,
+   "heat_loss_efficiency": 0.7858314290719148,
+   "basis": "HHV",
+   "difference_points": -3.299359406860203,
+   "steam_from_fuel_over_steam_measured": 1.0438256322073092,
+   "meaning": "Eficiencia por entradas y salidas (calor al vapor medido ÷ combustible medido) contra la del método de pérdidas. Una diferencia grande indica un medidor descalibrado, una purga distinta de la declarada, combustible que se usa en otro equipo o vapor que no se mide."
+  },
+  "datos_faltantes": [
+   {
+    "item": "el porcentaje del vapor que se podría regresar como condensado después de las obras. Sale de un levantamiento de la red de condensado",
+    "parameter": "measures.increase_condensate_return.target_condensate_return_fraction",
+    "prevents": "evaluar la medida «Regresar más condensado»"
+   },
+   {
+    "item": "la inversión de «Recuperar el calor de la purga» (cotización del proveedor, en MXN)",
+    "parameter": "measures.recover_blowdown_heat.investment",
+    "prevents": "el retorno simple de «Recuperar el calor de la purga»"
+   },
+   {
+    "item": "el monóxido de carbono (CO) medido en la chimenea",
+    "parameter": "combustion.flue_CO_dry_mole_fraction",
+    "prevents": "contar la pérdida por combustión incompleta: se tomó combustión completa"
+   }
+  ],
+  "referencia_publicada": [
+   {
+    "item": "Electricidad por periodo horario",
+    "value": {
+     "base": 0.9904,
+     "intermedia": 1.5333,
+     "punta": 1.6634
+    },
+    "unit": "MXN",
+    "origin": "referencia publicada",
+    "reference": "MX-CFE-GDMTH-GOLFO-NORTE-2026-11",
+    "source": "CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León)",
+    "period": "2026-11",
+    "retrieved": "2026-11-14",
+    "age_days": -16,
+    "url": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx",
+    "detail": "base 0.9904, intermedia 1.5333, punta 1.6634 MXN/kWh por periodo horario; CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León); periodo 2026-11; consultada el 2026-11-14; periodo vigente al 2026-11-14; referencia «MX-CFE-GDMTH-GOLFO-NORTE-2026-11»; https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx"
+   },
+   {
+    "item": "Cargo por demanda eléctrica",
+    "value": 444.12,
+    "unit": "MXN",
+    "origin": "referencia publicada",
+    "reference": "MX-CFE-GDMTH-GOLFO-NORTE-2026-11",
+    "source": "CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León)",
+    "period": "2026-11",
+    "retrieved": "2026-11-14",
+    "age_days": -16,
+    "url": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx",
+    "detail": "444.12 MXN/kW-mes; CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León); periodo 2026-11; consultada el 2026-11-14; periodo vigente al 2026-11-14; referencia «MX-CFE-GDMTH-GOLFO-NORTE-2026-11»; https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx"
+   }
+  ],
+  "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: electricity_time_of_use_per_kWh = {'base': 0.9904, 'intermedia': 1.5333, 'punta': 1.6634} MXN/kWh por periodo horario (CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León); periodo 2026-11; antigüedad el periodo termina en 16 días al 2026-11-14); demand_charge_per_kW_month = 444.12 MXN/kW-mes (CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León); periodo 2026-11; antigüedad el periodo termina en 16 días al 2026-11-14). Referencia «MX-CFE-GDMTH-GOLFO-NORTE-2026-11», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+  "evidence": {
+   "baseline_residuals": {
+    "boiler_residual_fraction": 1.774783390265946e-16,
+    "island_residual_fraction": 0.0,
+    "deaerator_residual_fraction": 4.931963188820982e-16,
+    "combustion_mass_balance_error": 0.0,
+    "combustion_energy_balance_error": 4.824456239876125e-11,
+    "cost_breakdown_residual_fraction": 0.0
+   },
+   "worst_residual_fraction": 4.824456239876125e-11,
+   "steam_side_duty_vs_efficiency_times_fuel": 0.0,
+   "annual_fuel_two_routes_difference_fraction": 0.0,
+   "measures_direction": {
+    "reduce_excess_air": {
+     "cost_per_tonne_saving": 8.142977748601822,
+     "saves": true
+    },
+    "reduce_stack_temperature": {
+     "cost_per_tonne_saving": 15.798087113506426,
+     "saves": true
+    },
+    "reduce_blowdown": {
+     "cost_per_tonne_saving": 4.400012961101027,
+     "saves": true
+    },
+    "recover_blowdown_heat": {
+     "cost_per_tonne_saving": 7.281986010733306,
+     "saves": true
+    }
+   },
+   "combined_not_above_sum": {
+    "combined_per_tonne": 27.653145035892464,
+    "sum_per_tonne": 35.62306383394258,
+    "holds": true
+   },
+   "verified": true,
+   "reasons": []
+  },
+  "reporte": {
+   "archivo": "32_diagnostico_de_vapor_reporte.md",
+   "secciones": [
+    "Resumen",
+    "1. Cómo opera hoy la caldera",
+    "2. A dónde se va la energía del combustible",
+    "3. Medidas de ahorro",
+    "4. Todas las medidas juntas",
+    "5. Lo que no se evaluó y por qué",
+    "6. De dónde sale cada número",
+    "7. Supuestos y límites",
+    "8. Comprobaciones",
+    "Glosario"
+   ],
+   "caracteres": 22542,
+   "marca_la_referencia": true,
+   "verified": true
+  }
+ }
+}

@@ -431,7 +431,7 @@ def test_tools_are_registered_with_spanish_descriptions():
     from packages.dwsim_client import tools as T
     names = {f.__name__ for f in T.TOOLS}
     mine = ("combustion_efficiency", "fired_heater_radiant", "fired_heater_convection")
-    assert set(mine) <= names and len(T.TOOLS) == 76
+    assert set(mine) <= names and len(T.TOOLS) >= 76
     for name in mine:
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
     assert "no hay valor típico" in TCB.combustion_efficiency.__doc__ and "utility_costs" in TCB.combustion_efficiency.__doc__

@@ -32,6 +32,7 @@ from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.dwsim_client import tools_economics as TE  # noqa: E402
 from packages.dwsim_client import tools_utilities as TU  # noqa: E402
 from packages.dwsim_client import tools_combustion as TCB  # noqa: E402
+from packages.dwsim_client import tools_steam as TST  # noqa: E402
 from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.dwsim_client import tools_heat as TH  # noqa: E402
 from packages.dwsim_client import tools_energy as TEN  # noqa: E402
@@ -289,6 +290,19 @@ Hard rules:
    combustion_efficiency with that stack temperature. Report in Spanish the stated limits: the radiant section is a
    one-zone model only partly validated (gas emissivity 20 % below Kern's charts at long paths, no peak flux), and the
    convection bank is NOT validated against a published example (bare tubes only).
+
+28. Steam diagnostic of a plant ("what does my steam cost", "how efficient is my boiler and where are the losses",
+   "what would I save by tuning the burner / an economizer / less blow-down / blow-down heat recovery / more
+   condensate return", "diagnóstico de vapor"): steam_system_diagnostic in ONE call, not combustion_efficiency +
+   utility_costs by hand. Every input is the plant's: fuel and what is paid for it (a price or bills), water and
+   electricity, operating pressure, flue O2 or excess air, stack and air temperature, setting loss, feed-water,
+   condensate return, blow-down, hours and steam production or fuel consumption. ASK for what is missing; never assume
+   typical values, targets, prices or investment. A measure without the plant's target comes back "no evaluada: falta
+   el dato": report it that way with what is needed, do not invent a target. Simple payback only with the plant's
+   investment figure. Savings are NOT additive: report the combined case next to the sum. If the result used a
+   published reference price, say so first. A stack target at or below the water dew point is not evaluated, and the
+   ACID dew point is not modelled: say it. For the document the client reads call steam_diagnostic_report with the
+   same inputs and show its markdown unchanged: never retype or round its numbers and never add figures of your own.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1031,7 +1045,8 @@ def utility_costs(currency: str, prices: dict[str, object] | None = None, refere
     list_utility_price_references (e.g. 'US-EIA-2026-08'), only if the user asks for it; never for water.
     steam: [{name, pressure_Pa (absolute), superheat_K, boiler_efficiency, feedwater_T_K, condensate_return_fraction,
     blowdown_fraction, makeup_water_T_K, feedwater_heating 'not_charged'|'deaerator_steam' (needs condensate_T_K),
-    auxiliary_power_kWh_per_tonne}]. fired_heat: {furnace_efficiency}. cooling_water: {supply_T_K, return_T_K,
+    auxiliary_power_kWh_per_tonne, blowdown_heat_recovery {flash_pressure_Pa and/or drain_T_K} (deaerator_steam only)}].
+    fired_heat: {furnace_efficiency}. cooling_water: {supply_T_K, return_T_K,
     pump_head_m, pump_efficiency, evaporation_latent_fraction, drift_fraction, cycles_of_concentration,
     fan_power_kWh_per_m3, treatment_cost_per_m3_makeup}. refrigeration: [{name, evaporator_T_K, condenser_T_K,
     second_law_efficiency, heat_rejection (price per GJ or 'cooling_water')}]. electricity: {} | {time_of_use_fractions}
@@ -1072,6 +1087,48 @@ def combustion_efficiency(fuel: dict[str, object], air: dict[str, object], press
                                                 flue_CO_dry_mole_fraction, stack_T_K, setting_loss_fraction,
                                                 setting_loss_basis, absorbed_duty_W, fuel_flow_kg_s, fuel_price_basis),
                       default=float, ensure_ascii=False)
+
+
+@beta_tool
+def steam_system_diagnostic(currency: str, fuel: dict[str, object] | None = None, combustion: dict[str, object] | None = None,
+                            boiler: dict[str, object] | None = None, water: dict[str, object] | None = None,
+                            fuel_cost: dict[str, object] | None = None, water_cost: dict[str, object] | None = None,
+                            electricity_cost: dict[str, object] | None = None, operation: dict[str, object] | None = None,
+                            measures: dict[str, object] | None = None, reference: str | None = None,
+                            exchange_rates: dict[str, float] | None = None) -> str:
+    """Steam diagnostic of one boiler in ONE call: chains combustion_efficiency and utility_costs (baseline) and re-runs
+    them with one change per savings measure and with all changes at once. Nothing is assumed.
+    fuel: as combustion_efficiency. combustion: {site_pressure_Pa, air {T_K, relative_humidity|humidity_ratio_kg_kg},
+    flue_O2 {mole_fraction, basis} OR excess_air_fraction, stack_T_K, setting_loss_fraction, setting_loss_basis,
+    flue_CO_dry_mole_fraction?}. boiler: {steam_pressure_Pa (absolute), blowdown_fraction, superheat_K?,
+    auxiliary_power_kWh_per_tonne?}. water: {feedwater_heating 'deaerator_steam'|'mixing_only'|'not_charged',
+    feedwater_T_K (not needed with mixing_only), makeup_water_T_K, condensate_return_fraction, condensate_T_K}.
+    fuel_cost: {price_per_GJ, basis} | {bill: {amount, period, energy_GJ + basis | volume_m3 + volume_reference {T_K,
+    P_Pa} | mass_kg}}. water_cost: {price_per_m3} | {bill: {amount, volume_m3, period}}. electricity_cost (only with
+    auxiliary power): {price_per_kWh} | {bill: {amount, energy_kWh, period}} | {time_of_use_per_kWh,
+    time_of_use_fractions}, + demand_charge_per_kW_month?, load_factor?. reference: id of a PUBLISHED bank price, only
+    if the user asks. operation: {hours_per_year, steam_generated_kg_s OR fuel_consumption {energy_GJ_per_year + basis |
+    volume_m3_per_year + volume_reference | mass_kg_per_year | from_fuel_bill}, annual_basis 'steam'|'fuel' if both}.
+    measures: reduce_excess_air {target_flue_O2 | target_excess_air_fraction, stack_T_K_after?},
+    reduce_stack_temperature {target_stack_T_K, device?}, reduce_blowdown {target_blowdown_fraction},
+    recover_blowdown_heat {flash_pressure_Pa and/or drain_T_K}, increase_condensate_return
+    {target_condensate_return_fraction, condensate_T_K_after?, feedwater_T_K_after?}; each takes investment.
+    Returns baseline, measures, combined, provenance, missing_data, evidence, warnings, assumptions, not_included."""
+    return json.dumps(TST.steam_system_diagnostic(currency, fuel, combustion, boiler, water, fuel_cost, water_cost,
+                                                  electricity_cost, operation, measures, reference, exchange_rates),
+                      default=float, ensure_ascii=False)
+
+
+@beta_tool
+def steam_diagnostic_report(inputs: dict[str, object], plant_label: str | None = None, notice: str | None = None) -> str:
+    """Client-readable report (Spanish Markdown) of the steam diagnostic, assembled deterministically from the engine
+    (no number the engine did not produce). inputs: the SAME arguments given to steam_system_diagnostic, as one dict
+    ({currency, fuel, combustion, boiler, water, fuel_cost, water_cost, ...}); the engine is re-run on them.
+    plant_label: name for the title. notice: bold notice on top (e.g. an illustrative-case warning).
+    Returns markdown, headline numbers, sections, evaluated and not evaluated measures, verified."""
+    out = TST.steam_diagnostic_report(None, inputs, plant_label, notice)
+    out.pop("diagnostic", None)
+    return json.dumps(out, default=float, ensure_ascii=False)
 
 
 @beta_tool
@@ -1327,6 +1384,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, utility_costs, list_utility_price_references, combustion_efficiency, fired_heater_radiant, fired_heater_convection, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, optimize_design_bayesian, suggest_experiments, absorption_stages,
+               steam_system_diagnostic, steam_diagnostic_report,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,

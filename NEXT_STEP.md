@@ -1,9 +1,30 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-14 (M1-M18 cerrados: hornos y calderas, 76 tools; M18 con la sección radiante parcial y la de convección sin validar)
+Actualizado: 2026-11-14 (M1-M19 cerrados: diagnóstico de vapor, 78 tools; primer producto para el cliente elegido, sin validar con plantas)
 
 ## Dónde estamos
 **Decisión del owner (2026-11-14): el primer cliente son las plantas con vapor.** Definición del cliente, el problema, la oferta (diagnóstico de vapor) y las hipótesis sin validar en `docs/CLIENTE_Y_PRODUCTO.md`. Motivo: DWSIM ya trae su propio asistente de IA, así que «IA que arma simulaciones» no es lo nuevo; lo que se vende es el estudio comprobado. 0 conversaciones con plantas hasta hoy.
+
+**Bloque M19 (2026-11-14): diagnóstico de vapor, 78 tools, ✅ con límites declarados.** Es el primer producto para el cliente elegido. Antes un agente tenía que encadenar cinco tools a mano y nada calculaba medidas de ahorro; ahora llama a una y obtiene el estudio, y una segunda lo vuelve el reporte que lee el cliente.
+- `steam_system_diagnostic`: de lo que una planta puede entregar (combustible y recibos o precios, agua, electricidad, presión, O2 o exceso de aire, chimenea, aire, pérdida por paredes, agua de alimentación, retorno de condensado, purga, horas y producción de vapor o consumo de combustible) da: (1) línea base: eficiencia con desglose de pérdidas, costo del vapor por tonelada y por GJ con desglose, combustible, agua, electricidad y costo al año; (2) cinco medidas, cada una repitiendo los mismos motores con un solo cambio: bajar el exceso de aire, bajar la chimenea (economizador o precalentador), bajar la purga, recuperar el calor de la purga (flasheo y/o intercambiador) y regresar más condensado; (3) el caso combinado en una sola corrida, junto a la suma de las individuales; (4) retorno simple solo si la planta da la inversión; (5) procedencia de cada cifra (dato de la planta, calculado con qué herramienta, referencia publicada con fuente y fecha) y la lista de lo que faltó y qué impide; (6) `warnings`, `assumptions`, `not_included` y `evidence` con `verified`.
+- No repite física: orquesta `combustion_efficiency` (M18) y `utility_costs` (M17). Lo único nuevo en un motor es la clave opcional `blowdown_heat_recovery` del nivel de vapor de `utility_costs` (flasheo al desaireador e intercambiador al repuesto, con el balance de la isla cerrado).
+- Qué pasa si falta algo: un dato esencial (precio del combustible o del agua, O2, chimenea, pérdida por paredes, purga...) → se niega una vez con la lista completa. Un objetivo → «no evaluada: falta el dato» con lo que hace falta. La inversión → ahorro sí, retorno no. Horas o producción → solo cifras por tonelada. Chimenea objetivo en o bajo el punto de rocío del agua → no se evalúa; el rocío ácido no se modela y se dice.
+- `steam_diagnostic_report`: Markdown en español para un gerente de planta (resumen con tres números, línea base, a dónde se va la energía, medidas ordenadas por ahorro, caso combinado, lo no evaluado, de dónde sale cada número, supuestos, comprobaciones, glosario). Se arma sin modelo de lenguaje; siempre vuelve a correr el motor y rechaza un resultado con un número cambiado.
+- `docs/DATOS_PARA_DIAGNOSTICO.md`: lista de una página de qué pedir a la planta, para qué y qué pasa si falta; una prueba la ata a las entradas reales del motor.
+- Validación con los ejemplos de cinco Steam Tip Sheets del DOE (enero 2012, PDF de energy.gov leídos hoy; se pudieron abrir los cinco), corridos por la misma tool: #9 purga 72 604 contra 72 631 USD (−0.04 %); #8 condensado 121 740 contra 121 760 USD (−0.02 %); #10 calor de purga 8 940 contra 8 500 MMBtu (+5.2 %; −0.03 % contra su propia fórmula sin el redondeo de su tabla); #4 combustión 28 383 contra 29 482 MMBtu (−3.7 %, por el desfase de 0.4-0.6 puntos de eficiencia ya medido en M18); #3 economizador 286 224 contra 386 400 USD (−25.9 %: la hoja no es consistente con la tabla de combustión del propio DOE, que da 296 887 USD; el motor queda a −3.6 % de esa). Nada se ajustó para coincidir.
+- Herramientas del DOE (verificado hoy en su repositorio y en energy.gov): MEASUR 1.10.0 (2026-10-21) está vigente, es gratuita y de código abierto con licencia permisiva de UT-Battelle; su módulo de vapor sucede a SSAT/SSMT (la página antigua del SSMT da 404) y modela caldera, turbinas, flasheo, desaireador y hasta tres cabezales. La física de este diagnóstico ya existe ahí. Una prueba de caldera de MEASUR se reproduce a +0.003 %. MEASUR no se instaló.
+- Caso ILUSTRATIVO (inventado, no es un cliente; MOCKS `ENTRADAS-ILUSTRATIVAS-M19`), con la tarifa GDMTH de CFE nombrada como referencia y marcada en el reporte: vapor 11 700 777 MXN/año (354.6 MXN/t), eficiencia 78.6 % (PCS); cuatro medidas evaluadas, juntas 912 471 MXN/año (7.8 %) contra 1 175 454 de la suma; la quinta sale «no evaluada: falta el dato».
+- Evidencia: `notebooks/32_diagnostico_de_vapor.py`, `.json` y `_reporte.md`, `tests/test_steam_diagnostic.py` (25 pruebas, sin red), filas M19 de `BENCHMARK.md`, MOCKS `ENTRADAS-ILUSTRATIVAS-M19`, `SUPUESTOS-DIAGNOSTICO-M19`, `DIAGNOSTICO-PENDIENTE-M19`. Suite completa 644 passed, 22 skipped (antes 619 y 22).
+
+No cubierto en M19:
+1. Ningún diagnóstico con datos de una planta real. La lista de datos y el reporte son hipótesis hasta que una planta los use.
+2. Un solo punto de operación promedio: sin curva de carga, arranques ni eficiencia a carga parcial.
+3. Sin rocío ácido, calderas de condensación, fugas, trampas de vapor, aislamiento, química del agua (la purga mínima no se comprueba), emisiones ni su costo.
+4. La inversión de las medidas nunca se estima; sin cotización no hay retorno.
+5. La pérdida por paredes es obligatoria y una planta casi nunca la tiene: hoy el diagnóstico se niega sin ella.
+6. Gas natural de México sin referencia en el banco: el precio lo da la planta (recibos).
+7. La hoja #3 del DOE no se reproduce y no hay tercera fuente para decidir; MEASUR no se usó, solo se leyó.
+8. El reporte sale en Markdown; no hay PDF ni formato con marca.
 
 **Bloque M18 (2026-11-14): hornos y calderas, 76 tools, ✅ parcial.** Fila «Hornos y calderas» del mapa: ⬜ → ✅ parcial.
 - `combustion_efficiency` ✅: de un combustible (gas por composición molar, o líquido/sólido por análisis elemental con poder calorífico medido), el aire (temperatura, humedad) y el exceso de aire o el O2 medido (base seca o húmeda; CO medido opcional) da aire estequiométrico y real, gases húmedos y secos, HHV y LHV, punto de rocío del agua, llama adiabática (ruta de Cantera existente) y, con la temperatura de chimenea y la pérdida por paredes, la eficiencia en base HHV y LHV con el desglose de pérdidas, más combustible y aire para una carga. Entalpías de los polinomios NASA de Cantera. Nada de operación se supone.
@@ -328,6 +349,8 @@ Bloques 18-23 del mismo día: transporte, costo, costo anual, optimizador 1D, ma
 Fluxo: rama `feature/reactor-cinetico`, sin tocar desde el bloque 12.
 
 ## Siguiente acción exacta
+**Tras M19 (2026-11-14):** el siguiente paso del producto no es código: es probar el diagnóstico de vapor con los datos de una planta real (a quién y cuándo lo decide el owner; nadie ha sido contactado). Lo que se le pide está en `docs/DATOS_PARA_DIAGNOSTICO.md`; lo que se le entrega es el Markdown de `steam_diagnostic_report` (ejemplo ilustrativo en `notebooks/32_diagnostico_de_vapor_reporte.md`). Sin planta, lo que sí puede avanzar son las decisiones 3 a 8 de M19 (abajo).
+
 Orden fijado por el owner (2026-11-05, «sigue con esos 4 en orden»):
 1. ✅ Conjunto apartado de HAZOP (bloque 25).
 2. ✅ Bloque 26: variables enteras + costo de platos y relleno.
@@ -355,6 +378,19 @@ Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CS
 en DWSIM 10.2.12 (usar `Isothermal()`); un `solve()` de DWSIM puede no regresar (columna PR polar; también una vez la columna shortcut con Sonnet): el arnés ya mata el grupo al vencer el timeout, pero el servidor MCP no tiene timeout por llamada; en Fluxo usar NRTL para polares (solo motor; la UI aún no lo expone).
 
 ## Decisiones pendientes del owner
+- **M19, diagnóstico de vapor** (2026-11-14):
+  1. Nombre y precio del diagnóstico. No están definidos y no se propusieron.
+  2. Con qué planta se prueba primero y quién la contacta. Nadie fue contactado.
+  3. Pérdida por paredes: hoy es obligatoria y la planta casi nunca la tiene. ¿Se permite «no la sé» y se entrega la eficiencia de combustión declarando que falta, o se ofrece un valor etiquetado como supuesto (misma pregunta que M18 punto 1)?
+  4. Criterio de aceptación del diagnóstico: ¿bastan los ejemplos del DOE (tres a ≤ 0.04 %, #4 a −3.7 %, #3 no reproducible) o hace falta un caso de planta con medición antes y después?
+  5. Pérdida por paredes entre casos: se mantiene como fracción del poder calorífico (hoy) o constante en kW.
+  6. Cuando se dan producción de vapor y consumo de combustible: hoy el usuario elige la base anual (`annual_basis`). ¿Fijar una regla, y a partir de qué diferencia entre las dos eficiencias se avisa o se niega? Hoy solo se reporta la diferencia.
+  7. Margen sobre el punto de rocío del agua: hoy solo se rechaza en o bajo el punto de rocío y se informa el margen. ¿Fijar un margen mínimo, o modelar el rocío ácido?
+  8. Precio de los ahorros con recibos: hoy precio medio (importe ÷ energía). ¿Pedir el cargo variable por separado?
+  9. Alcance siguiente: carga variable (varios puntos de operación), trampas y fugas, aislamiento, emisiones de CO2, varias calderas, precalentador de aire con su propia temperatura de aire.
+  10. Formato de entrega del reporte: Markdown (hoy), PDF, documento con marca. ¿Captura de datos en una hoja o formulario para la planta?
+  11. ¿Refrescar MEASUR como contraste permanente (instalarlo y comparar caso por caso)?
+  12. Qué hacer con la hoja #3 del DOE: se deja documentada como no reproducible o se busca una tercera fuente (ASME PTC 4, un manual de fabricante).
 - **M18, hornos y calderas** (2026-11-14):
   1. ¿Ofrecer valores típicos etiquetados como supuesto (pérdida por paredes, emisividad de tubo, flujo medio admisible por servicio, convección en el hogar, exceso de aire por tipo de quemador)? Hoy se exigen todos.
   2. Emisividad del gas: se queda la WSGG de Smith 1982 o se busca otra (Leckner, Bordbar 2014, Alberti 2018, cartas de Hottel de una fuente legible). Hoy difiere 20 % de las cartas de Kern a trayectorias largas.

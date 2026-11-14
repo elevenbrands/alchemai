@@ -437,6 +437,7 @@ from packages.dwsim_client.tools_kinetics import KINETICS_TOOLS
 from packages.dwsim_client.tools_economics import ECONOMICS_TOOLS
 from packages.dwsim_client.tools_utilities import UTILITIES_TOOLS
 from packages.dwsim_client.tools_combustion import COMBUSTION_TOOLS
+from packages.dwsim_client.tools_steam import STEAM_TOOLS
 from packages.dwsim_client.tools_flow import FLOW_TOOLS
 from packages.dwsim_client.tools_heat import HEAT_TOOLS
 from packages.dwsim_client.tools_energy import ENERGY_TOOLS
@@ -454,4 +455,4 @@ from packages.vle.tool import vle_binary_regression  # noqa: E402
 
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
          define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
-         *SWEEP_TOOLS, *TRANSPORT_TOOLS, *FLOW_TOOLS, *HEAT_TOOLS, *ENERGY_TOOLS, *COSTING_TOOLS, *ECONOMICS_TOOLS, *UTILITIES_TOOLS, *COMBUSTION_TOOLS, *OPTIMIZE_TOOLS, *MASS_TRANSFER_TOOLS, *KINETICS_TOOLS, *CONTROL_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion, fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet]
+         *SWEEP_TOOLS, *TRANSPORT_TOOLS, *FLOW_TOOLS, *HEAT_TOOLS, *ENERGY_TOOLS, *COSTING_TOOLS, *ECONOMICS_TOOLS, *UTILITIES_TOOLS, *COMBUSTION_TOOLS, *STEAM_TOOLS, *OPTIMIZE_TOOLS, *MASS_TRANSFER_TOOLS, *KINETICS_TOOLS, *CONTROL_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion, fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet]

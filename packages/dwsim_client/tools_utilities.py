@@ -26,7 +26,9 @@ def utility_costs(currency: str, prices: dict | None = None, reference: str | No
       periodo y antigüedad). Sin prices ni reference la herramienta se niega y lista las referencias. El agua nunca viene del banco.
     steam: [{name, pressure_Pa (absoluta), superheat_K (0 = saturado), boiler_efficiency, feedwater_T_K,
       condensate_return_fraction, blowdown_fraction (de la alimentación), makeup_water_T_K, feedwater_heating: 'not_charged'
-      (costo de generación tipo DOE) | 'deaerator_steam' (necesita condensate_T_K), auxiliary_power_kWh_per_tonne (opcional)}].
+      (costo de generación tipo DOE) | 'deaerator_steam' (necesita condensate_T_K), auxiliary_power_kWh_per_tonne (opcional),
+      blowdown_heat_recovery (opcional, solo con 'deaerator_steam'): {flash_pressure_Pa y/o drain_T_K} = tanque de flasheo
+      cuyo vapor va al desaireador y/o intercambiador que calienta el agua de repuesto y deja la purga a drain_T_K}].
     fired_heat: {furnace_efficiency}.
     cooling_water: {supply_T_K, return_T_K, pump_head_m, pump_efficiency, evaporation_latent_fraction, drift_fraction,
       cycles_of_concentration; opcionales fan_power_kWh_per_m3, treatment_cost_per_m3_makeup}.

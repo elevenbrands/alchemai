@@ -46,14 +46,25 @@ El nombre del diagnóstico y su precio son decisión del owner. No están defini
 | Recuperación de calor entre corrientes | `pinch_analysis`, `pinch_from_flowsheet`, trade-off (M5, bloque 20) | validadas |
 | Costo anual e inversión | `annual_cost`, `capital_investment` (M3) | validadas |
 | Gas natural de México como referencia | — | falta (IPGN tras CAPTCHA); lo da el cliente |
-| Diagnóstico de punta a punta en un solo flujo | — | no existe todavía |
+| Diagnóstico de punta a punta en un solo flujo | `steam_system_diagnostic` (M19) | hecho: línea base, 5 medidas, caso combinado, procedencia; reproduce los ejemplos de 5 hojas del DOE (3 a ≤ 0.04 %, 2 con diferencia explicada) |
+| Reporte para el cliente | `steam_diagnostic_report` (M19) | hecho: Markdown en español armado sin modelo de lenguaje; ejemplo ilustrativo en `notebooks/32_diagnostico_de_vapor_reporte.md` |
+| Lista de datos que se piden a la planta | `docs/DATOS_PARA_DIAGNOSTICO.md` | hecha desde las entradas reales del motor; sin validar con plantas |
+| Diagnóstico con datos de una planta real | — | no existe: 0 plantas |
 
 ## Qué es nuevo y qué no
 
 No es nuevo:
 - Una IA que arma simulaciones: DWSIM trae su propio asistente desde 2026; AVEVA y AspenTech van por ahí.
-- Calculadoras de sistemas de vapor: el DOE de EE. UU. publica herramientas gratuitas en inglés (por verificar
-  cuáles siguen vigentes y qué cubren).
+- Calculadoras de sistemas de vapor: el DOE de EE. UU. publica MEASUR, gratuita y de código abierto (verificado el
+  2026-11-14 en su repositorio `ORNL-AMO/AMO-Tools-Desktop` y en energy.gov: versión 1.10.0 del 2026-10-21, web en
+  measur.ornl.gov y de escritorio, licencia permisiva propia de UT-Battelle). Su módulo de vapor es el sucesor de SSAT y
+  SSMT (la página antigua del Steam System Modeler ya responde 404): modela caldera, turbinas, tanques de flasheo,
+  desaireador y hasta tres cabezales, compara escenarios y trae calculadoras de pérdida por chimenea, purga y economizador.
+  Es decir, la física de este diagnóstico ya existe gratis, y con más alcance en cabezales y turbinas. Lo que el
+  diagnóstico hace y no vimos en MEASUR (leído de su documentación y código, no usado): calcular la eficiencia desde la
+  composición del gas y el O₂ medido en vez de pedirla, partir de recibos y tarifas de CFE en pesos, negarse o declarar qué
+  faltó, decir de dónde sale cada número y entregar el reporte en español. No encontramos archivos de traducción en su
+  repositorio. Una prueba de caldera de MEASUR se reproduce a +0.003 %.
 
 Lo que no encontramos en otro lado (cuatro búsquedas el 2026-11-14, no un estudio de mercado):
 - No da un número sin prueba; si no puede comprobarlo, se niega.
