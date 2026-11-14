@@ -776,6 +776,38 @@ def test_published_setting_loss_scales_with_the_declared_load():
         TS.steam_system_diagnostic(**plant(boiler={"rated_steam_capacity_kg_s": 1.0}))
 
 
+def test_published_targets_only_by_name_and_only_for_natural_gas(full):
+    pub = {"reduce_excess_air": {"use_published_target": True}, "reduce_stack_temperature": {"use_published_target": True}}
+    out = TS.steam_system_diagnostic(**plant(measures=pub))
+    json.dumps(out)
+    air, stack = measure(out, "reduce_excess_air"), measure(out, "reduce_stack_temperature")
+    assert air["status"] == stack["status"] == "evaluated"
+    assert air["result"]["boiler"]["excess_air_fraction"] == pytest.approx(0.10, rel=1e-9)
+    assert stack["result"]["boiler"]["stack_T_K"] == pytest.approx((250.0 - 32.0) / 1.8 + 273.15)
+    assert "DOE/GO-102012-3405" in air["published_target"]["source"] and "DOE/GO-102012-3412" in stack["published_target"]["source"]
+    assert any("NO lo dio la planta" in n for n in air["notes"]) and any("NO lo dio la planta" in n for n in stack["notes"])
+    assert sum(w.startswith(SD.TARGET_FLAG) for w in out["warnings"]) == 2 and out["warnings"][0].startswith(SD.TARGET_FLAG)
+    assert {v["id"] for v in out["assumed_values"]} == {"target_reduce_excess_air", "target_reduce_stack_temperature"}
+    # same numbers as a plant that gives those targets itself; only the labelling differs
+    own = TS.steam_system_diagnostic(**plant(measures={
+        "reduce_excess_air": {"target_excess_air_fraction": 0.10},
+        "reduce_stack_temperature": {"target_stack_T_K": (250.0 - 32.0) / 1.8 + 273.15, "device": "economizer"}}))
+    assert out["combined"]["savings"]["per_tonne"]["cost"] == pytest.approx(own["combined"]["savings"]["per_tonne"]["cost"], rel=1e-12)
+    assert own["assumed_values"] == [] and "published_target" not in measure(own, "reduce_excess_air")
+    # not for a fuel the sources do not cover, not when already there, not together with the plant's own target
+    lp = TS.steam_system_diagnostic(**swap(fuel={"type": "gas", "composition": {"C3H8": 0.6, "n-C4H10": 0.4}, "T_K": 298.15},
+                                           measures=pub))
+    assert all(measure(lp, k)["status"] == "not_evaluated" and "gas natural" in measure(lp, k)["reason"] for k in pub)
+    tuned = TS.steam_system_diagnostic(**plant(combustion={"flue_O2": {"mole_fraction": 0.015, "basis": "dry"}}, measures=pub))
+    assert "igual o\n" not in measure(tuned, "reduce_excess_air")["reason"] and "ya opera" in measure(tuned, "reduce_excess_air")["reason"]
+    with pytest.raises(ValueError, match="no los dos"):
+        TS.steam_system_diagnostic(**plant(measures={"reduce_excess_air": {"use_published_target": True,
+                                                                           "target_excess_air_fraction": 0.12}}))
+    with pytest.raises(ValueError, match="claves desconocidas"):
+        TS.steam_system_diagnostic(**plant(measures={"reduce_blowdown": {"use_published_target": True}}))
+    assert "Objetivo de la medida" in TS.steam_diagnostic_report(inputs=plant(measures=pub))["markdown"]
+
+
 def test_the_data_checklist_names_every_input_of_the_engine():
     """docs/DATOS_PARA_DIAGNOSTICO.md is what the owner hands to a plant: it must not drift from the engine's inputs."""
     from pathlib import Path

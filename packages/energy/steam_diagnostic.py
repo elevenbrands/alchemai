@@ -38,8 +38,9 @@ MEASURE_LABEL = {
     "increase_condensate_return": "Regresar más condensado",
 }
 MEASURE_KEYS = {
-    "reduce_excess_air": ["target_flue_O2", "target_excess_air_fraction", "stack_T_K_after", "investment"],
-    "reduce_stack_temperature": ["target_stack_T_K", "device", "investment"],
+    "reduce_excess_air": ["target_flue_O2", "target_excess_air_fraction", "stack_T_K_after", "investment",
+                          "use_published_target"],
+    "reduce_stack_temperature": ["target_stack_T_K", "device", "investment", "use_published_target"],
     "reduce_blowdown": ["target_blowdown_fraction", "investment"],
     "recover_blowdown_heat": ["flash_pressure_Pa", "drain_T_K", "investment"],
     "increase_condensate_return": ["target_condensate_return_fraction", "condensate_T_K_after", "feedwater_T_K_after",
@@ -76,6 +77,29 @@ COMBUSTION_KEYS = ["site_pressure_Pa", "air", "flue_O2", "excess_air_fraction", 
 # labelled as an assumption everywhere. It is never applied silently: the caller must say `setting_loss_unknown: true`.
 # The value is the upper limit of the statement in the source (read 2026-11-14 from the PDF on energy.gov).
 SETTING_LOSS_FLAG = "PÉRDIDA POR PAREDES SUPUESTA, NO MEDIDA"
+# Targets a plant without a supplier's figure may ask for by name (`use_published_target: true`). Natural gas only: the
+# sources state them for natural gas. Both PDFs read on 2026-11-14 from energy.gov.
+TARGET_FLAG = "OBJETIVO PUBLICADO, NO DEL PROVEEDOR"
+NATURAL_GAS_MIN_METHANE = 0.70
+_DOE = "https://www.energy.gov/sites/prod/files/2014/05/f16/"
+PUBLISHED_TARGETS = {
+    "reduce_excess_air": {
+        "id": "DOE-STEAM-TIP-4-EXCESS-AIR", "set": {"target_excess_air_fraction": 0.10}, "text": "10 % de exceso de aire",
+        "statement": "en sistemas de gas natural bien diseñados es alcanzable un exceso de aire de 10 %",
+        "source": "U.S. DOE, Steam Tip Sheet #4, DOE/GO-102012-3405, enero 2012", "url": _DOE + "steam4_boiler_efficiency.pdf",
+        "retrieved": "2026-11-14",
+        "caveat": "es lo que la publicación llama alcanzable en un sistema bien diseñado; si el quemador de la planta lo logra "
+                  "sin producir monóxido de carbono lo decide una prueba de combustión"},
+    "reduce_stack_temperature": {
+        "id": "DOE-STEAM-TIP-3-STACK", "set": {"target_stack_T_K": (250.0 - 32.0) / 1.8 + 273.15},
+        "text": "chimenea a 250 °F (121 °C)",
+        "statement": "la temperatura más baja a la que se pueden enfriar los gases es 250 °F con gas natural, para evitar "
+                     "condensación y corrosión",
+        "source": "U.S. DOE, Steam Tip Sheet #3, DOE/GO-102012-3412, enero 2012", "url": _DOE + "steam3_recovery.pdf",
+        "retrieved": "2026-11-14",
+        "caveat": "es el límite inferior que da la publicación, así que el ahorro es el máximo posible con un economizador; el "
+                  "proveedor del equipo dirá a qué temperatura llega de verdad"},
+}
 # measured by tests/test_steam_diagnostic.py::test_fitted_gas_against_the_reference_gases; change both together
 FUEL_SURROGATE_NOTE = ("Comprobado contra seis gases naturales de referencia con composición completa: el gas equivalente cambia "
                        "la eficiencia menos de 0.15 puntos (base PCS) y da el CO2 entre 0.9 y 3.2 % más bajo (9 % más bajo "
@@ -415,6 +439,29 @@ def _residuals(case: dict) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------------- measures
+def _published_target(name: str, m: dict, spec0: dict, base: dict) -> tuple[dict | None, str | None]:
+    """The published target of a measure, or why it does not apply. Never used unless the measure asks for it by name."""
+    if name not in PUBLISHED_TARGETS:
+        raise ValueError(f"measures.{name}.use_published_target: no hay objetivo publicado para esta medida; da el objetivo de "
+                         "la planta.")
+    T = PUBLISHED_TARGETS[name]
+    own = [k for k in ("target_flue_O2", "target_excess_air_fraction", "target_stack_T_K") if m.get(k) is not None]
+    if own:
+        raise ValueError(f"measures.{name}: diste use_published_target y también {own}. Usa el objetivo de la planta o el "
+                         "publicado, no los dos.")
+    fuel = spec0["fuel"]
+    if fuel.get("type") != "gas" or (fuel.get("composition") or {}).get("CH4", 0.0) < NATURAL_GAS_MIN_METHANE:
+        return None, ("el objetivo publicado es para gas natural y este combustible no lo es; hace falta el objetivo del "
+                      "proveedor")
+    if name == "reduce_excess_air" and base["boiler"]["excess_air_fraction"] <= T["set"]["target_excess_air_fraction"]:
+        return None, (f"la caldera ya opera con {100 * base['boiler']['excess_air_fraction']:.1f} % de exceso de aire, igual o "
+                      f"mejor que el objetivo publicado ({T['text']})")
+    if name == "reduce_stack_temperature" and spec0["stack_T_K"] <= T["set"]["target_stack_T_K"]:
+        return None, (f"la chimenea ya está a {spec0['stack_T_K'] - 273.15:.0f} °C, igual o más fría que el objetivo publicado "
+                      f"({T['text']})")
+    return T, None
+
+
 def _measure_changes(name: str, m: dict, spec0: dict, base_case: dict) -> tuple[dict | None, str | None, list[str], list[dict]]:
     """→ (changes to the baseline spec, reason if not evaluated, notes, what changed). No target → not evaluated."""
     notes: list[str] = []
@@ -860,12 +907,28 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     case_objs: dict = {}
     combined_changes: dict = {}
     combined_parts: list[str] = []
+    published_targets: list[tuple[str, dict]] = []
     for name in MEASURE_ORDER:
         m = dict(measures.get(name) or {})
         entry: dict = {"id": name, "label": MEASURE_LABEL[name], "status": "not_evaluated", "reason": None, "needs": None,
                        "changed": [], "notes": [], "result": None, "savings": None, "investment": m.get("investment"),
                        "simple_payback_years": None, "payback_note": None}
+        target = None
+        if m.pop("use_published_target", None):
+            target, why = _published_target(name, m, spec0, base)
+            if target is None:
+                entry["reason"] = f"no evaluada: {why}"
+                results.append(entry)
+                continue
+            m.update(target["set"])
+            if name == "reduce_stack_temperature" and m.get("device") is None:
+                m["device"] = "economizer"
         changes, reason, notes, changed = _measure_changes(name, m, spec0, base_case)
+        if target is not None:
+            entry["published_target"] = {k: target[k] for k in ("id", "text", "statement", "source", "url", "retrieved", "caveat")}
+            notes = [f"El objetivo ({target['text']}) NO lo dio la planta ni un proveedor: es de {target['source']} "
+                     f"({target['statement']}); {target['caveat']}."] + [n for n in notes if not n.startswith("El objetivo de oxígeno")]
+            published_targets.append((name, target))
         entry["notes"], entry["changed"] = notes, changed
         if changes is None:
             entry["reason"] = f"no evaluada: {reason}"
@@ -1167,7 +1230,7 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
         "investment": "inversión"}
     for name in MEASURE_ORDER:
         for k, v in (measures.get(name) or {}).items():
-            if v is None:
+            if v is None or k == "use_published_target":
                 continue
             if k == "target_flue_O2":
                 v, unit = float(v["mole_fraction"]), f"fracción (base {'seca' if v.get('basis') == 'dry' else 'húmeda'})"
@@ -1269,20 +1332,27 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
 
     P = spec0["steam_pressure_Pa"]
     base["steam"]["pressure_gauge_Pa"] = P - P_site
-    first = (U.REFERENCE_FLAG, SETTING_LOSS_FLAG, FR.FUEL_UNKNOWN_FLAG)
-    warnings = [w for w in warnings if w.startswith(first)] + [w for w in warnings if not w.startswith(first)]
     assumed_values = []
     if fuel_info:
         assumed_values.append({
             "id": "fuel_composition", "item": "Composición del gas natural",
             "value": ", ".join(f"{k} {100 * v:.2f} %" for k, v in fuel_info["composition"].items()) + " (mol)",
             "origin": fuel_resolution["origin"], "detail": fuel_info["description"]})
+    for name, target in published_targets:
+        assumed_values.append({
+            "id": f"target_{name}", "item": f"Objetivo de la medida «{MEASURE_LABEL[name]}»", "value": target["text"],
+            "origin": REF, "detail": f"{target['statement']}. {target['source']}. Consultada el {target['retrieved']}. "
+                                     f"Límite: {target['caveat']}. {target['url']}"})
+        warnings.insert(0, f"{TARGET_FLAG}: la medida «{MEASURE_LABEL[name]}» se evaluó con {target['text']}, de "
+                           f"{target['source']} ({target['statement']}); {target['caveat']}.")
     if loss_unknown:
         assumed_values.append({
             "id": "setting_loss", "item": "Pérdida por paredes y radiación de la caldera",
             "value": f"{100.0 * setting_loss['value']:.2f} % del poder calorífico (base PCS)", "origin": REF,
             "detail": f"{R['statement']}; {setting_loss['value_choice']}. {R['source']}. Consultada el {R['retrieved']}. "
                       "Límites: " + "; ".join(setting_loss["limits"]) + "."})
+    first = (U.REFERENCE_FLAG, SETTING_LOSS_FLAG, FR.FUEL_UNKNOWN_FLAG, TARGET_FLAG)
+    warnings = [w for w in warnings if w.startswith(first)] + [w for w in warnings if not w.startswith(first)]
     return {
         "currency": currency, "fuel_basis": basis, "fuel": {"HHV_J_kg": f0["HHV_J_kg"], "LHV_J_kg": f0["LHV_J_kg"],
                                                            "HHV_J_Nm3": f0.get("HHV_J_Nm3"), "type": f0["type"]},

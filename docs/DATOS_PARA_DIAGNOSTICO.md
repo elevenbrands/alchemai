@@ -63,3 +63,16 @@ Sin el objetivo, la medida sale como «no evaluada: falta el dato». Sin la inve
 Curva de carga a lo largo del año, purga de fondo, fugas y trampas de vapor, aislamiento, análisis del agua, emisiones. El diagnóstico trabaja con un solo punto de operación promedio y lo declara en sus supuestos.
 
 Unidades: la herramienta recibe SI (K, Pa absolutos, kg/s, fracciones). La planta puede dar °C, kg/cm² manométricos, t/h y porcentajes; la conversión la hace quien captura, y el reporte devuelve °C, bar y kg/cm², t y porcentajes.
+
+## Cuando la planta no tiene el dato (decisiones del 2026-11-14)
+
+El diagnóstico nunca supone en silencio. Estas son las únicas salidas, y todas quedan marcadas en el reporte como supuestos:
+
+| Dato que la planta no tiene | Qué se declara | Qué usa el diagnóstico | Fuente |
+|---|---|---|---|
+| Composición del gas natural | `fuel.type` = `natural_gas_unknown` | Una mezcla ajustada al poder calorífico del recibo (energía y volumen) o al que da el proveedor (`heating_value`); sin ninguno, un gas de referencia (`reference_gas`) | Poder calorífico: dato de la planta. Gases de referencia: CoolProp (gases de NIST) |
+| Pérdida por paredes de la caldera | `combustion.setting_loss_unknown` | 1.0 % del poder calorífico superior a plena carga, dividido entre la carga si se da `boiler.rated_steam_capacity_kg_s` | Guía ORNL/TM-2001/263 del DOE, sección 4.2.5 |
+| Objetivo de exceso de aire (solo gas natural) | `measures.reduce_excess_air.use_published_target` | 10 % de exceso de aire | DOE Steam Tip Sheet #4, enero 2012 |
+| Objetivo de temperatura de chimenea (solo gas natural) | `measures.reduce_stack_temperature.use_published_target` | 250 °F (121 °C): el límite inferior publicado, así que el ahorro es el máximo posible | DOE Steam Tip Sheet #3, enero 2012 |
+
+Los demás objetivos (purga, calor de purga, retorno de condensado) y todas las inversiones siguen saliendo solo de la planta o de su proveedor.
