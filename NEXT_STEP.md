@@ -1,8 +1,25 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M15c-2 cerrados: valor por defecto condicional del término de exceso)
+Actualizado: 2026-11-14 (M1-M16 cerrados: optimización bayesiana y diseño de experimentos)
 
 ## Dónde estamos
+**Bloque M16 (2026-11-14): optimización bayesiana y diseño bayesiano de experimentos, 71 tools, ✅ con límites declarados.** Fila «Optimización bayesiana, experimentos» del mapa: ⬜ → ✅.
+- `optimize_design_bayesian` (flowsheet de DWSIM caro o que falla, 1-10 variables, enteros nativos) y `suggest_experiments` (datos de laboratorio o planta del usuario, sin simulador). Paquete `packages/bo/`; motor scikit-learn 1.9.1 (BSD-3) con adquisición propia. Summit no instala (pandas < 2); BoTorch se evaluó y se descartó (759 MB, sin mejora).
+- Números: Branin 20/20, problema con restricciones 20/20, Hartmann-6 8/20 (13/20 con 2 reinicios). DWSIM: mismo óptimo que el directo con 17 evaluaciones contra 80-145 (Nelder-Mead) y 67 (sustituto); etapas enteras en 20-36 solves contra 442. SnAr: STY 19/20 contra 0/20 al azar; factor E 1/20 (10/20 con log).
+- Evidencia: `notebooks/29_optimizacion_bayesiana.py` y `.json`, `tests/test_bayesian.py` (21 rápidas, 3 lentas con `ALCHEMAI_SLOW_BAYES=1`), filas M16 de `BENCHMARK.md`, MOCKS `SUPUESTOS-BAYESIANA`, `SUPUESTOS-EXPERIMENTOS`, `EMULADOR-SNAR`, `RESPUESTA-INVENTADA-PRUEBAS`. Suite completa 569 passed, 22 skipped (antes 548 y 19).
+
+Pendiente (decisiones del owner marcadas):
+1. **Owner: `restarts` por defecto.** Hoy 0 (lo más barato). Con 1 la herramienta comprueba óptimos locales con una corrida independiente, al doble de evaluaciones. En Hartmann-6 una corrida sola acierta el global en 8 de 20 y sale «verified» en las otras 12.
+2. **Owner: umbrales de paro y tolerancia** (0.1 × tolerancia en 5 iteraciones, mínimo max(10, 5·n) guiadas, sin mejora en max(20, 10·n), tolerancia 0.5 %). Los puse yo y los ajusté con las tres funciones de prueba.
+3. **Owner: `"log": true` automático o no.** Hoy lo decide el usuario y la tool solo avisa (factor E de SnAr: 1/20 sin log, 10/20 con log).
+4. Multiobjetivo (frente de Pareto: rendimiento contra costo o factor E). Rutas: BoTorch qNEHVI en un entorno aparte (MIT, 759 MB) o ParEGO sobre el motor actual. No implementado.
+5. Variables categóricas (disolvente, catalizador) en `suggest_experiments`. No implementado; la tool las rechaza.
+6. Cotejar las constantes del emulador SnAr con el artículo de Hone 2017 (pubs.rsc.org devolvió 403); hoy vienen del código de Summit.
+7. El factor E no llega al 1 % en 40 experimentos en la mitad de las campañas ni con log; con ruido baja a 3-4 de 20.
+8. Sin caso real con evaluaciones de minutos: los flowsheets probados resuelven en 0.05-1 s, donde la bayesiana ahorra evaluaciones pero no tiempo.
+
+Siguiente: **decisión del owner** sobre los pendientes 1-3, o el siguiente tema (multiobjetivo, layout, 3D, árbol de fallas, BST).
+
 **Bloque M15c-2 (2026-11-13): valor por defecto condicional de `excess_enthalpy`, 69 tools (mismas tools), ✅.** Decisión del owner del 2026-11-13, opción C, transmitida por la sesión principal.
 - `eo_column_optimize` y `simulate_column_nrtl`: `excess_enthalpy=None` (nuevo valor por defecto) enciende h^E solo si los parámetros de todos los pares vienen de un ajuste conjunto VLE + h^E de `vle_binary_regression` que pasó su veredicto. En cualquier otro caso queda apagado y `warnings[0]` dice qué pares no tienen respaldo calorimétrico y cómo encenderlo.
 - `True` o `False` explícitos siempre mandan y salen etiquetados como elección del usuario (`properties.excess_enthalpy.decision`). Con `True` sobre parámetros solo-VLE se conserva la etiqueta «sin validación calorimétrica».

@@ -1,0 +1,6077 @@
+{
+ "functions_branin": {
+  "criteria": {
+   "tolerance": 0.01,
+   "budget": 40,
+   "fmin": 0.397887
+  },
+  "n_seeds": 20,
+  "n_success": 20,
+  "evaluations_median": 37.0,
+  "evaluations_min_max": [
+   29,
+   40
+  ],
+  "gap_median": 2.1598671894440535e-05,
+  "gap_max": 8.398004806486892e-05,
+  "stopped_by": {
+   "expected_improvement": 18,
+   "no_improvement": 1,
+   "budget": 1
+  },
+  "verified_but_failed": 0,
+  "failed_and_flagged_by_restart_disagreement": 0,
+  "runs": [
+   {
+    "seed": 0,
+    "gap": 5.789365047348394e-05,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 15.19,
+    "runs_best": [
+     0.3979448936504735
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 1,
+    "gap": 8.398004806486892e-05,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 15.39,
+    "runs_best": [
+     0.39797098004806486
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 2,
+    "gap": 1.5512467581468847e-05,
+    "success": true,
+    "n_evaluations": 36,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 15.01,
+    "runs_best": [
+     0.39790251246758146
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 3,
+    "gap": 2.9170745221018812e-05,
+    "success": true,
+    "n_evaluations": 35,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 14.87,
+    "runs_best": [
+     0.397916170745221
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 4,
+    "gap": 2.6773163729343352e-06,
+    "success": true,
+    "n_evaluations": 36,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 14.21,
+    "runs_best": [
+     0.3978896773163729
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 5,
+    "gap": 1.1368704002090446e-05,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 14.64,
+    "runs_best": [
+     0.3978983687040021
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 6,
+    "gap": 1.892182300700096e-05,
+    "success": true,
+    "n_evaluations": 35,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 13.69,
+    "runs_best": [
+     0.397905921823007
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 7,
+    "gap": 9.049019847107154e-06,
+    "success": true,
+    "n_evaluations": 40,
+    "stopped_by": "budget",
+    "status": "not_verified",
+    "model_seconds": 17.03,
+    "runs_best": [
+     0.3978960490198471
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 8,
+    "gap": 1.2920604846367034e-05,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 11.18,
+    "runs_best": [
+     0.39789992060484636
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 9,
+    "gap": 2.4787612725840624e-05,
+    "success": true,
+    "n_evaluations": 29,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 7.4,
+    "runs_best": [
+     0.39791178761272583
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 10,
+    "gap": 6.298208636290603e-06,
+    "success": true,
+    "n_evaluations": 35,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 9.0,
+    "runs_best": [
+     0.3978932982086363
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 11,
+    "gap": 5.1445236521341364e-05,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "no_improvement",
+    "status": "verified",
+    "model_seconds": 10.31,
+    "runs_best": [
+     0.39793844523652133
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 12,
+    "gap": 3.528232835037226e-05,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 15.02,
+    "runs_best": [
+     0.39792228232835036
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 13,
+    "gap": 2.529577343035605e-06,
+    "success": true,
+    "n_evaluations": 38,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 10.71,
+    "runs_best": [
+     0.397889529577343
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 14,
+    "gap": 5.634128885101397e-06,
+    "success": true,
+    "n_evaluations": 39,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 12.12,
+    "runs_best": [
+     0.3978926341288851
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 15,
+    "gap": 4.777402304056988e-05,
+    "success": true,
+    "n_evaluations": 34,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 8.94,
+    "runs_best": [
+     0.39793477402304056
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 16,
+    "gap": 5.508507707641108e-06,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 10.4,
+    "runs_best": [
+     0.39789250850770763
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 17,
+    "gap": 2.427552078188011e-05,
+    "success": true,
+    "n_evaluations": 36,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 9.23,
+    "runs_best": [
+     0.39791127552078187
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 18,
+    "gap": 2.6335612003047792e-05,
+    "success": true,
+    "n_evaluations": 37,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 10.11,
+    "runs_best": [
+     0.39791333561200304
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 19,
+    "gap": 2.4780117167888527e-05,
+    "success": true,
+    "n_evaluations": 38,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 7.68,
+    "runs_best": [
+     0.3979117801171679
+    ],
+    "restarts_disagree": false
+   }
+  ]
+ },
+ "functions_gramacy": {
+  "criteria": {
+   "tolerance": 0.006,
+   "budget": 60,
+   "fmin": 0.5998
+  },
+  "n_seeds": 20,
+  "n_success": 20,
+  "evaluations_median": 23.0,
+  "evaluations_min_max": [
+   19,
+   27
+  ],
+  "gap_median": 9.453168043738192e-06,
+  "gap_max": 0.00016476899638739884,
+  "stopped_by": {
+   "expected_improvement": 20
+  },
+  "verified_but_failed": 0,
+  "failed_and_flagged_by_restart_disagreement": 0,
+  "runs": [
+   {
+    "seed": 0,
+    "gap": 7.437537229870728e-06,
+    "success": true,
+    "n_evaluations": 25,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 17.25,
+    "runs_best": [
+     0.5998074375372299
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 1,
+    "gap": 6.213438709434804e-05,
+    "success": true,
+    "n_evaluations": 26,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 17.05,
+    "runs_best": [
+     0.5998621343870943
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 2,
+    "gap": -5.979552907264818e-06,
+    "success": true,
+    "n_evaluations": 22,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 12.32,
+    "runs_best": [
+     0.5997940204470927
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 3,
+    "gap": 6.284153912894386e-05,
+    "success": true,
+    "n_evaluations": 24,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 16.57,
+    "runs_best": [
+     0.5998628415391289
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 4,
+    "gap": -1.1917850565312804e-06,
+    "success": true,
+    "n_evaluations": 27,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 19.51,
+    "runs_best": [
+     0.5997988082149435
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 5,
+    "gap": 3.57162236596098e-05,
+    "success": true,
+    "n_evaluations": 21,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 11.31,
+    "runs_best": [
+     0.5998357162236596
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 6,
+    "gap": 3.0544055256154223e-06,
+    "success": true,
+    "n_evaluations": 24,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 16.65,
+    "runs_best": [
+     0.5998030544055256
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 7,
+    "gap": 8.608883318106386e-06,
+    "success": true,
+    "n_evaluations": 22,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 13.15,
+    "runs_best": [
+     0.5998086088833181
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 8,
+    "gap": 1.82476446574098e-05,
+    "success": true,
+    "n_evaluations": 24,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 14.34,
+    "runs_best": [
+     0.5998182476446574
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 9,
+    "gap": -6.922782732510235e-06,
+    "success": true,
+    "n_evaluations": 27,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 16.35,
+    "runs_best": [
+     0.5997930772172675
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 10,
+    "gap": 3.5291370367174224e-06,
+    "success": true,
+    "n_evaluations": 22,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 10.56,
+    "runs_best": [
+     0.5998035291370367
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 11,
+    "gap": 3.942199991457951e-05,
+    "success": true,
+    "n_evaluations": 22,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 14.07,
+    "runs_best": [
+     0.5998394219999146
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 12,
+    "gap": -2.375961664857762e-06,
+    "success": true,
+    "n_evaluations": 22,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 10.75,
+    "runs_best": [
+     0.5997976240383351
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 13,
+    "gap": -1.1324032980208898e-06,
+    "success": true,
+    "n_evaluations": 19,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 7.86,
+    "runs_best": [
+     0.599798867596702
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 14,
+    "gap": -2.080061127895938e-06,
+    "success": true,
+    "n_evaluations": 23,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 9.5,
+    "runs_best": [
+     0.5997979199388721
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 15,
+    "gap": 1.0297452769369997e-05,
+    "success": true,
+    "n_evaluations": 27,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 11.45,
+    "runs_best": [
+     0.5998102974527694
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 16,
+    "gap": 8.234492398573323e-05,
+    "success": true,
+    "n_evaluations": 21,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 9.44,
+    "runs_best": [
+     0.5998823449239857
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 17,
+    "gap": 4.181118788515459e-05,
+    "success": true,
+    "n_evaluations": 23,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 9.0,
+    "runs_best": [
+     0.5998418111878852
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 18,
+    "gap": 0.00016476899638739884,
+    "success": true,
+    "n_evaluations": 20,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 7.41,
+    "runs_best": [
+     0.5999647689963874
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 19,
+    "gap": 5.486998904125073e-05,
+    "success": true,
+    "n_evaluations": 24,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 7.96,
+    "runs_best": [
+     0.5998548699890413
+    ],
+    "restarts_disagree": false
+   }
+  ]
+ },
+ "functions_hartmann6": {
+  "criteria": {
+   "tolerance": 0.033,
+   "budget": 120,
+   "fmin": -3.32237
+  },
+  "n_seeds": 20,
+  "n_success": 8,
+  "evaluations_median": 48.5,
+  "evaluations_min_max": [
+   44,
+   68
+  ],
+  "gap_median": 0.12325511483563001,
+  "gap_max": 2.148329201474927,
+  "stopped_by": {
+   "expected_improvement": 20
+  },
+  "verified_but_failed": 12,
+  "failed_and_flagged_by_restart_disagreement": 0,
+  "runs": [
+   {
+    "seed": 0,
+    "gap": 0.1231849863771508,
+    "success": false,
+    "n_evaluations": 50,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 28.31,
+    "runs_best": [
+     -3.199185013622849
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 1,
+    "gap": 0.12507520685878015,
+    "success": false,
+    "n_evaluations": 44,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 23.59,
+    "runs_best": [
+     -3.1972947931412197
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 2,
+    "gap": 0.12804652900782365,
+    "success": false,
+    "n_evaluations": 48,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 23.4,
+    "runs_best": [
+     -3.194323470992176
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 3,
+    "gap": 0.0026739684901282423,
+    "success": true,
+    "n_evaluations": 68,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 34.2,
+    "runs_best": [
+     -3.3196960315098716
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 4,
+    "gap": 0.0018712884719360723,
+    "success": true,
+    "n_evaluations": 49,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 28.2,
+    "runs_best": [
+     -3.3204987115280638
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 5,
+    "gap": 0.1234950143788498,
+    "success": false,
+    "n_evaluations": 44,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 24.81,
+    "runs_best": [
+     -3.19887498562115
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 6,
+    "gap": 0.128190111626171,
+    "success": false,
+    "n_evaluations": 44,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 21.79,
+    "runs_best": [
+     -3.194179888373829
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 7,
+    "gap": 0.12332524329410921,
+    "success": false,
+    "n_evaluations": 55,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 27.81,
+    "runs_best": [
+     -3.1990447567058906
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 8,
+    "gap": 0.12817278714941205,
+    "success": false,
+    "n_evaluations": 47,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 25.61,
+    "runs_best": [
+     -3.1941972128505878
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 9,
+    "gap": 0.1195777525602102,
+    "success": false,
+    "n_evaluations": 44,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 16.63,
+    "runs_best": [
+     -3.2027922474397896
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 10,
+    "gap": 0.0009744274097571726,
+    "success": true,
+    "n_evaluations": 48,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 21.21,
+    "runs_best": [
+     -3.3213955725902427
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 11,
+    "gap": 0.12793827476139352,
+    "success": false,
+    "n_evaluations": 46,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 18.49,
+    "runs_best": [
+     -3.1944317252386063
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 12,
+    "gap": 0.0011209376563723339,
+    "success": true,
+    "n_evaluations": 57,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 27.48,
+    "runs_best": [
+     -3.3212490623436275
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 13,
+    "gap": 0.0006944734384615181,
+    "success": true,
+    "n_evaluations": 54,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 23.12,
+    "runs_best": [
+     -3.3216755265615383
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 14,
+    "gap": 0.1243097001897513,
+    "success": false,
+    "n_evaluations": 52,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 24.88,
+    "runs_best": [
+     -3.1980602998102485
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 15,
+    "gap": 0.0027983048860762416,
+    "success": true,
+    "n_evaluations": 62,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 21.01,
+    "runs_best": [
+     -3.3195716951139236
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 16,
+    "gap": 0.0014568672148618234,
+    "success": true,
+    "n_evaluations": 52,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 17.3,
+    "runs_best": [
+     -3.320913132785138
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 17,
+    "gap": 0.0009150645135655999,
+    "success": true,
+    "n_evaluations": 49,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 16.72,
+    "runs_best": [
+     -3.3214549354864342
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 18,
+    "gap": 0.8910024912218071,
+    "success": false,
+    "n_evaluations": 44,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 13.29,
+    "runs_best": [
+     -2.4313675087781927
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 19,
+    "gap": 2.148329201474927,
+    "success": false,
+    "n_evaluations": 44,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 11.15,
+    "runs_best": [
+     -1.1740407985250727
+    ],
+    "restarts_disagree": false
+   }
+  ]
+ },
+ "functions_hartmann6_restarts2": {
+  "criteria": {
+   "tolerance": 0.033,
+   "budget": 120,
+   "fmin": -3.32237,
+   "restarts": 2
+  },
+  "n_seeds": 20,
+  "n_success": 13,
+  "evaluations_median": 120.0,
+  "evaluations_min_max": [
+   104,
+   120
+  ],
+  "gap_median": 0.001997078793308793,
+  "gap_max": 0.12817278714941205,
+  "stopped_by": {
+   "expected_improvement": 20
+  },
+  "verified_but_failed": 7,
+  "failed_and_flagged_by_restart_disagreement": 2,
+  "runs": [
+   {
+    "seed": 0,
+    "gap": 0.001499582669065358,
+    "success": true,
+    "n_evaluations": 104,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 47.26,
+    "runs_best": [
+     -3.199185013622849,
+     -3.3208704173309345
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 1,
+    "gap": 0.12507520685878015,
+    "success": false,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 55.17,
+    "runs_best": [
+     -3.1972947931412197,
+     -3.1934641215183626,
+     -2.3493862296786054
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 2,
+    "gap": 0.12794605643327372,
+    "success": false,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 52.2,
+    "runs_best": [
+     -3.194323470992176,
+     -3.194423943566726,
+     -1.3801359851358912
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 3,
+    "gap": 0.0026739684901282423,
+    "success": true,
+    "n_evaluations": 117,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 54.92,
+    "runs_best": [
+     -3.3196960315098716,
+     -3.3194027056677275
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 4,
+    "gap": 0.0003589872504186076,
+    "success": true,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 51.32,
+    "runs_best": [
+     -3.3204987115280638,
+     -3.322011012749581,
+     -2.6192578229883807
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 5,
+    "gap": 0.1234950143788498,
+    "success": false,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 54.13,
+    "runs_best": [
+     -3.19887498562115,
+     -3.194431050255912,
+     -2.2948638052593453
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 6,
+    "gap": 0.002884810693798201,
+    "success": true,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 47.37,
+    "runs_best": [
+     -3.194179888373829,
+     -3.3194851893062016,
+     -2.743849486031903
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 7,
+    "gap": 0.002494574917552228,
+    "success": true,
+    "n_evaluations": 105,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 45.69,
+    "runs_best": [
+     -3.1990447567058906,
+     -3.3198754250824476
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 8,
+    "gap": 0.12817278714941205,
+    "success": false,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 50.77,
+    "runs_best": [
+     -3.1941972128505878,
+     -3.1344360845521804,
+     -2.973495423178331
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 9,
+    "gap": 0.1195777525602102,
+    "success": false,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 44.86,
+    "runs_best": [
+     -3.2027922474397896,
+     -3.1943946372407632,
+     -3.02180624523118
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 10,
+    "gap": 0.00019880216191259237,
+    "success": true,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 39.03,
+    "runs_best": [
+     -3.3213955725902427,
+     -3.3221711978380872,
+     -0.8529317837343111
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 11,
+    "gap": 0.12793827476139352,
+    "success": false,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 44.66,
+    "runs_best": [
+     -3.1944317252386063,
+     -3.1374940821425947,
+     -2.263786918115581
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 12,
+    "gap": 0.00030692767267792576,
+    "success": true,
+    "n_evaluations": 104,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 41.29,
+    "runs_best": [
+     -3.3212490623436275,
+     -3.322063072327322
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 13,
+    "gap": 0.0006944734384615181,
+    "success": true,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 42.55,
+    "runs_best": [
+     -3.3216755265615383,
+     -3.196488120189037,
+     -0.9941199892890961
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 14,
+    "gap": 0.1243097001897513,
+    "success": false,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 32.06,
+    "runs_best": [
+     -3.1980602998102485,
+     -2.837309515542052
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 15,
+    "gap": 0.00017880927334834595,
+    "success": true,
+    "n_evaluations": 116,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 28.59,
+    "runs_best": [
+     -3.3195716951139236,
+     -3.3221911907266515
+    ],
+    "restarts_disagree": false
+   },
+   {
+    "seed": 16,
+    "gap": 0.0014568672148618234,
+    "success": true,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 25.01,
+    "runs_best": [
+     -3.320913132785138,
+     -3.1932139753499325,
+     -1.7085870104858403
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 17,
+    "gap": 0.0009150645135655999,
+    "success": true,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 25.53,
+    "runs_best": [
+     -3.3214549354864342,
+     -3.194444521608669,
+     -0.9372303771347195
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 18,
+    "gap": 0.0006563965727437449,
+    "success": true,
+    "n_evaluations": 104,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 24.91,
+    "runs_best": [
+     -2.4313675087781927,
+     -3.321713603427256
+    ],
+    "restarts_disagree": true
+   },
+   {
+    "seed": 19,
+    "gap": 0.0010998759273728176,
+    "success": true,
+    "n_evaluations": 120,
+    "stopped_by": "expected_improvement",
+    "status": "verified",
+    "model_seconds": 24.64,
+    "runs_best": [
+     -1.1740407985250727,
+     -3.321270124072627,
+     -1.2938699893733987
+    ],
+    "restarts_disagree": true
+   }
+  ]
+ },
+ "snar_truth_differential_evolution": {
+  "sty": {
+   "x": [
+    0.5000000000030617,
+    4.99999999865415,
+    0.4999999999969731,
+    30.89938218087731
+   ],
+   "value": 11562.262158385623,
+   "all_three_starts": [
+    11562.262158385623,
+    11562.262158286612,
+    11562.262158366682
+   ]
+  },
+  "e_factor": {
+   "x": [
+    1.9999999985711296,
+    1.1839093925327584,
+    0.4999999999996532,
+    62.07790701007847
+   ],
+   "value": 8.451597476584611,
+   "all_three_starts": [
+    8.451597476584611,
+    8.451597476674792,
+    8.451597476588118
+   ]
+  }
+ },
+ "snar_sty_noise0": {
+  "objective": "sty",
+  "maximize": true,
+  "log": false,
+  "optimum": 11562.26,
+  "noise_pct": 0.0,
+  "n_seeds": 20,
+  "experiments_per_round": 4,
+  "rounds": 10,
+  "tolerance_pct": 1.0,
+  "bayes_success_by_round": [
+   0,
+   0,
+   0,
+   5,
+   9,
+   11,
+   17,
+   18,
+   18,
+   19
+  ],
+  "random_success_by_round": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bayes_median_gap_pct_by_round": [
+   62.62197672717038,
+   31.73699468995023,
+   20.35952178430674,
+   5.375089505525947,
+   3.34303724407377,
+   0.09687847878821998,
+   0.017160361239520854,
+   0.017160361239520854,
+   0.013015024031995573,
+   0.003196751025678549
+  ],
+  "random_median_gap_pct_by_round": [
+   58.41722797298176,
+   54.851996764624296,
+   50.42922985922114,
+   41.852196845382885,
+   40.4853995872994,
+   40.4853995872994,
+   36.497012864372515,
+   34.82907982336494,
+   34.82907982336494,
+   34.09350860581324
+  ],
+  "bayes_worst_gap_pct_final": 2.0037624944208354,
+  "random_best_gap_pct_final": 17.341998390457782,
+  "runs": [
+   {
+    "seed": 0,
+    "bayes_best_by_round": [
+     7763.684256985827,
+     7763.684256985827,
+     7763.684256985827,
+     8724.377783315997,
+     10644.405196724088,
+     10788.171277333931,
+     11263.597220542419,
+     11467.046594307376,
+     11560.275874416548,
+     11560.275874416548
+    ],
+    "random_best_by_round": [
+     2513.12866025077,
+     3139.944555399591,
+     4249.788294027414,
+     4249.788294027414,
+     6301.702259522766,
+     6301.702259522766,
+     7684.077838019928,
+     7684.077838019928,
+     7684.077838019928,
+     7684.077838019928
+    ],
+    "last_mode": "model",
+    "last_q2": 0.946789201025653
+   },
+   {
+    "seed": 1,
+    "bayes_best_by_round": [
+     8095.735092928735,
+     8095.735092928735,
+     8095.735092928735,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11561.391093529519,
+     11561.391093529519
+    ],
+    "random_best_by_round": [
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9661082415370852
+   },
+   {
+    "seed": 2,
+    "bayes_best_by_round": [
+     2318.363199366468,
+     6474.9084984809715,
+     10567.817031346181,
+     10567.817031346181,
+     11492.209172982852,
+     11541.841442380375,
+     11560.275874416548,
+     11562.044893183705,
+     11562.205726013506,
+     11562.26186246925
+    ],
+    "random_best_by_round": [
+     6061.828876154489,
+     6061.828876154489,
+     6061.828876154489,
+     6328.741354951611,
+     6328.741354951611,
+     6328.741354951611,
+     6328.741354951611,
+     6789.386563593194,
+     6936.242942843352,
+     6936.242942843352
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9704491382503571
+   },
+   {
+    "seed": 3,
+    "bayes_best_by_round": [
+     6843.253816685606,
+     6843.253816685606,
+     6843.253816685606,
+     6843.253816685606,
+     11218.026800255608,
+     11218.026800255608,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11561.946770805302
+    ],
+    "random_best_by_round": [
+     4650.595777358998,
+     5118.140913181532,
+     5118.140913181532,
+     5118.140913181532,
+     5564.230600449191,
+     5564.230600449191,
+     5564.230600449191,
+     5564.230600449191,
+     7248.623007913663,
+     7248.623007913663
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9687652999211988
+   },
+   {
+    "seed": 4,
+    "bayes_best_by_round": [
+     2064.877298996963,
+     9271.14929039359,
+     9271.14929039359,
+     10956.870826315684,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.348368602368,
+     11562.221116434413,
+     11562.262123247388
+    ],
+    "random_best_by_round": [
+     6438.6428082360935,
+     6438.6428082360935,
+     6755.894828964127,
+     6755.894828964127,
+     6755.894828964127,
+     6755.894828964127,
+     8307.190073234005,
+     8307.190073234005,
+     8307.190073234005,
+     8307.190073234005
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9594171022189553
+   },
+   {
+    "seed": 5,
+    "bayes_best_by_round": [
+     4152.281654055561,
+     4152.281654055561,
+     9118.125524695435,
+     9392.794525613226,
+     10727.45764749625,
+     10940.778176138376,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548
+    ],
+    "random_best_by_round": [
+     3929.0260089212543,
+     3929.0260089212543,
+     7182.343486281116,
+     7182.343486281116,
+     7182.343486281116,
+     9557.133056899456,
+     9557.133056899456,
+     9557.133056899456,
+     9557.133056899456,
+     9557.133056899456
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9180259723583941
+   },
+   {
+    "seed": 6,
+    "bayes_best_by_round": [
+     4206.837455722301,
+     4206.837455722301,
+     9438.65677078653,
+     10940.778176138376,
+     10951.976634515653,
+     10951.976634515653,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11561.138648955464
+    ],
+    "random_best_by_round": [
+     5342.8931332895,
+     5342.8931332895,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9543930419785435
+   },
+   {
+    "seed": 7,
+    "bayes_best_by_round": [
+     3946.0667807731143,
+     8021.808058537694,
+     8021.808058537694,
+     10175.052560296175,
+     10175.052560296175,
+     11255.0293630916,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11562.254354805002
+    ],
+    "random_best_by_round": [
+     4965.220656583239,
+     4965.220656583239,
+     4965.220656583239,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9670058000224957
+   },
+   {
+    "seed": 8,
+    "bayes_best_by_round": [
+     4436.651011607841,
+     6554.5140840766135,
+     6554.5140840766135,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     11560.275874416548
+    ],
+    "random_best_by_round": [
+     3647.0522644943294,
+     3647.0522644943294,
+     3647.0522644943294,
+     4612.699924322323,
+     4612.699924322323,
+     4612.699924322323,
+     4612.699924322323,
+     4612.699924322323,
+     5042.979551139875,
+     5042.979551139875
+    ],
+    "last_mode": "model",
+    "last_q2": 0.960881255720123
+   },
+   {
+    "seed": 9,
+    "bayes_best_by_round": [
+     6997.698787036024,
+     10043.505822198395,
+     10043.505822198395,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11562.223255424566,
+     11562.223255424566,
+     11562.247346012397
+    ],
+    "random_best_by_round": [
+     3326.256610506738,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     8140.539953047499
+    ],
+    "last_mode": "model",
+    "last_q2": 0.927589207460028
+   },
+   {
+    "seed": 10,
+    "bayes_best_by_round": [
+     4819.8566206328205,
+     9906.171676855742,
+     9906.171676855742,
+     9906.171676855742,
+     10751.661321690874,
+     10751.661321690874,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.429461993726
+    ],
+    "random_best_by_round": [
+     4138.268433668183,
+     4138.268433668183,
+     4247.7756234844455,
+     6690.5055410859395,
+     6690.5055410859395,
+     6690.5055410859395,
+     6690.5055410859395,
+     6690.5055410859395,
+     7108.669338946371,
+     7108.669338946371
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9836744561385861
+   },
+   {
+    "seed": 11,
+    "bayes_best_by_round": [
+     3737.7306499747842,
+     3737.7306499747842,
+     8298.534525431256,
+     10449.262419657913,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.755331871143,
+     11560.885860551356,
+     11561.119631505491
+    ],
+    "random_best_by_round": [
+     5937.9308721814905,
+     5937.9308721814905,
+     7440.278829231202,
+     7440.278829231202,
+     7440.278829231202,
+     8525.855243695823,
+     8525.855243695823,
+     8525.855243695823,
+     8525.855243695823,
+     8525.855243695823
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9284535400477318
+   },
+   {
+    "seed": 12,
+    "bayes_best_by_round": [
+     2439.4425281469585,
+     10355.298987802562,
+     10355.298987802562,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11561.833995864416,
+     11561.833995864416,
+     11561.833995864416
+    ],
+    "random_best_by_round": [
+     5027.687807909691,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9656218410347027
+   },
+   {
+    "seed": 13,
+    "bayes_best_by_round": [
+     3781.019755715884,
+     10080.5682702433,
+     10080.5682702433,
+     11514.876347831007,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11562.189058503118,
+     11562.223232369155,
+     11562.226642023372
+    ],
+    "random_best_by_round": [
+     3682.3153505332148,
+     3682.3153505332148,
+     3682.3153505332148,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9734631973164463
+   },
+   {
+    "seed": 14,
+    "bayes_best_by_round": [
+     3683.4714348496955,
+     6856.978069685647,
+     6856.978069685647,
+     10714.467454802463,
+     10940.778176138376,
+     10940.778176138376,
+     11219.340343212054,
+     11219.340343212054,
+     11219.340343212054,
+     11330.579770612578
+    ],
+    "random_best_by_round": [
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7617.455715513699,
+     7617.455715513699,
+     9089.057542580458
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9066549960066993
+   },
+   {
+    "seed": 15,
+    "bayes_best_by_round": [
+     5140.02208045553,
+     9145.32902269004,
+     9145.32902269004,
+     11133.431883631105,
+     11133.431883631105,
+     11426.841798121357,
+     11529.594813398367,
+     11560.62447761336,
+     11560.62447761336,
+     11562.261294012102
+    ],
+    "random_best_by_round": [
+     2309.4036724137577,
+     3572.5355113661813,
+     3572.5355113661813,
+     5065.157255669153,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9213589439130297
+   },
+   {
+    "seed": 16,
+    "bayes_best_by_round": [
+     5576.154669648221,
+     9614.415001041529,
+     9614.415001041529,
+     10940.778176138376,
+     10947.504837944593,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11562.215324169081,
+     11562.249223662411
+    ],
+    "random_best_by_round": [
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9648403344198129
+   },
+   {
+    "seed": 17,
+    "bayes_best_by_round": [
+     6164.524191845308,
+     7062.455812667543,
+     7469.723525725504,
+     8975.385486477211,
+     10940.778176138376,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.358451186765,
+     11560.610965143396
+    ],
+    "random_best_by_round": [
+     5322.11812458357,
+     5322.11812458357,
+     5322.11812458357,
+     6351.317191228225,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9613349312944295
+   },
+   {
+    "seed": 18,
+    "bayes_best_by_round": [
+     2231.431640090406,
+     8632.469231225356,
+     9299.786370701851,
+     11210.156252447254,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11561.567911943883,
+     11562.257894672408
+    ],
+    "random_best_by_round": [
+     2892.0293052753727,
+     3111.0483335867893,
+     3125.559986091649,
+     7852.626072763333,
+     7852.626072763333,
+     7852.626072763333,
+     7852.626072763333,
+     7852.626072763333,
+     8656.284145555666,
+     8656.284145555666
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9460116392458658
+   },
+   {
+    "seed": 19,
+    "bayes_best_by_round": [
+     5427.990136524238,
+     5427.990136524238,
+     9480.720676286775,
+     11560.275874416548,
+     11560.35377446893,
+     11560.35377446893,
+     11560.35377446893,
+     11560.663482273001,
+     11562.259407100593,
+     11562.259407100593
+    ],
+    "random_best_by_round": [
+     2187.9548476392965,
+     2816.927246540583,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9477027763330123
+   }
+  ]
+ },
+ "snar_sty_noise2": {
+  "objective": "sty",
+  "maximize": true,
+  "log": false,
+  "optimum": 11562.26,
+  "noise_pct": 2.0,
+  "n_seeds": 20,
+  "experiments_per_round": 4,
+  "rounds": 10,
+  "tolerance_pct": 1.0,
+  "bayes_success_by_round": [
+   0,
+   0,
+   0,
+   4,
+   9,
+   9,
+   12,
+   13,
+   14,
+   14
+  ],
+  "random_success_by_round": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bayes_median_gap_pct_by_round": [
+   62.62197672717038,
+   31.73699468995023,
+   20.35952178430674,
+   5.375089505525947,
+   4.099440724457715,
+   2.1554856274879124,
+   0.07180185612740791,
+   0.017160361239520854,
+   0.017108511683772372,
+   0.01706075555464695
+  ],
+  "random_median_gap_pct_by_round": [
+   58.41722797298176,
+   54.851996764624296,
+   50.42922985922114,
+   41.852196845382885,
+   40.4853995872994,
+   40.4853995872994,
+   36.497012864372515,
+   34.82907982336494,
+   34.82907982336494,
+   34.09350860581324
+  ],
+  "bayes_worst_gap_pct_final": 5.375089505525947,
+  "random_best_gap_pct_final": 17.341998390457782,
+  "runs": [
+   {
+    "seed": 0,
+    "bayes_best_by_round": [
+     7763.684256985827,
+     7763.684256985827,
+     7763.684256985827,
+     8510.634879075687,
+     8510.634879075687,
+     11397.026288493576,
+     11397.026288493576,
+     11397.026288493576,
+     11397.026288493576,
+     11412.092037606171
+    ],
+    "random_best_by_round": [
+     2513.12866025077,
+     3139.944555399591,
+     4249.788294027414,
+     4249.788294027414,
+     6301.702259522766,
+     6301.702259522766,
+     7684.077838019928,
+     7684.077838019928,
+     7684.077838019928,
+     7684.077838019928
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9723330719648768
+   },
+   {
+    "seed": 1,
+    "bayes_best_by_round": [
+     8095.735092928735,
+     8095.735092928735,
+     8095.735092928735,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548
+    ],
+    "random_best_by_round": [
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225,
+     8004.807899132225
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9702668006222716
+   },
+   {
+    "seed": 2,
+    "bayes_best_by_round": [
+     2318.363199366468,
+     6474.9084984809715,
+     10567.817031346181,
+     10567.817031346181,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11561.012572883135,
+     11561.012572883135
+    ],
+    "random_best_by_round": [
+     6061.828876154489,
+     6061.828876154489,
+     6061.828876154489,
+     6328.741354951611,
+     6328.741354951611,
+     6328.741354951611,
+     6328.741354951611,
+     6789.386563593194,
+     6936.242942843352,
+     6936.242942843352
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9911846533596942
+   },
+   {
+    "seed": 3,
+    "bayes_best_by_round": [
+     6843.253816685606,
+     6843.253816685606,
+     6843.253816685606,
+     6843.253816685606,
+     11224.567375268978,
+     11224.567375268978,
+     11547.6402910029,
+     11547.6402910029,
+     11550.093203963848,
+     11550.093203963848
+    ],
+    "random_best_by_round": [
+     4650.595777358998,
+     5118.140913181532,
+     5118.140913181532,
+     5118.140913181532,
+     5564.230600449191,
+     5564.230600449191,
+     5564.230600449191,
+     5564.230600449191,
+     7248.623007913663,
+     7248.623007913663
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9706890592491336
+   },
+   {
+    "seed": 4,
+    "bayes_best_by_round": [
+     2064.877298996963,
+     9271.14929039359,
+     9271.14929039359,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.287864377437,
+     11560.287864377437,
+     11560.452511657844
+    ],
+    "random_best_by_round": [
+     6438.6428082360935,
+     6438.6428082360935,
+     6755.894828964127,
+     6755.894828964127,
+     6755.894828964127,
+     6755.894828964127,
+     8307.190073234005,
+     8307.190073234005,
+     8307.190073234005,
+     8307.190073234005
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9678267501810456
+   },
+   {
+    "seed": 5,
+    "bayes_best_by_round": [
+     4152.281654055561,
+     4152.281654055561,
+     9118.125524695435,
+     9429.455992822152,
+     10288.452638943802,
+     10875.562197475761,
+     10940.778176138376,
+     11560.275874416548,
+     11560.540162755662,
+     11560.630306561463
+    ],
+    "random_best_by_round": [
+     3929.0260089212543,
+     3929.0260089212543,
+     7182.343486281116,
+     7182.343486281116,
+     7182.343486281116,
+     9557.133056899456,
+     9557.133056899456,
+     9557.133056899456,
+     9557.133056899456,
+     9557.133056899456
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9461206787006577
+   },
+   {
+    "seed": 6,
+    "bayes_best_by_round": [
+     4206.837455722301,
+     4206.837455722301,
+     9438.65677078653,
+     10940.778176138376,
+     10951.976634515653,
+     10951.976634515653,
+     10951.976634515653,
+     10951.976634515653,
+     10951.976634515653,
+     10956.933731839035
+    ],
+    "random_best_by_round": [
+     5342.8931332895,
+     5342.8931332895,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069,
+     7556.481945727069
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9319762711211899
+   },
+   {
+    "seed": 7,
+    "bayes_best_by_round": [
+     3946.0667807731143,
+     8021.808058537694,
+     8021.808058537694,
+     10383.186048744623,
+     10383.186048744623,
+     11229.048006480856,
+     11560.275874416548,
+     11560.275874416548,
+     11561.99894573028,
+     11561.99894573028
+    ],
+    "random_best_by_round": [
+     4965.220656583239,
+     4965.220656583239,
+     4965.220656583239,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941,
+     7513.980524702941
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9387867349612857
+   },
+   {
+    "seed": 8,
+    "bayes_best_by_round": [
+     4436.651011607841,
+     6554.5140840766135,
+     6554.5140840766135,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376
+    ],
+    "random_best_by_round": [
+     3647.0522644943294,
+     3647.0522644943294,
+     3647.0522644943294,
+     4612.699924322323,
+     4612.699924322323,
+     4612.699924322323,
+     4612.699924322323,
+     4612.699924322323,
+     5042.979551139875,
+     5042.979551139875
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9726231578966111
+   },
+   {
+    "seed": 9,
+    "bayes_best_by_round": [
+     6997.698787036024,
+     10043.505822198395,
+     10043.505822198395,
+     10940.778176138376,
+     10940.778176138376,
+     10943.243823797633,
+     10945.698497706668,
+     10946.680093803787,
+     11124.555757581804,
+     11172.994013989848
+    ],
+    "random_best_by_round": [
+     3326.256610506738,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     6030.529927451553,
+     8140.539953047499
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9554999987477465
+   },
+   {
+    "seed": 10,
+    "bayes_best_by_round": [
+     4819.8566206328205,
+     9906.171676855742,
+     9906.171676855742,
+     9906.171676855742,
+     10412.07780303466,
+     10412.07780303466,
+     10940.778176138376,
+     10940.778176138376,
+     11560.572790874776,
+     11560.854164418117
+    ],
+    "random_best_by_round": [
+     4138.268433668183,
+     4138.268433668183,
+     4247.7756234844455,
+     6690.5055410859395,
+     6690.5055410859395,
+     6690.5055410859395,
+     6690.5055410859395,
+     6690.5055410859395,
+     7108.669338946371,
+     7108.669338946371
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9459315444739264
+   },
+   {
+    "seed": 11,
+    "bayes_best_by_round": [
+     3737.7306499747842,
+     3737.7306499747842,
+     8298.534525431256,
+     10437.391957627482,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548
+    ],
+    "random_best_by_round": [
+     5937.9308721814905,
+     5937.9308721814905,
+     7440.278829231202,
+     7440.278829231202,
+     7440.278829231202,
+     8525.855243695823,
+     8525.855243695823,
+     8525.855243695823,
+     8525.855243695823,
+     8525.855243695823
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9717395245593429
+   },
+   {
+    "seed": 12,
+    "bayes_best_by_round": [
+     2439.4425281469585,
+     10355.298987802562,
+     10355.298987802562,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11560.544776600167,
+     11560.544776600167,
+     11560.544776600167,
+     11560.544776600167
+    ],
+    "random_best_by_round": [
+     5027.687807909691,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885,
+     5432.472727906885
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9768874153332165
+   },
+   {
+    "seed": 13,
+    "bayes_best_by_round": [
+     3781.019755715884,
+     10080.5682702433,
+     10080.5682702433,
+     11521.321072368322,
+     11560.275874416548,
+     11560.275874416548,
+     11560.275874416548,
+     11561.035759604454,
+     11561.035759604454,
+     11561.035759604454
+    ],
+    "random_best_by_round": [
+     3682.3153505332148,
+     3682.3153505332148,
+     3682.3153505332148,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088,
+     8341.944085454088
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9717124099468434
+   },
+   {
+    "seed": 14,
+    "bayes_best_by_round": [
+     3683.4714348496955,
+     6856.978069685647,
+     6856.978069685647,
+     10711.502712644926,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376,
+     10940.778176138376
+    ],
+    "random_best_by_round": [
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7006.570846390908,
+     7617.455715513699,
+     7617.455715513699,
+     9089.057542580458
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9659306337689301
+   },
+   {
+    "seed": 15,
+    "bayes_best_by_round": [
+     5140.02208045553,
+     9145.32902269004,
+     9145.32902269004,
+     10940.778176138376,
+     11560.275874416548,
+     11560.304555516288,
+     11560.304555516288,
+     11560.304555516288,
+     11560.304555516288,
+     11560.304555516288
+    ],
+    "random_best_by_round": [
+     2309.4036724137577,
+     3572.5355113661813,
+     3572.5355113661813,
+     5065.157255669153,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664,
+     7170.780436072664
+    ],
+    "last_mode": "model",
+    "last_q2": 0.904079288326011
+   },
+   {
+    "seed": 16,
+    "bayes_best_by_round": [
+     5576.154669648221,
+     9614.415001041529,
+     9614.415001041529,
+     10940.778176138376,
+     10949.890150926081,
+     10949.890150926081,
+     10949.890150926081,
+     10949.890150926081,
+     10949.890150926081,
+     10949.890150926081
+    ],
+    "random_best_by_round": [
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124,
+     8210.143468107124
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9563152689312153
+   },
+   {
+    "seed": 17,
+    "bayes_best_by_round": [
+     6164.524191845308,
+     7062.455812667543,
+     7469.723525725504,
+     9786.564263205166,
+     10947.908174744665,
+     10947.908174744665,
+     11560.275874416548,
+     11560.275874416548,
+     11561.273966940562,
+     11561.273966940562
+    ],
+    "random_best_by_round": [
+     5322.11812458357,
+     5322.11812458357,
+     5322.11812458357,
+     6351.317191228225,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567,
+     6425.246419343567
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9412142942021481
+   },
+   {
+    "seed": 18,
+    "bayes_best_by_round": [
+     2231.431640090406,
+     8632.469231225356,
+     9299.786370701851,
+     11223.810135240861,
+     11519.834867630783,
+     11519.834867630783,
+     11519.834867630783,
+     11519.834867630783,
+     11519.834867630783,
+     11519.834867630783
+    ],
+    "random_best_by_round": [
+     2892.0293052753727,
+     3111.0483335867893,
+     3125.559986091649,
+     7852.626072763333,
+     7852.626072763333,
+     7852.626072763333,
+     7852.626072763333,
+     7852.626072763333,
+     8656.284145555666,
+     8656.284145555666
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9362833667016944
+   },
+   {
+    "seed": 19,
+    "bayes_best_by_round": [
+     5427.990136524238,
+     5427.990136524238,
+     9480.720676286775,
+     11438.348200914708,
+     11560.298907753067,
+     11560.298907753067,
+     11560.298907753067,
+     11560.298907753067,
+     11560.298907753067,
+     11560.298907753067
+    ],
+    "random_best_by_round": [
+     2187.9548476392965,
+     2816.927246540583,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215,
+     6410.225415297215
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9759741849063203
+   }
+  ]
+ },
+ "snar_e_factor_noise0": {
+  "objective": "e_factor",
+  "maximize": false,
+  "log": false,
+  "optimum": 8.4516,
+  "noise_pct": 0.0,
+  "n_seeds": 20,
+  "experiments_per_round": 4,
+  "rounds": 10,
+  "tolerance_pct": 1.0,
+  "bayes_success_by_round": [
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "random_success_by_round": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bayes_median_gap_pct_by_round": [
+   49.70626520776666,
+   14.00300604334296,
+   8.071316625318396,
+   4.800754343994941,
+   2.9773529532856133,
+   2.8884980972628487,
+   2.8884980972628487,
+   2.7671672253213853,
+   2.4129778391585077,
+   2.3923932422927923
+  ],
+  "random_median_gap_pct_by_round": [
+   40.53247902803714,
+   32.135427122447595,
+   27.279273947900528,
+   21.595297982854817,
+   20.39893235960134,
+   11.921130526459187,
+   9.901010185799674,
+   7.806148921177843,
+   7.806148921177843,
+   7.806148921177843
+  ],
+  "bayes_worst_gap_pct_final": 4.832084730340376,
+  "random_best_gap_pct_final": 3.493066429269706,
+  "runs": [
+   {
+    "seed": 0,
+    "bayes_best_by_round": [
+     11.813243218787035,
+     10.909095731428616,
+     10.730319564152543,
+     8.920952304067912,
+     8.703847463840564,
+     8.703847463840564,
+     8.703847463840564,
+     8.703847463840564,
+     8.703847463840564,
+     8.61259977638416
+    ],
+    "random_best_by_round": [
+     11.293018236324816,
+     9.287865643336527,
+     9.287865643336527,
+     9.287865643336527,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694
+    ],
+    "last_mode": "model",
+    "last_q2": 0.36217622882328704
+   },
+   {
+    "seed": 1,
+    "bayes_best_by_round": [
+     9.437590383876469,
+     9.437590383876469,
+     9.437590383876469,
+     8.612756454312084,
+     8.612756454312084,
+     8.612756454312084,
+     8.612756454312084,
+     8.612756454312084,
+     8.612756454312084,
+     8.612756454312084
+    ],
+    "random_best_by_round": [
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.714657890875417,
+     9.478299624285912,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5106685895594856
+   },
+   {
+    "seed": 2,
+    "bayes_best_by_round": [
+     18.659189188017706,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.740175621789234,
+     8.677545532745318,
+     8.677545532745318,
+     8.677545532745318
+    ],
+    "random_best_by_round": [
+     11.060071820246275,
+     11.060071820246275,
+     11.060071820246275,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5783363040298168
+   },
+   {
+    "seed": 3,
+    "bayes_best_by_round": [
+     10.318483900328816,
+     9.285758778011921,
+     9.285758778011921,
+     8.65462278654995,
+     8.65462278654995,
+     8.65462278654995,
+     8.65462278654995,
+     8.65462278654995,
+     8.622004164789175,
+     8.622004164789175
+    ],
+    "random_best_by_round": [
+     12.06200315160079,
+     11.275043697115285,
+     11.13708506776994,
+     11.00506447752891,
+     11.00506447752891,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158
+    ],
+    "last_mode": "model",
+    "last_q2": 0.4782354843761387
+   },
+   {
+    "seed": 4,
+    "bayes_best_by_round": [
+     15.770659565769728,
+     9.832565733641877,
+     9.35290073696133,
+     9.35290073696133,
+     9.35290073696133,
+     9.35290073696133,
+     9.35290073696133,
+     9.35290073696133,
+     8.802066803681731,
+     8.65553523505432
+    ],
+    "random_best_by_round": [
+     13.746026959208622,
+     11.592861831174991,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.413591473240109,
+     10.413591473240109
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5775978418703827
+   },
+   {
+    "seed": 5,
+    "bayes_best_by_round": [
+     10.123240866828061,
+     9.908231646253027,
+     9.751294780713046,
+     9.751294780713046,
+     8.809735955872217,
+     8.688828149817324,
+     8.688828149817324,
+     8.688828149817324,
+     8.688828149817324,
+     8.688828149817324
+    ],
+    "random_best_by_round": [
+     12.102965562468768,
+     12.102965562468768,
+     10.237935752768756,
+     10.237935752768756,
+     10.237935752768756,
+     9.822556372182627,
+     9.822556372182627,
+     9.822556372182627,
+     9.524006982768293,
+     9.524006982768293
+    ],
+    "last_mode": "model",
+    "last_q2": 0.2584519972848829
+   },
+   {
+    "seed": 6,
+    "bayes_best_by_round": [
+     13.44104536538103,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346
+    ],
+    "random_best_by_round": [
+     10.367150657517323,
+     10.367150657517323,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018
+    ],
+    "last_mode": "model",
+    "last_q2": 0.582110345057467
+   },
+   {
+    "seed": 7,
+    "bayes_best_by_round": [
+     10.718395792953036,
+     10.718395792953036,
+     10.718395792953036,
+     10.080785432967746,
+     8.594080637626742,
+     8.594080637626742,
+     8.594080637626742,
+     8.594080637626742,
+     8.594080637626742,
+     8.594080637626742
+    ],
+    "random_best_by_round": [
+     10.944560195551068,
+     10.944560195551068,
+     10.944560195551068,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.16470308898614,
+     10.16470308898614
+    ],
+    "last_mode": "model",
+    "last_q2": 0.6012234774196001
+   },
+   {
+    "seed": 8,
+    "bayes_best_by_round": [
+     12.240895606288307,
+     8.662008018368923,
+     8.662008018368923,
+     8.662008018368923,
+     8.662008018368923,
+     8.662008018368923,
+     8.65553523505432,
+     8.65553523505432,
+     8.65553523505432,
+     8.65553523505432
+    ],
+    "random_best_by_round": [
+     11.76761491586931,
+     11.76761491586931,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.138263110170238,
+     10.138263110170238
+    ],
+    "last_mode": "model",
+    "last_q2": 0.2813641925198608
+   },
+   {
+    "seed": 9,
+    "bayes_best_by_round": [
+     13.463815094816058,
+     9.06776695922535,
+     9.06776695922535,
+     9.06776695922535,
+     8.702620460559208,
+     8.702620460559208,
+     8.702620460559208,
+     8.702620460559208,
+     8.702620460559208,
+     8.702620460559208
+    ],
+    "random_best_by_round": [
+     12.108329961448396,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     9.15537875036657,
+     9.15537875036657,
+     9.15537875036657
+    ],
+    "last_mode": "model",
+    "last_q2": -0.009221002738949213
+   },
+   {
+    "seed": 10,
+    "bayes_best_by_round": [
+     11.552463223945344,
+     10.828660280298498,
+     9.123498454354776,
+     8.809735955872217,
+     8.607421262798194,
+     8.607421262798194,
+     8.607421262798194,
+     8.607421262798194,
+     8.607421262798194,
+     8.607421262798194
+    ],
+    "random_best_by_round": [
+     10.002709165352789,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5469798049379534
+   },
+   {
+    "seed": 11,
+    "bayes_best_by_round": [
+     13.064253814310906,
+     8.87149388853712,
+     8.87149388853712,
+     8.87149388853712,
+     8.682111660613199,
+     8.682111660613199,
+     8.682111660613199,
+     8.682111660613199,
+     8.682111660613199,
+     8.65553523505432
+    ],
+    "random_best_by_round": [
+     12.82856981169565,
+     11.65051285153712,
+     11.341944069098748,
+     11.341944069098748,
+     11.341944069098748,
+     9.439952910862536,
+     9.439952910862536,
+     8.968307890507472,
+     8.968307890507472,
+     8.968307890507472
+    ],
+    "last_mode": "model",
+    "last_q2": 0.81563625757916
+   },
+   {
+    "seed": 12,
+    "bayes_best_by_round": [
+     16.416618955737995,
+     10.3941224006089,
+     9.144012337456042,
+     9.144012337456042,
+     9.144012337456042,
+     9.124485598931209,
+     9.124485598931209,
+     8.736245870186332,
+     8.65553523505432,
+     8.65553523505432
+    ],
+    "random_best_by_round": [
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475
+    ],
+    "last_mode": "model",
+    "last_q2": 0.06660104691828661
+   },
+   {
+    "seed": 13,
+    "bayes_best_by_round": [
+     13.065582912552104,
+     10.163638349048648,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.622182849494395,
+     8.622182849494395
+    ],
+    "random_best_by_round": [
+     19.439007370249765,
+     13.02515696456878,
+     13.02515696456878,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607
+    ],
+    "last_mode": "model",
+    "last_q2": 0.1596769069949716
+   },
+   {
+    "seed": 14,
+    "bayes_best_by_round": [
+     11.185464099382212,
+     10.915681600222296,
+     10.915681600222296,
+     8.652055779476914,
+     8.652055779476914,
+     8.652055779476914,
+     8.652055779476914,
+     8.652055779476914,
+     8.652055779476914,
+     8.652055779476914
+    ],
+    "random_best_by_round": [
+     11.986871079197861,
+     11.986871079197861,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8591526504146868
+   },
+   {
+    "seed": 15,
+    "bayes_best_by_round": [
+     14.52547358202143,
+     9.244476188273927,
+     9.244476188273927,
+     9.244476188273927,
+     9.178495418359365,
+     8.859988473069446,
+     8.859988473069446,
+     8.859988473069446,
+     8.859988473069446,
+     8.859988473069446
+    ],
+    "random_best_by_round": [
+     13.677634672283812,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7168785011195666
+   },
+   {
+    "seed": 16,
+    "bayes_best_by_round": [
+     11.509968518713357,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849
+    ],
+    "random_best_by_round": [
+     9.810844024584735,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365
+    ],
+    "last_mode": "model",
+    "last_q2": 0.31847608584981923
+   },
+   {
+    "seed": 17,
+    "bayes_best_by_round": [
+     15.574861802506302,
+     10.542561416348494,
+     8.936927471134267,
+     8.809735955872217,
+     8.809735955872217,
+     8.809735955872217,
+     8.809735955872217,
+     8.717833944232853,
+     8.671335312717495,
+     8.671335312717495
+    ],
+    "random_best_by_round": [
+     10.958568229269488,
+     10.958568229269488,
+     10.958568229269488,
+     10.90238299324073,
+     10.113336581839375,
+     10.113336581839375,
+     10.113336581839375,
+     9.505552709934666,
+     9.505552709934666,
+     9.505552709934666
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5793044003610048
+   },
+   {
+    "seed": 18,
+    "bayes_best_by_round": [
+     18.123571684299833,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.682821390662943
+    ],
+    "random_best_by_round": [
+     16.0783589069774,
+     14.766556466763799,
+     13.264848505969079,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     10.943290118336725,
+     10.943290118336725,
+     10.943290118336725
+    ],
+    "last_mode": "model",
+    "last_q2": 0.53533093037223
+   },
+   {
+    "seed": 19,
+    "bayes_best_by_round": [
+     10.399487738222561,
+     10.399487738222561,
+     9.268958987177719,
+     8.813793984920217,
+     8.813793984920217,
+     8.813793984920217,
+     8.813793984920217,
+     8.813793984920217,
+     8.613199829022895,
+     8.613199829022895
+    ],
+    "random_best_by_round": [
+     14.956344234472825,
+     14.956344234472825,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137
+    ],
+    "last_mode": "model",
+    "last_q2": 0.2750463989111661
+   }
+  ]
+ },
+ "snar_e_factor_noise2": {
+  "objective": "e_factor",
+  "maximize": false,
+  "log": false,
+  "optimum": 8.4516,
+  "noise_pct": 2.0,
+  "n_seeds": 20,
+  "experiments_per_round": 4,
+  "rounds": 10,
+  "tolerance_pct": 1.0,
+  "bayes_success_by_round": [
+   0,
+   1,
+   1,
+   1,
+   2,
+   2,
+   2,
+   2,
+   4,
+   4
+  ],
+  "random_success_by_round": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bayes_median_gap_pct_by_round": [
+   49.70626520776666,
+   14.00300604334296,
+   8.071316625318396,
+   5.041373345041105,
+   4.237492970233065,
+   3.0993427433904444,
+   2.5384254299469804,
+   2.4129778391585077,
+   2.113903328864944,
+   2.113903328864944
+  ],
+  "random_median_gap_pct_by_round": [
+   40.53247902803714,
+   32.135427122447595,
+   27.279273947900528,
+   21.595297982854817,
+   20.39893235960134,
+   11.921130526459187,
+   9.901010185799674,
+   7.806148921177843,
+   7.806148921177843,
+   7.806148921177843
+  ],
+  "bayes_worst_gap_pct_final": 3.706340146022384,
+  "random_best_gap_pct_final": 3.493066429269706,
+  "runs": [
+   {
+    "seed": 0,
+    "bayes_best_by_round": [
+     11.813243218787035,
+     10.909095731428616,
+     10.730319564152543,
+     8.908826575165484,
+     8.908826575165484,
+     8.908826575165484,
+     8.849895685096694,
+     8.849895685096694,
+     8.711442159369364,
+     8.711442159369364
+    ],
+    "random_best_by_round": [
+     11.293018236324816,
+     9.287865643336527,
+     9.287865643336527,
+     9.287865643336527,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694
+    ],
+    "last_mode": "model",
+    "last_q2": 0.3247246584344202
+   },
+   {
+    "seed": 1,
+    "bayes_best_by_round": [
+     9.437590383876469,
+     9.437590383876469,
+     9.437590383876469,
+     8.610739953692567,
+     8.610739953692567,
+     8.610739953692567,
+     8.610739953692567,
+     8.610739953692567,
+     8.534802819481154,
+     8.534802819481154
+    ],
+    "random_best_by_round": [
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.714657890875417,
+     9.478299624285912,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8774140783057388
+   },
+   {
+    "seed": 2,
+    "bayes_best_by_round": [
+     18.659189188017706,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.65553523505432,
+     8.65553523505432,
+     8.509030605594209,
+     8.509030605594209
+    ],
+    "random_best_by_round": [
+     11.060071820246275,
+     11.060071820246275,
+     11.060071820246275,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712
+    ],
+    "last_mode": "model",
+    "last_q2": 0.4641929045597666
+   },
+   {
+    "seed": 3,
+    "bayes_best_by_round": [
+     10.318483900328816,
+     9.285758778011921,
+     9.285758778011921,
+     8.655050721860526,
+     8.655050721860526,
+     8.655050721860526,
+     8.655050721860526,
+     8.655050721860526,
+     8.630882028119698,
+     8.630882028119698
+    ],
+    "random_best_by_round": [
+     12.06200315160079,
+     11.275043697115285,
+     11.13708506776994,
+     11.00506447752891,
+     11.00506447752891,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158
+    ],
+    "last_mode": "model",
+    "last_q2": 0.37161146971499537
+   },
+   {
+    "seed": 4,
+    "bayes_best_by_round": [
+     15.770659565769728,
+     9.832565733641877,
+     9.35290073696133,
+     9.35290073696133,
+     9.35290073696133,
+     8.840121752820128,
+     8.764845043781227,
+     8.764845043781227,
+     8.764845043781227,
+     8.764845043781227
+    ],
+    "random_best_by_round": [
+     13.746026959208622,
+     11.592861831174991,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.413591473240109,
+     10.413591473240109
+    ],
+    "last_mode": "model",
+    "last_q2": -0.09835081570026727
+   },
+   {
+    "seed": 5,
+    "bayes_best_by_round": [
+     10.123240866828061,
+     9.908231646253027,
+     9.751294780713046,
+     9.751294780713046,
+     8.809735955872217,
+     8.685874716366573,
+     8.685874716366573,
+     8.612813621254162,
+     8.612813621254162,
+     8.583967871597403
+    ],
+    "random_best_by_round": [
+     12.102965562468768,
+     12.102965562468768,
+     10.237935752768756,
+     10.237935752768756,
+     10.237935752768756,
+     9.822556372182627,
+     9.822556372182627,
+     9.822556372182627,
+     9.524006982768293,
+     9.524006982768293
+    ],
+    "last_mode": "model",
+    "last_q2": 0.3023238920801813
+   },
+   {
+    "seed": 6,
+    "bayes_best_by_round": [
+     13.44104536538103,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346
+    ],
+    "random_best_by_round": [
+     10.367150657517323,
+     10.367150657517323,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5477147437578411
+   },
+   {
+    "seed": 7,
+    "bayes_best_by_round": [
+     10.718395792953036,
+     10.718395792953036,
+     10.718395792953036,
+     10.173177300862,
+     8.527842139883418,
+     8.527842139883418,
+     8.527842139883418,
+     8.527842139883418,
+     8.527842139883418,
+     8.527842139883418
+    ],
+    "random_best_by_round": [
+     10.944560195551068,
+     10.944560195551068,
+     10.944560195551068,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.16470308898614,
+     10.16470308898614
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5314335873160896
+   },
+   {
+    "seed": 8,
+    "bayes_best_by_round": [
+     12.240895606288307,
+     8.662008018368923,
+     8.662008018368923,
+     8.6600386404311,
+     8.6600386404311,
+     8.65553523505432,
+     8.65553523505432,
+     8.65553523505432,
+     8.65553523505432,
+     8.65553523505432
+    ],
+    "random_best_by_round": [
+     11.76761491586931,
+     11.76761491586931,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.138263110170238,
+     10.138263110170238
+    ],
+    "last_mode": "model",
+    "last_q2": 0.20520554007983483
+   },
+   {
+    "seed": 9,
+    "bayes_best_by_round": [
+     13.463815094816058,
+     9.06776695922535,
+     9.06776695922535,
+     9.06776695922535,
+     8.715613447261767,
+     8.660518954373687,
+     8.660518954373687,
+     8.660518954373687,
+     8.660518954373687,
+     8.660518954373687
+    ],
+    "random_best_by_round": [
+     12.108329961448396,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     9.15537875036657,
+     9.15537875036657,
+     9.15537875036657
+    ],
+    "last_mode": "model",
+    "last_q2": 0.054700004190224694
+   },
+   {
+    "seed": 10,
+    "bayes_best_by_round": [
+     11.552463223945344,
+     10.828660280298498,
+     9.123498454354776,
+     8.809735955872217,
+     8.809735955872217,
+     8.809735955872217,
+     8.809735955872217,
+     8.809735955872217,
+     8.809735955872217,
+     8.746038625781402
+    ],
+    "random_best_by_round": [
+     10.002709165352789,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5188598271433849
+   },
+   {
+    "seed": 11,
+    "bayes_best_by_round": [
+     13.064253814310906,
+     8.87149388853712,
+     8.87149388853712,
+     8.87149388853712,
+     8.671756172901109,
+     8.671756172901109,
+     8.671756172901109,
+     8.671756172901109,
+     8.671756172901109,
+     8.671756172901109
+    ],
+    "random_best_by_round": [
+     12.82856981169565,
+     11.65051285153712,
+     11.341944069098748,
+     11.341944069098748,
+     11.341944069098748,
+     9.439952910862536,
+     9.439952910862536,
+     8.968307890507472,
+     8.968307890507472,
+     8.968307890507472
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9407254723419626
+   },
+   {
+    "seed": 12,
+    "bayes_best_by_round": [
+     16.416618955737995,
+     10.3941224006089,
+     9.144012337456042,
+     9.144012337456042,
+     9.144012337456042,
+     9.144012337456042,
+     8.65553523505432,
+     8.612643817488896,
+     8.612643817488896,
+     8.612643817488896
+    ],
+    "random_best_by_round": [
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475
+    ],
+    "last_mode": "model",
+    "last_q2": 0.6898251132521649
+   },
+   {
+    "seed": 13,
+    "bayes_best_by_round": [
+     13.065582912552104,
+     10.163638349048648,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.6086751800898,
+     8.6015831309207,
+     8.6015831309207
+    ],
+    "random_best_by_round": [
+     19.439007370249765,
+     13.02515696456878,
+     13.02515696456878,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8309758812807027
+   },
+   {
+    "seed": 14,
+    "bayes_best_by_round": [
+     11.185464099382212,
+     10.915681600222296,
+     10.915681600222296,
+     8.63748833587338,
+     8.63748833587338,
+     8.63748833587338,
+     8.63748833587338,
+     8.63748833587338,
+     8.63748833587338,
+     8.63748833587338
+    ],
+    "random_best_by_round": [
+     11.986871079197861,
+     11.986871079197861,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997
+    ],
+    "last_mode": "model",
+    "last_q2": -0.06780145905515567
+   },
+   {
+    "seed": 15,
+    "bayes_best_by_round": [
+     14.52547358202143,
+     9.244476188273927,
+     9.244476188273927,
+     9.216801148058044,
+     9.216801148058044,
+     8.769036200587097,
+     8.769036200587097,
+     8.658636848178997,
+     8.658636848178997,
+     8.658636848178997
+    ],
+    "random_best_by_round": [
+     13.677634672283812,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252
+    ],
+    "last_mode": "model",
+    "last_q2": -0.18615033259663782
+   },
+   {
+    "seed": 16,
+    "bayes_best_by_round": [
+     11.509968518713357,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849
+    ],
+    "random_best_by_round": [
+     9.810844024584735,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365
+    ],
+    "last_mode": "model",
+    "last_q2": 0.020175040375652764
+   },
+   {
+    "seed": 17,
+    "bayes_best_by_round": [
+     15.574861802506302,
+     10.542561416348494,
+     8.936927471134267,
+     8.936927471134267,
+     8.936927471134267,
+     8.936927471134267,
+     8.936927471134267,
+     8.696463949494282,
+     8.696463949494282,
+     8.696463949494282
+    ],
+    "random_best_by_round": [
+     10.958568229269488,
+     10.958568229269488,
+     10.958568229269488,
+     10.90238299324073,
+     10.113336581839375,
+     10.113336581839375,
+     10.113336581839375,
+     9.505552709934666,
+     9.505552709934666,
+     9.505552709934666
+    ],
+    "last_mode": "model",
+    "last_q2": 0.319853372333482
+   },
+   {
+    "seed": 18,
+    "bayes_best_by_round": [
+     18.123571684299833,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.741213386234199,
+     8.741213386234199,
+     8.65553523505432,
+     8.629635279364999,
+     8.629635279364999
+    ],
+    "random_best_by_round": [
+     16.0783589069774,
+     14.766556466763799,
+     13.264848505969079,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     10.943290118336725,
+     10.943290118336725,
+     10.943290118336725
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8408026133772966
+   },
+   {
+    "seed": 19,
+    "bayes_best_by_round": [
+     10.399487738222561,
+     10.399487738222561,
+     9.268958987177719,
+     8.81527746180752,
+     8.81527746180752,
+     8.81527746180752,
+     8.81527746180752,
+     8.81527746180752,
+     8.592063588156437,
+     8.592063588156437
+    ],
+    "random_best_by_round": [
+     14.956344234472825,
+     14.956344234472825,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137
+    ],
+    "last_mode": "model",
+    "last_q2": 0.77028813577162
+   }
+  ]
+ },
+ "snar_e_factor_log_noise0": {
+  "objective": "e_factor",
+  "maximize": false,
+  "log": true,
+  "optimum": 8.4516,
+  "noise_pct": 0.0,
+  "n_seeds": 20,
+  "experiments_per_round": 4,
+  "rounds": 10,
+  "tolerance_pct": 1.0,
+  "bayes_success_by_round": [
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   3,
+   6,
+   6,
+   10
+  ],
+  "random_success_by_round": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bayes_median_gap_pct_by_round": [
+   49.70626520776666,
+   14.00300604334296,
+   8.071316625318396,
+   5.467510537780612,
+   3.00138894553384,
+   2.2559000763705885,
+   1.9309971308668021,
+   1.8977775966048025,
+   1.7957710616683866,
+   0.9725533091280045
+  ],
+  "random_median_gap_pct_by_round": [
+   40.53247902803714,
+   32.135427122447595,
+   27.279273947900528,
+   21.595297982854817,
+   20.39893235960134,
+   11.921130526459187,
+   9.901010185799674,
+   7.806148921177843,
+   7.806148921177843,
+   7.806148921177843
+  ],
+  "bayes_worst_gap_pct_final": 2.1473117927402376,
+  "random_best_gap_pct_final": 3.493066429269706,
+  "runs": [
+   {
+    "seed": 0,
+    "bayes_best_by_round": [
+     11.813243218787035,
+     10.909095731428616,
+     10.730319564152543,
+     8.943524710500265,
+     8.736766561630924,
+     8.736766561630924,
+     8.65553523505432,
+     8.638091178158048,
+     8.638091178158048,
+     8.61440711853818
+    ],
+    "random_best_by_round": [
+     11.293018236324816,
+     9.287865643336527,
+     9.287865643336527,
+     9.287865643336527,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7638497394170721
+   },
+   {
+    "seed": 1,
+    "bayes_best_by_round": [
+     9.437590383876469,
+     9.437590383876469,
+     9.437590383876469,
+     9.437590383876469,
+     8.887896935633153,
+     8.695512598710378,
+     8.656574702087626,
+     8.613378015892508,
+     8.613378015892508,
+     8.538451663657618
+    ],
+    "random_best_by_round": [
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.714657890875417,
+     9.478299624285912,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9440343848563699
+   },
+   {
+    "seed": 2,
+    "bayes_best_by_round": [
+     18.659189188017706,
+     8.943780413074634,
+     8.943780413074634,
+     8.787769194511979,
+     8.787769194511979,
+     8.787769194511979,
+     8.7374237026325,
+     8.50929224215616,
+     8.50929224215616,
+     8.50929224215616
+    ],
+    "random_best_by_round": [
+     11.060071820246275,
+     11.060071820246275,
+     11.060071820246275,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8982105173383699
+   },
+   {
+    "seed": 3,
+    "bayes_best_by_round": [
+     10.318483900328816,
+     9.285758778011921,
+     9.285758778011921,
+     9.285758778011921,
+     8.581851736040239,
+     8.581851736040239,
+     8.581851736040239,
+     8.581851736040239,
+     8.581851736040239,
+     8.565635786259541
+    ],
+    "random_best_by_round": [
+     12.06200315160079,
+     11.275043697115285,
+     11.13708506776994,
+     11.00506447752891,
+     11.00506447752891,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9386653296455556
+   },
+   {
+    "seed": 4,
+    "bayes_best_by_round": [
+     15.770659565769728,
+     9.832565733641877,
+     9.35290073696133,
+     9.35290073696133,
+     9.35290073696133,
+     8.65553523505432,
+     8.612689918950158,
+     8.612689918950158,
+     8.612689918950158,
+     8.513388707273172
+    ],
+    "random_best_by_round": [
+     13.746026959208622,
+     11.592861831174991,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.413591473240109,
+     10.413591473240109
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9114706800413169
+   },
+   {
+    "seed": 5,
+    "bayes_best_by_round": [
+     10.123240866828061,
+     9.908231646253027,
+     9.751294780713046,
+     9.142729631245604,
+     8.809735955872217,
+     8.809735955872217,
+     8.68637232692704,
+     8.634481162440062,
+     8.634481162440062,
+     8.570080445204644
+    ],
+    "random_best_by_round": [
+     12.102965562468768,
+     12.102965562468768,
+     10.237935752768756,
+     10.237935752768756,
+     10.237935752768756,
+     9.822556372182627,
+     9.822556372182627,
+     9.822556372182627,
+     9.524006982768293,
+     9.524006982768293
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8683075846467032
+   },
+   {
+    "seed": 6,
+    "bayes_best_by_round": [
+     13.44104536538103,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.487890716566003,
+     8.487890716566003,
+     8.487890716566003
+    ],
+    "random_best_by_round": [
+     10.367150657517323,
+     10.367150657517323,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018
+    ],
+    "last_mode": "model",
+    "last_q2": 0.910803963177824
+   },
+   {
+    "seed": 7,
+    "bayes_best_by_round": [
+     10.718395792953036,
+     10.718395792953036,
+     10.718395792953036,
+     9.809409506288004,
+     8.597819012237018,
+     8.597819012237018,
+     8.597819012237018,
+     8.597819012237018,
+     8.592150643984413,
+     8.49249114485198
+    ],
+    "random_best_by_round": [
+     10.944560195551068,
+     10.944560195551068,
+     10.944560195551068,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.16470308898614,
+     10.16470308898614
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8262186563455045
+   },
+   {
+    "seed": 8,
+    "bayes_best_by_round": [
+     12.240895606288307,
+     8.662008018368923,
+     8.662008018368923,
+     8.62823625754283,
+     8.62823625754283,
+     8.62823625754283,
+     8.62823625754283,
+     8.62823625754283,
+     8.62823625754283,
+     8.624715361108997
+    ],
+    "random_best_by_round": [
+     11.76761491586931,
+     11.76761491586931,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.138263110170238,
+     10.138263110170238
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7624271488219896
+   },
+   {
+    "seed": 9,
+    "bayes_best_by_round": [
+     13.463815094816058,
+     9.06776695922535,
+     9.06776695922535,
+     8.827867775723709,
+     8.74593655097918,
+     8.654252213367672,
+     8.612661131351249,
+     8.529140967290905,
+     8.529140967290905,
+     8.529140967290905
+    ],
+    "random_best_by_round": [
+     12.108329961448396,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     9.15537875036657,
+     9.15537875036657,
+     9.15537875036657
+    ],
+    "last_mode": "model",
+    "last_q2": 0.5914920686926345
+   },
+   {
+    "seed": 10,
+    "bayes_best_by_round": [
+     11.552463223945344,
+     10.828660280298498,
+     9.123498454354776,
+     9.123498454354776,
+     9.123498454354776,
+     8.650541109732265,
+     8.618865343144135,
+     8.618865343144135,
+     8.618865343144135,
+     8.618865343144135
+    ],
+    "random_best_by_round": [
+     10.002709165352789,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9354557898877582
+   },
+   {
+    "seed": 11,
+    "bayes_best_by_round": [
+     13.064253814310906,
+     8.87149388853712,
+     8.87149388853712,
+     8.87149388853712,
+     8.87149388853712,
+     8.71536931710151,
+     8.47741793169684,
+     8.47741793169684,
+     8.47741793169684,
+     8.47741793169684
+    ],
+    "random_best_by_round": [
+     12.82856981169565,
+     11.65051285153712,
+     11.341944069098748,
+     11.341944069098748,
+     11.341944069098748,
+     9.439952910862536,
+     9.439952910862536,
+     8.968307890507472,
+     8.968307890507472,
+     8.968307890507472
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9300603524286792
+   },
+   {
+    "seed": 12,
+    "bayes_best_by_round": [
+     16.416618955737995,
+     10.3941224006089,
+     9.144012337456042,
+     9.144012337456042,
+     9.144012337456042,
+     8.633978191976807,
+     8.633978191976807,
+     8.633978191976807,
+     8.633978191976807,
+     8.623884225788146
+    ],
+    "random_best_by_round": [
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9326520150913141
+   },
+   {
+    "seed": 13,
+    "bayes_best_by_round": [
+     13.065582912552104,
+     10.163638349048648,
+     8.883859530721866,
+     8.883859530721866,
+     8.883859530721866,
+     8.65553523505432,
+     8.612659129208973,
+     8.530984917170276,
+     8.523075898105093,
+     8.501160145972433
+    ],
+    "random_best_by_round": [
+     19.439007370249765,
+     13.02515696456878,
+     13.02515696456878,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8618445514940639
+   },
+   {
+    "seed": 14,
+    "bayes_best_by_round": [
+     11.185464099382212,
+     10.915681600222296,
+     10.915681600222296,
+     9.790566051087211,
+     8.67376421461055,
+     8.67376421461055,
+     8.633082203475233,
+     8.633082203475233,
+     8.633082203475233,
+     8.633082203475233
+    ],
+    "random_best_by_round": [
+     11.986871079197861,
+     11.986871079197861,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9662121163650554
+   },
+   {
+    "seed": 15,
+    "bayes_best_by_round": [
+     14.52547358202143,
+     9.244476188273927,
+     9.244476188273927,
+     9.244476188273927,
+     8.616264938253822,
+     8.611295223759143,
+     8.611295223759143,
+     8.611295223759143,
+     8.59405285514577,
+     8.525543836642242
+    ],
+    "random_best_by_round": [
+     13.677634672283812,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8212037269062729
+   },
+   {
+    "seed": 16,
+    "bayes_best_by_round": [
+     11.509968518713357,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.48995211679467,
+     8.48995211679467,
+     8.48995211679467,
+     8.48995211679467
+    ],
+    "random_best_by_round": [
+     9.810844024584735,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365
+    ],
+    "last_mode": "model",
+    "last_q2": 0.793019005012495
+   },
+   {
+    "seed": 17,
+    "bayes_best_by_round": [
+     15.574861802506302,
+     10.542561416348494,
+     8.936927471134267,
+     8.65553523505432,
+     8.65553523505432,
+     8.57430851572367,
+     8.57430851572367,
+     8.57430851572367,
+     8.57430851572367,
+     8.470504891433729
+    ],
+    "random_best_by_round": [
+     10.958568229269488,
+     10.958568229269488,
+     10.958568229269488,
+     10.90238299324073,
+     10.113336581839375,
+     10.113336581839375,
+     10.113336581839375,
+     9.505552709934666,
+     9.505552709934666,
+     9.505552709934666
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7944970584448748
+   },
+   {
+    "seed": 18,
+    "bayes_best_by_round": [
+     18.123571684299833,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.616910388074517,
+     8.616910388074517,
+     8.616910388074517,
+     8.616910388074517,
+     8.616910388074517,
+     8.61336202400297
+    ],
+    "random_best_by_round": [
+     16.0783589069774,
+     14.766556466763799,
+     13.264848505969079,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     10.943290118336725,
+     10.943290118336725,
+     10.943290118336725
+    ],
+    "last_mode": "model",
+    "last_q2": 0.949293749423842
+   },
+   {
+    "seed": 19,
+    "bayes_best_by_round": [
+     10.399487738222561,
+     10.399487738222561,
+     9.268958987177719,
+     8.79554727757423,
+     8.62899486710693,
+     8.62899486710693,
+     8.62899486710693,
+     8.62899486710693,
+     8.62899486710693,
+     8.592262482162834
+    ],
+    "random_best_by_round": [
+     14.956344234472825,
+     14.956344234472825,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137
+    ],
+    "last_mode": "model",
+    "last_q2": 0.801869008628099
+   }
+  ]
+ },
+ "snar_e_factor_log_noise2": {
+  "objective": "e_factor",
+  "maximize": false,
+  "log": true,
+  "optimum": 8.4516,
+  "noise_pct": 2.0,
+  "n_seeds": 20,
+  "experiments_per_round": 4,
+  "rounds": 10,
+  "tolerance_pct": 1.0,
+  "bayes_success_by_round": [
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   2,
+   3
+  ],
+  "random_success_by_round": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bayes_median_gap_pct_by_round": [
+   49.70626520776666,
+   14.00300604334296,
+   8.071316625318396,
+   6.6592852198788695,
+   2.6982518172676357,
+   2.4129778391585077,
+   2.0788770900259372,
+   1.9814323461438894,
+   1.9626372794148517,
+   1.8978117749547418
+  ],
+  "random_median_gap_pct_by_round": [
+   40.53247902803714,
+   32.135427122447595,
+   27.279273947900528,
+   21.595297982854817,
+   20.39893235960134,
+   11.921130526459187,
+   9.901010185799674,
+   7.806148921177843,
+   7.806148921177843,
+   7.806148921177843
+  ],
+  "bayes_worst_gap_pct_final": 2.1190002524775573,
+  "random_best_gap_pct_final": 3.493066429269706,
+  "runs": [
+   {
+    "seed": 0,
+    "bayes_best_by_round": [
+     11.813243218787035,
+     10.909095731428616,
+     10.730319564152543,
+     9.016835817600974,
+     8.779389370197002,
+     8.779389370197002,
+     8.779389370197002,
+     8.65553523505432,
+     8.65553523505432,
+     8.621474185044992
+    ],
+    "random_best_by_round": [
+     11.293018236324816,
+     9.287865643336527,
+     9.287865643336527,
+     9.287865643336527,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694,
+     8.912372692958694
+    ],
+    "last_mode": "model",
+    "last_q2": 0.6896478891751274
+   },
+   {
+    "seed": 1,
+    "bayes_best_by_round": [
+     9.437590383876469,
+     9.437590383876469,
+     9.437590383876469,
+     9.011996481685589,
+     8.593528701621134,
+     8.593528701621134,
+     8.593528701621134,
+     8.593528701621134,
+     8.593528701621134,
+     8.593528701621134
+    ],
+    "random_best_by_round": [
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.858385834715854,
+     10.714657890875417,
+     9.478299624285912,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553,
+     9.136834642863553
+    ],
+    "last_mode": "model",
+    "last_q2": 0.306630380421099
+   },
+   {
+    "seed": 2,
+    "bayes_best_by_round": [
+     18.659189188017706,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.943780413074634,
+     8.817452032923203,
+     8.817452032923203,
+     8.62070764571917,
+     8.581671319407196,
+     8.581671319407196
+    ],
+    "random_best_by_round": [
+     11.060071820246275,
+     11.060071820246275,
+     11.060071820246275,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712,
+     9.008026984143712
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9053286733178355
+   },
+   {
+    "seed": 3,
+    "bayes_best_by_round": [
+     10.318483900328816,
+     9.285758778011921,
+     9.285758778011921,
+     9.285758778011921,
+     8.709026719413611,
+     8.709026719413611,
+     8.647095106799826,
+     8.61955352373631,
+     8.61955352373631,
+     8.610171931575996
+    ],
+    "random_best_by_round": [
+     12.06200315160079,
+     11.275043697115285,
+     11.13708506776994,
+     11.00506447752891,
+     11.00506447752891,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158,
+     8.746820002336158
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9016072939599421
+   },
+   {
+    "seed": 4,
+    "bayes_best_by_round": [
+     15.770659565769728,
+     9.832565733641877,
+     9.35290073696133,
+     9.35290073696133,
+     8.60821600096672,
+     8.60821600096672,
+     8.60821600096672,
+     8.60821600096672,
+     8.60821600096672,
+     8.60821600096672
+    ],
+    "random_best_by_round": [
+     13.746026959208622,
+     11.592861831174991,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.655884399245666,
+     10.413591473240109,
+     10.413591473240109
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9584260542305263
+   },
+   {
+    "seed": 5,
+    "bayes_best_by_round": [
+     10.123240866828061,
+     9.908231646253027,
+     9.751294780713046,
+     9.111474345160035,
+     8.69164766932551,
+     8.69164766932551,
+     8.626740460089243,
+     8.626740460089243,
+     8.626740460089243,
+     8.626740460089243
+    ],
+    "random_best_by_round": [
+     12.102965562468768,
+     12.102965562468768,
+     10.237935752768756,
+     10.237935752768756,
+     10.237935752768756,
+     9.822556372182627,
+     9.822556372182627,
+     9.822556372182627,
+     9.524006982768293,
+     9.524006982768293
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7916162719868647
+   },
+   {
+    "seed": 6,
+    "bayes_best_by_round": [
+     13.44104536538103,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346,
+     8.511871811545346
+    ],
+    "random_best_by_round": [
+     10.367150657517323,
+     10.367150657517323,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018,
+     9.02672122100018
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8677861604588791
+   },
+   {
+    "seed": 7,
+    "bayes_best_by_round": [
+     10.718395792953036,
+     10.718395792953036,
+     10.718395792953036,
+     10.718395792953036,
+     10.718395792953036,
+     10.718395792953036,
+     8.809735955872217,
+     8.655390466223208,
+     8.51124067066397,
+     8.46040987196539
+    ],
+    "random_best_by_round": [
+     10.944560195551068,
+     10.944560195551068,
+     10.944560195551068,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.315560655869158,
+     10.16470308898614,
+     10.16470308898614
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8660582309966812
+   },
+   {
+    "seed": 8,
+    "bayes_best_by_round": [
+     12.240895606288307,
+     8.662008018368923,
+     8.662008018368923,
+     8.625899668816484,
+     8.625899668816484,
+     8.625899668816484,
+     8.625899668816484,
+     8.618571948597083,
+     8.618571948597083,
+     8.618571948597083
+    ],
+    "random_best_by_round": [
+     11.76761491586931,
+     11.76761491586931,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.497032239825716,
+     10.138263110170238,
+     10.138263110170238
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7933128501173214
+   },
+   {
+    "seed": 9,
+    "bayes_best_by_round": [
+     13.463815094816058,
+     9.06776695922535,
+     9.06776695922535,
+     9.06776695922535,
+     8.65553523505432,
+     8.65553523505432,
+     8.65553523505432,
+     8.613086445887154,
+     8.599775734458213,
+     8.599775734458213
+    ],
+    "random_best_by_round": [
+     12.108329961448396,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     11.335419448581339,
+     9.15537875036657,
+     9.15537875036657,
+     9.15537875036657
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7954975156475277
+   },
+   {
+    "seed": 10,
+    "bayes_best_by_round": [
+     11.552463223945344,
+     10.828660280298498,
+     9.123498454354776,
+     9.123498454354776,
+     9.123498454354776,
+     8.679840175047074,
+     8.617389679207747,
+     8.617389679207747,
+     8.617389679207747,
+     8.617389679207747
+    ],
+    "random_best_by_round": [
+     10.002709165352789,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.682275100758448,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978,
+     9.085854321580978
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7968750324734166
+   },
+   {
+    "seed": 11,
+    "bayes_best_by_round": [
+     13.064253814310906,
+     8.87149388853712,
+     8.87149388853712,
+     8.87149388853712,
+     8.87149388853712,
+     8.663063342610107,
+     8.663063342610107,
+     8.663063342610107,
+     8.663063342610107,
+     8.590838781807744
+    ],
+    "random_best_by_round": [
+     12.82856981169565,
+     11.65051285153712,
+     11.341944069098748,
+     11.341944069098748,
+     11.341944069098748,
+     9.439952910862536,
+     9.439952910862536,
+     8.968307890507472,
+     8.968307890507472,
+     8.968307890507472
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9456059289442116
+   },
+   {
+    "seed": 12,
+    "bayes_best_by_round": [
+     16.416618955737995,
+     10.3941224006089,
+     9.144012337456042,
+     9.144012337456042,
+     9.144012337456042,
+     8.61661935418637,
+     8.61661935418637,
+     8.61661935418637,
+     8.61661935418637,
+     8.61661935418637
+    ],
+    "random_best_by_round": [
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475,
+     10.973553159093475
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8627237393561739
+   },
+   {
+    "seed": 13,
+    "bayes_best_by_round": [
+     13.065582912552104,
+     10.163638349048648,
+     8.883859530721866,
+     8.883859530721866,
+     8.845127529572398,
+     8.620222559090012,
+     8.620222559090012,
+     8.620222559090012,
+     8.620222559090012,
+     8.615973347605943
+    ],
+    "random_best_by_round": [
+     19.439007370249765,
+     13.02515696456878,
+     13.02515696456878,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607,
+     9.562318646343607
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8932183711645892
+   },
+   {
+    "seed": 14,
+    "bayes_best_by_round": [
+     11.185464099382212,
+     10.915681600222296,
+     10.915681600222296,
+     9.866943122775718,
+     8.667643231850871,
+     8.667643231850871,
+     8.62785629219202,
+     8.62785629219202,
+     8.62785629219202,
+     8.62785629219202
+    ],
+    "random_best_by_round": [
+     11.986871079197861,
+     11.986871079197861,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997,
+     8.994609460275997
+    ],
+    "last_mode": "model",
+    "last_q2": 0.9511207287912942
+   },
+   {
+    "seed": 15,
+    "bayes_best_by_round": [
+     14.52547358202143,
+     9.244476188273927,
+     9.244476188273927,
+     9.244476188273927,
+     8.666360111432153,
+     8.666360111432153,
+     8.666360111432153,
+     8.617558825406302,
+     8.617558825406302,
+     8.462847875149592
+    ],
+    "random_best_by_round": [
+     13.677634672283812,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252,
+     8.950060057197252
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8602001743263776
+   },
+   {
+    "seed": 16,
+    "bayes_best_by_round": [
+     11.509968518713357,
+     8.621813554847849,
+     8.621813554847849,
+     8.621813554847849,
+     8.574053457731427,
+     8.574053457731427,
+     8.574053457731427,
+     8.574053457731427,
+     8.574053457731427,
+     8.574053457731427
+    ],
+    "random_best_by_round": [
+     9.810844024584735,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365,
+     8.79220684377365
+    ],
+    "last_mode": "model",
+    "last_q2": 0.8139172342025717
+   },
+   {
+    "seed": 17,
+    "bayes_best_by_round": [
+     15.574861802506302,
+     10.542561416348494,
+     8.936927471134267,
+     8.936927471134267,
+     8.936927471134267,
+     8.65553523505432,
+     8.65553523505432,
+     8.65553523505432,
+     8.629601552364315,
+     8.629601552364315
+    ],
+    "random_best_by_round": [
+     10.958568229269488,
+     10.958568229269488,
+     10.958568229269488,
+     10.90238299324073,
+     10.113336581839375,
+     10.113336581839375,
+     10.113336581839375,
+     9.505552709934666,
+     9.505552709934666,
+     9.505552709934666
+    ],
+    "last_mode": "model",
+    "last_q2": 0.7494701295458944
+   },
+   {
+    "seed": 18,
+    "bayes_best_by_round": [
+     18.123571684299833,
+     8.84318721973703,
+     8.84318721973703,
+     8.84318721973703,
+     8.65553523505432,
+     8.622141565995364,
+     8.622141565995364,
+     8.616218186992633,
+     8.613818988368152,
+     8.613818988368152
+    ],
+    "random_best_by_round": [
+     16.0783589069774,
+     14.766556466763799,
+     13.264848505969079,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     11.987377054311542,
+     10.943290118336725,
+     10.943290118336725,
+     10.943290118336725
+    ],
+    "last_mode": "model",
+    "last_q2": 0.936598824238139
+   },
+   {
+    "seed": 19,
+    "bayes_best_by_round": [
+     10.399487738222561,
+     10.399487738222561,
+     9.268958987177719,
+     8.832604678059427,
+     8.630689425338392,
+     8.630689425338392,
+     8.630689425338392,
+     8.630689425338392,
+     8.630689425338392,
+     8.630689425338392
+    ],
+    "random_best_by_round": [
+     14.956344234472825,
+     14.956344234472825,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137,
+     9.04906367023137
+    ],
+    "last_mode": "model",
+    "last_q2": 0.811325386042994
+   }
+  ]
+ },
+ "dwsim_A": {
+  "direct_nelder_mead": {
+   "values": {
+    "K-1.outlet_P_Pa": 302112.74093339226,
+    "K-2.outlet_P_Pa": 908667.2453436912
+   },
+   "objective": 891.8372311452985,
+   "constraints": {},
+   "n_evaluations": 80,
+   "seconds": 4.4
+  },
+  "surrogate_omlt": {
+   "status": "verified",
+   "values": {
+    "K-1.outlet_P_Pa": 302611.58095968456,
+    "K-2.outlet_P_Pa": 907554.0718368727
+   },
+   "objective": 891.8378099165859,
+   "n_evaluations": 67,
+   "seconds": 9.6
+  },
+  "bayesian": [
+   {
+    "seed": 0,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 302437.8827828001,
+     "K-2.outlet_P_Pa": 908917.1290482745
+    },
+    "objective": 891.8373195118827,
+    "constraints": null,
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 9.908375783227781e-06,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 891.8375161786108,
+     "leave_one_out_sd": 0.0005423584003052419,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 891.8749341124226,
+      "sd": 0.088026639951746
+     },
+     "engine_value": 891.8373195118827,
+     "abs_error": 0.00019666672812945762,
+     "error_in_sd": 0.3626139615773862
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 4.100240482682574,
+     "max_abs_error": 12.979350823835148,
+     "q2": 0.9697276111245936,
+     "rmse_pct_of_range": 5.752283053372879,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 29.877568431950852,
+     "max_abs_error": 66.94391596984553,
+     "fraction_within_2_sd": 0.8,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 4.8,
+    "model_seconds": 4.31,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.01 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 1,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 302155.4883502187,
+     "K-2.outlet_P_Pa": 908697.1464733296
+    },
+    "objective": 891.8372332715189,
+    "constraints": null,
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 2.3840902703062772e-07,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 891.8372678549587,
+     "leave_one_out_sd": 0.0005854285524516449,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 891.8373318354594,
+      "sd": 0.000587901762528109
+     },
+     "engine_value": 891.8372332715189,
+     "abs_error": 3.4583439742164046e-05,
+     "error_in_sd": 0.0590737154813107
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 5.596479524405072,
+     "max_abs_error": 15.173700091016713,
+     "q2": 0.9722998781551107,
+     "rmse_pct_of_range": 4.77070661143043,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 16.926892116753983,
+     "max_abs_error": 48.77757311784899,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 4.3,
+    "model_seconds": 4.0,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.02 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 2,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 302048.13817801024,
+     "K-2.outlet_P_Pa": 908274.2235303688
+    },
+    "objective": 891.8372455141423,
+    "constraints": null,
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 1.6111509290997368e-06,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 891.8372471409076,
+     "leave_one_out_sd": 0.0006226622023004282,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 891.8335047906214,
+      "sd": 0.006805901357757864
+     },
+     "engine_value": 891.8372455141423,
+     "abs_error": 1.626765310902556e-06,
+     "error_in_sd": 0.0026125968541088
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 2.3862139245903164,
+     "max_abs_error": 5.861346846717538,
+     "q2": 0.9946001956163413,
+     "rmse_pct_of_range": 2.278887235868143,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 25.084732393955612,
+     "max_abs_error": 73.54769899256644,
+     "fraction_within_2_sd": 0.9,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 1.3,
+    "model_seconds": 1.14,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.01 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 3,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 302129.2678696304,
+     "K-2.outlet_P_Pa": 908827.1425551211
+    },
+    "objective": 891.8372324267011,
+    "constraints": null,
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 1.436812251916269e-07,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 891.8372500426706,
+     "leave_one_out_sd": 0.0005819307885288193,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 891.8369518390039,
+      "sd": 0.0018728919475713855
+     },
+     "engine_value": 891.8372324267011,
+     "abs_error": 1.7615969454709557e-05,
+     "error_in_sd": 0.030271588652740877
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 9.897980714103024,
+     "max_abs_error": 39.048734147086975,
+     "q2": 0.9178356501321203,
+     "rmse_pct_of_range": 8.490582485453025,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 7.207614846342708,
+     "max_abs_error": 14.207745513609439,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 3.8,
+    "model_seconds": 3.58,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.01 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 4,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 301999.8093545447,
+     "K-2.outlet_P_Pa": 907794.5231400218
+    },
+    "objective": 891.8372990248571,
+    "constraints": null,
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 7.611204854166175e-06,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 891.8372920618061,
+     "leave_one_out_sd": 0.0006844870544312826,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 891.8372913501406,
+      "sd": 0.00043962917177329657
+     },
+     "engine_value": 891.8372990248571,
+     "abs_error": 6.96305096425931e-06,
+     "error_in_sd": 0.010172655449334503
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 4.446932574011586,
+     "max_abs_error": 14.119102941760502,
+     "q2": 0.985964539433286,
+     "rmse_pct_of_range": 3.3358267926334246,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 19.922803087350808,
+     "max_abs_error": 55.54352701435948,
+     "fraction_within_2_sd": 0.9,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 4.4,
+    "model_seconds": 4.02,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.01 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   }
+  ],
+  "bayesian_evaluations_median": 17.0,
+  "bayesian_rel_gap_pct_max": 9.908375783227781e-06
+ },
+ "dwsim_B": {
+  "direct_nelder_mead": {
+   "values": {
+    "K-1.outlet_P_Pa": 269920.5319011796,
+    "K-2.outlet_P_Pa": 859079.0236710218
+   },
+   "objective": 892.6764509728638,
+   "constraints": {
+    "s1.T_K": 429.9999644502954
+   },
+   "n_evaluations": 145,
+   "seconds": 2.7
+  },
+  "surrogate_omlt": {
+   "status": "verified",
+   "values": {
+    "K-1.outlet_P_Pa": 269967.4068315047,
+    "K-2.outlet_P_Pa": 857916.2325068804
+   },
+   "objective": 892.6740513674929,
+   "n_evaluations": 67,
+   "seconds": 6.9
+  },
+  "bayesian": [
+   {
+    "seed": 0,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 269914.26500960253,
+     "K-2.outlet_P_Pa": 858643.2144350035
+    },
+    "objective": 892.6768211598372,
+    "constraints": {
+     "s1.T_K": 429.9965023720045
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 4.146933337806072e-05,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 892.6768786632974,
+     "leave_one_out_sd": 0.0004887921566293813,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 892.6720637340193,
+      "sd": 0.09474366419340904
+     },
+     "engine_value": 892.6768211598372,
+     "abs_error": 5.750346019794961e-05,
+     "error_in_sd": 0.11764399125076525
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 3.4853758725877877,
+     "max_abs_error": 10.699323793499275,
+     "q2": 0.9818429004603069,
+     "rmse_pct_of_range": 3.5806114298700584,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 26.4253392669854,
+     "max_abs_error": 78.52928036477385,
+     "fraction_within_2_sd": 0.8,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 8.3,
+    "model_seconds": 7.49,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.03 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 1,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 269919.2555760898,
+     "K-2.outlet_P_Pa": 858663.4410156434
+    },
+    "objective": 892.6765436722275,
+    "constraints": {
+     "s1.T_K": 429.9992593627482
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 1.0384430279941059e-05,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 892.6765839169866,
+     "leave_one_out_sd": 0.000689071988302681,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 892.6765834850762,
+      "sd": 0.0003838859932497469
+     },
+     "engine_value": 892.6765436722275,
+     "abs_error": 4.024475913411152e-05,
+     "error_in_sd": 0.05840428840133558
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 4.701506143202653,
+     "max_abs_error": 16.30061369544751,
+     "q2": 0.9866683722536063,
+     "rmse_pct_of_range": 3.6544313200027116,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 34.08214666851845,
+     "max_abs_error": 105.14087473702136,
+     "fraction_within_2_sd": 0.9,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 8.4,
+    "model_seconds": 7.91,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.02 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 2,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 269919.2743846444,
+     "K-2.outlet_P_Pa": 860811.0172897554
+    },
+    "objective": 892.6768866739245,
+    "constraints": {
+     "s1.T_K": 429.9992697532832
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 4.880839639589682e-05,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 892.6769695882713,
+     "leave_one_out_sd": 0.00046980900184758503,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 892.677041881937,
+      "sd": 0.00038505796676305775
+     },
+     "engine_value": 892.6768866739245,
+     "abs_error": 8.291434676266363e-05,
+     "error_in_sd": 0.1764852236474656
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 9.141686750181842,
+     "max_abs_error": 35.69089332519286,
+     "q2": 0.8949938281451633,
+     "rmse_pct_of_range": 8.801087456026496,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 7.4492093075874,
+     "max_abs_error": 18.936987933526325,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 6.5,
+    "model_seconds": 6.04,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.02 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 3,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 269918.00807756465,
+     "K-2.outlet_P_Pa": 858800.4161852641
+    },
+    "objective": 892.6766005776332,
+    "constraints": {
+     "s1.T_K": 429.99857019764454
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 1.6759125796728123e-05,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 892.6765991887065,
+     "leave_one_out_sd": 0.0006033624556550816,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 892.6766066325499,
+      "sd": 0.0005093689051791224
+     },
+     "engine_value": 892.6766005776332,
+     "abs_error": 1.3889266483602114e-06,
+     "error_in_sd": 0.002301977253212132
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 5.023440513796864,
+     "max_abs_error": 15.467856821095552,
+     "q2": 0.9798278053604054,
+     "rmse_pct_of_range": 4.34040701178296,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 10.626146537334144,
+     "max_abs_error": 25.55411791595816,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 6.1,
+    "model_seconds": 5.69,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.01 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 4,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "K-1.outlet_P_Pa": 269919.0908538532,
+     "K-2.outlet_P_Pa": 859644.246476387
+    },
+    "objective": 892.6765690913525,
+    "constraints": {
+     "s1.T_K": 429.99916836412433
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": 1.3231948545645713e-05,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 892.6764421223221,
+     "leave_one_out_sd": 0.0006645682628766983,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 892.6764815216142,
+      "sd": 0.0005233285938333455
+     },
+     "engine_value": 892.6765690913525,
+     "abs_error": 0.00012696903036157892,
+     "error_in_sd": 0.19105491106657965
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 4.710325959656173,
+     "max_abs_error": 14.883431106567286,
+     "q2": 0.9844083397496367,
+     "rmse_pct_of_range": 3.55579524472002,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 5.415813389188383,
+     "max_abs_error": 16.29898777750077,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 9.1,
+    "model_seconds": 8.53,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.01 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   }
+  ],
+  "bayesian_evaluations_median": 17.0,
+  "bayesian_rel_gap_pct_max": 4.880839639589682e-05
+ },
+ "dwsim_C": {
+  "direct_nelder_mead": {
+   "values": {
+    "T-1.reflux_ratio": 2.2321744170039897,
+    "T-1.bottoms_molar_flow_mol_s": 50.00113734602928
+   },
+   "objective": 4107.941329522182,
+   "constraints": {
+    "dist.mole_fractions.N-hexane": 0.950016502441963,
+    "bot.mole_fractions.N-heptane": 0.9500071370647143
+   },
+   "n_evaluations": 85,
+   "seconds": 6.7
+  },
+  "surrogate_omlt": {
+   "status": "verified",
+   "values": {
+    "T-1.reflux_ratio": 2.231439752582759,
+    "T-1.bottoms_molar_flow_mol_s": 50.00098076655683
+   },
+   "objective": 4106.9105332842055,
+   "n_evaluations": 67,
+   "seconds": 14.1
+  },
+  "bayesian": [
+   {
+    "seed": 0,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-1.reflux_ratio": 2.231798036363714,
+     "T-1.bottoms_molar_flow_mol_s": 50.000595923195476
+    },
+    "objective": 4107.461081479107,
+    "constraints": {
+     "dist.mole_fractions.N-hexane": 0.9500012244758256,
+     "bot.mole_fractions.N-heptane": 0.9500015804702171
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": -0.011690723030145985,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 4107.461362245037,
+     "leave_one_out_sd": 0.01464661849539111,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 4107.461502195933,
+      "sd": 0.0098362921650319
+     },
+     "engine_value": 4107.461081479107,
+     "abs_error": 0.00028076593025616603,
+     "error_in_sd": 0.01916933456992243
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 4.038721538404164,
+     "max_abs_error": 14.377446141595556,
+     "q2": 0.9999742147454503,
+     "rmse_pct_of_range": 0.14374681204516718,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 12.198882679768518,
+     "max_abs_error": 26.073959269012903,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 9.1,
+    "model_seconds": 7.3,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.08 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 1,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-1.reflux_ratio": 2.231877044675026,
+     "T-1.bottoms_molar_flow_mol_s": 50.00068631315942
+    },
+    "objective": 4107.5643076191345,
+    "constraints": {
+     "dist.mole_fractions.N-hexane": 0.9500042919052057,
+     "bot.mole_fractions.N-heptane": 0.9500030259649678
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": -0.00917787944871618,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 4107.563901514914,
+     "leave_one_out_sd": 0.019092662974293115,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 4107.562532678022,
+      "sd": 0.014413774324719615
+     },
+     "engine_value": 4107.5643076191345,
+     "abs_error": 0.0004061042209286825,
+     "error_in_sd": 0.02127017176574438
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 6.848923232124643,
+     "max_abs_error": 24.423338471102397,
+     "q2": 0.9999444658260909,
+     "rmse_pct_of_range": 0.17094507787944174,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 13.825945352887066,
+     "max_abs_error": 41.921971308482625,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 10.7,
+    "model_seconds": 8.73,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.07 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 2,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-1.reflux_ratio": 2.2317801688552366,
+     "T-1.bottoms_molar_flow_mol_s": 50.000609291923865
+    },
+    "objective": 4107.434229653021,
+    "constraints": {
+     "dist.mole_fractions.N-hexane": 0.9500007343380382,
+     "bot.mole_fractions.N-heptane": 0.9500008486009754
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": -0.012344379543993991,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 4107.433501739517,
+     "leave_one_out_sd": 0.01459901137468221,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 4107.4331125254985,
+      "sd": 0.008582644609976873
+     },
+     "engine_value": 4107.434229653021,
+     "abs_error": 0.0007279135043063434,
+     "error_in_sd": 0.04986046559075228
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 6.386981094504594,
+     "max_abs_error": 22.844771454648708,
+     "q2": 0.9999447558264899,
+     "rmse_pct_of_range": 0.20791403943298195,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 9.110660846085043,
+     "max_abs_error": 28.148591995186507,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": [
+     "dist.mole_fractions.N-hexane"
+    ],
+    "seconds": 8.1,
+    "model_seconds": 6.07,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.11 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 3,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-1.reflux_ratio": 2.2318959570372447,
+     "T-1.bottoms_molar_flow_mol_s": 50.00004265010084
+    },
+    "objective": 4107.658038123213,
+    "constraints": {
+     "dist.mole_fractions.N-hexane": 0.9500010196130374,
+     "bot.mole_fractions.N-heptane": 0.9500113398190511
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": -0.006896189021317815,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 4107.659020150136,
+     "leave_one_out_sd": 0.019148669043142993,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 4107.656063541919,
+      "sd": 0.015041551147163408
+     },
+     "engine_value": 4107.658038123213,
+     "abs_error": 0.0009820269224292133,
+     "error_in_sd": 0.0512843435863168
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 4.971687533693964,
+     "max_abs_error": 13.577389123007379,
+     "q2": 0.999973530314075,
+     "rmse_pct_of_range": 0.12792574887658772,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 7.813727839758473,
+     "max_abs_error": 20.334817473524254,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": null,
+    "seconds": 7.7,
+    "model_seconds": 5.92,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.06 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   },
+   {
+    "seed": 4,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-1.reflux_ratio": 2.231778913278433,
+     "T-1.bottoms_molar_flow_mol_s": 50.000607921491664
+    },
+    "objective": 4107.432582361384,
+    "constraints": {
+     "dist.mole_fractions.N-hexane": 0.9500006859862945,
+     "bot.mole_fractions.N-heptane": 0.9500008248361929
+    },
+    "n_evaluations": 17,
+    "n_failed": 0,
+    "rel_gap_pct": -0.012384479718379682,
+    "gp_at_optimum": {
+     "leave_one_out_mean": 4107.433262495351,
+     "leave_one_out_sd": 0.015372733383762905,
+     "explanation": "predicci\u00f3n del proceso gaussiano en el \u00f3ptimo SIN usar ese punto (dejar-uno-fuera, hiperpar\u00e1metros fijos), contra el valor real del motor",
+     "predicted_before_evaluation": {
+      "mean": 4107.432531115678,
+      "sd": 0.00898342812261
+     },
+     "engine_value": 4107.432582361384,
+     "abs_error": 0.0006801339668527362,
+     "error_in_sd": 0.04424287794980638
+    },
+    "loo": {
+     "n": 16,
+     "rmse": 9.302853452051034,
+     "max_abs_error": 26.487796355764658,
+     "q2": 0.9998969013143499,
+     "rmse_pct_of_range": 0.23975190814662153,
+     "fraction_within_2_sd": 1.0,
+     "note": "dejar-uno-fuera en forma cerrada con los hiperpar\u00e1metros fijos (Rasmussen y Williams 2006, ec. 5.10-5.12)"
+    },
+    "one_step_ahead": {
+     "n": 10,
+     "rmse": 11.172845787595879,
+     "max_abs_error": 33.809855248921394,
+     "fraction_within_2_sd": 1.0,
+     "note": "error de la predicci\u00f3n hecha ANTES de evaluar cada punto propuesto (fuera de muestra)"
+    },
+    "active_constraints": [
+     "dist.mole_fractions.N-hexane"
+    ],
+    "seconds": 8.1,
+    "model_seconds": 6.97,
+    "suitability_notes": [
+     "Cada evaluaci\u00f3n de DWSIM tard\u00f3 0.04 s (mediana): en un problema as\u00ed de barato y con pocas variables, optimize_design_multi (directo) u optimize_design_surrogate dan la misma respuesta con m\u00e1s precisi\u00f3n en el \u00f3ptimo; la bayesiana conviene cuando cada evaluaci\u00f3n cuesta minutos, falla a menudo o el presupuesto es de decenas de evaluaciones."
+    ]
+   }
+  ],
+  "bayesian_evaluations_median": 17.0,
+  "bayesian_rel_gap_pct_max": -0.006896189021317815
+ },
+ "integers": {
+  "direct_enumeration": {
+   "values": {
+    "T-101.stages": 29,
+    "T-101.reflux_ratio": 1.3940000000000001
+   },
+   "objective": 885080.4887841525,
+   "n_evaluations": 442,
+   "source": "notebooks/20_variables_enteras.jsonl (recorded, not re-run)"
+  },
+  "bayesian": [
+   {
+    "seed": 0,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-101.stages": 31,
+     "T-101.reflux_ratio": 1.3581146839657778
+    },
+    "objective": 884913.3163240877,
+    "constraints": {
+     "dist.mole_fractions.Ethanol": 0.8000007464857607
+    },
+    "n_evaluations": 23,
+    "n_failed": 0,
+    "n_infeasible": 10,
+    "rel_gap_pct": -0.01888782570436291,
+    "all_integer": true,
+    "stages_tried": [
+     8,
+     9,
+     19,
+     21,
+     23,
+     25,
+     30,
+     31,
+     32,
+     37,
+     38,
+     43,
+     44,
+     51,
+     52
+    ],
+    "seconds": 37.3
+   },
+   {
+    "seed": 1,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-101.stages": 31,
+     "T-101.reflux_ratio": 1.3581455418857151
+    },
+    "objective": 884920.7124773794,
+    "constraints": {
+     "dist.mole_fractions.Ethanol": 0.8000020320668387
+    },
+    "n_evaluations": 36,
+    "n_failed": 0,
+    "n_infeasible": 20,
+    "rel_gap_pct": -0.018052178168866156,
+    "all_integer": true,
+    "stages_tried": [
+     8,
+     9,
+     16,
+     19,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     37,
+     38,
+     39,
+     40,
+     42,
+     44,
+     45,
+     48,
+     49,
+     52,
+     56
+    ],
+    "seconds": 26.2
+   },
+   {
+    "seed": 2,
+    "status": "verified",
+    "reasons": null,
+    "stopped_by": "expected_improvement",
+    "values": {
+     "T-101.stages": 31,
+     "T-101.reflux_ratio": 1.3581296248401058
+    },
+    "objective": 884916.8974143028,
+    "constraints": {
+     "dist.mole_fractions.Ethanol": 0.8000013689478599
+    },
+    "n_evaluations": 20,
+    "n_failed": 0,
+    "n_infeasible": 9,
+    "rel_gap_pct": -0.01848321954023344,
+    "all_integer": true,
+    "stages_tried": [
+     8,
+     13,
+     16,
+     20,
+     22,
+     24,
+     30,
+     31,
+     32,
+     37,
+     40,
+     44,
+     47,
+     50,
+     57
+    ],
+    "seconds": 24.8
+   }
+  ]
+ },
+ "_meta": {
+  "date": "2026-11-14",
+  "scikit_learn": "1.9.1",
+  "scipy": "1.18.1",
+  "numpy": "2.5.4",
+  "dwsim": "10.2.12",
+  "commands": "PYTHONPATH=. uv run python notebooks/29_optimizacion_bayesiana.py functions|truth|snar|dwsim|integers",
+  "botorch_reference": {
+   "what": "BoTorch 0.18.1 defaults (SingleTaskGP + LogExpectedImprovement, 14 Sobol points, 120 evaluations, no stopping rule) on Hartmann-6, 14 seeds, in a throw-away venv outside the repo; not a dependency",
+   "success_at_60_80_100_120_evaluations": [
+    4,
+    5,
+    6,
+    8
+   ],
+   "n_seeds": 14,
+   "final_gaps": [
+    0.006,
+    0.016,
+    0.018,
+    0.02,
+    0.023,
+    0.023,
+    0.024,
+    0.031,
+    0.036,
+    0.036,
+    0.129,
+    0.129,
+    0.131,
+    0.145
+   ]
+  },
+  "failure_handling_before_imputation": "Branin with three failing zones, classifier only: 43-52 failed evaluations of 60 in seeds 0-3, optimum missed in 3 of 4 seeds; with the pessimistic imputation 7-13 failed of 30-37 and optimum reached in 6 of 6 seeds"
+ }
+}

@@ -375,4 +375,60 @@ def optimize_design_surrogate(flowsheet_id: str, variables: list[dict], objectiv
                               objective_tolerance, seed, return_samples=return_samples)
 
 
-OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate]
+def optimize_design_bayesian(flowsheet_id: str, variables: list[dict], objective: dict, constraints: list[dict] | None = None,
+                             maximize: bool = False, max_evaluations: int | None = None, n_initial: int | None = None,
+                             tolerance_pct: float = 0.5, objective_tolerance: float | None = None,
+                             stall_iterations: int | None = None, seed: int = 0, restarts: int = 0) -> dict:
+    """Bayesian optimisation of an existing DWSIM flowsheet (bloque M16): few evaluations, each one chosen by a
+    Gaussian-process model (scikit-learn, Matérn 5/2) with constrained expected improvement. variables = 1-10
+    variables [{"kind": "unit"|"stream", "name", "param", "lower", "upper", "log_scale": bool, "integer": bool}] with the
+    user's bounds (integers such as column stages are handled natively: only integer values are proposed); objective
+    and constraints exactly as in optimize_design (a constraint may add "tolerance"). A DWSIM solve that fails or does
+    not converge is kept as an infeasible point and teaches the model where the flowsheet does not solve; it never
+    aborts the run. Stops, and says which rule fired (`stopped_by`), on: max_evaluations (default 20 + 10·n per run),
+    max expected improvement below 0.1 × the objective tolerance in 5 consecutive iterations (after at least
+    max(10, 5·n) model-guided evaluations), or no improvement larger than the tolerance in stall_iterations solved
+    evaluations (default max(20, 10·n)). Tolerance = objective_tolerance (absolute) or tolerance_pct of the best value. restarts (0-5,
+    default 0) = independent extra runs after convergence while the budget lasts: `restart_agreement` then says
+    whether they land on the same optimum (the check against a local optimum; costs about one more run each).
+    Same seed, same run. Returns `best` RE-EVALUATED in DWSIM (`engine_at_optimum`),
+    `gp_at_optimum` (the model's leave-one-out prediction and uncertainty there against the DWSIM value),
+    `gp_diagnostics` (leave-one-out and one-step-ahead errors per output), `history` (every evaluation, with what the
+    model predicted before it), n_evaluations, n_failed_evaluations, `evidence` and status: "verified" only if DWSIM
+    solves and meets the limits at the optimum, the re-evaluation reproduces, the model is consistent there and a
+    convergence rule fired before the budget ran out; `reasons` says why not. `suitability.notes` says when this is the
+    wrong tool. Leaves the flowsheet solved at the optimum. WHEN: each solve is slow (minutes) or fails often and only
+    tens of evaluations are affordable, 1-10 variables, integers allowed. NOT for a fast smooth flowsheet with 1-4
+    variables (optimize_design / optimize_design_multi are as good or better and more precise at the optimum) and
+    not when an algebraic model of the flowsheet is wanted (optimize_design_surrogate). It does not guarantee the
+    global optimum."""
+    from packages.bo.core import bayes_optimize
+    cons = constraints or []
+    if objective.get("type") not in ("total_annual_cost", "sum"):
+        raise ValueError("objective.type must be total_annual_cost or sum")
+    limits = {f"{c['name']}.{c['key']}": {k: c.get(k) for k in ("max", "min", "tolerance")} for c in cons}
+
+    def evaluate(x: list[float]) -> dict:
+        for v, xi in zip(variables, x):
+            _set(flowsheet_id, v["kind"], v["name"], v["param"], float(xi))
+        r = _eval(flowsheet_id, None, None, objective, cons)
+        return {"solved_ok": r["solved_ok"], "objective": r["objective"], "constraints": r.get("constraints") or {}}
+
+    return bayes_optimize(evaluate, variables, limits, maximize, max_evaluations, n_initial, tolerance_pct,
+                          objective_tolerance, stall_iterations, seed, restarts)
+
+
+def suggest_experiments(variables: list[dict], experiments: list[dict], objective: dict, batch_size: int,
+                        constraints: list[dict] | None = None, seed: int = 0) -> dict:
+    from packages.bo.experiments import suggest_experiments as _f
+    return _f(variables, experiments, objective, batch_size, constraints, seed)
+
+
+def _copy_doc():
+    from packages.bo.experiments import suggest_experiments as _f
+    suggest_experiments.__doc__ = _f.__doc__
+
+
+_copy_doc()
+OPTIMIZE_TOOLS = [optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate,
+                  optimize_design_bayesian, suggest_experiments]

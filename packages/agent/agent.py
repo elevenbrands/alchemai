@@ -230,6 +230,32 @@ Hard rules:
    design without the user's OK. To design a column with the fitted parameters, pass this tool's whole result to
    eo_column_optimize(activity_model="NRTL", binary_parameters=<result>) (NRTL model only; say the Psat source of
    the regression and the column's, Wagner-McGarry, may differ).
+24. Choosing the optimizer of a built flowsheet. ONE variable: optimize_design. 2-4 variables on a flowsheet that
+   solves in about a second, including integer column stages: optimize_design_multi (direct, most precise at the
+   optimum). An algebraic model of the flowsheet, or 1-6 continuous variables with an accuracy to certify:
+   optimize_design_surrogate. Each solve takes minutes or fails often, only tens of evaluations are affordable, or
+   5-10 variables: optimize_design_bayesian. Ask for the bounds of every variable, the objective, every limit and the
+   evaluation budget (no defaults for bounds, prices or limits). Report in Spanish the best point with the DWSIM
+   values (engine_at_optimum), how many evaluations were spent and how many failed, which stopping rule fired, the
+   model's leave-one-out prediction ± uncertainty at the optimum against DWSIM, and the status. "not_verified" with
+   converged_before_budget false means the budget ran out: say there may be a better point and offer more
+   evaluations. Never call the result a global optimum: one run converges to the first optimum it finds. When the
+   user needs that checked, or the response may have several optima, pass restarts=1 or 2 and report
+   restart_agreement (how many independent runs reached the same optimum). Repeat suitability.notes when present
+   (they say when a direct optimizer would have been the better choice).
+25. Real experiments (laboratory, pilot plant, plant trials: "what should I run next", design of experiments,
+   reaction optimisation from data): suggest_experiments. There is NO simulator in this tool: the variables, their
+   bounds, every past run with its MEASURED result, the objective and its direction, any limit and the batch size
+   are user data. ASK for them; never invent, recall or simulate a measurement, and never fill a missing result.
+   Present `proposals` as a table in Spanish headed as PROPUESTAS (experiments to run), with the predicted mean, its
+   uncertainty and the 95 % interval of a new measurement, and say plainly that these are model predictions, not
+   results. Show current_best (the best MEASURED run), the leave-one-out fit (q2, rmse, coverage) and the fitted
+   noise. If mode is "initial_design" say there is no model yet, that the plan only fills the space, and how many
+   runs are missing. If weak_fit is true say the proposals are exploration. If a warning suggests "log": true (the
+   response spans more than a decade), tell the user and ask before turning it on. One objective only: with two (yield vs
+   cost, E-factor) ask the user for weights or run it per objective, and say a Pareto front is not available.
+   Categorical variables (solvent, catalyst) are not supported: run it per category. A measured failure is entered
+   as "failed": true.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1081,6 +1107,41 @@ def optimize_design_surrogate(flowsheet_id: str, variables: list[dict[str, objec
 
 
 @beta_tool
+def optimize_design_bayesian(flowsheet_id: str, variables: list[dict[str, object]], objective: dict[str, object],
+                             constraints: list[dict[str, object]] | None = None, maximize: bool = False,
+                             max_evaluations: int | None = None, n_initial: int | None = None, tolerance_pct: float = 0.5,
+                             objective_tolerance: float | None = None, stall_iterations: int | None = None, seed: int = 0,
+                             restarts: int = 0) -> str:
+    """Bayesian optimisation of a built DWSIM flowsheet (Gaussian process + constrained expected improvement) for
+    EXPENSIVE or failure-prone solves with a budget of tens of evaluations: 1-10 variables
+    [{kind, name, param, lower, upper, log_scale, integer}] (integers native), objective/constraints as in
+    optimize_design. Failed solves are infeasible points, never a crash. Stops on max_evaluations (default 20 + 10·n per
+    run), expected improvement below 0.1 × tolerance for 5 iterations, or no improvement in stall_iterations.
+    restarts = independent extra runs to check for a local optimum (restart_agreement). Returns best re-evaluated in
+    DWSIM, gp_at_optimum, gp_diagnostics, history, runs, n_evaluations, stopped_by, evidence, status, suitability. For 1 variable use optimize_design; for 2-4 on a fast flowsheet optimize_design_multi; for an
+    algebraic model optimize_design_surrogate."""
+    return json.dumps(TO.optimize_design_bayesian(flowsheet_id, variables, objective, constraints, maximize, max_evaluations,
+                                                  n_initial, tolerance_pct, objective_tolerance, stall_iterations, seed,
+                                                  restarts),
+                      default=float)
+
+
+@beta_tool
+def suggest_experiments(variables: list[dict[str, object]], experiments: list[dict[str, object]], objective: dict[str, object],
+                        batch_size: int, constraints: list[dict[str, object]] | None = None, seed: int = 0) -> str:
+    """Next experiments to run from the USER's own lab/plant data (Bayesian experiment design, no simulator).
+    variables [{name, lower, upper, log_scale, integer}]; experiments = past runs, one dict per run with every variable
+    and the measured outputs (a run that failed: "failed": true); objective {"name", "maximize"}; constraints
+    [{name, max|min}] on other measured outputs ("log": true in objective models log y for responses spanning decades);
+    batch_size = how many runs fit in the next round. Returns proposals
+    (PROPOSALS, each with predicted mean, uncertainty, 95 % interval, probability of meeting the limits),
+    current_best (best MEASURED run), model (noise, leave-one-out fit) and warnings; with fewer than 2·(n + 1) valid
+    runs, mode "initial_design" (space-filling plan, no model). One objective, no categorical variables. Never
+    invents measurements."""
+    return json.dumps(TO.suggest_experiments(variables, experiments, objective, batch_size, constraints, seed), default=float)
+
+
+@beta_tool
 def fopdt_identify(time_s: list[float], output: list[float], input_change: float, step_time_s: float,
                    baseline_output: float | None = None, final_output: float | None = None) -> str:
     """Identify FOPDT (K, τ, θ) and SOPDT models from an open-loop step test by least squares: R², RMSE, residual
@@ -1131,7 +1192,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, optimize_design_bayesian, suggest_experiments, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
