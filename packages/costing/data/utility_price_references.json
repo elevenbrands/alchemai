@@ -1,0 +1,385 @@
+{
+ "version": "2026-11-14",
+ "description": "Precios industriales PUBLICADOS de energía por región, cada uno con fuente, periodo y fecha de consulta. Son referencias, no contratos: solo se usan si el usuario nombra una explícitamente.",
+ "not_included": [
+  {
+   "region": "MX",
+   "what": "Gas natural (IPGN, índice de referencia de precios de gas natural al mayoreo, CNE antes CRE)",
+   "why": "La consulta de https://www.cne.gob.mx/IPGN/ exige resolver un reCAPTCHA; no se evadió. www.cre.gob.mx ya no resuelve. Pendiente: que el owner descargue la tabla."
+  },
+  {
+   "region": "todas",
+   "what": "Agua de repuesto (caldera y torre), tratamiento, combustóleo, carbón, vapor comprado",
+   "why": "Sin fuente pública por región leída en esta sesión; siempre los da el usuario."
+  }
+ ],
+ "references": {
+  "US-EIA-2026-08": {
+   "region": "US",
+   "label": "Estados Unidos (promedio nacional) · EIA, agosto 2026",
+   "currency": "USD",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, precio al sector industrial",
+     "value": 4.34,
+     "unit": "USD/Mcf (mil pies cúbicos)",
+     "currency": "USD",
+     "period": "2026-08",
+     "period_end": "2026-08-31",
+     "source": "U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026)",
+     "url": "https://www.eia.gov/dnav/ng/hist/n3035us3m.htm",
+     "fuel_basis": "HHV",
+     "conversion": {
+      "heat_content_btu_per_cf": 1036,
+      "heat_content_period": "2025 (anual)",
+      "heat_content_source": "U.S. EIA, Heat Content of Natural Gas Delivered to Consumers (anual; Release Date 10/30/2026). EIA: «typically uses gross heat content values»",
+      "heat_content_url": "https://www.eia.gov/dnav/ng/ng_cons_heat_a_EPG0_VGTH_btucf_a.htm",
+      "formula": "USD/GJ = (USD/Mcf) / (Btu/cf × 1000 × 1055.05585262 J/Btu / 1e9)"
+     },
+     "caveat": "Promedio mensual del precio pagado por el sector industrial (no una tarifa ni un contrato). El contenido de calor es el promedio anual 2025 del mismo territorio, no el del mes. Base poder calorífico superior."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, precio medio al sector industrial",
+     "value": 9.64,
+     "unit": "centavos USD/kWh",
+     "currency": "USD",
+     "period": "2026-08",
+     "period_end": "2026-08-31",
+     "source": "U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026",
+     "url": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+     "caveat": "Ingreso medio por kWh del sector industrial (energía + demanda + cargos fijos promediados), no una tarifa. Los valores de 2026 son estimaciones preliminares (nota de la tabla)."
+    }
+   ]
+  },
+  "US-TX-EIA-2026-08": {
+   "region": "US-TX",
+   "label": "Estados Unidos, Texas · EIA, agosto 2026",
+   "currency": "USD",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, precio al sector industrial",
+     "value": 2.98,
+     "unit": "USD/Mcf (mil pies cúbicos)",
+     "currency": "USD",
+     "period": "2026-08",
+     "period_end": "2026-08-31",
+     "source": "U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026)",
+     "url": "https://www.eia.gov/dnav/ng/hist/n3035tx3m.htm",
+     "fuel_basis": "HHV",
+     "conversion": {
+      "heat_content_btu_per_cf": 1016,
+      "heat_content_period": "2025 (anual)",
+      "heat_content_source": "U.S. EIA, Heat Content of Natural Gas Delivered to Consumers (anual; Release Date 10/30/2026). EIA: «typically uses gross heat content values»",
+      "heat_content_url": "https://www.eia.gov/dnav/ng/ng_cons_heat_a_EPG0_VGTH_btucf_a.htm",
+      "formula": "USD/GJ = (USD/Mcf) / (Btu/cf × 1000 × 1055.05585262 J/Btu / 1e9)"
+     },
+     "caveat": "Promedio mensual del precio pagado por el sector industrial (no una tarifa ni un contrato). El contenido de calor es el promedio anual 2025 del mismo territorio, no el del mes. Base poder calorífico superior."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, precio medio al sector industrial",
+     "value": 7.21,
+     "unit": "centavos USD/kWh",
+     "currency": "USD",
+     "period": "2026-08",
+     "period_end": "2026-08-31",
+     "source": "U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026",
+     "url": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+     "caveat": "Ingreso medio por kWh del sector industrial (energía + demanda + cargos fijos promediados), no una tarifa. Los valores de 2026 son estimaciones preliminares (nota de la tabla)."
+    }
+   ]
+  },
+  "US-LA-EIA-2026-08": {
+   "region": "US-LA",
+   "label": "Estados Unidos, Luisiana · EIA, agosto 2026",
+   "currency": "USD",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, precio al sector industrial",
+     "value": 3.94,
+     "unit": "USD/Mcf (mil pies cúbicos)",
+     "currency": "USD",
+     "period": "2026-08",
+     "period_end": "2026-08-31",
+     "source": "U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026)",
+     "url": "https://www.eia.gov/dnav/ng/hist/n3035la3m.htm",
+     "fuel_basis": "HHV",
+     "conversion": {
+      "heat_content_btu_per_cf": 1020,
+      "heat_content_period": "2025 (anual)",
+      "heat_content_source": "U.S. EIA, Heat Content of Natural Gas Delivered to Consumers (anual; Release Date 10/30/2026). EIA: «typically uses gross heat content values»",
+      "heat_content_url": "https://www.eia.gov/dnav/ng/ng_cons_heat_a_EPG0_VGTH_btucf_a.htm",
+      "formula": "USD/GJ = (USD/Mcf) / (Btu/cf × 1000 × 1055.05585262 J/Btu / 1e9)"
+     },
+     "caveat": "Promedio mensual del precio pagado por el sector industrial (no una tarifa ni un contrato). El contenido de calor es el promedio anual 2025 del mismo territorio, no el del mes. Base poder calorífico superior."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, precio medio al sector industrial",
+     "value": 6.1,
+     "unit": "centavos USD/kWh",
+     "currency": "USD",
+     "period": "2026-08",
+     "period_end": "2026-08-31",
+     "source": "U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026",
+     "url": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+     "caveat": "Ingreso medio por kWh del sector industrial (energía + demanda + cargos fijos promediados), no una tarifa. Los valores de 2026 son estimaciones preliminares (nota de la tabla)."
+    }
+   ]
+  },
+  "EU27-EUROSTAT-2026-S1": {
+   "region": "EU27_2020",
+   "label": "Unión Europea (27) · Eurostat, primer semestre 2026",
+   "currency": "EUR",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, consumidores no domésticos, banda I4 (100 000 a 999 999 GJ/año)",
+     "value": 14.3195,
+     "unit": "EUR/GJ (poder calorífico superior, GCV)",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "fuel_basis": "HHV",
+     "source": "Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=EN&geo=EU27_2020&currency=EUR&lastTimePeriod=3",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda I4; otras bandas de consumo tienen otro precio."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, consumidores no domésticos, banda ID (2 000 a 19 999 MWh/año)",
+     "value": 0.1559,
+     "unit": "EUR/kWh",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "source": "Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=EN&geo=EU27_2020&currency=EUR&lastTimePeriod=3&unit=KWH",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda ID; otras bandas de consumo tienen otro precio."
+    }
+   ]
+  },
+  "DE-EUROSTAT-2026-S1": {
+   "region": "DE",
+   "label": "Alemania · Eurostat, primer semestre 2026",
+   "currency": "EUR",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, consumidores no domésticos, banda I4 (100 000 a 999 999 GJ/año)",
+     "value": 15.1064,
+     "unit": "EUR/GJ (poder calorífico superior, GCV)",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "fuel_basis": "HHV",
+     "source": "Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=EN&geo=DE&currency=EUR&lastTimePeriod=3",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda I4; otras bandas de consumo tienen otro precio."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, consumidores no domésticos, banda ID (2 000 a 19 999 MWh/año)",
+     "value": 0.1742,
+     "unit": "EUR/kWh",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "source": "Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=EN&geo=DE&currency=EUR&lastTimePeriod=3&unit=KWH",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda ID; otras bandas de consumo tienen otro precio. Valor marcado como provisional (p) por Eurostat."
+    }
+   ]
+  },
+  "ES-EUROSTAT-2026-S1": {
+   "region": "ES",
+   "label": "España · Eurostat, primer semestre 2026",
+   "currency": "EUR",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, consumidores no domésticos, banda I4 (100 000 a 999 999 GJ/año)",
+     "value": 13.1056,
+     "unit": "EUR/GJ (poder calorífico superior, GCV)",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "fuel_basis": "HHV",
+     "source": "Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=EN&geo=ES&currency=EUR&lastTimePeriod=3",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda I4; otras bandas de consumo tienen otro precio."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, consumidores no domésticos, banda ID (2 000 a 19 999 MWh/año)",
+     "value": 0.1177,
+     "unit": "EUR/kWh",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "source": "Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=EN&geo=ES&currency=EUR&lastTimePeriod=3&unit=KWH",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda ID; otras bandas de consumo tienen otro precio."
+    }
+   ]
+  },
+  "FR-EUROSTAT-2026-S1": {
+   "region": "FR",
+   "label": "Francia · Eurostat, primer semestre 2026",
+   "currency": "EUR",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, consumidores no domésticos, banda I4 (100 000 a 999 999 GJ/año)",
+     "value": 13.0639,
+     "unit": "EUR/GJ (poder calorífico superior, GCV)",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "fuel_basis": "HHV",
+     "source": "Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=EN&geo=FR&currency=EUR&lastTimePeriod=3",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda I4; otras bandas de consumo tienen otro precio."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, consumidores no domésticos, banda ID (2 000 a 19 999 MWh/año)",
+     "value": 0.1239,
+     "unit": "EUR/kWh",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "source": "Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=EN&geo=FR&currency=EUR&lastTimePeriod=3&unit=KWH",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda ID; otras bandas de consumo tienen otro precio."
+    }
+   ]
+  },
+  "NL-EUROSTAT-2026-S1": {
+   "region": "NL",
+   "label": "Países Bajos · Eurostat, primer semestre 2026",
+   "currency": "EUR",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "fuel_per_GJ",
+     "commodity": "gas natural, consumidores no domésticos, banda I4 (100 000 a 999 999 GJ/año)",
+     "value": 18.4644,
+     "unit": "EUR/GJ (poder calorífico superior, GCV)",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "fuel_basis": "HHV",
+     "source": "Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=EN&geo=NL&currency=EUR&lastTimePeriod=3",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda I4; otras bandas de consumo tienen otro precio."
+    },
+    {
+     "key": "electricity_per_kWh",
+     "commodity": "electricidad, consumidores no domésticos, banda ID (2 000 a 19 999 MWh/año)",
+     "value": 0.1824,
+     "unit": "EUR/kWh",
+     "currency": "EUR",
+     "period": "2026-S1",
+     "period_end": "2026-06-30",
+     "source": "Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=EN&geo=NL&currency=EUR&lastTimePeriod=3&unit=KWH",
+     "caveat": "Sin IVA ni otros impuestos recuperables (X_VAT); incluye los impuestos y cargos no recuperables. Promedio semestral de la banda ID; otras bandas de consumo tienen otro precio."
+    }
+   ]
+  },
+  "MX-CFE-GDMTH-ORIENTE-2026-11": {
+   "region": "MX",
+   "label": "México · CFE tarifa GDMTH, división Oriente (consultada para Coatzacoalcos, Veracruz), noviembre 2026",
+   "currency": "MXN",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "electricity_time_of_use_per_kWh",
+     "commodity": "electricidad, tarifa GDMTH (gran demanda en media tensión horaria), cargo variable de energía",
+     "value": {
+      "base": 0.9018,
+      "intermedia": 1.5799,
+      "punta": 1.7739
+     },
+     "unit": "MXN/kWh por periodo horario",
+     "currency": "MXN",
+     "period": "2026-11",
+     "period_end": "2026-11-30",
+     "source": "CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Oriente (Coatzacoalcos, Veracruz)",
+     "url": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx",
+     "caveat": "Tarifa de suministro básico para demanda ≥ 100 kW en media tensión. Tres periodos horarios: el precio medio depende de TU perfil de carga (fracción de la energía en base, intermedia y punta), que debes dar. La página consultada no dice si las cuotas incluyen IVA: confírmalo con tu recibo. Cargo fijo de 636.28 MXN/mes no incluido en el precio por kWh."
+    },
+    {
+     "key": "demand_charge_per_kW_month",
+     "commodity": "electricidad, tarifa GDMTH, cargos por demanda (distribución + capacidad)",
+     "value": 548.65,
+     "unit": "MXN/kW-mes",
+     "currency": "MXN",
+     "period": "2026-11",
+     "period_end": "2026-11-30",
+     "components": {
+      "distribucion_mxn_kW": 202.45,
+      "capacidad_mxn_kW": 346.2,
+      "fijo_mxn_mes": 636.28
+     },
+     "source": "CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Oriente (Coatzacoalcos, Veracruz)",
+     "url": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx",
+     "caveat": "Suma de los cargos de distribución y de capacidad aplicada a UNA sola demanda facturable (supuesto de la herramienta): CFE aplica cada cargo a una demanda distinta (reglas 7.1 y 7.2 de la tarifa: mínimos entre la demanda máxima y la que resulta de la energía y un factor de carga)."
+    }
+   ]
+  },
+  "MX-CFE-GDMTH-GOLFO-NORTE-2026-11": {
+   "region": "MX",
+   "label": "México · CFE tarifa GDMTH, división Golfo Norte (consultada para Monterrey, Nuevo León), noviembre 2026",
+   "currency": "MXN",
+   "retrieved": "2026-11-14",
+   "entries": [
+    {
+     "key": "electricity_time_of_use_per_kWh",
+     "commodity": "electricidad, tarifa GDMTH (gran demanda en media tensión horaria), cargo variable de energía",
+     "value": {
+      "base": 0.9904,
+      "intermedia": 1.5333,
+      "punta": 1.6634
+     },
+     "unit": "MXN/kWh por periodo horario",
+     "currency": "MXN",
+     "period": "2026-11",
+     "period_end": "2026-11-30",
+     "source": "CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León)",
+     "url": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx",
+     "caveat": "Tarifa de suministro básico para demanda ≥ 100 kW en media tensión. Tres periodos horarios: el precio medio depende de TU perfil de carga (fracción de la energía en base, intermedia y punta), que debes dar. La página consultada no dice si las cuotas incluyen IVA: confírmalo con tu recibo. Cargo fijo de 502.03 MXN/mes no incluido en el precio por kWh."
+    },
+    {
+     "key": "demand_charge_per_kW_month",
+     "commodity": "electricidad, tarifa GDMTH, cargos por demanda (distribución + capacidad)",
+     "value": 444.12,
+     "unit": "MXN/kW-mes",
+     "currency": "MXN",
+     "period": "2026-11",
+     "period_end": "2026-11-30",
+     "components": {
+      "distribucion_mxn_kW": 57.74,
+      "capacidad_mxn_kW": 386.38,
+      "fijo_mxn_mes": 502.03
+     },
+     "source": "CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León)",
+     "url": "https://app.cfe.mx/Aplicaciones/CCFE/Tarifas/TarifasCRENegocio/Tarifas/GranDemandaMTH.aspx",
+     "caveat": "Suma de los cargos de distribución y de capacidad aplicada a UNA sola demanda facturable (supuesto de la herramienta): CFE aplica cada cargo a una demanda distinta (reglas 7.1 y 7.2 de la tarifa: mínimos entre la demanda máxima y la que resulta de la energía y un factor de carga)."
+    }
+   ]
+  }
+ }
+}

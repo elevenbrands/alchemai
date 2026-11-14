@@ -1,8 +1,22 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-14 (M1-M16b cerrados: optimización bayesiana con un reinicio de comprobación por defecto)
+Actualizado: 2026-11-14 (M1-M17 cerrados: costo de servicios por región, 73 tools)
 
 ## Dónde estamos
+**Bloque M17 (2026-11-14): costo de servicios por región, 73 tools, ✅ con límites declarados.** Fila «Costo de servicios (vapor, agua, electricidad) por región» del mapa: ⬜ → ✅.
+- `utility_costs`: de los precios que la planta paga (combustible por GJ, electricidad, agua) al costo de cada nivel: vapor por tonelada y por GJ entregado, calor a fuego directo, agua de torre por m³ y por GJ, refrigeración por GJ a cada temperatura, electricidad efectiva con tarifa horaria y cargo por demanda. Devuelve el dict `prices` (USD) de `annual_cost`/`flowsheet_cost`, el desglose (combustible, agua, electricidad), de dónde vino cada precio, supuestos y lo no incluido. Eficiencias, retorno de condensado, purga, ciclos y perfil de carga son obligatorios: no hay valores típicos.
+- `list_utility_price_references`: 10 referencias publicadas leídas el 2026-11-14 (EIA: EE. UU., Texas, Luisiana, agosto 2026; Eurostat: UE-27, DE, ES, FR, NL, 2026-S1; CFE GDMTH: Oriente y Golfo Norte, noviembre 2026). Solo se usan si se nombran; el resultado lo dice primero con fuente, periodo y antigüedad. Sin precios ni referencia la tool se niega.
+- Validación: Tabla 1 del DOE Steam Tip Sheet #15 (15 valores) a ≤ 0.15 % y su ejemplo 9.398 contra 9.39 USD/1 000 lb (+0.08 %). Ulrich y Vasudevan 2006: 0.1061 / 0.04758 / 0.018586 / 4.022e-6 contra 0.106 / 0.048 / 0.019 / 4.0e-6 (redondeo). Balance de la isla de vapor con residuo 0; vapor ≥ combustible ÷ eficiencia en 8 de 8; refrigeración creciente al enfriar.
+- Cadena en el caso del bloque 20 (recuperación de calor, DWSIM): con precios calculados el óptimo pasa de 650 m² (ilustrativos fijos) a 647 (usuario), 590 (EIA EE. UU.) y 504 m² (Texas).
+- Evidencia: `notebooks/30_costo_de_servicios.py` y `.json`, `tests/test_utilities.py` (27 pruebas, sin red), filas M17 de `BENCHMARK.md`, MOCKS `PRECIOS-REFERENCIA-M17`, `SUPUESTOS-SERVICIOS-M17`, `ENTRADAS-ILUSTRATIVAS-M17`, `SERVICIOS-PENDIENTES-M17`. Suite completa 600 passed, 22 skipped (antes 573 y 22).
+
+No cubierto en M17:
+1. Gas natural de México: el IPGN de la CNE pide un reCAPTCHA; no se evadió. Con referencia mexicana solo hay electricidad; el combustible lo da el usuario.
+2. Agua de enfriamiento y refrigeración de primeros principios sin ejemplo de libro reproducido (Turton cap. 8 y Seider cap. 17 no accesibles): tienen identidades de balance y el contraste de la ruta 2.
+3. Capital y mantenimiento de los servicios, cogeneración y turbinas de contrapresión, agua de un solo paso, agua helada o salmuera en lazo, aceite térmico, aire comprimido, nitrógeno, tratamiento de aguas, costo de emisiones.
+4. Tarifa de CFE: el cargo fijo no entra y distribución + capacidad se aplican a una sola demanda facturable; las fracciones por periodo horario las da el usuario (no se calculan desde el calendario de la tarifa).
+5. El banco caduca: nadie lo refresca solo. Hoy avisa cuando una referencia pasa de un año.
+
 **Bloque M16b (2026-11-14): `restarts = 1` por defecto en `optimize_design_bayesian`, decisión del owner, 71 tools (mismas tools), ✅.**
 - Una corrida independiente comprueba el óptimo. Si coinciden: `verified` (baja el riesgo de un óptimo local, no demuestra el global). Si difieren más que la tolerancia: `runs_disagree`, con el mejor punto y la razón. Si no alcanzó el presupuesto: `not_verified`. `restarts=0` explícito queda como elección del usuario.
 - Medido (20 semillas): en Hartmann-6 los óptimos equivocados que salen `verified` bajan de 12 a 4 de 20; aciertos 8 → 13 de 20. Branin y Gramacy 20/20. DWSIM: mismo óptimo con 33-34 evaluaciones (antes 17) contra 80-145 y 67; etapas enteras 50-66 solves contra 442.
@@ -323,6 +337,15 @@ Ninguno. Limitaciones anotadas: PR no condensa 1 % de agua a 280 K / 60 bar; `CS
 en DWSIM 10.2.12 (usar `Isothermal()`); un `solve()` de DWSIM puede no regresar (columna PR polar; también una vez la columna shortcut con Sonnet): el arnés ya mata el grupo al vencer el timeout, pero el servidor MCP no tiene timeout por llamada; en Fluxo usar NRTL para polares (solo motor; la UI aún no lo expone).
 
 ## Decisiones pendientes del owner
+- **M17, costo de servicios** (2026-11-14):
+  1. ¿Ofrecer valores típicos etiquetados como supuesto (eficiencia de caldera, purga, ciclos de concentración, η de segunda ley) cuando el usuario no los da? Hoy se exigen.
+  2. Refresco del banco: cada cuánto, quién, y si pasado cierto tiempo la tool debe negarse en vez de avisar (hoy avisa a partir de 365 días).
+  3. Gas natural de México: descargar el IPGN a mano (CAPTCHA) o autorizar otra fuente.
+  4. Cobertura del banco: bandas de Eurostat (hoy ID y I4), otras tarifas de CFE (DIST, DIT) y otras divisiones, más estados de EE. UU.
+  5. Cargo por demanda de CFE: ¿implementar las reglas 7.1 y 7.2 exactas (demandas distintas para capacidad y distribución) y el cargo fijo?
+  6. ¿Conectar `utility_costs` a `flowsheet_cost`, pinch y los optimizadores (hoy solo entrega el dict `prices`), y cobrar niveles distintos por equipo?
+  7. ¿Cogeneración y costo del vapor por nivel con turbinas? ¿Capital de los servicios?
+  8. La ruta de Ulrich y Vasudevan (precio con capital, CEPCI del usuario): ¿se queda como contraste?
 - Publicar el post de lanzamiento en LinkedIn (lo hace el owner; repo ya público).
 - App de Mac: plantilla de Figma (bloqueante), distribución fuera de la App Store (recomendada), cobro y precio.
 - Fluxo 1.1/1.2: cuándo tocarlas (1.0.0 en App Review desde 2026-10-19).

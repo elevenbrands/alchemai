@@ -1,0 +1,1259 @@
+{
+ "fecha_de_referencia": "2026-11-14",
+ "1_doe_tip_sheet_15": {
+  "fuente": "U.S. DOE, Advanced Manufacturing Office, Steam Tip Sheet #15 «Benchmark the Fuel Cost of Steam Generation», DOE/GO-102012-3391, enero 2012. https://www.energy.gov/sites/prod/files/2014/05/f16/steam15_benchmark.pdf",
+  "tabla_1": [
+   {
+    "psig": 150,
+    "agua_F": 50,
+    "publicado_Btu_lb": 1178,
+    "nuestro_Btu_lb": 1177.8906322912583,
+    "dif_pct": -0.009284185801505807
+   },
+   {
+    "psig": 150,
+    "agua_F": 100,
+    "publicado_Btu_lb": 1128,
+    "nuestro_Btu_lb": 1127.9236864127058,
+    "dif_pct": -0.006765388944518502
+   },
+   {
+    "psig": 150,
+    "agua_F": 150,
+    "publicado_Btu_lb": 1078,
+    "nuestro_Btu_lb": 1077.9672730916568,
+    "dif_pct": -0.0030358913119865605
+   },
+   {
+    "psig": 150,
+    "agua_F": 200,
+    "publicado_Btu_lb": 1028,
+    "nuestro_Btu_lb": 1027.8268958321746,
+    "dif_pct": -0.01683892683126409
+   },
+   {
+    "psig": 150,
+    "agua_F": 250,
+    "publicado_Btu_lb": 977,
+    "nuestro_Btu_lb": 977.3268101042692,
+    "dif_pct": 0.03345036891189146
+   },
+   {
+    "psig": 450,
+    "agua_F": 50,
+    "publicado_Btu_lb": 1187,
+    "nuestro_Btu_lb": 1187.0616994674938,
+    "dif_pct": 0.005197933234524221
+   },
+   {
+    "psig": 450,
+    "agua_F": 100,
+    "publicado_Btu_lb": 1137,
+    "nuestro_Btu_lb": 1137.094753588941,
+    "dif_pct": 0.008333648983382957
+   },
+   {
+    "psig": 450,
+    "agua_F": 150,
+    "publicado_Btu_lb": 1087,
+    "nuestro_Btu_lb": 1087.138340267892,
+    "dif_pct": 0.012726795574247163
+   },
+   {
+    "psig": 450,
+    "agua_F": 200,
+    "publicado_Btu_lb": 1037,
+    "nuestro_Btu_lb": 1036.99796300841,
+    "dif_pct": -0.00019643120444667872
+   },
+   {
+    "psig": 450,
+    "agua_F": 250,
+    "publicado_Btu_lb": 986,
+    "nuestro_Btu_lb": 986.4978772805046,
+    "dif_pct": 0.05049465319519886
+   },
+   {
+    "psig": 600,
+    "agua_F": 50,
+    "publicado_Btu_lb": 1184,
+    "nuestro_Btu_lb": 1185.5325992120827,
+    "dif_pct": 0.1294425010204936
+   },
+   {
+    "psig": 600,
+    "agua_F": 100,
+    "publicado_Btu_lb": 1134,
+    "nuestro_Btu_lb": 1135.56565333353,
+    "dif_pct": 0.1380646678597941
+   },
+   {
+    "psig": 600,
+    "agua_F": 150,
+    "publicado_Btu_lb": 1084,
+    "nuestro_Btu_lb": 1085.609240012481,
+    "dif_pct": 0.14845387569013546
+   },
+   {
+    "psig": 600,
+    "agua_F": 200,
+    "publicado_Btu_lb": 1034,
+    "nuestro_Btu_lb": 1035.468862752999,
+    "dif_pct": 0.14205635909081415
+   },
+   {
+    "psig": 600,
+    "agua_F": 250,
+    "publicado_Btu_lb": 984,
+    "nuestro_Btu_lb": 984.9687770250932,
+    "dif_pct": 0.09845294970458607
+   }
+  ],
+  "tabla_1_peor_dif_pct": 0.14845387569013546,
+  "ejemplo": {
+   "datos": "gas natural 8.00 USD/MMBtu, vapor saturado a 450 psig, agua de alimentación a 230 °F, eficiencia 85.7 %",
+   "publicado_Btu_lb": 1006,
+   "nuestro_Btu_lb": 1006.7547632467343,
+   "publicado_usd_1000lb": 9.39,
+   "nuestro_usd_1000lb": 9.39794411432191,
+   "dif_pct": 0.08460185646335106,
+   "nuestro_usd_tonelada": 20.718920193304637,
+   "nuestro_usd_GJ_entregado": 11.657183359040092
+  }
+ },
+ "2_ulrich_vasudevan_2006": {
+  "fuente": "Ulrich, G. D. y Vasudevan, P. T., «How to Estimate Utility Costs», Chemical Engineering, abril de 2006, pp. 66-69, Tabla 1: C_S,u = a·(CE PCI) + b·C_S,f. Ejemplos «Utility cost estimation example» (p. 67) y «Refrigerant and wastewater treatment example» (p. 68): CE PCI 470 y combustible a 4.50 USD/GJ.",
+  "casos": [
+   {
+    "caso": "electricidad comprada, USD/kWh",
+    "publicado": 0.106,
+    "nuestro": 0.1061,
+    "dif_pct": 0.09433962264151496,
+    "a": 0.00013,
+    "b": 0.01
+   },
+   {
+    "caso": "agua de enfriamiento, USD/m3 (planta nueva, q = 10 m3/s)",
+    "publicado": 0.048,
+    "nuestro": 0.047575,
+    "dif_pct": -0.8854166666666718,
+    "a": 7.25e-05,
+    "b": 0.003
+   },
+   {
+    "caso": "vapor de 32 barg, USD/kg (planta nueva, 40 kg/s)",
+    "publicado": 0.019,
+    "nuestro": 0.018585684289318845,
+    "dif_pct": -2.180609003585021,
+    "a": 8.315221910153566e-07,
+    "b": 0.004043304191009251
+   },
+   {
+    "caso": "refrigerante a −5 °C (268 K), USD/kJ (planta nueva, 40 kJ/s)",
+    "publicado": 4e-06,
+    "nuestro": 4.0217741506872595e-06,
+    "dif_pct": 0.5443537671814935,
+    "a": 9.390995448398664e-10,
+    "b": 7.956438588027828e-07
+   }
+  ],
+  "nota": "Los valores publicados están redondeados a 2-3 cifras; la diferencia es de redondeo."
+ },
+ "3_coherencia": {
+  "balance_isla_de_vapor": {
+   "entra_J_kg": 2815514.3704355108,
+   "sale_J_kg": 2815514.3704355108,
+   "residuo_relativo": 0.0,
+   "nota": "recalculado aquí con entalpías de CoolProp, no con las del motor",
+   "masas_por_kg_entregado": {
+    "generated": 1.071390465325521,
+    "feedwater": 1.1160317347140845,
+    "blowdown": 0.04464126938856338,
+    "deaerator_steam": 0.07139046532552107,
+    "makeup": 0.34464126938856343,
+    "condensate_return": 0.7
+   },
+   "residuos_del_motor": {
+    "boiler_residual_fraction": 0.0,
+    "island_residual_fraction": 0.0,
+    "deaerator_residual_fraction": -2.369248835673402e-16
+   }
+  },
+  "vapor_no_baja_del_piso": [
+   {
+    "P_bar": 3.0,
+    "modo": "not_charged",
+    "combustible_usd_GJ_entregado": 6.453249866491769,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   },
+   {
+    "P_bar": 3.0,
+    "modo": "deaerator_steam",
+    "combustible_usd_GJ_entregado": 6.925269314525486,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   },
+   {
+    "P_bar": 11.0,
+    "modo": "not_charged",
+    "combustible_usd_GJ_entregado": 7.179936332808227,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   },
+   {
+    "P_bar": 11.0,
+    "modo": "deaerator_steam",
+    "combustible_usd_GJ_entregado": 7.6925153286150225,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   },
+   {
+    "P_bar": 42.0,
+    "modo": "not_charged",
+    "combustible_usd_GJ_entregado": 8.571654626156826,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   },
+   {
+    "P_bar": 42.0,
+    "modo": "deaerator_steam",
+    "combustible_usd_GJ_entregado": 9.178594399151583,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   },
+   {
+    "P_bar": 100.0,
+    "modo": "not_charged",
+    "combustible_usd_GJ_entregado": 10.763499514454308,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   },
+   {
+    "P_bar": 100.0,
+    "modo": "deaerator_steam",
+    "combustible_usd_GJ_entregado": 11.550578361671421,
+    "piso_combustible_entre_eficiencia": 6.097560975609756,
+    "cumple": true
+   }
+  ],
+  "refrigeracion_sube_al_enfriar": [
+   {
+    "nivel": "refrigeración 5 °C",
+    "T_K": 278.15,
+    "COP": 4.768285714285714,
+    "usd_GJ": 4.660421701586541
+   },
+   {
+    "nivel": "refrigeración -20 °C",
+    "T_K": 253.14999999999998,
+    "COP": 2.5315,
+    "usd_GJ": 8.778282529023198
+   },
+   {
+    "nivel": "refrigeración -40 °C",
+    "T_K": 233.14999999999998,
+    "COP": 1.7486249999999999,
+    "usd_GJ": 12.708397868166259
+   },
+   {
+    "nivel": "refrigeración -70 °C",
+    "T_K": 203.14999999999998,
+    "COP": 1.108090909090909,
+    "usd_GJ": 20.05451180937275
+   }
+  ],
+  "agua_de_enfriamiento": {
+   "repuesto = evaporación + arrastre + purga": [
+    18.28777969690636,
+    18.28777969690636
+   ],
+   "ciclos = repuesto / (purga + arrastre)": 5.0,
+   "usd_m3 × m3_GJ = usd_GJ": [
+    0.5651422953904996,
+    0.5651422953904996
+   ]
+  },
+  "unidades": {
+   "8 USD/MMBtu → USD/GJ → USD/MMBtu": 8.0,
+   "kWh por GJ": 277.77777777777777
+  }
+ },
+ "4_planta_por_region": {
+  "entradas_ilustrativas": {
+   "caldera": {
+    "boiler_efficiency": 0.82,
+    "feedwater_T_K": 378.15,
+    "condensate_return_fraction": 0.7,
+    "condensate_T_K": 363.15,
+    "blowdown_fraction": 0.04,
+    "makeup_water_T_K": 293.15,
+    "feedwater_heating": "deaerator_steam"
+   },
+   "agua_de_enfriamiento": {
+    "supply_T_K": 303.15,
+    "return_T_K": 313.15,
+    "pump_head_m": 30.0,
+    "pump_efficiency": 0.7,
+    "evaporation_latent_fraction": 0.85,
+    "drift_fraction": 0.0005,
+    "cycles_of_concentration": 5.0,
+    "fan_power_kWh_per_m3": 0.04
+   },
+   "refrigeracion": [
+    {
+     "name": "refrigeración 5 °C",
+     "evaporator_T_K": 278.15,
+     "condenser_T_K": 313.15,
+     "second_law_efficiency": 0.6,
+     "heat_rejection": "cooling_water"
+    },
+    {
+     "name": "refrigeración -20 °C",
+     "evaporator_T_K": 253.14999999999998,
+     "condenser_T_K": 313.15,
+     "second_law_efficiency": 0.6,
+     "heat_rejection": "cooling_water"
+    },
+    {
+     "name": "refrigeración -40 °C",
+     "evaporator_T_K": 233.14999999999998,
+     "condenser_T_K": 313.15,
+     "second_law_efficiency": 0.6,
+     "heat_rejection": "cooling_water"
+    },
+    {
+     "name": "refrigeración -70 °C",
+     "evaporator_T_K": 203.14999999999998,
+     "condenser_T_K": 313.15,
+     "second_law_efficiency": 0.6,
+     "heat_rejection": "cooling_water"
+    }
+   ],
+   "precios_del_usuario": {
+    "boiler_makeup_water_per_m3": 1.5,
+    "cooling_makeup_water_per_m3": 0.6,
+    "fuel_per_GJ": 5.0,
+    "fuel_basis": "HHV",
+    "electricity_per_kWh": 0.08
+   }
+  },
+  "sin_precios_ni_referencia": "Faltan precios; no se suponen. «fuel_per_GJ» (combustible por GJ (di la base en fuel_basis: HHV o LHV)), para el vapor y el calor a fuego directo: dalo en prices= o nombra una referencia en reference= | «boiler_makeup_water_per_m3» (agua de repuesto de caldera (tratada) por m³), para el agua de repuesto de la caldera: no existe en el banco de referencias: siempre es el de tu planta, dalo en prices= | «cooling_makeup_water_per_m3» (agua de repuesto de la torre de enfriamiento por m³), para el agua de repuesto de la torre: no existe en el banco de referencias: siempre es el de tu planta, dalo en prices= | «electricity_per_kWh» (electricidad por kWh (precio de energía)), para la electricidad, el agua de enfriamiento y la refrigeración: dalo en prices= o nombra una referencia en reference=. Referencias publicadas disponibles: ['DE-EUROSTAT-2026-S1', 'ES-EUROSTAT-2026-S1', 'EU27-EUROSTAT-2026-S1', 'FR-EUROSTAT-2026-S1', 'MX-CFE-GDMTH-GOLFO-NORTE-2026-11', 'MX-CFE-GDMTH-ORIENTE-2026-11', 'NL-EUROSTAT-2026-S1', 'US-EIA-2026-08', 'US-LA-EIA-2026-08', 'US-TX-EIA-2026-08'] (list_utility_price_references da su fuente y periodo).",
+  "precios_del_usuario_USD": {
+   "moneda": "USD",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 15.592526491639282,
+     "por_GJ": 7.308773581396941,
+     "desglose_por_tonelada": {
+      "fuel": 15.074552687587563,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 15.900003345509711,
+     "por_GJ": 7.951509647775453,
+     "desglose_por_tonelada": {
+      "fuel": 15.382112941859013,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 16.10379755874728,
+     "por_GJ": 9.483559642157864,
+     "desglose_por_tonelada": {
+      "fuel": 15.585943638791349,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 23.51964752145825,
+    "por_GJ": 0.5651422953904996,
+    "desglose_por_m3": {
+     "pump_power": 0.009299034016626496,
+     "fan_power": 0.0032,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 5.344085060783545,
+    "refrigeración -20 °C": 9.56666886762543,
+    "refrigeración -40 °C": 13.596732554944563,
+    "refrigeración -70 °C": 21.129668482423067
+   },
+   "electricidad_por_kWh": 0.08,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 5.0,
+     "origen": "usuario"
+    },
+    "electricity_per_kWh": {
+     "valor": 0.08,
+     "origen": "usuario"
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": null,
+   "prices_para_annual_cost": {
+    "electricity_usd_kWh": 0.08,
+    "heating_usd_GJ": 7.951509647775453,
+    "cooling_usd_GJ": 0.5651422953904996
+   },
+   "supuestos": [
+    "Precio del combustible en base HHV: las eficiencias de caldera y horno deben estar en esa misma base (con LHV la eficiencia es numéricamente mayor que con HHV).",
+    "Cada nivel se calcula como generado directamente a su presión en una caldera, sin cogeneración ni turbinas de contrapresión (con cogeneración el vapor de baja cuesta menos).",
+    "Calor entregado al proceso = entalpía del vapor − líquido saturado a la misma presión (no se acredita el subenfriamiento del condensado ni el vapor de flasheo).",
+    "Agua y vapor: IAPWS-95 (CoolProp). Las corrientes líquidas se evalúan en la línea de saturación a su temperatura; el trabajo de la bomba de alimentación no se cobra aparte.",
+    "La purga se descarga como líquido saturado a la presión de la caldera, sin recuperar su calor.",
+    "Desaireador de contacto directo sin venteo: el agua de alimentación se calienta de la mezcla condensado + repuesto a feedwater_T_K con vapor tomado de la propia caldera.",
+    "COP = eficiencia de segunda ley × COP de Carnot entre las temperaturas de evaporación y condensación del refrigerante (da las del refrigerante, no las del proceso: incluye tú los acercamientos).",
+    "Compresión con motor eléctrico; la eficiencia de segunda ley incluye compresor, motor y pérdidas del ciclo.",
+    "Torre de enfriamiento con recirculación (no agua de un solo paso).",
+    "Evaporación = fracción latente × carga térmica ÷ calor latente del agua a la temperatura media del circuito.",
+    "Ciclos de concentración = repuesto ÷ (purga + arrastre); el m³ circulado y el repuesto se miden a la temperatura de suministro.",
+    "pump_efficiency es la eficiencia global (bomba × motor) y pump_head_m la carga total del circuito."
+   ],
+   "no_incluido": [
+    "steam: Capital, mano de obra y mantenimiento de la caldera",
+    "steam: Pérdidas de distribución y trampas de vapor",
+    "steam: Tratamiento químico (inclúyelo en el precio del agua de repuesto si lo quieres cobrar)",
+    "steam: Electricidad de ventiladores y bombas de la caldera (da auxiliary_power_kWh_per_tonne para cobrarla)",
+    "refrigeration: Capital y mantenimiento del sistema de refrigeración",
+    "cooling_water: Capital y mantenimiento de la torre y las bombas",
+    "cooling_water: Tratamiento químico del agua (da treatment_cost_per_m3_makeup para cobrarlo)"
+   ]
+  },
+  "referencia_US-EIA-2026-08": {
+   "moneda": "USD",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 12.488933065380886,
+     "por_GJ": 5.8540085916823195,
+     "desglose_por_tonelada": {
+      "fuel": 11.970959261329167,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 12.73308850579928,
+     "por_GJ": 6.367751873991571,
+     "desglose_por_tonelada": {
+      "fuel": 12.215198102148582,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 12.89491745318921,
+     "por_GJ": 7.593843520567407,
+     "desglose_por_tonelada": {
+      "fuel": 12.377063533233278,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 26.08194949486668,
+    "por_GJ": 0.6267106168296072,
+    "desglose_por_m3": {
+     "pump_power": 0.011205335990034928,
+     "fan_power": 0.003856,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 6.373951876409322,
+    "refrigeración -20 °C": 11.452105992933651,
+    "refrigeración -40 °C": 16.298732001979303,
+    "refrigeración -70 °C": 25.357974243105858
+   },
+   "electricidad_por_kWh": 0.0964,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 3.970585233744977,
+     "origen": "referencia US-EIA-2026-08",
+     "periodo": "2026-08",
+     "antiguedad_dias": 75
+    },
+    "electricity_per_kWh": {
+     "valor": 0.0964,
+     "origen": "referencia US-EIA-2026-08",
+     "periodo": "2026-08",
+     "antiguedad_dias": 75
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 4.34 USD/Mcf (mil pies cúbicos) (U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026); periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14); electricity_per_kWh = 9.64 centavos USD/kWh (U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026; periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14). Referencia «US-EIA-2026-08», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": {
+    "electricity_usd_kWh": 0.0964,
+    "heating_usd_GJ": 6.367751873991571,
+    "cooling_usd_GJ": 0.6267106168296072
+   }
+  },
+  "referencia_US-TX-EIA-2026-08": {
+   "moneda": "USD",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 8.89946966482232,
+     "por_GJ": 4.171499006884714,
+     "desglose_por_tonelada": {
+      "fuel": 8.3814958607706,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 9.070390675068674,
+     "por_GJ": 4.536055584055538,
+     "desglose_por_tonelada": {
+      "fuel": 8.552500271417976,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 9.18368466147423,
+     "por_GJ": 5.408290864570225,
+     "desglose_por_tonelada": {
+      "fuel": 8.665830741518297,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 22.28536791231638,
+    "por_GJ": 0.5354843844533687,
+    "desglose_por_m3": {
+     "pump_power": 0.00838075440748463,
+     "fan_power": 0.002884,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 4.847990680085762,
+    "refrigeración -20 °C": 8.658440008483053,
+    "refrigeración -40 °C": 12.295159650580265,
+    "refrigeración -70 °C": 19.092862658679525
+   },
+   "electricidad_por_kWh": 0.0721,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 2.7800147820213437,
+     "origen": "referencia US-TX-EIA-2026-08",
+     "periodo": "2026-08",
+     "antiguedad_dias": 75
+    },
+    "electricity_per_kWh": {
+     "valor": 0.0721,
+     "origen": "referencia US-TX-EIA-2026-08",
+     "periodo": "2026-08",
+     "antiguedad_dias": 75
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 2.98 USD/Mcf (mil pies cúbicos) (U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026); periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14); electricity_per_kWh = 7.21 centavos USD/kWh (U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026; periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14). Referencia «US-TX-EIA-2026-08», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": {
+    "electricity_usd_kWh": 0.0721,
+    "heating_usd_GJ": 4.536055584055538,
+    "cooling_usd_GJ": 0.5354843844533687
+   }
+  },
+  "referencia_US-LA-EIA-2026-08": {
+   "moneda": "USD",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 11.556091711177375,
+     "por_GJ": 5.416752560795154,
+     "desglose_por_tonelada": {
+      "fuel": 11.038117907125656,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 11.781214751096746,
+     "por_GJ": 5.89172471981371,
+     "desglose_por_tonelada": {
+      "fuel": 11.263324347446048,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 11.930430275899937,
+     "por_GJ": 7.025855029868146,
+     "desglose_por_tonelada": {
+      "fuel": 11.412576355944005,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 20.551126942509455,
+    "por_GJ": 0.4938131425037288,
+    "desglose_por_m3": {
+     "pump_power": 0.007090513437677703,
+     "fan_power": 0.00244,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 4.150946676826853,
+    "refrigeración -20 °C": 7.38232097854883,
+    "refrigeración -40 °C": 10.46636734191651,
+    "refrigeración -70 °C": 16.23102156455885
+   },
+   "electricidad_por_kWh": 0.061,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 3.661175935327911,
+     "origen": "referencia US-LA-EIA-2026-08",
+     "periodo": "2026-08",
+     "antiguedad_dias": 75
+    },
+    "electricity_per_kWh": {
+     "valor": 0.061,
+     "origen": "referencia US-LA-EIA-2026-08",
+     "periodo": "2026-08",
+     "antiguedad_dias": 75
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 3.94 USD/Mcf (mil pies cúbicos) (U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026); periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14); electricity_per_kWh = 6.1 centavos USD/kWh (U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026; periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14). Referencia «US-LA-EIA-2026-08», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": {
+    "electricity_usd_kWh": 0.061,
+    "heating_usd_GJ": 5.89172471981371,
+    "cooling_usd_GJ": 0.4938131425037288
+   }
+  },
+  "referencia_EU27-EUROSTAT-2026-S1": {
+   "moneda": "EUR",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 43.68998524603374,
+     "por_GJ": 20.47905514921223,
+     "desglose_por_tonelada": {
+      "fuel": 43.17201144198202,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 44.57072365784072,
+     "por_GJ": 22.289588968780993,
+     "desglose_por_tonelada": {
+      "fuel": 44.05283325419003,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 45.154437907090475,
+     "por_GJ": 26.5915417427365,
+     "desglose_por_tonelada": {
+      "fuel": 44.63658398713454,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 35.37810604473264,
+    "por_GJ": 0.8500834903434421,
+    "desglose_por_m3": {
+     "pump_power": 0.018121492539900887,
+     "fan_power": 0.006236,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 10.11035892090528,
+    "refrigeración -20 °C": 18.292563856094578,
+    "refrigeración -40 °C": 26.101717800672418,
+    "refrigeración -70 °C": 40.69847380168063
+   },
+   "electricidad_por_kWh": 0.1559,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 14.3195,
+     "origen": "referencia EU27-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "electricity_per_kWh": {
+     "valor": 0.1559,
+     "origen": "referencia EU27-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 14.3195 EUR/GJ (poder calorífico superior, GCV) (Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14); electricity_per_kWh = 0.1559 EUR/kWh (Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14). Referencia «EU27-EUROSTAT-2026-S1», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": null
+  },
+  "referencia_DE-EUROSTAT-2026-S1": {
+   "moneda": "EUR",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 46.06241834800628,
+     "por_GJ": 21.59109920369089,
+     "desglose_por_tonelada": {
+      "fuel": 45.54444454395456,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 46.9915605926305,
+     "por_GJ": 23.500237031198427,
+     "desglose_por_tonelada": {
+      "fuel": 46.4736701889798,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 47.607353716963466,
+     "por_GJ": 28.03606892927498,
+     "desglose_por_tonelada": {
+      "fuel": 47.089499797007534,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 38.23726007603595,
+    "por_GJ": 0.9187847270712266,
+    "desglose_por_m3": {
+     "pump_power": 0.020248646571204194,
+     "fan_power": 0.006968,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 11.259539574926725,
+    "refrigeración -20 °C": 20.396435770310458,
+    "refrigeración -40 °C": 29.116753769009957,
+    "refrigeración -70 °C": 45.416644254149844
+   },
+   "electricidad_por_kWh": 0.1742,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 15.1064,
+     "origen": "referencia DE-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "electricity_per_kWh": {
+     "valor": 0.1742,
+     "origen": "referencia DE-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 15.1064 EUR/GJ (poder calorífico superior, GCV) (Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14); electricity_per_kWh = 0.1742 EUR/kWh (Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14). Referencia «DE-EUROSTAT-2026-S1», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": null
+  },
+  "referencia_ES-EUROSTAT-2026-S1": {
+   "moneda": "EUR",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 40.03018534454124,
+     "por_GJ": 18.76357633648934,
+     "desglose_por_tonelada": {
+      "fuel": 39.51221154048952,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 40.836254277816195,
+     "por_GJ": 20.42200009729984,
+     "desglose_por_tonelada": {
+      "fuel": 40.3183638741655,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 41.37048251046471,
+     "por_GJ": 24.363162594510477,
+     "desglose_por_tonelada": {
+      "fuel": 40.85262859050878,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 29.40981730179349,
+    "por_GJ": 0.7066743513816186,
+    "desglose_por_m3": {
+     "pump_power": 0.013681203796961732,
+     "fan_power": 0.004708,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 7.7115228015818245,
+    "refrigeración -20 °C": 13.90087494226689,
+    "refrigeración -40 °C": 19.808036161847593,
+    "refrigeración -70 °C": 30.849615261553634
+   },
+   "electricidad_por_kWh": 0.1177,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 13.1056,
+     "origen": "referencia ES-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "electricity_per_kWh": {
+     "valor": 0.1177,
+     "origen": "referencia ES-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 13.1056 EUR/GJ (poder calorífico superior, GCV) (Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14); electricity_per_kWh = 0.1177 EUR/kWh (Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14). Referencia «ES-EUROSTAT-2026-S1», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": null
+  },
+  "referencia_FR-EUROSTAT-2026-S1": {
+   "moneda": "EUR",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 39.904463575126755,
+     "por_GJ": 18.704646056820057,
+     "desglose_por_tonelada": {
+      "fuel": 39.386489771075034,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 40.70796745588109,
+     "por_GJ": 20.35784451945919,
+     "desglose_por_tonelada": {
+      "fuel": 40.19007705223039,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 41.24049574051719,
+     "por_GJ": 24.286613117221552,
+     "desglose_por_tonelada": {
+      "fuel": 40.72264182056126,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 30.378492438082038,
+    "por_GJ": 0.7299501802183543,
+    "desglose_por_m3": {
+     "pump_power": 0.014401878933250286,
+     "fan_power": 0.004956,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 8.100862695294008,
+    "refrigeración -20 °C": 14.613662148176097,
+    "refrigeración -40 °C": 20.829523757677798,
+    "refrigeración -70 °C": 32.44812109790932
+   },
+   "electricidad_por_kWh": 0.1239,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 13.0639,
+     "origen": "referencia FR-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "electricity_per_kWh": {
+     "valor": 0.1239,
+     "origen": "referencia FR-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 13.0639 EUR/GJ (poder calorífico superior, GCV) (Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14); electricity_per_kWh = 0.1239 EUR/kWh (Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14). Referencia «FR-EUROSTAT-2026-S1», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": null
+  },
+  "referencia_NL-EUROSTAT-2026-S1": {
+   "moneda": "EUR",
+   "vapor": {
+    "baja (4 bar)": {
+     "por_tonelada": 56.18648793299008,
+     "por_GJ": 26.336611892646705,
+     "desglose_por_tonelada": {
+      "fuel": 55.66851412893836,
+      "water": 0.5179738040517194,
+      "power": 0.0
+     }
+    },
+    "media (11 bar)": {
+     "por_tonelada": 57.32218764438301,
+     "por_GJ": 28.666530325896275,
+     "desglose_por_tonelada": {
+      "fuel": 56.80429724073231,
+      "water": 0.5178904036506984,
+      "power": 0.0
+     }
+    },
+    "alta (42 bar)": {
+     "por_tonelada": 58.074873464775735,
+     "por_GJ": 34.200412927745184,
+     "desglose_por_tonelada": {
+      "fuel": 57.5570195448198,
+      "water": 0.5178539199559329,
+      "power": 0.0
+     }
+    }
+   },
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 39.518411062740164,
+    "por_GJ": 0.9495688877907802,
+    "desglose_por_m3": {
+     "pump_power": 0.021201797557908412,
+     "fan_power": 0.007296,
+     "makeup_water": 0.011020613504831755,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 11.774472982739615,
+    "refrigeración -20 °C": 21.339154332964572,
+    "refrigeración -40 °C": 30.46775349252733,
+    "refrigeración -70 °C": 47.530797134491245
+   },
+   "electricidad_por_kWh": 0.1824,
+   "origen_de_precios": {
+    "fuel_per_GJ": {
+     "valor": 18.4644,
+     "origen": "referencia NL-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "electricity_per_kWh": {
+     "valor": 0.1824,
+     "origen": "referencia NL-EUROSTAT-2026-S1",
+     "periodo": "2026-S1",
+     "antiguedad_dias": 137
+    },
+    "boiler_makeup_water_per_m3": {
+     "valor": 1.5,
+     "origen": "usuario"
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 0.6,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 18.4644 EUR/GJ (poder calorífico superior, GCV) (Eurostat, nrg_pc_203 (Gas prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14); electricity_per_kWh = 0.1824 EUR/kWh (Eurostat, nrg_pc_205 (Electricity prices for non-household consumers, bi-annual data), actualizado 2026-10-19; periodo 2026-S1; antigüedad 137 días (≈ 5 meses) al 2026-11-14). Referencia «NL-EUROSTAT-2026-S1», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": null
+  },
+  "referencia_MX-CFE-GDMTH-ORIENTE-2026-11": {
+   "moneda": "MXN",
+   "vapor": {},
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 600.7404937534,
+    "por_GJ": 14.434904318360672,
+    "desglose_por_m3": {
+     "pump_power": 0.2829566736567649,
+     "fan_power": 0.09737155,
+     "makeup_water": 0.2204122700966351,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 159.27232915926294,
+    "refrigeración -20 °C": 287.247949454764,
+    "refrigeración -40 °C": 409.3887816578732,
+    "refrigeración -70 °C": 637.6926335324763
+   },
+   "electricidad_por_kWh": 2.43428875,
+   "origen_de_precios": {
+    "electricity_time_of_use_per_kWh": {
+     "valor": {
+      "base": 0.9018,
+      "intermedia": 1.5799,
+      "punta": 1.7739
+     },
+     "origen": "referencia MX-CFE-GDMTH-ORIENTE-2026-11",
+     "periodo": "2026-11",
+     "antiguedad_dias": -16
+    },
+    "demand_charge_per_kW_month": {
+     "valor": 548.65,
+     "origen": "referencia MX-CFE-GDMTH-ORIENTE-2026-11",
+     "periodo": "2026-11",
+     "antiguedad_dias": -16
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 12.0,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: electricity_time_of_use_per_kWh = {'base': 0.9018, 'intermedia': 1.5799, 'punta': 1.7739} MXN/kWh por periodo horario (CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Oriente (Coatzacoalcos, Veracruz); periodo 2026-11; antigüedad el periodo termina en 16 días al 2026-11-14); demand_charge_per_kW_month = 548.65 MXN/kW-mes (CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Oriente (Coatzacoalcos, Veracruz); periodo 2026-11; antigüedad el periodo termina en 16 días al 2026-11-14). Referencia «MX-CFE-GDMTH-ORIENTE-2026-11», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": null,
+   "electricidad": {
+    "energy_per_kWh": 1.40557,
+    "demand_adder_per_kWh": 1.02871875,
+    "per_kWh": 2.43428875
+   },
+   "nota": "Sin vapor: el banco no tiene gas natural de México (IPGN detrás de un reCAPTCHA); el combustible lo da el usuario."
+  },
+  "referencia_MX-CFE-GDMTH-GOLFO-NORTE-2026-11": {
+   "moneda": "MXN",
+   "vapor": {},
+   "agua_de_enfriamiento": {
+    "por_1000_m3": 567.6776193183252,
+    "por_GJ": 13.64045241454713,
+    "desglose_por_m3": {
+     "pump_power": 0.2583585492216902,
+     "fan_power": 0.08890680000000002,
+     "makeup_water": 0.2204122700966351,
+     "treatment": 0.0
+    }
+   },
+   "refrigeracion_por_GJ": {
+    "refrigeración 5 °C": 145.98335792821376,
+    "refrigeración -20 °C": 262.91905630468364,
+    "refrigeración -40 °C": 374.52330937237434,
+    "refrigeración -70 °C": 583.1323420877513
+   },
+   "electricidad_por_kWh": 2.2226700000000004,
+   "origen_de_precios": {
+    "electricity_time_of_use_per_kWh": {
+     "valor": {
+      "base": 0.9904,
+      "intermedia": 1.5333,
+      "punta": 1.6634
+     },
+     "origen": "referencia MX-CFE-GDMTH-GOLFO-NORTE-2026-11",
+     "periodo": "2026-11",
+     "antiguedad_dias": -16
+    },
+    "demand_charge_per_kW_month": {
+     "valor": 444.12,
+     "origen": "referencia MX-CFE-GDMTH-GOLFO-NORTE-2026-11",
+     "periodo": "2026-11",
+     "antiguedad_dias": -16
+    },
+    "cooling_makeup_water_per_m3": {
+     "valor": 12.0,
+     "origen": "usuario"
+    }
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: electricity_time_of_use_per_kWh = {'base': 0.9904, 'intermedia': 1.5333, 'punta': 1.6634} MXN/kWh por periodo horario (CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León); periodo 2026-11; antigüedad el periodo termina en 16 días al 2026-11-14); demand_charge_per_kW_month = 444.12 MXN/kW-mes (CFE, Tarifa GDMTH, cuotas aplicables en noviembre de 2026, división Golfo Norte (Monterrey, Nuevo León); periodo 2026-11; antigüedad el periodo termina en 16 días al 2026-11-14). Referencia «MX-CFE-GDMTH-GOLFO-NORTE-2026-11», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "prices_para_annual_cost": null,
+   "electricidad": {
+    "energy_per_kWh": 1.3899450000000002,
+    "demand_adder_per_kWh": 0.832725,
+    "per_kWh": 2.2226700000000004
+   },
+   "nota": "Sin vapor: el banco no tiene gas natural de México (IPGN detrás de un reCAPTCHA); el combustible lo da el usuario."
+  },
+  "contraste_ruta_2_ulrich_vasudevan": {
+   "entradas_ilustrativas": {
+    "cepci": 800.0,
+    "basis": "grass_roots",
+    "boiler_fuel_price_usd_GJ": 5.0,
+    "power_fuel_price_usd_GJ": 5.0,
+    "steam_capacity_kg_s": 20.0,
+    "cooling_water_capacity_m3_s": 5.0,
+    "refrigeration_capacity_kW": 500.0
+   },
+   "nota": "Ruta independiente y empírica: es un PRECIO que incluye capital, mano de obra y mantenimiento de la planta de servicios; la ruta 1 es solo costo de operación (combustible + agua + electricidad). No son la misma cantidad: sirve de contraste de orden de magnitud, no de validación.",
+   "vapor_usd_tonelada": {
+    "baja (4 bar)": {
+     "ruta_1_costo_de_operacion": 15.592526491639282,
+     "ruta_2_precio_con_capital": 19.19730996622101
+    },
+    "media (11 bar)": {
+     "ruta_1_costo_de_operacion": 15.900003345509711,
+     "ruta_2_precio_con_capital": 20.314389473698885
+    },
+    "alta (42 bar)": {
+     "ruta_1_costo_de_operacion": 16.10379755874728,
+     "ruta_2_precio_con_capital": 21.709608256224396
+    }
+   },
+   "agua_usd_m3": {
+    "ruta_1": 0.02351964752145825,
+    "ruta_2": 0.075
+   },
+   "refrigeracion_usd_GJ": {
+    "refrigeración 5 °C": {
+     "ruta_1": 5.344085060783545,
+     "ruta_2": 3.3726541510894767
+    },
+    "refrigeración -20 °C": {
+     "ruta_1": 9.56666886762543,
+     "ruta_2": 5.382013668500199
+    },
+    "refrigeración -40 °C": {
+     "ruta_1": 13.596732554944563,
+     "ruta_2": 8.100869332974801
+    },
+    "refrigeración -70 °C": {
+     "ruta_1": 21.129668482423067,
+     "ruta_2": 16.07329794092231
+    }
+   },
+   "omitidos": []
+  }
+ },
+ "5_cadena_utility_costs_annual_cost": {
+  "caso": "packages/costing/heat_recovery.py (bloque 20): intercambiador alimentación/producto, calentador de vapor y enfriador de agua; costo total anual contra el área recuperadora",
+  "precios_ilustrativos_del_bloque_20": {
+   "prices": {
+    "heating_usd_GJ": 8.0,
+    "cooling_usd_GJ": 0.5,
+    "electricity_usd_kWh": 0.1
+   },
+   "optimo": {
+    "area_E1_m2": 650.3045263401427,
+    "TAC_usd_y": 129991.67967669474,
+    "operating_usd_y": 20787.408640586593
+   }
+  },
+  "precios_del_usuario": {
+   "prices": {
+    "electricity_usd_kWh": 0.08,
+    "heating_usd_GJ": 7.827846635305928,
+    "cooling_usd_GJ": 0.5604348743981895
+   },
+   "primer_aviso": null,
+   "optimo": {
+    "area_E1_m2": 646.6489279171852,
+    "Q_recovered_kW": 3902.181776032768,
+    "Q_steam_kW": 86.25651182792637,
+    "Q_cooling_kW": 89.96810847869597,
+    "approach_K": 7.153106687944046,
+    "TAC_usd_y": 129723.23840501954,
+    "capital_usd_y": 108825.26687495541,
+    "operating_usd_y": 20897.97153006413
+   },
+   "comprobacion_costo_de_operacion_usd_y": 20897.97153006413
+  },
+  "referencia_US-EIA-2026-08": {
+   "prices": {
+    "electricity_usd_kWh": 0.0964,
+    "heating_usd_GJ": 6.268875420790929,
+    "cooling_usd_GJ": 0.6218995384062413
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 4.34 USD/Mcf (mil pies cúbicos) (U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026); periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14); electricity_per_kWh = 9.64 centavos USD/kWh (U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026; periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14). Referencia «US-EIA-2026-08», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "optimo": {
+    "area_E1_m2": 589.7593870161375,
+    "Q_recovered_kW": 3875.622232299584,
+    "Q_steam_kW": 112.81606300684132,
+    "Q_cooling_kW": 116.52765234252229,
+    "approach_K": 7.788764357104128,
+    "TAC_usd_y": 125468.74021268703,
+    "capital_usd_y": 103013.42808815489,
+    "operating_usd_y": 22455.312124532134
+   },
+   "comprobacion_costo_de_operacion_usd_y": 22455.312124532134
+  },
+  "referencia_US-TX-EIA-2026-08": {
+   "prices": {
+    "electricity_usd_kWh": 0.0721,
+    "heating_usd_GJ": 4.465846045331737,
+    "cooling_usd_GJ": 0.5308268960040671
+   },
+   "primer_aviso": "PRECIO DE REFERENCIA PUBLICADO, NO TU CONTRATO: fuel_per_GJ = 2.98 USD/Mcf (mil pies cúbicos) (U.S. EIA, Natural Gas Industrial Price (Natural Gas Monthly; página con Release Date 10/30/2026); periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14); electricity_per_kWh = 7.21 centavos USD/kWh (U.S. EIA, Electric Power Monthly, Table 5.6.A (Average Price of Electricity to Ultimate Customers by End-Use Sector, by State), Data for August 2026; periodo 2026-08; antigüedad 75 días (≈ 2 meses) al 2026-11-14). Referencia «US-TX-EIA-2026-08», consultada el 2026-11-14. Sustitúyelos por los de tu planta en prices= en cuanto los tengas.",
+   "optimo": {
+    "area_E1_m2": 503.61959942032144,
+    "Q_recovered_kW": 3825.005140873888,
+    "Q_steam_kW": 163.4331862397505,
+    "Q_cooling_kW": 167.14474391418037,
+    "approach_K": 9.000236423254819,
+    "TAC_usd_y": 118039.75381951223,
+    "capital_usd_y": 94464.29344715695,
+    "operating_usd_y": 23575.460372355286
+   },
+   "comprobacion_costo_de_operacion_usd_y": 23575.460372355286
+  },
+  "segundos": 13.760368824005127
+ }
+}

@@ -30,6 +30,7 @@ from packages.dwsim_client import tools_optimize as TO  # noqa: E402
 from packages.dwsim_client import tools_mass_transfer as TM  # noqa: E402
 from packages.dwsim_client import tools_kinetics as TK  # noqa: E402
 from packages.dwsim_client import tools_economics as TE  # noqa: E402
+from packages.dwsim_client import tools_utilities as TU  # noqa: E402
 from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.dwsim_client import tools_heat as TH  # noqa: E402
 from packages.dwsim_client import tools_energy as TEN  # noqa: E402
@@ -259,6 +260,19 @@ Hard rules:
    cost, E-factor) ask the user for weights or run it per objective, and say a Pareto front is not available.
    Categorical variables (solvent, catalyst) are not supported: run it per category. A measured failure is entered
    as "failed": true.
+
+26. Utility costs ("how much does MP steam / cooling water / refrigeration at -20 C / electricity cost here", or
+   any costing that needs heating_usd_GJ, cooling_usd_GJ or electricity_usd_kWh and the user gave fuel, tariff or water
+   prices instead): utility_costs. Prices, efficiencies, condensate return, blow-down, cycles of concentration,
+   second-law efficiency and the load profile are the user's: ASK for them, never assume typical values. The bank of
+   published prices (list_utility_price_references) is used ONLY if the user explicitly asks for a reference price
+   for a region; then say FIRST, in Spanish, that it is a published reference price and not their contract, with its
+   source, period and age, exactly as the first warning says. Report the breakdown (fuel, water, power), price_sources
+   (which price came from the user and which from the reference), assumptions and not_included (capital and
+   maintenance of the utility plant are NOT in these costs). Pass the returned `prices` dict to flowsheet_cost; with
+   several heating or cooling levels ask which one applies (annual_cost_levels). Never convert currency without an
+   exchange rate given by the user. The ulrich_vasudevan block is a second empirical route (a price that includes
+   capital): show it as a contrast, never as validation.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -988,6 +1002,42 @@ def cash_flow_analysis(depreciable_capital_usd: float, revenue_usd_y: float, ope
 
 
 @beta_tool
+def utility_costs(currency: str, prices: dict[str, object] | None = None, reference: str | None = None,
+                  steam: list[dict[str, object]] | None = None, fired_heat: dict[str, float] | None = None,
+                  cooling_water: dict[str, float] | None = None, refrigeration: list[dict[str, object]] | None = None,
+                  electricity: dict[str, object] | None = None, hours_per_year: float | None = None,
+                  exchange_rates: dict[str, float] | None = None, annual_cost_levels: dict[str, str] | None = None,
+                  ulrich_vasudevan: dict[str, object] | None = None) -> str:
+    """Cost of plant utilities from the prices the plant pays (energy and water balances, IAPWS-95); nothing is assumed.
+    currency: 'USD', 'MXN', 'EUR'... prices (the user's, always win): fuel_per_GJ + fuel_basis ('HHV'|'LHV'),
+    electricity_per_kWh (or electricity_time_of_use_per_kWh {period: price}), demand_charge_per_kW_month,
+    boiler_makeup_water_per_m3, cooling_makeup_water_per_m3. reference: id of a PUBLISHED price from
+    list_utility_price_references (e.g. 'US-EIA-2026-08'), only if the user asks for it; never for water.
+    steam: [{name, pressure_Pa (absolute), superheat_K, boiler_efficiency, feedwater_T_K, condensate_return_fraction,
+    blowdown_fraction, makeup_water_T_K, feedwater_heating 'not_charged'|'deaerator_steam' (needs condensate_T_K),
+    auxiliary_power_kWh_per_tonne}]. fired_heat: {furnace_efficiency}. cooling_water: {supply_T_K, return_T_K,
+    pump_head_m, pump_efficiency, evaporation_latent_fraction, drift_fraction, cycles_of_concentration,
+    fan_power_kWh_per_m3, treatment_cost_per_m3_makeup}. refrigeration: [{name, evaporator_T_K, condenser_T_K,
+    second_law_efficiency, heat_rejection (price per GJ or 'cooling_water')}]. electricity: {} | {time_of_use_fractions}
+    | {load_factor} with hours_per_year. exchange_rates: {'MXN': units of currency per 1 MXN} (no default rate; with
+    currency != USD give {'USD': currency per USD} to get `prices` in USD). annual_cost_levels: {'heating': name,
+    'cooling': name}. ulrich_vasudevan: {cepci, basis, boiler_fuel_price_usd_GJ, power_fuel_price_usd_GJ,
+    steam_capacity_kg_s, cooling_water_capacity_m3_s, refrigeration_capacity_kW} (second route, a price with capital).
+    Returns `prices` for flowsheet_cost, per-level detail and breakdown, price_sources, warnings, assumptions."""
+    return json.dumps(TU.utility_costs(currency, prices, reference, steam, fired_heat, cooling_water, refrigeration,
+                                       electricity, hours_per_year, exchange_rates, annual_cost_levels, ulrich_vasudevan),
+                      default=float, ensure_ascii=False)
+
+
+@beta_tool
+def list_utility_price_references(region: str | None = None) -> str:
+    """Bank of PUBLISHED industrial natural-gas and electricity prices by region (US EIA, Eurostat, Mexico CFE GDMTH), each
+    with value, unit, period, source, URL, date retrieved and caveats; region filters by prefix ('US', 'EU27', 'MX').
+    References, not contracts: utility_costs uses one only when named in reference=."""
+    return json.dumps(TU.list_utility_price_references(region), default=float, ensure_ascii=False)
+
+
+@beta_tool
 def flowsheet_cost(flowsheet_id: str, prices: dict[str, float], hours_per_year: float, interest: float, years: int,
                    exchanger_areas_m2: dict[str, float] | None = None, vessel_sizes: dict[str, object] | None = None,
                    options: dict[str, object] | None = None, lang: str = "lang_1948_fluid", country: str | None = None,
@@ -1198,7 +1248,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                set_unit_param, set_stream_spec, sweep, stream_transport_properties, pipe_hydraulics, size_pipe,
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
-               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, optimize_design_bayesian, suggest_experiments, absorption_stages,
+               shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, utility_costs, list_utility_price_references, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, optimize_design_bayesian, suggest_experiments, absorption_stages,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
