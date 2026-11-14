@@ -98,7 +98,7 @@ Pendiente (decisiones del owner marcadas):
 4. No hay isoterma medida cerca de 350 K: la alimentación se interpola entre 333.15 y 363.15 K (±9 J/mol según el orden de la interpolación). Larkin 1975 (298-383 K), Ott 1986-87, Costigan 1980, Lama y Lu 1965 y Boyne y Williamson 1967 no se buscaron uno por uno: ThermoML bastó.
 5. Dependencia en T más rica (e·ln T, f·T) en la tool y en la columna: el ensayo fuera de la tool baja el AAD de h^E de 107 a 49 J/mol y tampoco cumple las tolerancias (`notebooks/27b`).
 6. UNIQUAC y Wilson también ajustan h^E en la tool, pero solo NRTL está probado con datos reales y solo NRTL entra a la columna.
-7. Siguen abiertos de M15b: respuesta de DWSIM al issue #137; x_D +1.1 % vs DWSIM (Psat); `simulate_column_nrtl` frágil en etanol-agua; destilado más allá de x 0.82; ε en la ruta ideal (**owner**).
+7. Siguen abiertos de M15b: re-medir el término de exceso cuando salga DWSIM 10.2.17 (issue #137 corregido en su `master` el 2026-11-14, commit `901b173`); x_D +1.1 % vs DWSIM (Psat); `simulate_column_nrtl` frágil en etanol-agua; destilado más allá de x 0.82; ε en la ruta ideal (**owner**).
 
 Siguiente: **decisión del owner** sobre el pendiente 1 (y, si elige D, ese bloque), o pasar a otro tema (layout, 3D, árbol de fallas, BST).
 
@@ -111,7 +111,7 @@ Siguiente: **decisión del owner** sobre el pendiente 1 (y, si elige D, ese bloq
 
 Pendiente (decisiones del owner marcadas):
 1. ~~**Owner**: h^E de etanol-agua pesa −3.8 % en Q_reb y viene de parámetros de VLE. ¿Se deja por defecto o se busca h^E calorimétrico publicado?~~ → contrastado en M15c; queda la decisión del valor por defecto (pendiente 1 de M15c).
-2. ~~¿Reportar a DWSIM la fórmula del término de exceso?~~ → reportado el 2026-11-13 con OK del owner: https://github.com/DanWBR/dwsim10/issues/137 (fórmula confirmada en su fuente, `master` 9ab62b6; medido solo NRTL en 10.2.12). Falta: respuesta del mantenedor; si lo corrige, re-medir y volver a comparar con h^E contra «LiqCp_Excess».
+2. ~~¿Reportar a DWSIM la fórmula del término de exceso?~~ → reportado el 2026-11-13 con OK del owner: https://github.com/DanWBR/dwsim10/issues/137 (fórmula confirmada en su fuente, `master` 9ab62b6; medido solo NRTL en 10.2.12). **Corregido por DWSIM el 2026-11-14:** el mantenedor confirmó el error y cerró el issue como completado; commit `901b173` de `DanWBR/dwsim10` (`master`) cambia los seis modelos (NRTL, UNIQUAC, UNIFAC, MODFAC, NIST-MFAC, Wilson) a d ln γ/dT, leído en su fuente (`NRTL.vb` usa `Math.Log(gamma2) - Math.Log(gamma1)`). Su respuesta dice que DWSIM da ahora 362.7 J/mol a 298.15 K y x1 = 0.10. Aún sin liberar (última versión publicada: 10.2.16; saldrá en 10.2.17). Falta: cuando salga 10.2.17, re-medir con `hex_repro` y volver a comparar la columna con h^E contra «LiqCp_Excess» (no medido por nosotros todavía).
 3. x_D +0.9 a +1.1 % vs DWSIM en etanol-agua: atribuido a la Psat de DWSIM (T_D +0.30 K), sin auditar.
 4. `simulate_column_nrtl` (RR y D fijos) sigue frágil en etanol-agua; con 1 o 3+ specs y en multicomponentes la ruta es el NLP de M15.
 5. Destilado más allá de x 0.82 en etanol-agua: hace falta otra formulación de equilibrio (complementariedad en vez de SmoothVLE).

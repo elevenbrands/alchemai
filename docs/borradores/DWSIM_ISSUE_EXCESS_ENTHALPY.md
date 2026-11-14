@@ -5,6 +5,8 @@
 > Verificado el 2026-11-13: fórmula leída en el código fuente (`master` 9ab62b6, v10.2.16-17) y números medidos en
 > DWSIM 10.2.12 con `hex_repro` (12 estados, coincidencia a 0.1 J/mol). No hay issue previo sobre esto.
 > El campo «How did you install it?» se publicó vacío (es opcional). La medición no se repitió en 10.2.16.
+> Resultado (2026-11-14): el mantenedor confirmó el error y cerró el issue como completado. Commit `901b173` de
+> `DanWBR/dwsim10` cambia los seis modelos a d ln γ/dT (leído en su `master`). Sale en 10.2.17; no re-medido aún.
 
 ---
 
