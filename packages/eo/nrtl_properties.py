@@ -38,6 +38,8 @@ UNIFAC_LN_GINF_WARN = 0.5         # |ln γ∞(NRTL) − ln γ∞(UNIFAC)| above 
 SOURCES = {
     "model": "NRTL, Renon y Prausnitz, AIChE J. 14 (1968) 135; misma convención de matrices que thermo.nrtl.NRTL",
     "excess_enthalpy": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+    "no_excess_enthalpy": "sin h^E: entalpía del líquido = Σ x·h_i (mezcla ideal en entalpía), pedido con "
+                          "excess_enthalpy=False; γ de NRTL solo en el equilibrio",
     "chemsep": "ChemSep NRTL (Kooijman y Taylor, banco de parámetros binarios de ChemSep), incluido sin conexión en "
                "thermo.interaction_parameters.IPDB['ChemSep NRTL']; tau_ij = b_ij/T (b en K, convertido de cal/mol)",
     "bubble_dew": "IDAES LogBubbleDew (forma general con fugacidades), no IdealBubbleDew; equilibrio en forma "
@@ -215,13 +217,15 @@ def excess_enthalpy_numeric(params: dict, T: float, xs) -> float:
 
 
 # ------------------------------------------------------------------------------------------------ Pyomo / IDAES
-def _ln_gamma_expr(P: dict, names, x: dict, T, i: str):
+def _ln_gamma_expr(P: dict, names, x: dict, T, i: str, scale=1.0):
+    """ln γ_i. scale multiplies every τ (1 = the model; 0 = ideal liquid): the non-ideality homotopy of the column
+    start-up (M15b), a mutable Pyomo Param on the liquid phase."""
     from pyomo.environ import exp, units as pyunits
     idx = {n: k for k, n in enumerate(names)}
     ta, tb, al = P["tau_a"], P["tau_b_K"], P["alpha"]
 
     def tau(k, l):
-        return 0.0 if k == l else ta[idx[k]][idx[l]] + tb[idx[k]][idx[l]] * pyunits.K / T
+        return 0.0 if k == l else scale * (ta[idx[k]][idx[l]] + tb[idx[k]][idx[l]] * pyunits.K / T)
 
     def G(k, l):
         return 1.0 if k == l else exp(-al[idx[k]][idx[l]] * tau(k, l))
@@ -232,7 +236,7 @@ def _ln_gamma_expr(P: dict, names, x: dict, T, i: str):
     return t1 + t2
 
 
-def _excess_enthalpy_expr(P: dict, names, x: dict, T, Rgas):
+def _excess_enthalpy_expr(P: dict, names, x: dict, T, Rgas, scale=1.0):
     from pyomo.environ import exp, units as pyunits
     idx = {n: k for k, n in enumerate(names)}
     ta, tb, al = P["tau_a"], P["tau_b_K"], P["alpha"]
@@ -244,8 +248,8 @@ def _excess_enthalpy_expr(P: dict, names, x: dict, T, Rgas):
                 D += x[j]
                 continue
             a, b, c = ta[idx[j]][idx[i]], tb[idx[j]][idx[i]], al[idx[j]][idx[i]]
-            t = a + b * pyunits.K / T
-            dt = -b * pyunits.K / T ** 2
+            t = scale * (a + b * pyunits.K / T)
+            dt = -scale * b * pyunits.K / T ** 2
             g = exp(-c * t)
             S += x[j] * t * g
             Sd += x[j] * dt * g * (1 - c * t)
@@ -255,9 +259,11 @@ def _excess_enthalpy_expr(P: dict, names, x: dict, T, Rgas):
     return -Rgas * T ** 2 * total
 
 
-def make_liquid_eos(params: dict):
+def make_liquid_eos(params: dict, excess_enthalpy: bool = True):
     """IDAES EoS class (subclass of Ideal): NRTL γ in the liquid fugacity and h^E in the liquid enthalpy; the vapour
-    phase keeps the plain Ideal class."""
+    phase keeps the plain Ideal class. excess_enthalpy=False leaves the liquid enthalpy as Σ x·h_i (ideal mixing): the
+    like-for-like model of DWSIM's «ExpData» mode, and the user's option when h^E from VLE-only parameters is not
+    trusted (M15b)."""
     from pyomo.environ import exp
     from idaes.models.properties.modular_properties.eos.ideal import Ideal
     from idaes.models.properties.modular_properties.base.utility import get_method, get_component_object as cobj
@@ -267,7 +273,7 @@ def make_liquid_eos(params: dict):
         return b.params.get_phase(p).is_liquid_phase()
 
     def lng(b, x, T, j):
-        return _ln_gamma_expr(params, names, x, T, j)
+        return _ln_gamma_expr(params, names, x, T, j, b.params.Liq.nrtl_scale)
 
     def fug(b, p, j, x, T):
         return x[j] * exp(lng(b, x, T, j)) * get_method(b, "pressure_sat_comp", j)(b, cobj(b, j), T)
@@ -279,6 +285,12 @@ def make_liquid_eos(params: dict):
         """NRTL liquid (modified Raoult) — parameters baked in from resolve_parameters()."""
         nrtl_parameters = params
         electrolyte_support = False
+
+        @staticmethod
+        def build_parameters(b):
+            from pyomo.environ import Param
+            # 1 = NRTL as given; the column start-up moves it from 0 (ideal liquid) to 1 (column_optimize, M15b)
+            b.nrtl_scale = Param(mutable=True, initialize=1.0)
 
         @staticmethod
         def act_coeff_phase_comp(b, p, j):
@@ -294,10 +306,11 @@ def make_liquid_eos(params: dict):
         @staticmethod
         def enth_mol_phase(b, p):
             base = Ideal.enth_mol_phase(b, p)
-            if not _liq(b, p):
+            if not _liq(b, p) or not excess_enthalpy:
                 return base
             x = {k: b.mole_frac_phase_comp[p, k] for k in names}
-            return base + _excess_enthalpy_expr(params, names, x, b.temperature, Ideal.gas_constant(b))
+            return base + _excess_enthalpy_expr(params, names, x, b.temperature, Ideal.gas_constant(b),
+                                                b.params.Liq.nrtl_scale)
 
         @staticmethod
         def fug_phase_comp(b, p, j):
@@ -364,19 +377,21 @@ def make_liquid_eos(params: dict):
     return NRTLLiquid
 
 
-def build_configuration(names: list[str], P_Pa: float, params: dict, extra_T: list[float] = ()) -> tuple[dict, dict]:
+def build_configuration(names: list[str], P_Pa: float, params: dict, extra_T: list[float] = (),
+                        excess_enthalpy: bool = True) -> tuple[dict, dict]:
     """M8b configuration with the liquid phase replaced by NRTL and LogBubbleDew."""
     from packages.eo import ideal_properties as IP
     from idaes.models.properties.modular_properties.phase_equil.bubble_dew import LogBubbleDew
     from idaes.models.properties.modular_properties.phase_equil.forms import log_fugacity
     cfg, prov = IP.build_configuration(names, P_Pa, extra_T)
-    cfg["phases"]["Liq"]["equation_of_state"] = make_liquid_eos(params)
+    cfg["phases"]["Liq"]["equation_of_state"] = make_liquid_eos(params, excess_enthalpy)
     cfg["bubble_dew_method"] = LogBubbleDew
     # ln x + ln γ + ln Psat = ln y + ln P: same equations as the fugacity form, better conditioned for dilute and
     # aqueous columns (ethanol-water 10 % feed: 3/18 starts converge vs 0/18 with x·γ·Psat = y·P, M15)
     for c in cfg["components"].values():
         c["phase_equilibrium_form"] = {("Vap", "Liq"): log_fugacity}
-    prov["liquid_model"] = {"model": SOURCES["model"], "excess_enthalpy": SOURCES["excess_enthalpy"],
+    prov["liquid_model"] = {"model": SOURCES["model"],
+                            "excess_enthalpy": SOURCES["excess_enthalpy"] if excess_enthalpy else SOURCES["no_excess_enthalpy"],
                             "bubble_dew": SOURCES["bubble_dew"], "pairs": params["pairs"]}
     return cfg, prov
 
@@ -543,6 +558,37 @@ def azeotrope_refusals(params: dict, P_Pa: float, feed_z: dict, specs: list[dict
                            f"({c1} = {lo:.4f} a {P_Pa:.0f} Pa con estos parámetros NRTL); la alimentación ({c1} = {z1:.4f}) "
                            f"queda del otro lado")
     return az, reasons
+
+
+def excess_enthalpy_report(params: dict, P_Pa: float, feed: dict, opt: dict, included: bool) -> dict:
+    """h^E of NRTL (Gibbs-Helmholtz, same parameters) at the feed and at the two products, and its first-order weight
+    in the reboiler duty: ΔQ_reb ≈ D·h^E_D + B·h^E_B − F·h^E_F at fixed products and condenser duty. NRTL parameters
+    regressed from VLE alone (τ = a + b/T on one isobar) fix g^E, not its temperature derivative, so this h^E is an
+    extrapolation of the model, not a calorimetric datum: the weight says how much of the duty rests on it."""
+    names = params["names"]
+    z = [float(feed["z"][c]) for c in names]
+    tb = thermo_bubble_points(params, P_Pa, {"feed": feed["z"]})["points"]["feed"]["T_bubble_K"]
+    liquid_feed = feed["T_K"] <= tb + 1e-6
+    rows = {}
+    if liquid_feed:
+        rows["feed"] = {"T_K": feed["T_K"], "hE_J_mol": excess_enthalpy_numeric(params, feed["T_K"], z),
+                        "flow_mol_s": feed["flow_mol_s"]}
+    for k in ("distillate", "bottoms"):
+        xs = [float(opt[k]["mole_fractions"][c]) for c in names]
+        rows[k] = {"T_K": opt[k]["T_K"], "hE_J_mol": excess_enthalpy_numeric(params, opt[k]["T_K"], xs),
+                   "flow_mol_s": opt[k]["flow_mol_s"]}
+    out = {"included_in_liquid_enthalpy": included, "streams": rows, "formula": SOURCES["excess_enthalpy"],
+           "feed_T_bubble_K": tb}
+    if liquid_feed:
+        dq = sum(rows[k]["flow_mol_s"] * rows[k]["hE_J_mol"] for k in ("distillate", "bottoms")) - \
+            rows["feed"]["flow_mol_s"] * rows["feed"]["hE_J_mol"]
+        out["first_order_effect_on_reboiler_duty_W"] = dq
+        out["first_order_share_of_reboiler_duty"] = dq / opt["reboiler_duty_W"]
+    else:
+        out["note"] = "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden"
+    out["basis"] = ("h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE "
+                    "su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)")
+    return out
 
 
 def parameter_range_warnings(params: dict, T_lo: float, T_hi: float) -> list[str]:

@@ -296,7 +296,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                        feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
                        reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0, boilup_ratio_min: float = 0.1,
                        boilup_ratio_max: float = 20.0, activity_model: str = "ideal",
-                       binary_parameters: list | dict | None = None) -> dict:
+                       binary_parameters: list | dict | None = None, excess_enthalpy: bool = True) -> dict:
     """Equation-oriented column optimisation (IDAES + ipopt, the whole column and the specs as ONE NLP) for a mixture
     of 2+ components named in English (chemicals names, e.g. "n-hexane", "methanol", "water"): minimum reboiler duty
     of a tray column (total condenser, partial reboiler, n_trays equilibrium trays, feed_tray counted from the top)
@@ -317,6 +317,11 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     of an azeotrope predicted with the chosen parameters, any binary azeotrope in a 3+ component mixture, and a vapour
     with |B·P/RT| > 0.10. UNIFAC is reported as a cross-check (γ∞, azeotrope) in properties.screening; the products'
     temperatures are re-checked as bubble points with thermo's NRTL (properties.thermo_bubble_check).
+    Binary NRTL with two specs: a McCabe-Thiele check with the same NRTL runs first (`shortcut`: N_min, R_min) and
+    REFUSES columns with too few trays, a reflux bound that cannot reach the specs, or a product closer than 0.03 K
+    (dew − bubble) to an azeotrope; relay the Spanish reason. excess_enthalpy=True (default) adds NRTL's h^E to the
+    liquid enthalpy; it comes from VLE parameters, not calorimetry, and its share of the duty is in
+    properties.excess_enthalpy (pass False for ideal mixing, e.g. to compare with DWSIM's «ExpData» mode).
     Returns the optimum (RR, BR, duties, products), Lagrange multipliers = MW per unit of each spec, `warnings`
     (parameter extrapolation, Psat source of a regression) and `evidence`: ipopt optimal, specs met, properties
     verified, 8 neighbours ±1 % no better and feasible, multipliers = finite differences within 5 %, NRTL γ and h^E
@@ -325,7 +330,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     from packages.eo.column_optimize import eo_column_optimize as _eo
     return _eo(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays, feed_tray, pressure_Pa,
                specs, (reflux_ratio_min, reflux_ratio_max), (boilup_ratio_min, boilup_ratio_max),
-               activity_model=activity_model, binary_parameters=binary_parameters)
+               activity_model=activity_model, binary_parameters=binary_parameters, excess_enthalpy=excess_enthalpy)
 
 
 def optimize_design_surrogate(flowsheet_id: str, variables: list[dict], objective: dict, constraints: list[dict] | None = None,

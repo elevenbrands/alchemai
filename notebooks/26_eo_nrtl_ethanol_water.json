@@ -1,0 +1,1551 @@
+{
+ "2_chain_case": {
+  "eo_hE_on": {
+   "RR": 0.7008078175950011,
+   "BR": 0.2882749517622547,
+   "x_D": 0.7000003788011592,
+   "x_B_heavy": 0.9949999992457556,
+   "T_D_K": 351.6890244415601,
+   "T_B_K": 371.6785595951147,
+   "D_mol_s": 13.668647485638393,
+   "B_mol_s": 86.33135251436201,
+   "Q_reb_kW": 1030.022989938933,
+   "Q_cond_kW": 917.2433742788553,
+   "verified": true,
+   "reasons": [],
+   "smooth_eps_K": [
+    0.0001,
+    5e-06
+   ],
+   "phantom_vapour": 0.00024223967666599838,
+   "balance": {
+    "ethanol": -2.8475466685762284e-05,
+    "water": 3.16394074736258e-06
+   },
+   "duals": {
+    "mole_fraction:ethanol@distillate": 0.2338188552332826,
+    "mole_fraction:water@bottoms": 9.832521464444932
+   },
+   "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+   "dual_rel_diff": {
+    "mole_fraction:ethanol@distillate": 0.002905507984636597,
+    "mole_fraction:water@bottoms": 0.0006307535210058117
+   },
+   "start": {
+    "reflux_ratio": 4.0,
+    "boilup_ratio": 0.3720169139700886,
+    "mode": "two_phase_0.3"
+   },
+   "starts_tried_before": 0,
+   "spec_continuation": {
+    "from_spec_values": [
+     0.8145177954963277,
+     0.9833631536860206
+    ],
+    "to_spec_values": [
+     0.7,
+     0.995
+    ],
+    "fraction_reached": 1.0,
+    "reflux_ratio": 0.7338287633604358,
+    "boilup_ratio": 0.2868275950163323,
+    "inside_bounds": true,
+    "used": true,
+    "eps_reached_square": [
+     0.0001,
+     5e-06
+    ],
+    "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+    "nlp_moved_duty_rel": 7.885121444672905e-08
+   },
+   "excess_enthalpy": {
+    "included_in_liquid_enthalpy": true,
+    "streams": {
+     "feed": {
+      "T_K": 350.0,
+      "hE_J_mol": 387.9031277391767,
+      "flow_mol_s": 100.0
+     },
+     "distillate": {
+      "T_K": 351.6890244415601,
+      "hE_J_mol": 313.7183114169814,
+      "flow_mol_s": 13.668647485638393
+     },
+     "bottoms": {
+      "T_K": 371.6785595951147,
+      "hE_J_mol": 25.89416605131271,
+      "flow_mol_s": 86.33135251436201
+     }
+    },
+    "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+    "feed_T_bubble_K": 359.07665754227855,
+    "first_order_effect_on_reboiler_duty_W": -32266.729387927924,
+    "first_order_share_of_reboiler_duty": -0.03132622252425737,
+    "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+   },
+   "shortcut": {
+    "N_min_total_reflux": 5,
+    "R_min_CMO": 0.6678121568035941,
+    "R_needed_CMO": 0.6699137523913701,
+    "dT_dew_bubble_distillate_K": 0.4496399349217768
+   },
+   "seconds": 24.71121597290039
+  },
+  "dwsim": {
+   "LiqCp_Excess": {
+    "ok": true,
+    "mode": "LiqCp_Excess",
+    "values": {
+     "x_D": 0.6940198099312328,
+     "x_B_heavy": 0.9940498109261021,
+     "T_D_K": 351.9806515194806,
+     "T_B_K": 371.42308426586857,
+     "Q_reb_kW": 967.4334582989613,
+     "Q_cond_kW": 909.2382523324897
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D": 0.8617288417918534,
+     "x_B_heavy": 0.0955875962360686,
+     "T_D_K": -0.08285315589410258,
+     "T_B_K": 0.06878283555020737,
+     "Q_reb_kW": 6.469647199304318,
+     "Q_cond_kW": 0.8804207176534851
+    }
+   },
+   "ExpData": {
+    "ok": true,
+    "mode": "ExpData",
+    "values": {
+     "x_D": 0.69147446170086,
+     "x_B_heavy": 0.993646811708866,
+     "T_D_K": 351.99080513252375,
+     "T_B_K": 371.31483155665995,
+     "Q_reb_kW": 1067.2764671011805,
+     "Q_cond_kW": 923.7471053238133
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D": 1.2330053490807735,
+     "x_B_heavy": 0.13618395600367705,
+     "T_D_K": -0.08573539040317435,
+     "T_B_K": 0.09795677617558951,
+     "Q_reb_kW": -3.4905179970313838,
+     "Q_cond_kW": -0.7040596942036625
+    }
+   }
+  },
+  "closure_kW": {
+   "eo_Qreb_minus_Qcond": 112.77961566007775,
+   "eo_from_point_enthalpies": 112.7530761333704,
+   "dwsim_Qreb_minus_Qcond": 58.19520596647169,
+   "dwsim_from_point_enthalpies": 58.20264877310931,
+   "observed_difference": 54.58440969360606,
+   "term_excess_formula": {
+    "feed": 69.52896549497312,
+    "distillate": -4.013150189808971,
+    "bottoms": -9.56540563838718,
+    "total": 55.95040966677697
+   },
+   "term_pure_component_enthalpies": -0.2633636313949537,
+   "term_different_product_states": -1.1366186750081007,
+   "sum_of_terms": 54.55042736037392,
+   "unexplained": 0.033982333232145834,
+   "Q_cond_difference": 8.005121946365648,
+   "Q_cond_term_excess_in_reflux_and_distillate": 6.82559721600996,
+   "Q_reb_difference": 62.58953163997171
+  },
+  "eo_hE_off": {
+   "RR": 0.7030043290271579,
+   "BR": 0.2976853588658453,
+   "x_D": 0.7,
+   "x_B_heavy": 0.9950000000000001,
+   "T_D_K": 351.68902598789225,
+   "T_B_K": 371.6785598070815,
+   "D_mol_s": 13.668654500573165,
+   "B_mol_s": 86.3313454994268,
+   "Q_reb_kW": 1070.7737615487604,
+   "Q_cond_kW": 925.72932656908,
+   "verified": true,
+   "reasons": [],
+   "smooth_eps_K": [
+    0.0001,
+    5e-06
+   ],
+   "phantom_vapour": 0.0002422385582229109,
+   "balance": {
+    "ethanol": -2.8512210164954864e-05,
+    "water": 3.1680233514445416e-06
+   },
+   "duals": {
+    "mole_fraction:ethanol@distillate": 0.24338910229969768,
+    "mole_fraction:water@bottoms": 10.27257942991564
+   },
+   "duals_source": "sensibilidades por diferencia finita del sistema cuadrado con las dos specs activas (= multiplicadores; el NLP de ipopt no convergió desde ese punto: maxIterations)",
+   "dual_rel_diff": {
+    "mole_fraction:ethanol@distillate": 0.0001023801163844056,
+    "mole_fraction:water@bottoms": 0.0005172469119588465
+   },
+   "start": {
+    "reflux_ratio": 0.8373921904892125,
+    "boilup_ratio": 2.118237762704365,
+    "mode": "ideal_homotopy"
+   },
+   "starts_tried_before": 1,
+   "spec_continuation": {
+    "from_spec_values": [
+     0.4943393464106199,
+     0.9999993050546064
+    ],
+    "to_spec_values": [
+     0.7,
+     0.995
+    ],
+    "fraction_reached": 1.0,
+    "reflux_ratio": 0.7361188769433648,
+    "boilup_ratio": 0.29618355607301106,
+    "inside_bounds": true,
+    "used": true,
+    "eps_reached_square": [
+     0.0001,
+     5e-06
+    ],
+    "nlp_at_final_eps": "maxIterations",
+    "duals_source": "sensibilidades por diferencia finita del sistema cuadrado con las dos specs activas (= multiplicadores; el NLP de ipopt no convergió desde ese punto: maxIterations)"
+   },
+   "excess_enthalpy": {
+    "included_in_liquid_enthalpy": false,
+    "streams": {
+     "feed": {
+      "T_K": 350.0,
+      "hE_J_mol": 387.9031277391767,
+      "flow_mol_s": 100.0
+     },
+     "distillate": {
+      "T_K": 351.68902598789225,
+      "hE_J_mol": 313.7187427189524,
+      "flow_mol_s": 13.668654500573165
+     },
+     "bottoms": {
+      "T_K": 371.6785598070815,
+      "hE_J_mol": 25.894162201211856,
+      "flow_mol_s": 86.3313454994268
+     }
+    },
+    "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+    "feed_T_bubble_K": 359.07665754227855,
+    "first_order_effect_on_reboiler_duty_W": -32266.72180592709,
+    "first_order_share_of_reboiler_duty": -0.030134023604815176,
+    "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+   },
+   "shortcut": {
+    "N_min_total_reflux": 5,
+    "R_min_CMO": 0.6678121568035941,
+    "R_needed_CMO": 0.6699137523913701,
+    "dT_dew_bubble_distillate_K": 0.4496399349217768
+   },
+   "seconds": 92.4338731765747
+  },
+  "like_for_like_ExpData": {
+   "ok": true,
+   "mode": "ExpData",
+   "values": {
+    "x_D": 0.6921865454455252,
+    "x_B_heavy": 0.9937596100535171,
+    "T_D_K": 351.98795306362814,
+    "T_B_K": 371.34504049632886,
+    "Q_reb_kW": 1068.6006192141513,
+    "Q_cond_kW": 924.8895962251553
+   },
+   "dev_eo_vs_dwsim_pct": {
+    "x_D": 1.128807632261286,
+    "x_B_heavy": 0.12481790706067031,
+    "T_D_K": -0.08492537120492472,
+    "T_B_K": 0.08981385891322358,
+    "Q_reb_kW": 0.20336337968878127,
+    "Q_cond_kW": 0.09079249538019862
+   }
+  },
+  "hE_effect_on_Q_reb_pct": -3.8057312453085967
+ },
+ "1_enthalpy_audit": {
+  "mixtures": {
+   "feed": {
+    "T_K": 350.0,
+    "x_ethanol": 0.1,
+    "hE_gibbs_helmholtz_J_mol": 387.9031277391767,
+    "hE_thermo_NRTL_HE_J_mol": 387.9028647373069,
+    "dwsim_excess_J_mol": 1083.1927826889078,
+    "minus_RT2_sum_x_dgamma_dT_J_mol": 1083.1964315895095,
+    "gammas": [
+     3.4572424564110866,
+     1.029172966738677
+    ],
+    "dwsim_over_dgamma_formula": 0.9999966313583618,
+    "dwsim_over_gibbs_helmholtz": 2.792431164456191
+   },
+   "dist_eo": {
+    "T_K": 351.6890244415601,
+    "x_ethanol": 0.7000003788011592,
+    "hE_gibbs_helmholtz_J_mol": 313.7183114169408,
+    "hE_thermo_NRTL_HE_J_mol": 313.7185335732841,
+    "dwsim_excess_J_mol": 607.320893093407,
+    "minus_RT2_sum_x_dgamma_dT_J_mol": 607.321537126916,
+    "gammas": [
+     1.0613738130258517,
+     1.8884315941952385
+    ],
+    "dwsim_over_dgamma_formula": 0.9999989395510126,
+    "dwsim_over_gibbs_helmholtz": 1.935879644227269
+   },
+   "bot_eo": {
+    "T_K": 371.6785595951147,
+    "x_ethanol": 0.005000000754244449,
+    "hE_gibbs_helmholtz_J_mol": 25.89416605131539,
+    "hE_thermo_NRTL_HE_J_mol": 25.894140736117606,
+    "dwsim_excess_J_mol": 136.6929125066763,
+    "minus_RT2_sum_x_dgamma_dT_J_mol": 136.69357753930947,
+    "gammas": [
+     5.34081809069368,
+     1.000076201897492
+    ],
+    "dwsim_over_dgamma_formula": 0.99999513486555,
+    "dwsim_over_gibbs_helmholtz": 5.278907698196848
+   },
+   "dist_dw": {
+    "T_K": 351.9806515194806,
+    "x_ethanol": 0.6940198099312328,
+    "hE_gibbs_helmholtz_J_mol": 320.98821713222026,
+    "hE_thermo_NRTL_HE_J_mol": 320.98843920490197,
+    "dwsim_excess_J_mol": 616.2812669790646,
+    "minus_RT2_sum_x_dgamma_dT_J_mol": 616.2819363122644,
+    "gammas": [
+     1.0644161475909824,
+     1.875481551141687
+    ],
+    "dwsim_over_dgamma_formula": 0.9999989139172182,
+    "dwsim_over_gibbs_helmholtz": 1.9199498115072815
+   },
+   "bot_dw": {
+    "T_K": 371.42308426586857,
+    "x_ethanol": 0.005950189073897882,
+    "hE_gibbs_helmholtz_J_mol": 30.7311526060689,
+    "hE_thermo_NRTL_HE_J_mol": 30.731122650818868,
+    "dwsim_excess_J_mol": 161.1270989642535,
+    "minus_RT2_sum_x_dgamma_dT_J_mol": 161.12788040211288,
+    "gammas": [
+     5.316297118292579,
+     1.000107875750683
+    ],
+    "dwsim_over_dgamma_formula": 0.9999951502008377,
+    "dwsim_over_gibbs_helmholtz": 5.243119287769035
+   },
+   "x30_355": {
+    "T_K": 355.0,
+    "x_ethanol": 0.3,
+    "hE_gibbs_helmholtz_J_mol": 631.1991479320305,
+    "hE_thermo_NRTL_HE_J_mol": 631.1990333982973,
+    "dwsim_excess_J_mol": 871.7473117800773,
+    "minus_RT2_sum_x_dgamma_dT_J_mol": 871.7487859916563,
+    "gammas": [
+     1.7312302903478396,
+     1.209298798720149
+    ],
+    "dwsim_over_dgamma_formula": 0.999998308903204,
+    "dwsim_over_gibbs_helmholtz": 1.3810970984928352
+   },
+   "x50_352": {
+    "T_K": 352.0,
+    "x_ethanol": 0.5,
+    "hE_gibbs_helmholtz_J_mol": 526.0657282565811,
+    "hE_thermo_NRTL_HE_J_mol": 526.0658715232037,
+    "dwsim_excess_J_mol": 783.1048230230217,
+    "minus_RT2_sum_x_dgamma_dT_J_mol": 783.1060329822037,
+    "gammas": [
+     1.2377819363498659,
+     1.5077473154563465
+    ],
+    "dwsim_over_dgamma_formula": 0.9999984549229209,
+    "dwsim_over_gibbs_helmholtz": 1.488606424939116
+   }
+  },
+  "pure": {
+   "sensible_liq w_350 − w_298": {
+    "eo_J_mol": 3907.2337721294025,
+    "dwsim_J_mol": 3919.2441123099898,
+    "dev_pct": -0.3064453204857487
+   },
+   "sensible_liq w_371.68 − w_350": {
+    "eo_J_mol": 1641.7400812723208,
+    "dwsim_J_mol": 1643.6103714160304,
+    "dev_pct": -0.11379157592551481
+   },
+   "sensible_liq e_350 − e_298": {
+    "eo_J_mol": 6359.435846026405,
+    "dwsim_J_mol": 6426.695666071606,
+    "dev_pct": -1.046569240866424
+   },
+   "latent w_350_v − w_350": {
+    "eo_J_mol": 41765.07465369167,
+    "dwsim_J_mol": 41784.88979540714,
+    "dev_pct": -0.04742178766653504
+   },
+   "latent w_371.68_v − w_371.68": {
+    "eo_J_mol": 40859.924238087115,
+    "dwsim_J_mol": 40807.4843591029,
+    "dev_pct": 0.12850554207837206
+   },
+   "latent e_350_v − e_350": {
+    "eo_J_mol": 39021.42506502534,
+    "dwsim_J_mol": 38953.40746385905,
+    "dev_pct": 0.17461271194156858
+   }
+  },
+  "dwsim_vapour_fraction_check": {
+   "feed": 0.0,
+   "dist_eo": 0.0,
+   "bot_eo": 0.0,
+   "dist_dw": 0.0,
+   "bot_dw": 0.0,
+   "x30_355": 0.0,
+   "x50_352": 0.0,
+   "w_298": 0.0,
+   "w_350": 0.0,
+   "w_371.68": 0.0,
+   "e_298": 0.0,
+   "e_350": 0.0
+  }
+ },
+ "2_methanol_water": {
+  "hE_on_vs_LiqCp_Excess": {
+   "eo": {
+    "RR": 4.491114237431555,
+    "BR": 0.250061694482809,
+    "x_D": 0.9168001753884157,
+    "x_B_heavy": 0.9971019226847582,
+    "T_D_K": 338.93330740343583,
+    "T_B_K": 372.61702829023056,
+    "D_mol_s": 4.2646328329598155,
+    "B_mol_s": 146.55056726046482,
+    "Q_reb_kW": 1497.6195109566343,
+    "Q_cond_kW": 836.2875598172307,
+    "verified": true,
+    "reasons": [],
+    "smooth_eps_K": [
+     0.0001,
+     5e-06
+    ],
+    "phantom_vapour": 6.751904652789909e-05,
+    "balance": {
+     "methanol": -1.7663770457583542e-05,
+     "water": 5.227007336844168e-07
+    },
+    "duals": {
+     "mole_fraction:methanol@distillate": 0.4903709350244265,
+     "recovery:methanol@distillate": 2.715633337814099
+    },
+    "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+    "dual_rel_diff": {
+     "mole_fraction:methanol@distillate": 0.001206252731472737,
+     "recovery:methanol@distillate": 8.419165956614325e-06
+    },
+    "start": {
+     "reflux_ratio": 4.0,
+     "boilup_ratio": 0.38009915594494453,
+     "mode": "two_phase_0.3"
+    },
+    "starts_tried_before": 0,
+    "spec_continuation": {
+     "from_spec_values": [
+      0.526288085667047,
+      0.9876925068678583
+     ],
+     "to_spec_values": [
+      0.9168,
+      0.902
+     ],
+     "fraction_reached": 1.0,
+     "reflux_ratio": 4.5679708889505415,
+     "boilup_ratio": 0.2499662004930584,
+     "inside_bounds": true,
+     "used": true,
+     "eps_reached_square": [
+      0.0001,
+      5e-06
+     ],
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "nlp_moved_duty_rel": 1.0000969830059603e-07
+    },
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": true,
+     "streams": {
+      "feed": {
+       "T_K": 313.0,
+       "hE_J_mol": 63.67156097100076,
+       "flow_mol_s": 150.81520009342458
+      },
+      "distillate": {
+       "T_K": 338.93330740343583,
+       "hE_J_mol": 60.651700806754974,
+       "flow_mol_s": 4.2646328329598155
+      },
+      "bottoms": {
+       "T_K": 372.61702829023056,
+       "hE_J_mol": 6.907271522957747,
+       "flow_mol_s": 146.55056726046482
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 368.4443821485963,
+     "first_order_effect_on_reboiler_duty_W": -8331.717413555307,
+     "first_order_share_of_reboiler_duty": -0.005563307203598901,
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "shortcut": {
+     "N_min_total_reflux": 6,
+     "R_min_CMO": 2.6914061299997365,
+     "R_needed_CMO": 3.913154020744755,
+     "dT_dew_bubble_distillate_K": 1.8150132712510754
+    },
+    "seconds": 14.321574926376343
+   },
+   "dwsim": {
+    "ok": true,
+    "mode": "LiqCp_Excess",
+    "values": {
+     "x_D": 0.9162872307921677,
+     "x_B_heavy": 0.9970870854415782,
+     "T_D_K": 339.003202555607,
+     "T_B_K": 372.58804156060444,
+     "Q_reb_kW": 1493.2779689438757,
+     "Q_cond_kW": 841.5035732447518
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D": 0.05598076443831257,
+     "x_B_heavy": 0.0014880589064514282,
+     "T_D_K": -0.020617844210402136,
+     "T_B_K": 0.0077798335944123664,
+     "Q_reb_kW": 0.29073903874903273,
+     "Q_cond_kW": -0.6198444775948775
+    }
+   }
+  },
+  "hE_off_vs_ExpData": {
+   "eo": {
+    "RR": 4.493772463295551,
+    "BR": 0.25144105874446493,
+    "x_D": 0.9168001709754268,
+    "x_B_heavy": 0.9971019229413534,
+    "T_D_K": 338.93330747092165,
+    "T_B_K": 372.61702833711905,
+    "D_mol_s": 4.264632854142105,
+    "B_mol_s": 146.55056723928251,
+    "Q_reb_kW": 1507.7765205678486,
+    "Q_cond_kW": 838.1133150332264,
+    "verified": true,
+    "reasons": [],
+    "smooth_eps_K": [
+     0.0001,
+     5e-06
+    ],
+    "phantom_vapour": 6.751904290778902e-05,
+    "balance": {
+     "methanol": -1.767232149400651e-05,
+     "water": 5.229537733829106e-07
+    },
+    "duals": {
+     "mole_fraction:methanol@distillate": 0.5023283689434103,
+     "recovery:methanol@distillate": 2.7044478519448147
+    },
+    "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+    "dual_rel_diff": {
+     "mole_fraction:methanol@distillate": 0.001137560315495157,
+     "recovery:methanol@distillate": 1.3234375675142662e-05
+    },
+    "start": {
+     "reflux_ratio": 4.0,
+     "boilup_ratio": 0.38062998744502624,
+     "mode": "two_phase_0.3"
+    },
+    "starts_tried_before": 0,
+    "spec_continuation": {
+     "from_spec_values": [
+      0.5310448542462242,
+      0.9876358764497191
+     ],
+     "to_spec_values": [
+      0.9168,
+      0.902
+     ],
+     "fraction_reached": 1.0,
+     "reflux_ratio": 4.57031890168223,
+     "boilup_ratio": 0.2513416413610169,
+     "inside_bounds": true,
+     "used": true,
+     "eps_reached_square": [
+      0.0001,
+      5e-06
+     ],
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "nlp_moved_duty_rel": 9.933064526457258e-08
+    },
+    "excess_enthalpy": {
+     "included_in_liquid_enthalpy": false,
+     "streams": {
+      "feed": {
+       "T_K": 313.0,
+       "hE_J_mol": 63.67156097100076,
+       "flow_mol_s": 150.81520009342458
+      },
+      "distillate": {
+       "T_K": 338.93330747092165,
+       "hE_J_mol": 60.651704082994,
+       "flow_mol_s": 4.264632854142105
+      },
+      "bottoms": {
+       "T_K": 372.61702833711905,
+       "hE_J_mol": 6.907270915125704,
+       "flow_mol_s": 146.55056723928251
+      }
+     },
+     "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+     "feed_T_bubble_K": 368.4443821485963,
+     "first_order_effect_on_reboiler_duty_W": -8331.717487523052,
+     "first_order_share_of_reboiler_duty": -0.005525830501979973,
+     "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+    },
+    "shortcut": {
+     "N_min_total_reflux": 6,
+     "R_min_CMO": 2.6914061299997365,
+     "R_needed_CMO": 3.913154020744755,
+     "dT_dew_bubble_distillate_K": 1.8150132712510754
+    },
+    "seconds": 16.545254945755005
+   },
+   "dwsim": {
+    "ok": true,
+    "mode": "ExpData",
+    "values": {
+     "x_D": 0.9164561221800113,
+     "x_B_heavy": 0.9970920111462316,
+     "T_D_K": 339.00062624949703,
+     "T_B_K": 372.5889372982893,
+     "Q_reb_kW": 1515.1437966549447,
+     "Q_cond_kW": 844.2298874457051
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D": 0.037541218514314245,
+     "x_B_heavy": 0.000994070257398505,
+     "T_D_K": -0.0198580100928325,
+     "T_B_K": 0.007539418382473961,
+     "Q_reb_kW": -0.48624269876965664,
+     "Q_cond_kW": -0.7245150288371027
+    }
+   }
+  }
+ },
+ "3_startup": {
+  "azeotrope": [
+   {
+    "pair": [
+     "ethanol",
+     "water"
+    ],
+    "x_az": {
+     "ethanol": 0.8914214840132502,
+     "water": 0.10857851598674984
+    },
+    "T_az_K": 351.27441194269164,
+    "kind": "mínimo punto de ebullición",
+    "gammas": [
+     1.006228551109623,
+     2.3101263689697564
+    ]
+   }
+  ],
+  "feed_T_bubble_K": 359.12396611189877,
+  "cases": {
+   "B_xD0.70_15trays_feed10_bubble": {
+    "hE_on": {
+     "RR": 0.748167051767429,
+     "BR": 0.2719150522057949,
+     "x_D": 0.700000370766118,
+     "x_B_heavy": 0.9949999982595533,
+     "T_D_K": 351.68902447436056,
+     "T_B_K": 371.67855931794895,
+     "D_mol_s": 13.668636112849747,
+     "B_mol_s": 86.33136388715056,
+     "Q_reb_kW": 971.6651789313057,
+     "Q_cond_kW": 942.7833721746925,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      0.0001,
+      5e-06
+     ],
+     "phantom_vapour": 0.0002422396527779839,
+     "balance": {
+      "ethanol": -2.9268344712285455e-05,
+      "water": 3.252038304898027e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.23875304939790842,
+      "mole_fraction:water@bottoms": 11.006538391004765
+     },
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.002339869899169417,
+      "mole_fraction:water@bottoms": 0.002405383963433049
+     },
+     "start": {
+      "reflux_ratio": 0.892253633503126,
+      "boilup_ratio": 0.6965394588274227,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.4984819246838836,
+       0.9999909822989728
+      ],
+      "to_spec_values": [
+       0.7,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 0.782062897824798,
+      "boilup_ratio": 0.2708690288500703,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       0.0001,
+       5e-06
+      ],
+      "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+      "nlp_moved_duty_rel": 7.965437864854152e-08
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": true,
+      "streams": {
+       "distillate": {
+        "T_K": 351.68902447436056,
+        "hE_J_mol": 313.7183205657686,
+        "flow_mol_s": 13.668636112849747
+       },
+       "bottoms": {
+        "T_K": 371.67855931794895,
+        "hE_J_mol": 25.894171085468898,
+        "flow_mol_s": 86.33136388715056
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 5,
+      "R_min_CMO": 0.7032259209053409,
+      "R_needed_CMO": 0.7138029068025008,
+      "dT_dew_bubble_distillate_K": 0.4496399349217768
+     },
+     "seconds": 48.76211380958557
+    },
+    "hE_off": {
+     "RR": 0.7481091950538006,
+     "BR": 0.28113914021189973,
+     "x_D": 0.7000003512816271,
+     "x_B_heavy": 0.994999998030971,
+     "T_D_K": 351.6890245538995,
+     "T_B_K": 371.6785592537367,
+     "D_mol_s": 13.668636481619863,
+     "B_mol_s": 86.33136351838041,
+     "Q_reb_kW": 1011.3659182723298,
+     "Q_cond_kW": 950.2464325507767,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      0.0001,
+      5e-06
+     ],
+     "phantom_vapour": 0.00024223959533350777,
+     "balance": {
+      "ethanol": -2.926737443722516e-05,
+      "water": 3.251930495985612e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.2516293915537494,
+      "mole_fraction:water@bottoms": 11.31981298028793
+     },
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.0020350867934735618,
+      "mole_fraction:water@bottoms": 0.0020434199590827775
+     },
+     "start": {
+      "reflux_ratio": 0.892253633503126,
+      "boilup_ratio": 0.6998688104618973,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.5066734614105222,
+       0.9999909221311071
+      ],
+      "to_spec_values": [
+       0.7,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 0.7820121096618224,
+      "boilup_ratio": 0.28004757449529216,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       0.0001,
+       5e-06
+      ],
+      "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+      "nlp_moved_duty_rel": 7.350580255582884e-08
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": false,
+      "streams": {
+       "distillate": {
+        "T_K": 351.6890245538995,
+        "hE_J_mol": 313.7183427507303,
+        "flow_mol_s": 13.668636481619863
+       },
+       "bottoms": {
+        "T_K": 371.6785592537367,
+        "hE_J_mol": 25.89417225228286,
+        "flow_mol_s": 86.33136351838041
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 5,
+      "R_min_CMO": 0.7032259209053409,
+      "R_needed_CMO": 0.7138029068025008,
+      "dT_dew_bubble_distillate_K": 0.4496399349217768
+     },
+     "seconds": 55.12206506729126
+    },
+    "dwsim_ExpData_vs_hE_off": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.6939025948947801,
+      "x_B_heavy": 0.9940329620663788,
+      "T_D_K": 351.98112857877777,
+      "T_B_K": 371.4182580881369,
+      "Q_reb_kW": 1018.4174250506185,
+      "Q_cond_kW": 949.2586737988073
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.8787625859464576,
+      "x_B_heavy": 0.09728409434048846,
+      "T_D_K": -0.08298854715811377,
+      "T_B_K": 0.07008302901954089,
+      "Q_reb_kW": -0.6923984807053141,
+      "Q_cond_kW": 0.1040558047277651
+     }
+    }
+   },
+   "C_xD0.75_20trays_feed14_bubble": {
+    "hE_on": {
+     "RR": 0.8948190061910571,
+     "BR": 0.2713168512317848,
+     "x_D": 0.750000165295307,
+     "x_B_heavy": 0.9949999988207835,
+     "T_D_K": 351.5074772690445,
+     "T_B_K": 371.67855947565715,
+     "D_mol_s": 12.751162035431099,
+     "B_mol_s": 87.24883796456903,
+     "Q_reb_kW": 979.8347095995255,
+     "Q_cond_kW": 950.9205468170555,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      0.0001,
+      5e-06
+     ],
+     "phantom_vapour": 0.0004923896915891854,
+     "balance": {
+      "ethanol": -3.82073011328643e-05,
+      "water": 4.24525568279124e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.5186066715003783,
+      "mole_fraction:water@bottoms": 10.306237526584992
+     },
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.006489590122227913,
+      "mole_fraction:water@bottoms": 0.0007538010849972179
+     },
+     "start": {
+      "reflux_ratio": 1.0704932514060863,
+      "boilup_ratio": 2.0751777943511116,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.5448259067882385,
+       0.9999988049239237
+      ],
+      "to_spec_values": [
+       0.75,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 1.0058415673551693,
+      "boilup_ratio": 0.2700526517762679,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       0.0001,
+       5e-06
+      ],
+      "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+      "nlp_moved_duty_rel": 8.329690737163276e-08
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": true,
+      "streams": {
+       "distillate": {
+        "T_K": 351.5074772690445,
+        "hE_J_mol": 256.9546822892715,
+        "flow_mol_s": 12.751162035431099
+       },
+       "bottoms": {
+        "T_K": 371.67855947565715,
+        "hE_J_mol": 25.894168220623364,
+        "flow_mol_s": 87.24883796456903
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 6,
+      "R_min_CMO": 0.845253837874224,
+      "R_needed_CMO": 0.8563946011248691,
+      "dT_dew_bubble_distillate_K": 0.18541127768378374
+     },
+     "seconds": 67.81068229675293
+    },
+    "hE_off": {
+     "RR": 0.8974288572556628,
+     "BR": 0.2807169453281814,
+     "x_D": 0.7500001463837922,
+     "x_B_heavy": 0.9949999984750828,
+     "T_D_K": 351.50747732884275,
+     "T_B_K": 371.6785593785343,
+     "D_mol_s": 12.75116161232552,
+     "B_mol_s": 87.24883838767457,
+     "Q_reb_kW": 1020.5819792620099,
+     "Q_cond_kW": 958.4440376555237,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      0.0001,
+      5e-06
+     ],
+     "phantom_vapour": 0.0004923895371095234,
+     "balance": {
+      "ethanol": -3.825992068637873e-05,
+      "water": 4.251102299216806e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.5813214406313794,
+      "mole_fraction:water@bottoms": 10.726631137723992
+     },
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.00666591497070563,
+      "mole_fraction:water@bottoms": 0.0005975551685775929
+     },
+     "start": {
+      "reflux_ratio": 1.0704932514060863,
+      "boilup_ratio": 2.085533904376433,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.552885952646425,
+       0.9999988204180903
+      ],
+      "to_spec_values": [
+       0.75,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 1.0088503283169645,
+      "boilup_ratio": 0.279408094785931,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       0.0001,
+       5e-06
+      ],
+      "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+      "nlp_moved_duty_rel": 7.543440583290817e-08
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": false,
+      "streams": {
+       "distillate": {
+        "T_K": 351.50747732884275,
+        "hE_J_mol": 256.9547036371316,
+        "flow_mol_s": 12.75116161232552
+       },
+       "bottoms": {
+        "T_K": 371.6785593785343,
+        "hE_J_mol": 25.894169985278587,
+        "flow_mol_s": 87.24883838767457
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 6,
+      "R_min_CMO": 0.845253837874224,
+      "R_needed_CMO": 0.8563946011248691,
+      "dT_dew_bubble_distillate_K": 0.18541127768378374
+     },
+     "seconds": 74.70754504203796
+    },
+    "dwsim_ExpData_vs_hE_off": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.7432056263957091,
+      "x_B_heavy": 0.9940026141686792,
+      "T_D_K": 351.80788099916373,
+      "T_B_K": 371.41035955685794,
+      "Q_reb_kW": 1027.8185146748178,
+      "Q_cond_kW": 957.6197930028409
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.9142180503979969,
+      "x_B_heavy": 0.10034020959168721,
+      "T_D_K": -0.0853885562392187,
+      "T_B_K": 0.07221118495357448,
+      "Q_reb_kW": -0.7040674311162287,
+      "Q_cond_kW": 0.08607222393537395
+     }
+    }
+   },
+   "D_xD0.80_20trays_feed14_bubble": {
+    "hE_on": {
+     "RR": 1.5585083783652955,
+     "BR": 0.3375133785836595,
+     "x_D": 0.7999999990581914,
+     "x_B_heavy": 0.9949999974285533,
+     "T_D_K": 351.37461228936564,
+     "T_B_K": 371.67855908526104,
+     "D_mol_s": 11.94941529244045,
+     "B_mol_s": 88.05058470755954,
+     "Q_reb_kW": 1229.6301524901794,
+     "Q_cond_kW": 1200.8172062889016,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      3e-05,
+      1.5e-06
+     ],
+     "phantom_vapour": 0.00040929203822723454,
+     "balance": {
+      "ethanol": -2.1462734651933602e-05,
+      "water": 2.384748294540865e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 10.036119477031903,
+      "mole_fraction:water@bottoms": 12.237791974993389
+     },
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.0014692882881648754,
+      "mole_fraction:water@bottoms": 7.058526753099951e-06
+     },
+     "start": {
+      "reflux_ratio": 1.9280068829677903,
+      "boilup_ratio": 2.1124924356159323,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.6826974864333218,
+       0.9999993587576601
+      ],
+      "to_spec_values": [
+       0.8,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 2.3702794424646556,
+      "boilup_ratio": 0.34064573048040947,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       3e-05,
+       1.5e-06
+      ],
+      "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+      "nlp_moved_duty_rel": -6.4958020074001865e-09
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": true,
+      "streams": {
+       "distillate": {
+        "T_K": 351.37461228936564,
+        "hE_J_mol": 201.11803183311528,
+        "flow_mol_s": 11.94941529244045
+       },
+       "bottoms": {
+        "T_K": 371.67855908526104,
+        "hE_J_mol": 25.894175327375102,
+        "flow_mol_s": 88.05058470755954
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 7,
+      "R_min_CMO": 1.0824334261469413,
+      "R_needed_CMO": 1.5424055063742323,
+      "dT_dew_bubble_distillate_K": 0.05693301900174674
+     },
+     "seconds": 85.87895011901855
+    },
+    "hE_off": {
+     "RR": 1.5665041670868247,
+     "BR": 0.347269612838946,
+     "x_D": 0.7999999990003194,
+     "x_B_heavy": 0.9949999971263549,
+     "T_D_K": 351.3746122894892,
+     "T_B_K": 371.6785590003425,
+     "D_mol_s": 11.949414416151026,
+     "B_mol_s": 88.05058558384899,
+     "Q_reb_kW": 1273.6248861717547,
+     "Q_cond_kW": 1210.7352381271876,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      3e-05,
+      1.5e-06
+     ],
+     "phantom_vapour": 0.0004092920387311739,
+     "balance": {
+      "ethanol": -2.1529807938946987e-05,
+      "water": 2.3922008823420685e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 10.100651660340768,
+      "mole_fraction:water@bottoms": 12.756744776610908
+     },
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.0014730023712838532,
+      "mole_fraction:water@bottoms": 2.1664445919649008e-06
+     },
+     "start": {
+      "reflux_ratio": 1.9280068829677903,
+      "boilup_ratio": 2.1409121919898864,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.6898629405827501,
+       0.9999993820653296
+      ],
+      "to_spec_values": [
+       0.8,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 2.381176964865091,
+      "boilup_ratio": 0.35044394028753867,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       3e-05,
+       1.5e-06
+      ],
+      "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+      "nlp_moved_duty_rel": -1.0270206574070073e-08
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": false,
+      "streams": {
+       "distillate": {
+        "T_K": 351.3746122894892,
+        "hE_J_mol": 201.1180318970831,
+        "flow_mol_s": 11.949414416151026
+       },
+       "bottoms": {
+        "T_K": 371.6785590003425,
+        "hE_J_mol": 25.8941768699773,
+        "flow_mol_s": 88.05058558384899
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 7,
+      "R_min_CMO": 1.0824334261469413,
+      "R_needed_CMO": 1.5424055063742323,
+      "dT_dew_bubble_distillate_K": 0.05693301900174674
+     },
+     "seconds": 77.60325026512146
+    },
+    "dwsim_ExpData_vs_hE_off": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.7925112784893075,
+      "x_B_heavy": 0.993981251795532,
+      "T_D_K": 351.6830370151783,
+      "T_B_K": 371.4046046345233,
+      "Q_reb_kW": 1280.6872885296555,
+      "Q_cond_kW": 1209.514100567062
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.9449355124998338,
+      "x_B_heavy": 0.10249140303024706,
+      "T_D_K": -0.08769963098212985,
+      "T_B_K": 0.07376170419017836,
+      "Q_reb_kW": -0.5514540841589088,
+      "Q_cond_kW": 0.10096100240195582
+     }
+    }
+   },
+   "E_xD0.82_20trays_feed14_bubble": {
+    "hE_on": {
+     "RR": 2.2356187419043434,
+     "BR": 0.4126501651788714,
+     "x_D": 0.82,
+     "x_B_heavy": 0.9949999999999999,
+     "T_D_K": 351.3362384992105,
+     "T_B_K": 371.67855980824544,
+     "D_mol_s": 11.6560328814519,
+     "B_mol_s": 88.34396711854814,
+     "Q_reb_kW": 1507.8048220547607,
+     "Q_cond_kW": 1479.6075580971594,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      3e-05,
+      1.5e-06
+     ],
+     "phantom_vapour": 0.0007229805274889676,
+     "balance": {
+      "ethanol": -3.3320161660199685e-05,
+      "water": 3.702240185848243e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 19.215938114812595,
+      "mole_fraction:water@bottoms": 14.751665814211592
+     },
+     "duals_source": "sensibilidades por diferencia finita del sistema cuadrado con las dos specs activas (= multiplicadores; el NLP de ipopt no convergió desde ese punto: infeasible)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.0014106267028137667,
+      "mole_fraction:water@bottoms": 1.1259424991566211e-05
+     },
+     "start": {
+      "reflux_ratio": 2.768590757113097,
+      "boilup_ratio": 2.4609185919301226,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.7717426786659184,
+       0.9999994250864896
+      ],
+      "to_spec_values": [
+       0.82,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 5.352112247693441,
+      "boilup_ratio": 0.44679987416404415,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       3e-05,
+       1.5e-06
+      ],
+      "nlp_at_final_eps": "infeasible",
+      "duals_source": "sensibilidades por diferencia finita del sistema cuadrado con las dos specs activas (= multiplicadores; el NLP de ipopt no convergió desde ese punto: infeasible)"
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": true,
+      "streams": {
+       "distillate": {
+        "T_K": 351.3362384992105,
+        "hE_J_mol": 179.21834056691554,
+        "flow_mol_s": 11.6560328814519
+       },
+       "bottoms": {
+        "T_K": 371.67855980824544,
+        "hE_J_mol": 25.894162201217895,
+        "flow_mol_s": 88.34396711854814
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 8,
+      "R_min_CMO": 1.3796803935494146,
+      "R_needed_CMO": 2.214872605690478,
+      "dT_dew_bubble_distillate_K": 0.03031906813777141
+     },
+     "seconds": 86.75628280639648
+    },
+    "hE_off": {
+     "RR": 2.2457090552129633,
+     "BR": 0.4223657859931467,
+     "x_D": 0.8199999947099053,
+     "x_B_heavy": 0.9949999959453276,
+     "T_D_K": 351.33623850819265,
+     "T_B_K": 371.6785586684737,
+     "D_mol_s": 11.65603124272003,
+     "B_mol_s": 88.34396875728001,
+     "Q_reb_kW": 1553.573177722638,
+     "Q_cond_kW": 1490.9967056568607,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      3e-05,
+      1.5e-06
+     ],
+     "phantom_vapour": 0.0007229804020479298,
+     "balance": {
+      "ethanol": -3.3424063882492304e-05,
+      "water": 3.713784876266699e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 19.301680865751102,
+      "mole_fraction:water@bottoms": 15.290846426953218
+     },
+     "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.001968788532381155,
+      "mole_fraction:water@bottoms": 3.886187111948787e-05
+     },
+     "start": {
+      "reflux_ratio": 2.768590757113097,
+      "boilup_ratio": 2.5558963099149006,
+      "mode": "ideal_homotopy"
+     },
+     "starts_tried_before": 1,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.7740522660228839,
+       0.9999994442267193
+      ],
+      "to_spec_values": [
+       0.82,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 5.373667006603188,
+      "boilup_ratio": 0.4567686175093528,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       3e-05,
+       1.5e-06
+      ],
+      "duals_source": "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)",
+      "nlp_moved_duty_rel": -8.033994047806914e-08
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": false,
+      "streams": {
+       "distillate": {
+        "T_K": 351.33623850819265,
+        "hE_J_mol": 179.21834631998507,
+        "flow_mol_s": 11.65603124272003
+       },
+       "bottoms": {
+        "T_K": 371.6785586684737,
+        "hE_J_mol": 25.894182898626706,
+        "flow_mol_s": 88.34396875728001
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.07665754227855,
+      "note": "alimentación parcialmente vaporizada: no se estima el peso de h^E a primer orden",
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 8,
+      "R_min_CMO": 1.3796803935494146,
+      "R_needed_CMO": 2.214872605690478,
+      "dT_dew_bubble_distillate_K": 0.03031906813777141
+     },
+     "seconds": 77.69122576713562
+    },
+    "dwsim_ExpData_vs_hE_off": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.8119747883494187,
+      "x_B_heavy": 0.9939373733568982,
+      "T_D_K": 351.64823176346823,
+      "T_B_K": 371.392791036516,
+      "Q_reb_kW": 1561.4619606893812,
+      "Q_cond_kW": 1489.9736459739877
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.9883565937804706,
+      "x_B_heavy": 0.10691041678416724,
+      "T_D_K": -0.08872311221671536,
+      "T_B_K": 0.07694485161120479,
+      "Q_reb_kW": -0.505217748837139,
+      "Q_cond_kW": 0.06866293814238311
+     }
+    }
+   },
+   "G_ChemSep_xD0.70_20trays_350K": {
+    "hE_on": {
+     "RR": 0.7530305574678349,
+     "BR": 0.2973835008403748,
+     "x_D": 0.7,
+     "x_B_heavy": 0.995,
+     "T_D_K": 351.6159997015403,
+     "T_B_K": 371.83107035276004,
+     "D_mol_s": 13.66864688510841,
+     "B_mol_s": 86.33135311489157,
+     "Q_reb_kW": 1059.436948126198,
+     "Q_cond_kW": 944.0497733307477,
+     "verified": true,
+     "reasons": [],
+     "smooth_eps_K": [
+      0.0001,
+      5e-06
+     ],
+     "phantom_vapour": 0.00022878103716335213,
+     "balance": {
+      "ethanol": -2.9041484965652843e-05,
+      "water": 3.2268316625542565e-06
+     },
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.23973444851581005,
+      "mole_fraction:water@bottoms": 10.307183620682917
+     },
+     "duals_source": "sensibilidades por diferencia finita del sistema cuadrado con las dos specs activas (= multiplicadores; el NLP de ipopt no convergió desde ese punto: error de ipopt (Cannot load a SolverResults object with bad status: error))",
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.00010724378162702622,
+      "mole_fraction:water@bottoms": 0.0011431542480157275
+     },
+     "start": {
+      "reflux_ratio": 4.0,
+      "boilup_ratio": 0.36923193797171444,
+      "mode": "two_phase_0.3"
+     },
+     "starts_tried_before": 0,
+     "spec_continuation": {
+      "from_spec_values": [
+       0.816247848242323,
+       0.9848896052243153
+      ],
+      "to_spec_values": [
+       0.7,
+       0.995
+      ],
+      "fraction_reached": 1.0,
+      "reflux_ratio": 0.783728327821097,
+      "boilup_ratio": 0.29598871881966277,
+      "inside_bounds": true,
+      "used": true,
+      "eps_reached_square": [
+       0.0001,
+       5e-06
+      ],
+      "nlp_at_final_eps": "error de ipopt (Cannot load a SolverResults object with bad status: error)",
+      "duals_source": "sensibilidades por diferencia finita del sistema cuadrado con las dos specs activas (= multiplicadores; el NLP de ipopt no convergió desde ese punto: error de ipopt (Cannot load a SolverResults object with bad status: error))"
+     },
+     "excess_enthalpy": {
+      "included_in_liquid_enthalpy": true,
+      "streams": {
+       "feed": {
+        "T_K": 350.0,
+        "hE_J_mol": 378.3833062992339,
+        "flow_mol_s": 100.0
+       },
+       "distillate": {
+        "T_K": 351.6159997015403,
+        "hE_J_mol": 378.847821576524,
+        "flow_mol_s": 13.66864688510841
+       },
+       "bottoms": {
+        "T_K": 371.83107035276004,
+        "hE_J_mol": 24.398562357988194,
+        "flow_mol_s": 86.33135311489157
+       }
+      },
+      "formula": "h^E = −R·T²·∂(g^E/RT)/∂T analítica con los mismos parámetros (Gibbs-Helmholtz)",
+      "feed_T_bubble_K": 359.6559229337137,
+      "first_order_effect_on_reboiler_duty_W": -30553.632631178145,
+      "first_order_share_of_reboiler_duty": -0.028839500722735466,
+      "basis": "h^E sale de los parámetros de equilibrio (no de calorimetría); con parámetros ajustados solo a VLE su valor es una extrapolación del modelo. excess_enthalpy=False lo quita (mezcla ideal en entalpía)"
+     },
+     "shortcut": {
+      "N_min_total_reflux": 4,
+      "R_min_CMO": 0.7123637175885305,
+      "R_needed_CMO": 0.71876010868257,
+      "dT_dew_bubble_distillate_K": 0.5123537108564165
+     },
+     "seconds": 33.754366397857666
+    }
+   }
+  },
+  "refusals": {
+   "near_azeotrope_xD0.85": {
+    "refused": true,
+    "message": "especificaciones inalcanzables con esta columna: el destilado pedido (x_ethanol = 0.8500) tiene T_rocío − T_burbuja = 0.0081 K, junto al azeótropo predicho (x_ethanol = 0.8914): por debajo de 0.03 K el equilibrio suavizado (SmoothVLE) de esta tool deja vapor ficticio en los líquidos saturados y no cierra el balance (límite medido de la tool, no de la física). Con estos parámetros el destilado más puro que se puede sellar es x_ethanol ≈ 0.820; para ir más allá usa la columna de DWSIM (optimize_design_multi)",
+    "seconds": 0.14204692840576172
+   },
+   "too_few_trays_xD0.80_4trays": {
+    "refused": true,
+    "message": "especificaciones inalcanzables con esta columna: con 4 platos + rehervidor (5 etapas de equilibrio) no se llega de x_D(ethanol) = 0.8000 a x_B(ethanol) = 0.00500 ni a reflujo total: hacen falta 7 etapas de equilibrio (McCabe-Thiele con estos parámetros NRTL a 101325 Pa). Añade platos o relaja las purezas",
+    "seconds": 0.14105606079101562
+   },
+   "reflux_bound_xD0.80_rrmax1.0": {
+    "refused": true,
+    "message": "especificaciones inalcanzables con esta columna: con 20 platos y alimentación en el plato 14, ni 1.25× el reflujo máximo permitido (1) alcanza x_D(ethanol) = 0.8000 con x_B(ethanol) = 0.00500 (McCabe-Thiele de flujo molar constante; R_min ≈ 1.082, N_min = 7). Ningún plato de alimentación lo logra con ese reflujo: mueve la alimentación, añade platos o sube el límite de reflujo",
+    "seconds": 0.15474677085876465
+   },
+   "across_azeotrope_xD0.95": {
+    "refused": true,
+    "message": "especificaciones inalcanzables por destilación simple: spec ethanol ≥ 0.95 en distillate: cruza el azeótropo predicho (ethanol = 0.8914 a 101325 Pa con estos parámetros NRTL); la alimentación (ethanol = 0.1000) queda del otro lado. Cambia las especificaciones al lado del azeótropo de la alimentación, o usa destilación azeotrópica/extractiva o por cambio de presión en DWSIM.",
+    "seconds": 0.045520782470703125
+   }
+  }
+ }
+}

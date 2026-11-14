@@ -41,6 +41,8 @@ KINDS = ("mole_fraction", "recovery")
 ACTIVITY_MODELS = ("ideal", "NRTL")
 BUBBLE_T_TOL_K = 0.05        # IDAES product T vs thermo bubble T with the same NRTL parameters and Psat
 SMOOTH_EPS_STEPS = (1e-3, 1e-4)  # K; SmoothVLE eps_1 continued from IDAES's 0.01 on the NRTL path (eps_2 = eps_1/20)
+SMOOTH_EPS_EXTRA = (3e-5, 1e-5, 3e-6, 1e-6)   # K; further steps taken only while the balance/phantom seal fails (M15b)
+SPEC_CONTINUATION_MIN_STEP = 1e-4             # smallest fraction of the spec path tried before giving up (M15b)
 PHANTOM_VF_TOL = 1e-3        # max vapour fraction SmoothVLE leaves in a saturated-liquid inlet (reflux, tray liquid)
 BALANCE_TOL = 1e-4           # relative closure of each component, feed vs distillate + bottoms
 
@@ -106,6 +108,12 @@ def phantom_vapour(m) -> float:
         blocks += [sec[i].properties_in_liq[0] for i in sec]
     blocks.append(u.feed_tray.properties_in_liq[0])
     return max(value(b.phase_frac["Vap"]) for b in blocks)
+
+
+def _sealed(m) -> bool:
+    """Component balance and phantom vapour inside their tolerances (the two checks SmoothVLE's eps can break)."""
+    return (all(abs(v) <= BALANCE_TOL for v in component_balance(m).values())
+            and phantom_vapour(m) <= PHANTOM_VF_TOL)
 
 
 def _optimise_tightening(m, specs, bounds, solver):
@@ -220,7 +228,8 @@ def simulate_column(n_trays: int, feed_tray: int, feed: dict, pressure_Pa: float
 
 def simulate_column_nrtl(components: list[str], feed: dict, n_trays: int, feed_tray: int, pressure_Pa: float,
                          reflux_ratio: float, distillate_mass_flow_kg_s: float | None = None,
-                         distillate_flow_mol_s: float | None = None, binary_parameters=None) -> dict:
+                         distillate_flow_mol_s: float | None = None, binary_parameters=None,
+                         excess_enthalpy: bool = True) -> dict:
     """Square NRTL column at a given reflux ratio and distillate rate (molar or mass, as a published case states it):
     the M15 reference-case solve. feed = {flow_mol_s, T_K, P_Pa, z}."""
     from pyomo.environ import value
@@ -228,7 +237,8 @@ def simulate_column_nrtl(components: list[str], feed: dict, n_trays: int, feed_t
     if (distillate_mass_flow_kg_s is None) == (distillate_flow_mol_s is None):
         raise ValueError("da distillate_mass_flow_kg_s o distillate_flow_mol_s (uno)")
     params = NP.resolve_parameters(components, binary_parameters)
-    cfg, prov = NP.build_configuration(components, pressure_Pa, params, extra_T=[feed["T_K"]])
+    cfg, prov = NP.build_configuration(components, pressure_Pa, params, extra_T=[feed["T_K"]],
+                                       excess_enthalpy=excess_enthalpy)
     solver = _solver()
     bounds = {"reflux_ratio": (0.1, 50.0), "boilup_ratio": (0.01, 50.0)}
     mw = {c: prov["components"][c]["MW_g_mol"] * 1e-3 for c in components}
@@ -360,7 +370,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                        reflux_ratio_bounds: tuple[float, float] = (0.1, 20.0),
                        boilup_ratio_bounds: tuple[float, float] = (0.1, 20.0), evidence: bool = True,
                        property_package: str = "chemicals", activity_model: str = "ideal",
-                       binary_parameters: list | dict | None = None) -> dict:
+                       binary_parameters: list | dict | None = None, excess_enthalpy: bool = True) -> dict:
     """Minimum reboiler duty of a tray column meeting purity/recovery specs, solved as one NLP (IDAES + ipopt), with a
     property package generated from chemicals/thermo. spec = {"stream": "distillate"|"bottoms", "component": name,
     "kind": "mole_fraction"|"recovery", "min": value}.
@@ -368,7 +378,9 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     activity_model="NRTL" (M15): γ from NRTL with binary parameters from ONE labelled source per pair — the user's
     (binary_parameters=[{"components": [i, j], "b_ij_K", "b_ji_K" | "dg_ij_J_mol", "dg_ji_J_mol" | "dg_ij_cal_mol",
     "dg_ji_cal_mol", optional "a_ij", "a_ji", "alpha", "source"}]), the result dict of vle_binary_regression (passed
-    as is, alone or inside the list), or the ChemSep NRTL databank of thermo; refused if none has the pair."""
+    as is, alone or inside the list), or the ChemSep NRTL databank of thermo; refused if none has the pair.
+    excess_enthalpy (NRTL only, M15b): True adds NRTL's h^E (Gibbs-Helmholtz, same parameters) to the liquid enthalpy;
+    False keeps Σ x·h_i. Its weight in the duty is reported in properties.excess_enthalpy either way."""
     from packages.eo import ideal_properties as IP
     _validate(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays, feed_tray, pressure_Pa,
               specs, property_package)
@@ -384,7 +396,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     feed = {"flow_mol_s": feed_flow_mol_s, "T_K": feed_T_K, "P_Pa": feed_P_Pa, "z": dict(feed_mole_fractions)}
     if activity_model == "NRTL":
         return _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, reflux_ratio_bounds,
-                        boilup_ratio_bounds, evidence, binary_parameters, t_sat, t0)
+                        boilup_ratio_bounds, evidence, binary_parameters, t_sat, t0, excess_enthalpy)
     ideality = IP.ideality_check(components, pressure_Pa)
     if not ideality["ideal"]:
         raise ValueError("mezcla no ideal: con activity_model='ideal' solo se resuelve VLE ideal (Raoult + gas ideal). "
@@ -436,7 +448,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
 
 
 def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds, br_bounds, evidence,
-             binary_parameters, t_sat, t0) -> dict:
+             binary_parameters, t_sat, t0, excess_enthalpy=True) -> dict:
     """activity_model='NRTL' path (M15): screening → generated package with NRTL liquid → same NLP and evidence."""
     from packages.eo import ideal_properties as IP
     from packages.eo import nrtl_properties as NP
@@ -453,8 +465,14 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
         raise ValueError("especificaciones inalcanzables por destilación simple: " + "; ".join(areasons) +
                          ". Cambia las especificaciones al lado del azeótropo de la alimentación, o usa destilación "
                          "azeotrópica/extractiva o por cambio de presión en DWSIM.")
+    from packages.eo import shortcut as SC
+    shortcut = SC.binary_shortcut(params, pressure_Pa, feed, specs, n_trays, feed_tray, tuple(rr_bounds),
+                                  tuple(br_bounds), azeos)
+    if shortcut and shortcut["refusals"]:
+        raise ValueError("especificaciones inalcanzables con esta columna: " + "; ".join(shortcut["refusals"]))
     cross = NP.unifac_cross_check(params, pressure_Pa)
-    cfg, prov = NP.build_configuration(components, pressure_Pa, params, extra_T=[feed["T_K"]])
+    cfg, prov = NP.build_configuration(components, pressure_Pa, params, extra_T=[feed["T_K"]],
+                                       excess_enthalpy=excess_enthalpy)
     lo, hi = min(t_sat.values()), max(t_sat.values())
     grid_T = [lo + f * (hi - lo) for f in (0.0, 1 / 3, 2 / 3, 1.0)]
     pcheck = IP.property_check(cfg, components, grid_T)
@@ -462,15 +480,52 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
     bounds = {"reflux_ratio": tuple(rr_bounds), "boilup_ratio": tuple(br_bounds)}
     solver = _solver()
     m, start = _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, params=params,
-                              extra_starts=_spec_start_points(feed, specs))
-    ok, term, duals, eps = _optimise_tightening(m, specs, bounds, solver)
+                              extra_starts=_spec_start_points(feed, specs),
+                              homotopy_starts=shortcut["starts"] if shortcut else ())
+    snap_start = _snapshot(m)
+    ok, term, duals, eps = False, "sin intentar", {}, [0.01, 0.0005]
+    if len(specs) == 2:
+        two = _solve_two_specs(m, specs, feed, bounds, solver)
+        start["spec_continuation"] = two["info"]
+        ok, term, duals, eps = two["ok"], two["termination"], two["duals"], two["eps"]
+    square_route = ok
+    duals_source = start.get("spec_continuation", {}).get("duals_source") if ok else None
+    fd_duals = bool(duals_source and duals_source.startswith("sensibilidades"))
+    duals_source = duals_source or "multiplicadores de ipopt"
     if not ok:
+        # M15 route (the NLP straight from the start): 1 or 3+ specs, or the square route gave up
+        _restore(snap_start)
+        _set_smooth_eps(m, (0.01, 0.0005))
+        m.fs.unit.condenser.reflux_ratio.fix(start["reflux_ratio"])
+        m.fs.unit.reboiler.boilup_ratio.fix(start["boilup_ratio"])
+        if len(specs) == 2:
+            start["spec_continuation"]["fell_back_to_nlp_because"] = term
+        ok, term, duals, eps = _optimise_tightening(m, specs, bounds, solver)
+    if not ok:
+        hint = ""
+        if shortcut and shortcut.get("R_needed_CMO") is not None:
+            hint = (f" McCabe-Thiele (flujo molar constante) con estos parámetros estima que SÍ son alcanzables: "
+                    f"R_min ≈ {shortcut['R_min_CMO']:.3f}, reflujo necesario con estos platos ≈ "
+                    f"{shortcut['R_needed_CMO']:.3f}, N_min = {shortcut['N_min_total_reflux']}; el fallo es del "
+                    "arranque numérico, no de la física: verifica en DWSIM o cambia platos/plato de alimentación")
         raise RuntimeError(f"ipopt no encontró un óptimo ({term}): las especificaciones pueden ser inalcanzables con "
-                           f"{n_trays} platos dentro de los límites de reflujo/boil-up {bounds}")
+                           f"{n_trays} platos dentro de los límites de reflujo/boil-up {bounds}.{hint}")
     start["smooth_eps_K"] = eps
     opt = _state(m)
     bal = component_balance(m)
     phantom = phantom_vapour(m)
+    if any(abs(v) > BALANCE_TOL for v in bal.values()) or phantom > PHANTOM_VF_TOL:
+        # M15b: never return numbers the seal cannot back. Near an azeotrope / pinch SmoothVLE's smoothing leaves vapour
+        # in saturated liquids (≈ (eps/2)/(Tdew − Tbub)) and the total condenser drops it from the balance.
+        gap = shortcut.get("dT_dew_bubble_distillate_K") if shortcut else None
+        raise RuntimeError(
+            f"la columna converge pero no se puede sellar: vapor ficticio {phantom:.2%} (tolerancia "
+            f"{PHANTOM_VF_TOL:.1%}) y balance por componente {max(abs(v) for v in bal.values()):.1e} (tolerancia "
+            f"{BALANCE_TOL:g}) con el suavizado de SmoothVLE en eps = {eps[0]:g} K" +
+            (f"; el destilado pedido tiene T_rocío − T_burbuja = {gap:.3f} K" if gap is not None else "") +
+            ". Pasa junto a un azeótropo o un pellizco: la formulación de equilibrio suavizado de esta tool no da "
+            "duties ni composiciones confiables ahí. Relaja la pureza, o resuelve la columna en DWSIM "
+            "(optimize_design_multi)")
     bub = NP.thermo_bubble_points(params, pressure_Pa, {s_: opt[s_]["mole_fractions"] for s_ in STREAMS})
     for s_ in STREAMS:
         bub["points"][s_]["T_idaes_K"] = opt[s_]["T_K"]
@@ -490,15 +545,19 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
                           "nrtl_check": gcheck, "binary_parameters": params["pairs"],
                           "screening": {"B_P_over_RT_at_Tsat": virial, "max_B_P_RT": IP.MAX_B_P_RT,
                                         "azeotropes_with_these_parameters": azeos, "unifac_cross_check": cross},
-                          "thermo_bubble_check": bub},
+                          "thermo_bubble_check": bub,
+                          "excess_enthalpy": NP.excess_enthalpy_report(params, pressure_Pa, feed, opt, excess_enthalpy)},
+           "shortcut": shortcut,
            "warnings": warnings,
            "engine": "IDAES TrayColumn (modular generic properties, fase líquida NRTL propia) + ipopt (idaes-ext)",
            "assumptions": [
                "Líquido NRTL (Raoult modificado, sin factor de Poynting) y vapor gas ideal (|B·P/RT| ≤ "
                f"{IP.MAX_B_P_RT}, Tsonopoulos sin términos polares; no capta la asociación en el vapor de ácidos "
                "carboxílicos). Parámetros binarios: una fuente etiquetada por par (properties.binary_parameters).",
-               "Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros; la calidad de h^E "
-               "depende de la dependencia en T de los parámetros (tau = a + b/T).",
+               ("Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros (Gibbs-Helmholtz); "
+                "h^E no es un dato calorimétrico: con parámetros ajustados solo a VLE es una extrapolación del modelo "
+                "(su peso en Q_reb está en properties.excess_enthalpy)." if excess_enthalpy else
+                "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E (excess_enthalpy=False, pedido por el usuario)."),
                "Paquete puro generado de chemicals/thermo (fuentes en properties.provenance.sources), igual que M8b.",
                "Azeótropos buscados solo en pares binarios con estos parámetros; con 3+ compuestos y un azeótropo "
                "binario la tool se niega (no evalúa fronteras de destilación). UNIFAC Dortmund solo como comparación.",
@@ -507,7 +566,11 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
                "solver, no datos del usuario)."]}
     if evidence:
         ev = _evidence(m, cfg, opt, duals, specs, bounds, solver, n_trays, feed_tray, feed, pressure_Pa, pcheck,
-                       prov["temperature_window_K"])
+                       prov["temperature_window_K"], square_fd=square_route,
+                       # multipliers taken from finite differences at DELTA_SPEC are re-checked with other steps
+                       fd_deltas=(DELTA_SPEC / 4, DELTA_SPEC * 4) if fd_duals else (DELTA_SPEC, DELTA_SPEC / 4,
+                                                                                     DELTA_SPEC * 4))
+        ev["duals_source"] = duals_source
         ev["nrtl_verified"] = gcheck["verified"]
         ev["thermo_bubble_points_match"] = bub["verified"]
         ev["component_balance_rel"] = bal
@@ -617,6 +680,174 @@ def _continue_feed_T(m, T_target: float, solver, max_steps: int = 200) -> bool:
     return abs(T_target - T) <= 1e-9
 
 
+def _continue_scalar(m, solver, setter, start: float, target: float, min_step: float = 1e-3) -> float:
+    """Homotopy on one scalar (setter(value) changes the model): tries the whole way first, halves the step on a
+    failed square solve (restoring the last converged point) and doubles it on success. Returns the value reached."""
+    lam, step, snap = 0.0, 1.0, _snapshot(m)
+    while lam < 1.0:
+        nxt = min(1.0, lam + step)
+        setter(start + nxt * (target - start))
+        if _square(m, solver):
+            lam, snap, step = nxt, _snapshot(m), step * 2.0
+        else:
+            _restore(snap)
+            step *= 0.5
+            if step < min_step:
+                setter(start + lam * (target - start))
+                break
+    return start + lam * (target - start)
+
+
+def _spec_equalities(m, specs: list[dict], values: list[float]) -> None:
+    """The specs as EQUALITIES with mutable targets, reflux and boil-up free: a square system when there are two specs."""
+    from pyomo.environ import Constraint, Param
+    u = m.fs.unit
+    _drop_spec_equalities(m)
+    for name in ("specs", "obj"):
+        if hasattr(m, name):
+            getattr(m, name).deactivate()
+    m.spec_target = Param(range(len(specs)), mutable=True, initialize=dict(enumerate(values)))
+    m.spec_eq = Constraint(range(len(specs)), rule=lambda mm, i: _spec_expr(mm, specs[i]) == mm.spec_target[i])
+    u.condenser.reflux_ratio.unfix()
+    u.reboiler.boilup_ratio.unfix()
+
+
+def _drop_spec_equalities(m, reactivate: bool = True) -> None:
+    for name in ("spec_eq", "spec_target"):
+        if hasattr(m, name):
+            m.del_component(name)
+    if reactivate:
+        for name in ("specs", "obj"):
+            if hasattr(m, name):
+                getattr(m, name).activate()
+
+
+def _continue_specs(m, specs: list[dict], feed: dict, bounds: dict, solver) -> dict:
+    """M15b start-up for two specs: from the converged square start (whatever RR/BR the IDAES initialisation accepted)
+    the two spec values are moved, as equalities, from what that point gives to the requested minima. Every step is a
+    square solve (Newton on a well-posed system) with step halving, instead of asking the NLP to cross the column from
+    an infeasible point; the NLP then only polishes (and frees a spec that is not active at the optimum).
+    Leaves the model at the point where both specs hold with equality, RR/BR fixed there. Returns what happened."""
+    from pyomo.environ import value
+    u = m.fs.unit
+    snap0 = _snapshot(m)
+    rr0, br0 = value(u.condenser.reflux_ratio), value(u.reboiler.boilup_ratio)
+    st0 = _state(m)
+    v0 = [_spec_value(st0, feed, sp) for sp in specs]
+    v1 = [float(sp["min"]) for sp in specs]
+    _spec_equalities(m, specs, v0)
+
+    def setter(lam):
+        for i in range(len(specs)):
+            m.spec_target[i].set_value(v0[i] + lam * (v1[i] - v0[i]))
+    ok = _square(m, solver)
+    lam = _continue_scalar(m, solver, setter, 0.0, 1.0, min_step=SPEC_CONTINUATION_MIN_STEP) if ok else 0.0
+    rr, br = value(u.condenser.reflux_ratio), value(u.reboiler.boilup_ratio)
+    _drop_spec_equalities(m)
+    inside = (bounds["reflux_ratio"][0] <= rr <= bounds["reflux_ratio"][1] and
+              bounds["boilup_ratio"][0] <= br <= bounds["boilup_ratio"][1])
+    info = {"from_spec_values": v0, "to_spec_values": v1, "fraction_reached": lam, "reflux_ratio": rr,
+            "boilup_ratio": br, "inside_bounds": inside}
+    if not (ok and lam >= 1.0 and inside):
+        _restore(snap0)
+        u.condenser.reflux_ratio.fix(rr0)
+        u.reboiler.boilup_ratio.fix(br0)
+        info["used"] = False
+        return info
+    u.condenser.reflux_ratio.fix(rr)
+    u.reboiler.boilup_ratio.fix(br)
+    info["used"] = True
+    return info
+
+
+def _square_at_specs(m, specs: list[dict], solver, targets: list[float] | None = None, reactivate: bool = True) -> bool:
+    """Square solve with the specs held as equalities at `targets` (default: their minima); restores the point on
+    failure."""
+    snap = _snapshot(m)
+    _spec_equalities(m, specs, targets if targets is not None else [float(sp["min"]) for sp in specs])
+    ok = _square(m, solver)
+    _drop_spec_equalities(m, reactivate)
+    if not ok:
+        _restore(snap)
+    return ok
+
+
+def _fd_duals_square(m, specs: list[dict], solver, delta: float = DELTA_SPEC) -> dict | None:
+    """d(Q_reb, MW)/d(spec_i) by tightening one spec at a time on the square system (both specs active). With two
+    active specs and two degrees of freedom these sensitivities ARE the Lagrange multipliers; both ≥ 0 ⇔ KKT point,
+    and the critical cone is {0} (no free direction), so it is a strict local minimum."""
+    from pyomo.environ import value
+    u = m.fs.unit
+    at = _snapshot(m)
+    q0 = value(u.reboiler.heat_duty[0])
+    mins = [float(sp["min"]) for sp in specs]
+    out = {}
+    for i, sp in enumerate(specs):
+        t = list(mins)
+        t[i] += delta
+        ok = _square_at_specs(m, specs, solver, t, reactivate=False)
+        if not ok:
+            _restore(at)
+            return None
+        out[_spec_key(sp)] = (value(u.reboiler.heat_duty[0]) - q0) * 1e-6 / delta
+        _restore(at)
+    return out
+
+
+def _solve_two_specs(m, specs: list[dict], feed: dict, bounds: dict, solver) -> dict:
+    """M15b route for exactly two specs (a square system in RR and BR). The minimum-duty optimum of a column with a
+    fixed number of trays sits next to minimum reflux, where ipopt's NLP is fragile (restoration failures from points a
+    square Newton solve handles): so the NLP is not needed to GET there.
+    1. _continue_specs: the spec values go, as equalities, from the converged start to the requested minima.
+    2. SmoothVLE's eps goes down SMOOTH_EPS_STEPS on the square system, and on through SMOOTH_EPS_EXTRA only while the
+       balance / phantom-vapour seal fails.
+    3. Multipliers: ipopt's, from one NLP warm-started at that point (it also frees a spec that is not active at the
+       optimum). If that NLP fails, the finite-difference sensitivities of the square system are the multipliers
+       (see _fd_duals_square); a negative one means the active set is wrong → the route gives up (caller falls back).
+    Returns {"ok", "termination", "duals", "eps", "info"}; on ok the model holds the optimum with m.specs/m.obj built."""
+    from pyomo.environ import value
+    info = _continue_specs(m, specs, feed, bounds, solver)
+    out = {"ok": False, "termination": "la continuación en las specs no llegó", "duals": {}, "eps": [0.01, 0.0005],
+           "info": info}
+    if not info["used"]:
+        return out
+    reached = (0.01, 0.0005)
+    for k, e1 in enumerate(SMOOTH_EPS_STEPS + SMOOTH_EPS_EXTRA):
+        if k >= len(SMOOTH_EPS_STEPS) and _sealed(m):
+            break
+        e = (e1, e1 / 20)
+        _set_smooth_eps(m, e)
+        if _square_at_specs(m, specs, solver):
+            reached = e
+        else:
+            _set_smooth_eps(m, reached)
+            break
+    info["eps_reached_square"] = list(reached)
+    u = m.fs.unit
+    at = _snapshot(m)
+    q_sq = value(u.reboiler.heat_duty[0])
+    ok, term, duals = _optimise(m, specs, bounds, solver)
+    if ok and _sealed(m) and value(u.reboiler.heat_duty[0]) <= q_sq * (1 + 1e-6):
+        info["duals_source"] = "multiplicadores de ipopt (NLP arrancado en la solución del sistema cuadrado)"
+        info["nlp_moved_duty_rel"] = value(u.reboiler.heat_duty[0]) / q_sq - 1
+        return {"ok": True, "termination": term, "duals": duals, "eps": list(reached), "info": info}
+    _restore(at)
+    for v, b in ((u.condenser.reflux_ratio, bounds["reflux_ratio"]), (u.reboiler.boilup_ratio, bounds["boilup_ratio"])):
+        v.unfix()
+        v.setlb(b[0])
+        v.setub(b[1])
+    fd = _fd_duals_square(m, specs, solver)
+    info["nlp_at_final_eps"] = term
+    if fd is None or any(v < -1e-9 for v in fd.values()):
+        info["fd_duals"] = fd
+        out["termination"] = f"NLP en el eps final: {term}; sensibilidades del sistema cuadrado no válidas"
+        return out
+    info["duals_source"] = ("sensibilidades por diferencia finita del sistema cuadrado con las dos specs activas (= "
+                            "multiplicadores; el NLP de ipopt no convergió desde ese punto: " + term + ")")
+    return {"ok": True, "termination": "optimal (sistema cuadrado, specs activas; KKT por sensibilidades ≥ 0)",
+            "duals": {k: max(v, 0.0) for k, v in fd.items()}, "eps": list(reached), "info": info}
+
+
 def _hold_distillate(m, D: float) -> None:
     """Distillate flow (an Expression of the condenser split) held by a constraint; the boil-up ratio is freed."""
     from pyomo.environ import Constraint
@@ -646,7 +877,7 @@ def _spec_start_points(feed: dict, specs: list[dict], rr_list=(2.0, 4.0)) -> lis
 
 
 def _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, first=None, params=None,
-                   extra_starts=()):
+                   extra_starts=(), homotopy_starts=()):
     """Square solve at the first (RR, BR) of the list that converges (the column is a hard NLP from a cold start).
     IDAES's TrayColumn does not start from a subcooled/superheated feed (M8a's package fails too, e.g. benzene-toluene
     at 340-362 K), so on failure the column is started with a two-phase feed and the feed temperature is continued to
@@ -660,23 +891,44 @@ def _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, f
     modes = ("direct", "feed_T_continuation") if params is None else ("two_phase_0.3", "two_phase_0.1", "direct")
     if params is None:
         starts = ((first,) if first else ()) + tuple(extra_starts) + START_POINTS
+        plan = [(s_, mode) for s_ in starts for mode in modes]
     else:       # low boil-up first: what converged on the methanol-water and ethanol-water grids (M15)
         starts = ((first,) if first else ()) + NRTL_START_POINTS + tuple(extra_starts) + START_POINTS
-    for rr, br in starts:
+        plan = [(s_, mode) for s_ in starts for mode in modes]
+        # M15b: after the first M15 attempt, the non-ideality homotopy (ideal liquid → NRTL) at the McCabe-Thiele
+        # starts (a distillate rate the specs imply, away from the azeotrope's pinch) and at the first M15 pair
+        homo = [(s_, "ideal_homotopy") for s_ in tuple(homotopy_starts)[:2] + (starts[0],)]
+        plan = plan[:1] + homo + plan[1:]
+    for (rr, br), mode in plan:
         rr, br = clip(rr, bounds["reflux_ratio"]), clip(br, bounds["boilup_ratio"])
-        for mode in modes:
+        if True:
             f0 = dict(feed)
-            if mode != "direct":
+            if mode == "ideal_homotopy":
+                f0["T_K"] = _feed_two_phase_T(feed, pressure_Pa, comps, None, 0.3)       # Raoult bubble/dew
+            elif mode != "direct":
                 frac = 0.5 if mode == "feed_T_continuation" else float(mode.split("_")[-1])
                 f0["T_K"] = _feed_two_phase_T(feed, pressure_Pa, comps, params, frac)
             m = build_column(n_trays, feed_tray, f0, pressure_Pa, config=cfg)
             m.fs.unit.condenser.reflux_ratio.fix(rr)
             m.fs.unit.reboiler.boilup_ratio.fix(br)
+            if mode == "ideal_homotopy":
+                m.fs.properties.Liq.nrtl_scale.set_value(0.0)
             try:
                 m.fs.unit.initialize(outlvl=idaeslog.CRITICAL)
             except Exception:  # noqa: BLE001
                 pass
             ok = _square(m, solver)
+            if mode == "ideal_homotopy":
+                # λ: 0 → 1 scales every τ (ideal liquid → NRTL) while the feed goes from 30 % vaporised under Raoult
+                # to 30 % vaporised under NRTL, so the vapour traffic of the column stays comparable along the path
+                scale = m.fs.properties.Liq.nrtl_scale
+                T_id, T_nr = f0["T_K"], _feed_two_phase_T(feed, pressure_Pa, comps, params, 0.3)
+
+                def _homotopy(lam, scale=scale, T_id=T_id, T_nr=T_nr, m=m):
+                    scale.set_value(lam)
+                    m.fs.unit.feed.temperature.fix(T_id + lam * (T_nr - T_id))
+                ok = ok and _continue_scalar(m, solver, _homotopy, 0.0, 1.0, min_step=1e-3) >= 1.0
+                scale.set_value(1.0)
             if ok and mode != "direct":
                 if params is not None:
                     # NRTL path: hold the distillate flow and free the boil-up while the feed is cooled (a subcooled
@@ -705,7 +957,8 @@ def _meets(state: dict, feed: dict, specs: list[dict]) -> bool:
     return all(_spec_value(state, feed, sp) >= sp["min"] - SPEC_TOL for sp in specs)
 
 
-def _evidence(m, cfg, opt, duals, specs, bounds, solver, n_trays, feed_tray, feed, pressure_Pa, pcheck, window) -> dict:
+def _evidence(m, cfg, opt, duals, specs, bounds, solver, n_trays, feed_tray, feed, pressure_Pa, pcheck, window,
+              square_fd: bool = False, fd_deltas: tuple = (DELTA_SPEC, DELTA_SPEC / 4, DELTA_SPEC * 4)) -> dict:
     from pyomo.environ import check_optimal_termination, value
     reasons = []
     specs_met = _meets(opt, feed, specs)
@@ -758,14 +1011,20 @@ def _evidence(m, cfg, opt, duals, specs, bounds, solver, n_trays, feed_tray, fee
             dual_checks[key] = {"active": False}
             continue
         ok, fd, used = False, float("nan"), None
-        for delta in (DELTA_SPEC, DELTA_SPEC / 4, DELTA_SPEC * 4):   # a failed re-optimisation retries another step
+        for delta in fd_deltas:   # a failed re-optimisation retries another step
             tight = [dict(s2) for s2 in specs]
             tight[i]["min"] = sp["min"] + delta
             _restore(at_opt)
             u.condenser.reflux_ratio.fix(rr0)
             u.reboiler.boilup_ratio.fix(br0)
             try:
-                ok, _, _ = _optimise(m, tight, bounds, solver)
+                if square_fd and all(v > 1e-6 for v in duals.values()):
+                    # M15b: both specs active → the tightened optimum is the square solution at the tightened spec
+                    for v_ in (u.condenser.reflux_ratio, u.reboiler.boilup_ratio):
+                        v_.unfix()
+                    ok = _square_at_specs(m, tight, solver, reactivate=False)
+                else:
+                    ok, _, _ = _optimise(m, tight, bounds, solver)
             except (ValueError, RuntimeError):
                 ok = False
             if ok:

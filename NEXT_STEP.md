@@ -1,8 +1,26 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M15 cerrados: columna EO con NRTL para mezclas no ideales)
+Actualizado: 2026-11-13 (M1-M15b cerrados: etanol-agua en la columna EO con NRTL)
 
 ## Dónde estamos
+**Bloque M15b (2026-11-13): etanol-agua cerrado en `eo_column_optimize` con NRTL, 69 tools (misma tool), ✅.**
+- El Q_reb +6.5 % vs DWSIM no era nuestro: DWSIM 10.2.12 suma −R·T²·Σx·∂γ/∂T como «exceso» (debería ser ∂ln γ/∂T). Cierre término a término: 54.55 de 54.58 kW.
+- Igual con igual (`excess_enthalpy=False` vs DWSIM «ExpData»): etanol-agua Q_reb +0.20 %, Q_cond +0.09 %; metanol-agua −0.49 %, −0.72 %.
+- Arranque: continuación de las dos specs sobre el sistema cuadrado + homotopía de no idealidad + ε hasta que selle. Verificados 15 platos x_D 0.70 y 20 platos x_D 0.75/0.80/0.82 (34-87 s).
+- McCabe-Thiele propio (`packages/eo/shortcut.py`) rechaza antes del NLP: sin etapas ni a reflujo total, reflujo máximo insuficiente, o producto a < 0.03 K del azeótropo.
+- Metanol-agua de M15 sin cambios (RR 4.4911, Q_reb 1497.6 kW).
+
+Pendiente (decisiones del owner marcadas):
+1. **Owner**: h^E de etanol-agua pesa −3.8 % en Q_reb y viene de parámetros de VLE. ¿Se deja por defecto (consistente con Gibbs-Helmholtz) o se busca h^E calorimétrico publicado y parámetros con dependencia en T?
+2. **Owner**: ¿reportar a DWSIM la fórmula del término de exceso?
+3. x_D +0.9 a +1.1 % vs DWSIM en etanol-agua: atribuido a la Psat de DWSIM (T_D +0.30 K), sin auditar.
+4. `simulate_column_nrtl` (RR y D fijos) sigue frágil en etanol-agua; con 1 o 3+ specs y en multicomponentes la ruta es el NLP de M15.
+5. Destilado más allá de x 0.82 en etanol-agua: hace falta otra formulación de equilibrio (complementariedad en vez de SmoothVLE).
+6. Medir el efecto de ε en la ruta ideal (M8b) y decidir si se le aplica la continuación (**owner**; no se midió en M15b).
+7. Una columna no ideal publicada que imprima sus parámetros NRTL; UNIQUAC/Wilson; vapor no ideal; fronteras con 3+ compuestos.
+
+Siguiente: **decisión del owner** (pendientes 1-7 o pasar a otro tema: layout, 3D, árbol de fallas, BST).
+
 **Bloque M15 (2026-11-13): `eo_column_optimize` con NRTL, 69 tools (misma tool), ✅ con dos desviaciones declaradas.**
 - `activity_model="NRTL"` + `binary_parameters` (usuario > resultado de `vle_binary_regression` > banco ChemSep de thermo; nunca por defecto). Rechaza pares sin parámetros, specs del otro lado de un azeótropo, 3+ compuestos con azeótropo y vapor con |B·P/RT| > 0.10.
 - Caso publicado Simone 2015 (metanol-agua, Aspen/gPROMS): T a ≤ 0.4 K, Q_cond +0.2 %, metanol arriba −0.5 %, Q_reb −1.4 % (Aspen y gPROMS difieren 1.3 % entre sí).
@@ -10,14 +28,12 @@ Actualizado: 2026-11-13 (M1-M15 cerrados: columna EO con NRTL para mezclas no id
 - Hallazgo: el ε de SmoothVLE (0.01 K) mete vapor ficticio en líquidos saturados; en la ruta NRTL se continúa a 1e-4 K y el sello lo comprueba.
 - Cadena regresión → columna verificada en etanol-agua (Kamihama 2012, 20 platos, x_D 0.70).
 
-Pendiente:
+Pendiente al cerrar M15 (1 y 2 cerrados en M15b):
 1. Etanol-agua de la cadena vs DWSIM: Q_reb +6.5 % (composiciones ≤ 0.86 %, Q_cond +0.88 %); causa no identificada (reflujo bajo: Q_reb lo domina el calor sensible/de mezcla de la alimentación subenfriada). Comparar h de la alimentación y de los fondos entre los dos motores.
 2. Robustez del arranque en columnas acuosas: etanol-agua 15 platos con x_D 0.70-0.75 no converge; junto al azeótropo (x_D 0.80) el pellizco deja vapor ficticio y no hay sello. Probar inicialización por perfil (T y x lineales) o otra formulación de equilibrio.
 3. Medir el mismo efecto de ε en la ruta ideal (M8b) y decidir si se le aplica la continuación (cambia sus números de referencia; decisión del owner).
 4. Una columna no ideal publicada que imprima sus parámetros NRTL (la de Simone 2015 no los trae).
 5. UNIQUAC/Wilson en la columna EO; vapor no ideal (Hayden-O'Connell, asociación); fronteras de destilación con 3+ compuestos.
-
-Siguiente: **decisión del owner** (pendientes 1-5 o pasar a otro tema: layout, 3D, árbol de fallas, BST).
 
 **Bloque M14 (2026-11-13): regresión de parámetros binarios desde datos VLE, 69 tools, ✅ en su núcleo.** Paquete `packages/vle/` y tool `vle_binary_regression`:
 - NRTL (α fijo o ajustado), UNIQUAC (r, q de grupos UNIFAC) y Wilson (V de thermo) desde Pxy, Txy o PTxy, uno o varios conjuntos.

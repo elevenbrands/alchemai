@@ -1,5 +1,8 @@
 """M15: equation-oriented column with an NRTL liquid (packages/eo/nrtl_properties.py).
 
+M15b: McCabe-Thiele feasibility and refusals, the excess-enthalpy switch, DWSIM's excess term, and (slow) the
+ethanol-water columns M15 left open plus the like-for-like DWSIM comparison.
+
 Fast tests: parameter plumbing (user > vle_binary_regression > ChemSep bank, one labelled source per pair), refusal
 without parameters, azeotrope and ideal-vapour refusals, the IDAES NRTL expressions vs thermo.nrtl.NRTL, the ideal path
 unchanged. Slow tests (ALCHEMAI_SLOW_EO_NRTL=1): the published methanol-water column of Simone (TU Wien 2015, Tables
@@ -177,6 +180,130 @@ def test_tool_signature_exposes_the_activity_model():
     assert "vle_binary_regression" in TO.eo_column_optimize.__doc__
 
 
+# ------------------------------------------------------------------------------------------------ M15b (fast)
+EW_SPECS = lambda xd: [{"stream": "distillate", "component": "ethanol", "kind": "mole_fraction", "min": xd},  # noqa: E731
+                       {"stream": "bottoms", "component": "water", "kind": "mole_fraction", "min": 0.995}]
+EW_Z = {"ethanol": 0.1, "water": 0.9}
+
+
+def _ew_shortcut(xd, n, f, T=359.124, rr=(0.1, 20.0)):
+    from packages.eo import shortcut as SC
+    p = NP.resolve_parameters(["ethanol", "water"], _ew_regression())
+    az = NP.binary_azeotropes(p, 101325.0)
+    return SC.binary_shortcut(p, 101325.0, {"z": EW_Z, "T_K": T}, EW_SPECS(xd), n, f, rr, (0.1, 20.0), az)
+
+
+def test_mccabe_thiele_says_the_m15_open_cases_are_feasible():
+    """The four ethanol-water spec sets M15 could not close are physically reachable (same NRTL, own code): what
+    failed was the start-up. R_needed (constant molar overflow) sits 1-5 % under the rigorous optimum of notebook 26."""
+    for xd, n, f, T, rr_opt in ((0.70, 20, 14, 350.0, 0.7008), (0.70, 15, 10, 359.124, 0.7482),
+                                (0.75, 20, 14, 359.124, 0.8948), (0.80, 20, 14, 359.124, 1.5585)):
+        s = _ew_shortcut(xd, n, f, T)
+        assert not s["refusals"], s["refusals"]
+        assert s["N_min_total_reflux"] <= n + 1
+        assert s["R_min_CMO"] <= s["R_needed_CMO"] <= rr_opt
+        assert s["R_needed_CMO"] == pytest.approx(rr_opt, rel=0.06)
+        assert s["starts"] and all(0.1 <= br <= 20 for _, br in s["starts"])
+    s = _ew_shortcut(0.70, 20, 14, 350.0)
+    assert s["light"] == "ethanol" and s["feed"]["state"] == "líquido subenfriado" and s["feed"]["q"] > 1.0
+    assert s["D_over_F"] == pytest.approx((0.1 - 0.005) / (0.70 - 0.005))
+
+
+def test_spec_pairs_follow_the_component_balance():
+    from packages.eo import shortcut as SC
+    z = {"methanol": 0.03, "water": 0.97}
+    pair = SC.spec_pair(z, MW_SPECS, "methanol", "water")           # purity + recovery in the distillate
+    dF = 0.902 * 0.03 / 0.9168
+    assert pair["D_over_F"] == pytest.approx(dF) and pair["x_B"] == pytest.approx(0.03 * (1 - 0.902) / (1 - dF))
+    both = [{"stream": "distillate", "component": "methanol", "kind": "recovery", "min": 0.9},
+            {"stream": "bottoms", "component": "water", "kind": "recovery", "min": 0.99}]
+    pr = SC.spec_pair(z, both, "methanol", "water")
+    assert pr["x_D"] == pytest.approx(0.9 * 0.03 / (0.9 * 0.03 + 0.01 * 0.97))
+    assert SC.spec_pair(z, MW_SPECS[:1], "methanol", "water") is None            # one spec: no pair, nothing refused
+    bad = SC.spec_pair(z, [{"stream": "distillate", "component": "methanol", "kind": "mole_fraction", "min": 0.02},
+                           {"stream": "bottoms", "component": "water", "kind": "mole_fraction", "min": 0.99}],
+                       "methanol", "water")
+    assert bad["consistent"] is False
+
+
+def test_unreachable_columns_are_refused_in_spanish_before_the_nlp():
+    reg = _ew_regression()
+    kw = dict(activity_model="NRTL", binary_parameters=reg)
+    with pytest.raises(ValueError, match="ni a reflujo total") as e1:        # 4 trays + reboiler < N_min = 7
+        C.eo_column_optimize(["ethanol", "water"], 100.0, 359.124, 101325.0, EW_Z, 4, 3, 101325.0, EW_SPECS(0.80), **kw)
+    assert "hacen falta 7 etapas" in str(e1.value)
+    with pytest.raises(ValueError, match="T_rocío − T_burbuja") as e2:       # next to the azeotrope: cannot be sealed
+        C.eo_column_optimize(["ethanol", "water"], 100.0, 359.124, 101325.0, EW_Z, 20, 14, 101325.0, EW_SPECS(0.85), **kw)
+    assert "azeótropo predicho" in str(e2.value) and "DWSIM" in str(e2.value) and "0.82" in str(e2.value)
+    with pytest.raises(ValueError, match="reflujo máximo"):                  # reflux bound far under what the trays need
+        C.eo_column_optimize(["ethanol", "water"], 100.0, 359.124, 101325.0, EW_Z, 20, 14, 101325.0, EW_SPECS(0.80),
+                             reflux_ratio_bounds=(0.1, 1.0), **kw)
+    # the measured limit: 0.030 K seals (x_D 0.82), 0.021 K does not (0.83)
+    assert _ew_shortcut(0.82, 20, 14)["dT_dew_bubble_distillate_K"] > 0.03 > _ew_shortcut(0.83, 20, 14)["dT_dew_bubble_distillate_K"]
+    assert not _ew_shortcut(0.82, 20, 14)["refusals"] and _ew_shortcut(0.83, 20, 14)["refusals"]
+
+
+def test_excess_enthalpy_switch_and_homotopy_scale():
+    """excess_enthalpy=False removes exactly h^E from the liquid enthalpy; nrtl_scale = 0 is the ideal liquid."""
+    from pyomo.environ import ConcreteModel, value, units as pyunits
+    from idaes.core import FlowsheetBlock
+    from idaes.models.properties.modular_properties.base.generic_property import GenericParameterBlock
+    names = ["ethanol", "water"]
+    p = NP.resolve_parameters(names)
+    h = {}
+    for flag in (True, False):
+        cfg, prov = NP.build_configuration(names, 101325.0, p, extra_T=[350.0], excess_enthalpy=flag)
+        assert ("sin h^E" in prov["liquid_model"]["excess_enthalpy"]) is (not flag)
+        m = ConcreteModel()
+        m.fs = FlowsheetBlock(dynamic=False)
+        m.fs.p = GenericParameterBlock(**cfg)
+        m.fs.sb = m.fs.p.build_state_block([0], defined_state=True)
+        s = m.fs.sb[0]
+        s.temperature.set_value(350.0)
+        s.mole_frac_phase_comp["Liq", "ethanol"].set_value(0.1)
+        s.mole_frac_phase_comp["Liq", "water"].set_value(0.9)
+        h[flag] = value(pyunits.convert(s.enth_mol_phase["Liq"], pyunits.J / pyunits.mol))
+        if flag:
+            m.fs.p.Liq.nrtl_scale.set_value(0.0)
+            assert value(s.enth_mol_phase["Liq"]) == pytest.approx(
+                value(pyunits.convert(s.enth_mol_phase["Liq"], pyunits.J / pyunits.mol)))
+            h["ideal"] = value(pyunits.convert(s.enth_mol_phase["Liq"], pyunits.J / pyunits.mol))
+            assert value(NP._ln_gamma_expr(p, names, {"ethanol": 0.1, "water": 0.9}, s.temperature, "ethanol",
+                                           m.fs.p.Liq.nrtl_scale)) == pytest.approx(0.0, abs=1e-14)
+    he = NP.excess_enthalpy_numeric(p, 350.0, [0.1, 0.9])
+    assert he == pytest.approx(float(NP.thermo_nrtl(p, 350.0, [0.1, 0.9]).HE()), rel=1e-6)
+    assert h[True] - h[False] == pytest.approx(he, rel=1e-5)
+    assert h["ideal"] == pytest.approx(h[False], rel=1e-12)
+    import inspect
+    from packages.dwsim_client import tools as T  # noqa: F401
+    from packages.dwsim_client import tools_optimize as TO
+    assert inspect.signature(TO.eo_column_optimize).parameters["excess_enthalpy"].default is True
+
+
+def test_dwsim_excess_term_is_the_derivative_of_gamma_not_gibbs_helmholtz():
+    """DWSIM 10.2.12: h(LiqCp_Excess) − h(ExpData) of a liquid stream = −R·T²·Σ x·∂γ/∂T, 2.8× the Gibbs-Helmholtz h^E
+    of the same NRTL parameters at 10 % ethanol in water. This is why an NRTL column with h^E is compared with DWSIM
+    in its «ExpData» mode and excess_enthalpy=False (notebook 26)."""
+    try:
+        from packages.dwsim_client import tools as T  # noqa: F401
+    except Exception as ex:  # noqa: BLE001
+        pytest.skip(f"DWSIM not available: {ex}")
+    from packages.eo import dwsim_nrtl as DN
+    p = NP.resolve_parameters(["ethanol", "water"], _ew_regression())
+    names = {"ethanol": "Ethanol", "water": "Water"}
+    states = {"feed": (350.0, {"Ethanol": 0.10, "Water": 0.90}), "mid": (352.0, {"Ethanol": 0.50, "Water": 0.50}),
+              "bottoms": (371.68, {"Ethanol": 0.005, "Water": 0.995})}
+    h = {mode: DN.liquid_enthalpies(["Ethanol", "Water"], states, p, names, mode) for mode in ("LiqCp_Excess", "ExpData")}
+    for k_, (T_, x) in states.items():
+        xs = [x["Ethanol"], x["Water"]]
+        assert h["ExpData"][k_]["vapor_fraction"] == pytest.approx(0.0, abs=1e-9)
+        dw = h["LiqCp_Excess"][k_]["h_J_mol"] - h["ExpData"][k_]["h_J_mol"]
+        assert dw == pytest.approx(DN.dwsim_excess_term(p, T_, xs), rel=2e-3)
+        assert dw > 1.4 * NP.excess_enthalpy_numeric(p, T_, xs)
+    assert (h["LiqCp_Excess"]["feed"]["h_J_mol"] - h["ExpData"]["feed"]["h_J_mol"]) / NP.excess_enthalpy_numeric(
+        p, 350.0, [0.1, 0.9]) == pytest.approx(2.79, abs=0.03)
+
+
 # ------------------------------------------------------------------------------------------------ slow: reference + DWSIM
 @slow
 def test_reproduces_the_published_methanol_water_column():
@@ -234,10 +361,8 @@ def test_nrtl_optimum_matches_dwsim_with_the_same_parameters():
 @slow
 def test_regression_chains_into_the_column():
     """vle_binary_regression (Kamihama 2012, 101.3 kPa) → eo_column_optimize: the pair is labelled as regressed and
-    the optimum is verified; ethanol below the azeotrope. x_D 0.70, not 0.80: at 0.80 the top trays sit in the
-    azeotrope's pinch (Tdew − Tbub ≈ 0.01 K) and SmoothVLE leaves 0.14 % phantom vapour at eps 1e-4 K, so the tool
-    (correctly) withholds the seal there. 20 trays / feed on 14: with 15 trays the start-up does not converge at 0.70
-    (open item, NEXT_STEP)."""
+    the optimum is verified; ethanol below the azeotrope. The harder columns M15 left open (15 trays, x_D 0.75 and
+    0.80) are in test_ethanol_water_columns_m15_left_open_converge_and_seal (M15b)."""
     reg = _ew_regression()
     specs = [{"stream": "distillate", "component": "ethanol", "kind": "mole_fraction", "min": 0.70},
              {"stream": "bottoms", "component": "water", "kind": "mole_fraction", "min": 0.995}]
@@ -248,3 +373,58 @@ def test_regression_chains_into_the_column():
     assert ev["verified"], ev["reasons"]
     assert ev["component_balance_closed"] and ev["phantom_vapour_ok"]
     assert any("Psat" in w for w in r["warnings"])
+    # M15 numbers, unchanged by the M15b start-up (spec continuation on the square system, then the NLP)
+    assert r["optimum"]["reflux_ratio"] == pytest.approx(0.70081, rel=1e-4)
+    assert r["reboiler_duty_MW"] == pytest.approx(1.030023, rel=1e-4)
+    assert r["initial_point"]["spec_continuation"]["used"]
+    he = r["properties"]["excess_enthalpy"]
+    assert he["included_in_liquid_enthalpy"] and he["first_order_share_of_reboiler_duty"] == pytest.approx(-0.0313, abs=5e-4)
+
+
+@slow
+@pytest.mark.parametrize("xd, n, f, rr, q_reb_kW", [(0.70, 15, 10, 0.74817, 971.665), (0.75, 20, 14, 0.89482, 979.835),
+                                                    (0.80, 20, 14, 1.55851, 1229.630)])
+def test_ethanol_water_columns_m15_left_open_converge_and_seal(xd, n, f, rr, q_reb_kW):
+    """M15b: bubble-point feed, 10 % ethanol. M15: 15 trays converged without the seal, x_D 0.75 did not converge from
+    any start, x_D 0.80 kept phantom vapour. Now each one starts (non-ideality homotopy when the first start fails),
+    reaches the specs by continuation on the square system and passes the whole seal. Reference values = notebook 26,
+    where DWSIM («ExpData», same parameters, excess_enthalpy=False) agrees within 0.7 % on both duties."""
+    reg = _ew_regression()
+    p = NP.resolve_parameters(["ethanol", "water"], reg)
+    T_bub = C._feed_two_phase_T({"z": EW_Z}, 101325.0, ["ethanol", "water"], p, 0.0)
+    r = C.eo_column_optimize(["ethanol", "water"], 100.0, T_bub, 101325.0, EW_Z, n, f, 101325.0, EW_SPECS(xd),
+                             activity_model="NRTL", binary_parameters=reg)
+    ev = r["evidence"]
+    assert ev["verified"], ev["reasons"]
+    assert ev["component_balance_closed"] and ev["phantom_vapour_ok"] and ev["duals_consistent"]
+    assert r["optimum"]["reflux_ratio"] == pytest.approx(rr, rel=1e-3)
+    assert r["reboiler_duty_MW"] * 1e3 == pytest.approx(q_reb_kW, rel=1e-3)
+    assert r["shortcut"]["R_needed_CMO"] < r["optimum"]["reflux_ratio"]
+    assert all(v > 0 for v in r["duals_MW_per_unit_spec"].values())
+
+
+@slow
+def test_ethanol_water_matches_dwsim_like_for_like():
+    """The M15 residual (Q_reb +6.5 % vs DWSIM «LiqCp_Excess») was DWSIM's excess term (−R·T²·Σ x·∂γ/∂T). With the same
+    enthalpy model on both sides (no excess: excess_enthalpy=False vs «ExpData») the duties agree within 1 %."""
+    try:
+        from packages.dwsim_client import tools as T  # noqa: F401
+    except Exception as ex:  # noqa: BLE001
+        pytest.skip(f"DWSIM not available: {ex}")
+    from packages.eo import dwsim_nrtl as DN
+    reg = _ew_regression()
+    p = NP.resolve_parameters(["ethanol", "water"], reg)
+    r = C.eo_column_optimize(["ethanol", "water"], 100.0, 350.0, 101325.0, EW_Z, 20, 14, 101325.0, EW_SPECS(0.70),
+                             activity_model="NRTL", binary_parameters=reg, excess_enthalpy=False)
+    o = r["optimum"]
+    assert r["evidence"]["verified"], r["evidence"]["reasons"]
+    assert not r["properties"]["excess_enthalpy"]["included_in_liquid_enthalpy"]
+    dw = DN.column(["Ethanol", "Water"], 350.0, 101325.0, {"Ethanol": 10.0, "Water": 90.0}, 22, 15, o["reflux_ratio"],
+                   101325.0, bottoms_mol_s=o["bottoms"]["flow_mol_s"], params=p,
+                   dwsim_names={"ethanol": "Ethanol", "water": "Water"}, poynting=False, enthalpy_mode="ExpData")
+    assert dw["ok"], dw["solver_errors"]
+    # measured 2026-11-13: Q_reb +0.20 %, Q_cond +0.09 %, x_D +1.13 % (pinched column; DWSIM's own Psat: T_D +0.30 K)
+    assert dw["reboiler_duty_kW"] == pytest.approx(r["reboiler_duty_MW"] * 1e3, rel=0.01)
+    assert dw["condenser_duty_kW"] == pytest.approx(-r["condenser_duty_MW"] * 1e3, rel=0.01)
+    assert dw["distillate"]["mole_fractions"]["Ethanol"] == pytest.approx(o["distillate"]["mole_fractions"]["ethanol"], rel=0.015)
+    assert dw["bottoms"]["mole_fractions"]["Water"] == pytest.approx(o["bottoms"]["mole_fractions"]["water"], rel=0.005)
