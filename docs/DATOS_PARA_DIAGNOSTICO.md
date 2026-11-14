@@ -12,7 +12,7 @@ Quién suele tenerlo: **C** jefe de calderas o de servicios · **A** administrac
 
 | Dato | Quién | Para qué | Parámetro |
 |---|---|---|---|
-| Combustible: composición del gas (del proveedor de gas), o análisis elemental y poder calorífico si es líquido o sólido | A / P | Poder calorífico, aire necesario y gases de combustión | `fuel` |
+| Combustible: composición del gas (del proveedor de gas), o análisis elemental y poder calorífico si es líquido o sólido. **Si es gas natural y la planta no tiene el análisis**, se declara (`natural_gas_unknown`) y la composición se ajusta al poder calorífico del recibo (energía y volumen facturados, o el poder calorífico que da el proveedor en `heating_value`); sin eso se usa un gas de referencia publicado (`reference_gas`). En los dos casos el reporte lo marca como supuesto | A / P | Poder calorífico, aire necesario y gases de combustión | `fuel` |
 | Lo que se paga por el combustible: recibos (importe y energía, volumen o masa facturados, y el periodo) o precio por GJ. Con recibo en volumen, las condiciones base del medidor; con energía, si es poder calorífico superior o inferior | A | Costo del vapor y valor de cada ahorro | `fuel_cost` (`price_per_GJ` + `basis`, o `bill` con `amount`, `period` y `energy_GJ` + `basis` / `volume_m3` + `volume_reference` / `mass_kg`) |
 | Lo que se paga por el agua de repuesto: recibos o precio por m³ (con tratamiento, si se quiere cobrar) | A | Costo del agua en el vapor | `water_cost` (`price_per_m3` o `bill` con `amount`, `volume_m3`, `period`) |
 | Presión de operación de la caldera (y la presión atmosférica del sitio, para pasar de manométrica a absoluta) | C | Energía que lleva cada tonelada de vapor; punto de rocío | `boiler.steam_pressure_Pa`, `combustion.site_pressure_Pa` |
@@ -39,6 +39,7 @@ Quién suele tenerlo: **C** jefe de calderas o de servicios · **A** administrac
 | Dato | Quién | Para qué | Si falta | Parámetro |
 |---|---|---|---|---|
 | Electricidad de ventiladores y bombas de la caldera, en kWh por tonelada de vapor | C | Cobrar la electricidad del vapor | El costo del vapor no incluye electricidad y el reporte lo dice | `boiler.auxiliary_power_kWh_per_tonne` |
+| Capacidad nominal de la caldera (placa), para saber a qué carga trabaja | C | Escalar con la carga la pérdida por paredes cuando es un valor publicado, y avisar si la carga es muy baja | La pérdida publicada se toma a plena carga (1.0 %) | `boiler.rated_steam_capacity_kg_s` |
 | Lo que se paga por la electricidad: recibos (importe y kWh) o precio por kWh; o tarifa horaria con el reparto de la energía por periodo, cargo por demanda y factor de carga | A | Valorar esa electricidad | Con consumo eléctrico pero sin precio, la herramienta se niega; se puede nombrar una tarifa publicada de CFE (`reference`) y el reporte la marca como referencia, no contrato | `electricity_cost` (`price_per_kWh`, `bill`, `time_of_use_per_kWh`, `time_of_use_fractions`, `demand_charge_per_kW_month`, `load_factor`), `reference` |
 | Monóxido de carbono medido en la chimenea | C | Pérdida por combustión incompleta | Se toma combustión completa y se dice | `combustion.flue_CO_dry_mole_fraction` |
 | Sobrecalentamiento del vapor, si lo hay | C | Entalpía del vapor | Se toma vapor saturado | `boiler.superheat_K` |

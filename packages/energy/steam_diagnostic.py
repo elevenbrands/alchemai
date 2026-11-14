@@ -19,6 +19,7 @@ from datetime import date
 
 from packages.costing import utilities as U
 from packages.energy import combustion as CB
+from packages.energy import fuel_reference as FR
 
 TOOL_COMB = "combustion_efficiency (M18, método de pérdidas, entalpías NASA)"
 TOOL_COST = "utility_costs (M17, balance de la isla de vapor con IAPWS-95)"
@@ -75,6 +76,10 @@ COMBUSTION_KEYS = ["site_pressure_Pa", "air", "flue_O2", "excess_air_fraction", 
 # labelled as an assumption everywhere. It is never applied silently: the caller must say `setting_loss_unknown: true`.
 # The value is the upper limit of the statement in the source (read 2026-11-14 from the PDF on energy.gov).
 SETTING_LOSS_FLAG = "PÉRDIDA POR PAREDES SUPUESTA, NO MEDIDA"
+# measured by tests/test_steam_diagnostic.py::test_fitted_gas_against_the_reference_gases; change both together
+FUEL_SURROGATE_NOTE = ("Comprobado contra seis gases naturales de referencia con composición completa: el gas equivalente cambia "
+                       "la eficiencia menos de 0.15 puntos (base PCS) y da el CO2 entre 0.9 y 3.2 % más bajo (9 % más bajo "
+                       "en un gas con 7.6 % de CO2), porque no cuenta el CO2 que el gas ya trae.")
 SETTING_LOSS_REFERENCE = {
     "id": "ORNL-TM-2001-263-SHELL-LOSS", "value": 0.010, "basis": "HHV",
     "source": "G. Harrell, Steam System Survey Guide, ORNL/TM-2001/263 (U.S. DOE), mayo 2002, sección 4.2.5 «Shell Loss»",
@@ -89,7 +94,12 @@ SETTING_LOSS_REFERENCE = {
     "sensitivity_step": 0.010,
     "url": "https://www.energy.gov/sites/prod/files/2014/04/f15/steam_survey_guide.pdf", "retrieved": "2026-11-14",
 }
-BOILER_KEYS = ["steam_pressure_Pa", "superheat_K", "blowdown_fraction", "auxiliary_power_kWh_per_tonne"]
+BOILER_KEYS = ["steam_pressure_Pa", "superheat_K", "blowdown_fraction", "auxiliary_power_kWh_per_tonne",
+               "rated_steam_capacity_kg_s"]
+# plausibility limits of the data review (bloque M20). They flag, they never refuse; see MOCKS REVISION-DATOS-M20
+CHECK_EXCESS_AIR_HIGH, CHECK_EXCESS_AIR_LOW, CHECK_BLOWDOWN_HIGH = 1.00, 0.05, 0.10
+CHECK_EFFICIENCY_GAP_POINTS, CHECK_HEATING_VALUE_GAP, CHECK_LOAD_LOW = 5.0, 0.02, 0.25
+PAYBACK_YEARS = (1, 2, 3)
 WATER_KEYS = ["feedwater_heating", "feedwater_T_K", "makeup_water_T_K", "condensate_return_fraction", "condensate_T_K"]
 OPERATION_KEYS = ["hours_per_year", "steam_generated_kg_s", "fuel_consumption", "annual_basis"]
 FUEL_COST_KEYS = ["price_per_GJ", "basis", "bill"]
@@ -117,9 +127,10 @@ def _positive(v, name: str) -> float:
 def _fuel_energy_GJ(q: dict, fuel_out: dict, where: str, suffix: str = "") -> tuple[float, str, str]:
     """Energy of a fuel quantity given as energy (+ basis), gas volume (+ reference conditions) or mass → (GJ, basis, how)."""
     e, v, m = q.get("energy_GJ" + suffix), q.get("volume_m3" + suffix), q.get("mass_kg" + suffix)
-    if sum(x is not None for x in (e, v, m)) != 1:
-        raise ValueError(f"{where}: da exactamente uno de energy_GJ{suffix} (con basis 'HHV'|'LHV'), volume_m3{suffix} (con "
-                         f"volume_reference {{'T_K', 'P_Pa'}}) o mass_kg{suffix}.")
+    if (e is None and v is None and m is None) or (m is not None and (e is not None or v is not None)):
+        raise ValueError(f"{where}: da energy_GJ{suffix} (con basis 'HHV'|'LHV'), volume_m3{suffix} (con "
+                         f"volume_reference {{'T_K', 'P_Pa'}}) o mass_kg{suffix}. Energía y volumen pueden ir juntos: manda la "
+                         f"energía y el volumen sirve para comprobar (o ajustar) el poder calorífico del gas.")
     if e is not None:
         if q.get("basis") not in ("HHV", "LHV"):
             raise ValueError(f"{where}: con energy_GJ{suffix} di basis 'HHV' (poder calorífico superior) o 'LHV' (inferior): es "
@@ -331,7 +342,19 @@ def _summary(case: dict, basis: str, delivered_t_y: float | None, hours: float |
         },
         "annual": None,
     }
+    # direct CO2 of combustion, from the carbon the engine put in the flue gas (complete combustion unless CO was measured)
+    fg = c["flue_gas"]
+    co2_per_kg_fuel = fg["mol_per_kg_fuel"] * fg["wet_mole_fractions"].get("CO2", 0.0) * CB._mw("CO2")
+    carbon_out = fg["mol_per_kg_fuel"] * (fg["wet_mole_fractions"].get("CO2", 0.0) + fg["wet_mole_fractions"].get("CO", 0.0))
+    fuel_kg_per_tonne = s["fuel_GJ_per_tonne"] * 1e9 / c["fuel"][f"{basis}_J_kg"]
+    out["emissions"] = {
+        "co2_kg_per_kg_fuel": co2_per_kg_fuel, "co2_kg_per_GJ_fuel_HHV": co2_per_kg_fuel / (c["fuel"]["HHV_J_kg"] / 1e9),
+        "co2_kg_per_tonne_steam": fuel_kg_per_tonne * co2_per_kg_fuel, "co2_tonne_per_year": None,
+        "carbon_balance_error": abs(carbon_out / c["fuel"]["elements_mol_per_kg"]["C"] - 1.0),
+        "scope": "CO2 directo de la combustión en la caldera. No incluye metano ni N2O, la electricidad comprada ni la "
+                 "cadena de suministro del combustible"}
     if delivered_t_y is not None:
+        out["emissions"]["co2_tonne_per_year"] = delivered_t_y * out["emissions"]["co2_kg_per_tonne_steam"] / 1000.0
         f = c["fuel"]
         fuel_GJ = delivered_t_y * s["fuel_GJ_per_tonne"]
         hv = f["HHV_J_kg"] if basis == "HHV" else f["LHV_J_kg"]
@@ -359,7 +382,8 @@ def _savings(base: dict, new: dict) -> dict:
         "efficiency_gain_points": 100.0 * (new["boiler"]["efficiency"] - base["boiler"]["efficiency"]),
         "per_tonne": {"cost": b["cost_per_tonne"] - n["cost_per_tonne"],
                       "fuel_GJ": b["fuel_GJ_per_tonne"] - n["fuel_GJ_per_tonne"],
-                      "makeup_m3": b["makeup_m3_per_tonne"] - n["makeup_m3_per_tonne"]},
+                      "makeup_m3": b["makeup_m3_per_tonne"] - n["makeup_m3_per_tonne"],
+                      "co2_kg": base["emissions"]["co2_kg_per_tonne_steam"] - new["emissions"]["co2_kg_per_tonne_steam"]},
         "fuel_fraction": 1.0 - n["fuel_GJ_per_tonne"] / b["fuel_GJ_per_tonne"],
         "cost_fraction": 1.0 - n["cost_per_tonne"] / b["cost_per_tonne"],
         "annual": None,
@@ -371,7 +395,11 @@ def _savings(base: dict, new: dict) -> dict:
             "makeup_water_m3": ba["makeup_water_m3"] - na["makeup_water_m3"],
             "electricity_kWh": (ba["electricity_kWh"] - na["electricity_kWh"]) if ba["electricity_kWh"] is not None else None,
             "cost": {k: ba["cost"][k] - na["cost"][k] for k in ("fuel", "water", "power", "total")},
+            "co2_tonne": base["emissions"]["co2_tonne_per_year"] - new["emissions"]["co2_tonne_per_year"],
         }
+        total = out["annual"]["cost"]["total"]
+        # the most that can be invested for the measure to pay back in N years: arithmetic on the saving, not an estimate
+        out["annual"]["max_investment_for_payback"] = ({str(n): n * total for n in PAYBACK_YEARS} if total > 0 else None)
     return out
 
 
@@ -546,12 +574,17 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     for k, mv in measures.items():
         _known(mv or {}, MEASURE_KEYS[k], f"measures.{k}")
     heating = water.get("feedwater_heating")
+    fuel_info = None
+    if isinstance(fuel, dict) and fuel.get("type") == FR.UNKNOWN_TYPE:            # declared: the plant has no gas analysis
+        fuel, fuel_info = FR.resolve_natural_gas(fuel, fuel_cost)
 
     # ---- essentials: refuse once, naming everything that is missing and what it is for
     miss: list[str] = []
     if not fuel:
         miss.append("fuel: el combustible (gas por composición molar, o análisis elemental con poder calorífico medido), para "
-                    "el poder calorífico y los gases de combustión")
+                    "el poder calorífico y los gases de combustión. Si es gas natural y la planta no tiene su análisis, "
+                    "decláralo con fuel = {'type': 'natural_gas_unknown', 'T_K': ...}: la composición se ajusta al poder "
+                    "calorífico del recibo (energía y volumen facturados) y se marca como supuesta")
     if combustion.get("site_pressure_Pa") is None:
         miss.append("combustion.site_pressure_Pa: presión atmosférica del sitio, para el punto de rocío y la humedad del aire")
     if not combustion.get("air"):
@@ -606,11 +639,20 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     if miss:
         raise ValueError("Faltan datos para el diagnóstico de vapor; no se suponen. " + " | ".join(miss) + ".")
 
+    # average load of the boiler, only when the plant gives its rated capacity and its production
+    load_fraction = None
+    if boiler.get("rated_steam_capacity_kg_s") is not None and operation.get("steam_generated_kg_s") is not None:
+        rated = _positive(boiler["rated_steam_capacity_kg_s"], "boiler.rated_steam_capacity_kg_s")
+        load_fraction = _positive(operation["steam_generated_kg_s"], "operation.steam_generated_kg_s") / rated
+        if load_fraction > 1.10:
+            raise ValueError(f"operation.steam_generated_kg_s es {100 * load_fraction:.0f} % de boiler.rated_steam_capacity_kg_s: "
+                             "la producción promedio no puede superar la capacidad nominal. Revisa los dos datos y sus unidades.")
     spec0 = {
         "fuel": fuel, "air": combustion["air"], "site_pressure_Pa": float(combustion["site_pressure_Pa"]),
         "flue_O2": combustion.get("flue_O2"), "excess_air_fraction": combustion.get("excess_air_fraction"),
         "flue_CO_dry_mole_fraction": combustion.get("flue_CO_dry_mole_fraction"), "stack_T_K": float(combustion["stack_T_K"]),
-        "setting_loss_fraction": (SETTING_LOSS_REFERENCE["value"] if loss_unknown
+        "setting_loss_fraction": (SETTING_LOSS_REFERENCE["value"] / load_fraction if loss_unknown and load_fraction
+                                  else SETTING_LOSS_REFERENCE["value"] if loss_unknown
                                   else float(combustion["setting_loss_fraction"])),
         "setting_loss_basis": SETTING_LOSS_REFERENCE["basis"] if loss_unknown else combustion["setting_loss_basis"],
         "steam_pressure_Pa": float(boiler["steam_pressure_Pa"]), "superheat_K": float(boiler.get("superheat_K") or 0.0),
@@ -723,15 +765,25 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     R = SETTING_LOSS_REFERENCE
     assert R["basis"] == "HHV"                                                    # the texts below say «base PCS»
     if loss_unknown:
-        step = R["sensitivity_step"]
-        hi = _summary(_run_case(_apply(spec0, {"setting_loss_fraction": R["value"] + step}), money), basis, None, None)
+        step, used = R["sensitivity_step"], spec0["setting_loss_fraction"]
+        hi = _summary(_run_case(_apply(spec0, {"setting_loss_fraction": used + step}), money), basis, None, None)
         d_cost = hi["steam"]["cost_per_tonne"] - base["steam"]["cost_per_tonne"]
+        if load_fraction:
+            choice = (f"{R['value_choice']} a plena carga, y se divide entre la carga promedio de la caldera "
+                      f"({100.0 * load_fraction:.0f} % de su capacidad nominal) porque la misma fuente dice que la pérdida casi "
+                      f"no cambia en magnitud con la carga: {100.0 * used:.2f} %")
+            limits = [x for x in R["limits"] if not x.startswith("a carga parcial")] + [
+                "la carga usada es el promedio declarado; si la caldera pasa muchas horas a muy baja carga la pérdida real es "
+                "mayor"]
+        else:
+            choice, limits = R["value_choice"], list(R["limits"])
         setting_loss = {
-            "origin": REF, "assumed": True, "value": R["value"], "basis": R["basis"], "reference": R["id"],
-            "source": R["source"], "statement": R["statement"], "value_choice": R["value_choice"], "limits": list(R["limits"]),
+            "origin": REF, "assumed": True, "value": used, "full_load_value": R["value"], "load_fraction": load_fraction,
+            "basis": R["basis"], "reference": R["id"],
+            "source": R["source"], "statement": R["statement"], "value_choice": choice, "limits": limits,
             "url": R["url"], "retrieved": R["retrieved"],
             "sensitivity": {
-                "setting_loss_fraction": R["value"] + step, "step_points": 100.0 * step,
+                "setting_loss_fraction": used + step, "step_points": 100.0 * step,
                 "efficiency": hi["boiler"]["efficiency"],
                 "efficiency_change_points": 100.0 * (hi["boiler"]["efficiency"] - base["boiler"]["efficiency"]),
                 "cost_per_tonne": hi["steam"]["cost_per_tonne"], "cost_per_tonne_change": d_cost,
@@ -740,17 +792,68 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
                            "pesa el supuesto; no es un intervalo de confianza."}}
         warnings.append(
             f"{SETTING_LOSS_FLAG}: la planta declaró que no conoce la pérdida por paredes y radiación de su caldera. Se usó "
-            f"{100.0 * R['value']:.1f} % del poder calorífico (base PCS), de {R['source']}: {R['statement']}; "
-            f"{R['value_choice']}. Con un punto porcentual más de pérdida la eficiencia baja "
+            f"{100.0 * used:.2f} % del poder calorífico (base PCS), de {R['source']}: {R['statement']}; "
+            f"{choice}. Con un punto porcentual más de pérdida la eficiencia baja "
             f"{-setting_loss['sensitivity']['efficiency_change_points']:.2f} puntos y el vapor cuesta "
             f"{100.0 * setting_loss['sensitivity']['cost_change_fraction']:+.2f} %. Consultada el {R['retrieved']}; {R['url']}.")
         missing.append({"item": "la pérdida por paredes y radiación de la caldera (hoja de datos del fabricante o prueba)",
                         "parameter": "combustion.setting_loss_fraction y setting_loss_basis",
                         "prevents": "dar la eficiencia de la caldera y el costo del vapor como medidos: llevan un valor "
-                                    f"supuesto de una publicación ({100.0 * R['value']:.1f} %, base PCS)"})
+                                    f"supuesto de una publicación ({100.0 * used:.2f} %, base PCS)"})
     else:
         setting_loss = {"origin": PLANT, "assumed": False, "value": spec0["setting_loss_fraction"],
                         "basis": spec0["setting_loss_basis"]}
+
+    # ---- fuel: plant analysis, or the composition resolved for a plant that declared it has none
+    fuel_resolution = {"origin": PLANT, "assumed": False}
+    if fuel_info:
+        alternatives = ([("metano puro", {"CH4": 1.0})] if fuel_info["method"] == "fit" else
+                        [(f"gas de referencia «{g}»", FR.reference_gas(g)["composition"]) for g in FR.REFERENCE_GASES
+                         if g != fuel_info["reference_gas"]])
+        sens = []
+        for label, comp in alternatives:
+            alt = _summary(_run_case(_apply(spec0, {"fuel": {"type": "gas", "composition": comp, "T_K": fuel["T_K"]}}), money),
+                           basis, None, None)
+            sens.append({"gas": label,
+                         "efficiency_change_points": 100.0 * (alt["boiler"]["efficiency"] - base["boiler"]["efficiency"]),
+                         "cost_per_tonne_change_fraction": alt["steam"]["cost_per_tonne"] / base["steam"]["cost_per_tonne"] - 1.0,
+                         "co2_per_tonne_change_fraction": alt["emissions"]["co2_kg_per_tonne_steam"]
+                         / base["emissions"]["co2_kg_per_tonne_steam"] - 1.0})
+        worst_eff = max(abs(x["efficiency_change_points"]) for x in sens)
+        worst_cost = max(abs(x["cost_per_tonne_change_fraction"]) for x in sens)
+        fuel_resolution = {
+            "origin": CALC if fuel_info["method"] == "fit" else REF, "assumed": True, "method": fuel_info["method"],
+            "composition": fuel_info["composition"], "description": fuel_info["description"],
+            "measured_heating_value": fuel_info.get("measured"), "heating_value_check": fuel_info.get("heating_value_check"),
+            "reference_gas": fuel_info.get("reference_gas"), "source": fuel_info.get("source"),
+            "sensitivity": sens, "sensitivity_meaning":
+                "La misma línea base con otra composición de gas y los mismos precios por GJ. Sirve para ver cuánto pesa el "
+                "supuesto; no es un intervalo de confianza.",
+            "surrogate_validation": FUEL_SURROGATE_NOTE if fuel_info["method"] == "fit" else None}
+        tail = (FUEL_SURROGATE_NOTE if fuel_info["method"] == "fit" else
+                "Pide a tu proveedor el poder calorífico del gas o da energía y volumen del recibo para ajustar la composición.")
+        warnings.append(
+            f"{FR.FUEL_UNKNOWN_FLAG}: la planta declaró que no tiene el análisis de su gas. Se usó {fuel_info['description']}. "
+            f"Con las composiciones alternativas probadas la eficiencia cambia como mucho {worst_eff:.2f} puntos y el costo del "
+            f"vapor {100.0 * worst_cost:.2f} %. {tail}")
+        warnings.extend(fuel_info["warnings"])
+        missing.append({"item": "el análisis de composición del gas (lo da el proveedor de gas o el transportista)",
+                        "parameter": "fuel.composition",
+                        "prevents": "dar los gases de combustión y el CO2 como medidos: salen de una composición supuesta ("
+                                    + ("ajustada al poder calorífico del recibo" if fuel_info["method"] == "fit"
+                                       else "un gas de referencia publicado") + ")"})
+    hv_check = None
+    bill0 = (fuel_cost or {}).get("bill") or {}
+    if not fuel_info and f0.get("HHV_J_mol") and bill0.get("energy_GJ") is not None and bill0.get("volume_m3") is not None:
+        ref = bill0.get("volume_reference") or {}
+        if ref.get("T_K") is None or ref.get("P_Pa") is None:
+            raise ValueError("fuel_cost.bill: con energy_GJ y volume_m3 juntos da volume_reference {'T_K', 'P_Pa'} (condiciones "
+                             "base del volumen) para comparar el poder calorífico facturado con el de la composición.")
+        billed = float(bill0["energy_GJ"]) * 1e9 / (float(ref["P_Pa"]) * float(bill0["volume_m3"]) / (CB.R_GAS * float(ref["T_K"])))
+        own = f0[f"{bill0['basis']}_J_mol"]
+        hv_check = {"billed_J_mol": billed, "composition_J_mol": own, "basis": bill0["basis"],
+                    "difference_fraction": billed / own - 1.0,
+                    "meaning": "Poder calorífico que implica el recibo (energía ÷ volumen) contra el de la composición dada."}
 
     # ---- measures: the same engines with one thing changed
     results: list[dict] = []
@@ -909,6 +1012,56 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
                            "sin pérdidas de condensado y agua de repuesto (el balance del desaireador de utility_costs con "
                            "vapor de calentamiento igual a cero).")
 
+    # ---- data review: plausibility of what the plant gave. It flags, it never refuses and it never corrects a datum
+    flags: list[dict] = []
+
+    def flag(ident: str, text: str) -> None:
+        flags.append({"id": ident, "message": text})
+
+    T_sat, T_fw, T_stack = base["steam"]["saturation_T_K"], base["steam"]["feedwater_T_K"], spec0["stack_T_K"]
+    ea0 = base["boiler"]["excess_air_fraction"]
+    if T_stack <= T_fw:
+        flag("stack_below_feedwater", f"La chimenea ({T_stack - 273.15:.0f} °C) está igual o más fría que el agua de alimentación "
+             f"({T_fw - 273.15:.0f} °C). Los gases no pueden salir más fríos que el agua que los enfría: revisa el punto de "
+             "medición o las unidades.")
+    elif T_stack < T_sat:
+        flag("stack_below_saturation", f"La chimenea ({T_stack - 273.15:.0f} °C) está más fría que el vapor "
+             f"({T_sat - 273.15:.0f} °C). Eso solo ocurre si la caldera ya tiene economizador o precalentador de aire: confírmalo.")
+    if ea0 > CHECK_EXCESS_AIR_HIGH:
+        flag("excess_air_high", f"El exceso de aire sale {100 * ea0:.0f} %, muy alto. Suele indicar entrada de aire falso, toma "
+             "de muestra después de una dilución o un analizador sin calibrar: confirma la medición antes de invertir.")
+    elif ea0 < CHECK_EXCESS_AIR_LOW:
+        flag("excess_air_low", f"El exceso de aire sale {100 * ea0:.1f} %, muy bajo. Con tan poco aire suele aparecer monóxido de "
+             "carbono: mide el CO en chimenea y dalo, porque hoy se tomó combustión completa." if
+             combustion.get("flue_CO_dry_mole_fraction") is None else
+             f"El exceso de aire sale {100 * ea0:.1f} %, muy bajo: confirma la medición de O2.")
+    if spec0["blowdown_fraction"] > CHECK_BLOWDOWN_HIGH:
+        flag("blowdown_high", f"La purga es {100 * spec0['blowdown_fraction']:.1f} % del agua de alimentación, alta. Confirma "
+             "que es fracción del agua de alimentación y no del vapor, y cómo se midió (conductividad o aforo).")
+    if cross and abs(cross["difference_points"]) > CHECK_EFFICIENCY_GAP_POINTS:
+        flag("efficiency_gap", f"La eficiencia por entradas y salidas ({100 * cross['input_output_efficiency']:.1f} %) y la del "
+             f"método de pérdidas ({100 * cross['heat_loss_efficiency']:.1f} %) difieren {cross['difference_points']:+.1f} "
+             "puntos. Alguno de los medidores (vapor, combustible) o de los datos de chimenea no cuadra: revisa antes de usar "
+             "las cifras anuales.")
+    if hv_check and abs(hv_check["difference_fraction"]) > CHECK_HEATING_VALUE_GAP:
+        flag("billed_heating_value", f"El poder calorífico que implica el recibo difiere {100 * hv_check['difference_fraction']:+.1f} "
+             "% del de la composición dada. Revisa las condiciones base del volumen, la base (superior o inferior) o la "
+             "composición.")
+    if load_fraction is not None and load_fraction < CHECK_LOAD_LOW:
+        flag("low_load", f"La caldera trabaja en promedio a {100 * load_fraction:.0f} % de su capacidad nominal. A carga tan baja "
+             "las pérdidas fijas pesan mucho y un solo punto de operación representa mal el año.")
+    data_review = {
+        "checks_run": ["stack_below_feedwater", "stack_below_saturation", "excess_air_high", "excess_air_low", "blowdown_high"]
+        + (["efficiency_gap"] if cross else []) + (["billed_heating_value"] if hv_check else [])
+        + (["low_load"] if load_fraction is not None else []),
+        "flags": flags,
+        "limits": {"excess_air_high": CHECK_EXCESS_AIR_HIGH, "excess_air_low": CHECK_EXCESS_AIR_LOW,
+                   "blowdown_high": CHECK_BLOWDOWN_HIGH, "efficiency_gap_points": CHECK_EFFICIENCY_GAP_POINTS,
+                   "heating_value_gap": CHECK_HEATING_VALUE_GAP, "low_load": CHECK_LOAD_LOW},
+        "meaning": "Revisión de plausibilidad de los datos de la planta. Señala lo que conviene confirmar; no corrige ni "
+                   "descarta ningún dato."}
+    warnings.extend(f"REVISAR DATO: {x['message']}" for x in flags)
+
     # ---- collect warnings, assumptions and limits of the engines (once each)
     def add(dst: list[str], items) -> None:
         for x in items:
@@ -928,9 +1081,14 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     else:
         add(assumptions, ["En la línea base la purga se descarga como líquido saturado a la presión de la caldera, sin "
                           "recuperar su calor."])
+    if fuel_info:
+        add(assumptions, [f"La composición del gas NO es un dato de la planta: es {fuel_info['description']}."
+                          + (" " + FUEL_SURROGATE_NOTE if fuel_info["method"] == "fit" else "")
+                          + "".join(f" Nota: {n}." for n in fuel_info.get("notes", []))])
     if loss_unknown:
-        add(assumptions, [f"La pérdida por paredes y radiación NO es un dato de la planta: es {100.0 * R['value']:.1f} % del poder "
-                          f"calorífico (base PCS), tomado de {R['source']}. Límites: " + "; ".join(R["limits"]) + "."])
+        add(assumptions, [f"La pérdida por paredes y radiación NO es un dato de la planta: es "
+                          f"{100.0 * setting_loss['value']:.2f} % del poder calorífico (base PCS), tomado de {R['source']} "
+                          f"({setting_loss['value_choice']}). Límites: " + "; ".join(setting_loss["limits"]) + "."])
     add(assumptions, [
         "La demanda de vapor del proceso (vapor entregado) se mantiene igual en todas las medidas; lo que cambia es el "
         "combustible, el agua y la electricidad para producirlo.",
@@ -958,8 +1116,9 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     P_site = spec0["site_pressure_Pa"]
     air = combustion["air"]
     plant = [
-        leaf("Combustible", fuel.get("composition") or fuel.get("mass_fractions"),
-             "fracción molar" if fuel.get("type") == "gas" else "fracción másica", "fuel"),
+        *([] if fuel_info else [
+            leaf("Combustible", fuel.get("composition") or fuel.get("mass_fractions"),
+                 "fracción molar" if fuel.get("type") == "gas" else "fracción másica", "fuel")]),
         leaf("Presión atmosférica del sitio", P_site, "Pa", "combustion.site_pressure_Pa"),
         leaf("Temperatura del aire de combustión", float(air["T_K"]), "K", "combustion.air.T_K"),
         (leaf("Humedad relativa del aire", float(air["relative_humidity"]), "fracción", "combustion.air.relative_humidity")
@@ -1020,9 +1179,9 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     published = []
     if loss_unknown:
         published.append({"kind": "setting_loss", "item": "Pérdida por paredes y radiación de la caldera",
-                          "value": R["value"], "unit": f"fracción del poder calorífico (base PCS)", "origin": REF,
+                          "value": setting_loss["value"], "unit": f"fracción del poder calorífico (base PCS)", "origin": REF,
                           "reference": R["id"], "source": R["source"], "retrieved": R["retrieved"], "url": R["url"],
-                          "detail": f"{R['statement']}; {R['value_choice']}; {R['source']}; consultada el {R['retrieved']}; "
+                          "detail": f"{R['statement']}; {setting_loss['value_choice']}; {R['source']}; consultada el {R['retrieved']}; "
                                     f"referencia «{R['id']}»; {R['url']}"})
     sources = base_case["costs"]["price_sources"]
     price_es = {"fuel_per_GJ": "Combustible", "electricity_per_kWh": "Electricidad",
@@ -1091,6 +1250,16 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
             reasons.append("el caso combinado ahorra más que la suma de las medidas individuales y no hay explicación")
     if cross:
         evidence["input_output_cross_check"] = cross
+    if hv_check:
+        evidence["billed_heating_value_check"] = hv_check
+    evidence["carbon_balance_error"] = base["emissions"]["carbon_balance_error"]
+    if evidence["carbon_balance_error"] > 1e-9:
+        reasons.append("el carbono del combustible no coincide con el CO2 y CO de los gases")
+    if fuel_info and fuel_info["method"] == "fit":
+        chk = fuel_info["heating_value_check"]
+        evidence["fitted_heating_value_error"] = abs(chk["fitted_J_mol"] / chk["measured_J_mol"] - 1.0)
+        if evidence["fitted_heating_value_error"] > 1e-9:
+            reasons.append("la composición ajustada no reproduce el poder calorífico medido")
     if mixing_check:
         evidence["feed_tank_mixing_check"] = mixing_check
     evidence["verified"] = not reasons
@@ -1100,15 +1269,28 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
 
     P = spec0["steam_pressure_Pa"]
     base["steam"]["pressure_gauge_Pa"] = P - P_site
-    flags = (U.REFERENCE_FLAG, SETTING_LOSS_FLAG)
-    warnings = [w for w in warnings if w.startswith(flags)] + [w for w in warnings if not w.startswith(flags)]
+    first = (U.REFERENCE_FLAG, SETTING_LOSS_FLAG, FR.FUEL_UNKNOWN_FLAG)
+    warnings = [w for w in warnings if w.startswith(first)] + [w for w in warnings if not w.startswith(first)]
+    assumed_values = []
+    if fuel_info:
+        assumed_values.append({
+            "id": "fuel_composition", "item": "Composición del gas natural",
+            "value": ", ".join(f"{k} {100 * v:.2f} %" for k, v in fuel_info["composition"].items()) + " (mol)",
+            "origin": fuel_resolution["origin"], "detail": fuel_info["description"]})
+    if loss_unknown:
+        assumed_values.append({
+            "id": "setting_loss", "item": "Pérdida por paredes y radiación de la caldera",
+            "value": f"{100.0 * setting_loss['value']:.2f} % del poder calorífico (base PCS)", "origin": REF,
+            "detail": f"{R['statement']}; {setting_loss['value_choice']}. {R['source']}. Consultada el {R['retrieved']}. "
+                      "Límites: " + "; ".join(setting_loss["limits"]) + "."})
     return {
         "currency": currency, "fuel_basis": basis, "fuel": {"HHV_J_kg": f0["HHV_J_kg"], "LHV_J_kg": f0["LHV_J_kg"],
                                                            "HHV_J_Nm3": f0.get("HHV_J_Nm3"), "type": f0["type"]},
         "prices": {"fuel_per_GJ": resolved["fuel_per_GJ"]["value"], "fuel_basis": basis,
                    "boiler_makeup_water_per_m3": sources["boiler_makeup_water_per_m3"]["value"],
                    "electricity_per_kWh": base_case["costs"]["electricity"]["per_kWh"] if "electricity" in base_case["costs"] else None},
-        "baseline": base, "setting_loss": setting_loss, "measures": results, "combined": combined,
+        "baseline": base, "setting_loss": setting_loss, "fuel_resolution": fuel_resolution, "assumed_values": assumed_values,
+        "data_review": data_review, "measures": results, "combined": combined,
         "provenance": {"plant_data": plant, "prices": price_prov, "published_references": published, "calculated": calculated},
         "missing_data": missing, "evidence": evidence, "warnings": warnings, "assumptions": assumptions,
         "not_included": not_included, "inputs": inputs,

@@ -145,6 +145,10 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     refs = [r for r in d["provenance"]["published_references"] if r.get("kind") != "setting_loss"]
     loss = d.get("setting_loss") or {}
     loss_assumed = bool(loss.get("assumed"))
+    gas = d.get("fuel_resolution") or {}
+    gas_assumed = bool(gas.get("assumed"))
+    flags = (d.get("data_review") or {}).get("flags", [])
+    em = base["emissions"]
     L: list[str] = []
     numbers: dict = {}
 
@@ -208,6 +212,16 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
               f"porcentual mayor, la eficiencia bajaría {_n(-sv['efficiency_change_points'], 2)} puntos y el vapor costaría "
               f"{_pct(sv['cost_change_fraction'], 2)} más. La eficiencia y el costo de este reporte dejan de ser supuestos "
               "cuando la planta entregue ese dato (hoja del fabricante o prueba).", ""]
+    if gas_assumed:
+        worst = max(abs(x["efficiency_change_points"]) for x in gas["sensitivity"])
+        L += ["> **Aviso: la composición del gas es un SUPUESTO, no un análisis de la planta.** La planta declaró que no la "
+              f"tiene. Se usó {_es(gas['description'])}. Con las otras composiciones probadas la eficiencia cambia como mucho "
+              f"{_n(worst, 2)} puntos. " + (_es(gas["surrogate_validation"]) if gas.get("surrogate_validation") else
+                                            "Con el poder calorífico del gas (o la energía y el volumen del recibo) la "
+                                            "composición se ajusta a la planta."), ""]
+    if flags:
+        L += ["**Datos que conviene confirmar antes de decidir** (la revisión no corrige ni descarta ningún dato):", ""]
+        L += [f"- {x['message']}" for x in flags] + [""]
     if not d["evidence"]["verified"]:
         L += [f"> **ATENCIÓN: las comprobaciones internas NO cerraron** ({'; '.join(d['evidence']['reasons'])}). No uses estas "
               f"cifras sin revisar.", ""]
@@ -247,6 +261,9 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
                   else "no evaluada: falta el consumo eléctrico por tonelada", SD.CALC],
                  ["**Costo anual del vapor**", f"**{_n(annual['cost']['total'])} {cur}** (combustible {_n(annual['cost']['fuel'])}; "
                                                 f"agua {_n(annual['cost']['water'])}; electricidad {_n(annual['cost']['power'])})", SD.CALC]]
+    rows.append(["Emisiones directas de CO2 de la caldera",
+                 (f"{_n(em['co2_tonne_per_year'])} toneladas al año; " if em["co2_tonne_per_year"] is not None else "")
+                 + f"{_n(em['co2_kg_per_tonne_steam'], 1)} kg por tonelada de vapor", SD.CALC])
     L += _table(["Concepto", "Valor", "Origen"], rows)
     if base.get("derived_note"):
         L += [base["derived_note"], ""]
@@ -284,16 +301,22 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
             pay = f"{m['simple_payback_years']:.1f} años" if m["simple_payback_years"] is not None else (m["payback_note"] or "no calculado")
             inv = f"{_n(m['investment'])} {cur}" if m["investment"] is not None else "no dada"
             if has_annual:
+                cap = s["annual"].get("max_investment_for_payback")
                 rows.append([m["label"], change, _n(s["annual"]["fuel_GJ"]), _n(s["annual"]["makeup_water_m3"]),
-                             f"**{_n(s['annual']['cost']['total'])}**", _pct(s["cost_fraction"]), inv, pay])
+                             _n(s["annual"]["co2_tonne"]), f"**{_n(s['annual']['cost']['total'])}**", _pct(s["cost_fraction"]),
+                             inv, pay, f"{_n(cap['2'])} {cur}" if cap else "no ahorra"])
             else:
                 rows.append([m["label"], change, _n(s["per_tonne"]["fuel_GJ"], 4), _n(s["per_tonne"]["makeup_m3"], 4),
-                             f"**{_n(s['per_tonne']['cost'], 2)}**", _pct(s["cost_fraction"]), inv, pay])
+                             _n(s["per_tonne"]["co2_kg"], 2), f"**{_n(s['per_tonne']['cost'], 2)}**", _pct(s["cost_fraction"]),
+                             inv, pay, "sin cifras anuales"])
         unit = "al año" if has_annual else "por tonelada de vapor"
         L += [f"Ordenadas de mayor a menor ahorro. Cada una se calculó repitiendo el estudio completo con un solo cambio: el "
               f"objetivo que dio la planta. Ahorros {unit}; la demanda de vapor del proceso es la misma en todos los casos.", ""]
-        L += _table(["Medida", "Qué cambia", f"Combustible ahorrado (GJ {bes})", "Agua ahorrada (m³)", f"Ahorro ({cur})",
-                     "% del costo del vapor", "Inversión", "Retorno simple"], rows)
+        L += _table(["Medida", "Qué cambia", f"Combustible ahorrado (GJ {bes})", "Agua ahorrada (m³)",
+                     "CO2 evitado (t)" if has_annual else "CO2 evitado (kg)", f"Ahorro ({cur})",
+                     "% del costo del vapor", "Inversión", "Retorno simple", "Inversión máxima para recuperar en 2 años"], rows)
+        L += ["La última columna no es una cotización: es dos veces el ahorro anual, es decir, lo más que se puede pagar por la "
+              "medida para recuperarlo en dos años. Sirve para saber si vale la pena pedir la cotización.", ""]
         for m in order:
             r = m["result"]
             L.append(f"**{m['label']}.** Eficiencia de la caldera {_pct(base['boiler']['efficiency'])} → {_pct(r['boiler']['efficiency'])}; "
@@ -341,6 +364,11 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
               f"en lugar de {_n(steam['cost_per_tonne'], 1)}."
               + (f" Inversión total declarada {_n(comb['investment'])} {cur}: retorno simple {comb['simple_payback_years']:.1f} años."
                  if comb.get("simple_payback_years") is not None else " Retorno simple del conjunto: " + (comb.get("payback_note") or "no calculado") ), ""]
+        if s["annual"]:
+            cap = s["annual"].get("max_investment_for_payback")
+            L += [f"Con todas las medidas se dejarían de emitir {_n(s['annual']['co2_tonne'])} toneladas de CO2 al año."
+                  + (f" Para recuperar la inversión en dos años, el conjunto no debería costar más de {_n(cap['2'])} {cur} "
+                     f"(en tres años, {_n(cap['3'])} {cur})." if cap else ""), ""]
         L += [f"- {n}" for n in comb.get("notes", [])] + ([""] if comb.get("notes") else [])
     elif comb and comb.get("reason"):
         L += [comb["reason"].capitalize() + ".", ""]
@@ -367,13 +395,10 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
           "pública con fecha, usado solo porque se pidió o porque la planta declaró que no tiene el dato).", "",
           "Datos de la planta:", ""]
     L += _table(["Dato", "Valor"], [[_es(p["item"]), _es(_plant_value(p))] for p in d["provenance"]["plant_data"]])
-    if loss_assumed:
-        L += ["Valor supuesto de una publicación (no es dato de la planta):", ""]
+    if d.get("assumed_values"):
+        L += ["Valores supuestos (no son datos de la planta):", ""]
         L += _table(["Dato", "Valor", "Origen", "Detalle"],
-                    [["Pérdida por paredes y radiación de la caldera",
-                      f"{_pct(loss['value'])} del poder calorífico (base {'PCS' if loss['basis'] == 'HHV' else 'PCI'})",
-                      loss["origin"], f"{loss['statement']}; {loss['value_choice']}. {loss['source']}. Consultada el "
-                                      f"{loss['retrieved']}. Límites: " + "; ".join(loss["limits"]) + "."]])
+                    [[v["item"], _es(v["value"]), v["origin"], _es(v["detail"])] for v in d["assumed_values"]])
     L += ["Precios:", ""]
     L += _table(["Precio", "Valor", "Origen", "Detalle"],
                 [[p["item"], _plant_value(p) if isinstance(p["value"], dict) or p["unit"].startswith("fracción")
@@ -422,5 +447,6 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     return {"markdown": md, "headline": numbers, "currency": cur, "fuel_basis": basis,
             "sections": [x[3:] for x in L if x.startswith("## ")], "integrity": integrity,
             "evaluated_measures": [m["id"] for m in evaluated], "not_evaluated_measures": [m["id"] for m in skipped],
-            "uses_published_reference_price": bool(refs), "uses_assumed_setting_loss": loss_assumed, "verified": ev["verified"], "diagnostic": d}
+            "uses_published_reference_price": bool(refs), "uses_assumed_setting_loss": loss_assumed, "uses_assumed_fuel_composition": gas_assumed,
+            "data_flags": len(flags), "verified": ev["verified"], "diagnostic": d}
 

@@ -637,10 +637,143 @@ def test_report_says_first_that_the_setting_loss_is_assumed(full):
     assert rep["uses_assumed_setting_loss"] is True and rep["uses_published_reference_price"] is False
     notice = md.index("la pérdida por paredes de la caldera es un SUPUESTO")
     assert md.index("## Resumen") < notice < md.index("## 1.")
-    assert "ORNL/TM-2001/263" in md and "Valor supuesto de una publicación (no es dato de la planta)" in md
+    assert "ORNL/TM-2001/263" in md and "Valores supuestos (no son datos de la planta)" in md
     assert "Valor supuesto de una publicación, no medido en la planta" in md             # in the table of losses too
     plain = TS.steam_diagnostic_report(inputs=PLANT)
     assert plain["uses_assumed_setting_loss"] is False and "SUPUESTO" not in plain["markdown"]
+
+
+# ------------------------------------------------------------------------------------------------ bloque M20
+BILL_EV = {"amount": 1.2e6, "period": "oct 2026", "energy_GJ": 8000.0, "basis": "HHV", "volume_m3": 208000.0,
+           "volume_reference": {"T_K": 293.15, "P_Pa": 98066.5}}
+
+
+def swap(**whole) -> dict:
+    """PLANT with whole arguments replaced (plant() merges dicts key by key)."""
+    return {**copy.deepcopy(PLANT), **whole}
+
+
+def test_fitted_gas_against_the_reference_gases():
+    """The numbers quoted in SD.FUEL_SURROGATE_NOTE are measured here: change both together."""
+    from packages.energy import fuel_reference as FR
+    errs = {g: FR.surrogate_error(g) for g in FR.REFERENCE_GASES}
+    assert max(abs(e["efficiency_HHV_difference_points"]) for e in errs.values()) < 0.15
+    assert max(abs(e["efficiency_LHV_difference_points"]) for e in errs.values()) < 0.05
+    co2 = {g: 100 * e["co2_difference_fraction"] for g, e in errs.items()}
+    assert -9.5 < co2["HIGH-CO2"] < -9.0
+    assert all(-3.25 < v < -0.85 for g, v in co2.items() if g != "HIGH-CO2")
+    assert "0.15 puntos" in SD.FUEL_SURROGATE_NOTE and "0.9 y 3.2 %" in SD.FUEL_SURROGATE_NOTE
+    # the reference compositions are read from CoolProp, sum to one and are mostly methane
+    gulf = FR.reference_gas("GULF-COAST")
+    assert sum(gulf["composition"].values()) == pytest.approx(1.0) and gulf["composition"]["CH4"] == pytest.approx(0.965222)
+    assert "CoolProp" in gulf["source"] and gulf["notes"]                                   # n-hexane lumped, and it says so
+    # the fit is exact on the heating value, on both sides of pure methane
+    h_m = FR.molar_heating_value({"CH4": 1.0}, "HHV")
+    for hv in (0.95 * h_m, h_m, 1.08 * h_m):
+        f = FR.fit_to_heating_value(hv, "HHV")
+        assert FR.molar_heating_value(f["composition"], "HHV") == pytest.approx(hv, rel=1e-12)
+    assert set(FR.fit_to_heating_value(0.95 * h_m, "HHV")["composition"]) == {"CH4", "N2"}
+    with pytest.raises(ValueError, match="demasiado alto"):                                 # LP gas billed as natural gas
+        FR.fit_to_heating_value(2.4 * h_m, "HHV")
+    with pytest.raises(ValueError, match="demasiado bajo"):
+        FR.fit_to_heating_value(0.6 * h_m, "HHV")
+
+
+def test_unknown_gas_is_fitted_to_the_billed_heating_value_and_flagged():
+    kw = swap(fuel={"type": "natural_gas_unknown", "T_K": 298.15}, fuel_cost={"bill": BILL_EV})
+    out = TS.steam_system_diagnostic(**kw)
+    json.dumps(out)
+    fr = out["fuel_resolution"]
+    assert fr["assumed"] is True and fr["method"] == "fit" and fr["origin"] == SD.CALC and set(fr["composition"]) == {"CH4", "C2H6"}
+    assert out["evidence"]["fitted_heating_value_error"] < 1e-12 and out["evidence"]["verified"] is True
+    assert out["prices"]["fuel_per_GJ"] == pytest.approx(1.2e6 / 8000.0)                   # energy rules the price
+    assert out["warnings"][0].startswith("COMPOSICIÓN DEL GAS SUPUESTA") and "38.462 MJ/m³" in out["warnings"][0]
+    assert any("análisis de composición del gas" in m["item"] for m in out["missing_data"])
+    assert any(v["id"] == "fuel_composition" for v in out["assumed_values"])
+    assert not any(p["item"] == "Combustible" for p in out["provenance"]["plant_data"])
+    assert len(fr["sensitivity"]) == 1 and abs(fr["sensitivity"][0]["efficiency_change_points"]) < 0.5
+    # same numbers as a plant that gives that composition itself
+    same = TS.steam_system_diagnostic(**swap(fuel={"type": "gas", "composition": fr["composition"], "T_K": 298.15},
+                                              fuel_cost={"price_per_GJ": 150.0, "basis": "HHV"}))
+    assert out["baseline"]["boiler"]["efficiency"] == pytest.approx(same["baseline"]["boiler"]["efficiency"], rel=1e-12)
+    assert same["fuel_resolution"] == {"origin": SD.PLANT, "assumed": False} and same["assumed_values"] == []
+    # the supplier's heating value does the same job as the bill
+    hv = TS.steam_system_diagnostic(**swap(fuel={"type": "natural_gas_unknown", "T_K": 298.15, "heating_value": {
+        "value_J_m3": 8000.0e9 / 208000.0, "basis": "HHV", "volume_reference": {"T_K": 293.15, "P_Pa": 98066.5}}}))
+    assert hv["fuel_resolution"]["composition"]["C2H6"] == pytest.approx(fr["composition"]["C2H6"], rel=1e-9)
+    rep = TS.steam_diagnostic_report(inputs=kw)
+    assert rep["uses_assumed_fuel_composition"] is True and "la composición del gas es un SUPUESTO" in rep["markdown"]
+    assert "Valores supuestos (no son datos de la planta)" in rep["markdown"]
+
+
+def test_unknown_gas_without_heating_value_uses_a_named_reference_gas():
+    out = TS.steam_system_diagnostic(**swap(fuel={"type": "natural_gas_unknown", "T_K": 298.15}))
+    fr = out["fuel_resolution"]
+    assert fr["method"] == "reference" and fr["reference_gas"] == "GULF-COAST" and fr["origin"] == SD.REF
+    assert len(fr["sensitivity"]) == 5 and max(abs(x["efficiency_change_points"]) for x in fr["sensitivity"]) < 0.5
+    assert "GULF-COAST" in out["warnings"][0] and "Pide a tu proveedor" in out["warnings"][0]
+    other = TS.steam_system_diagnostic(**swap(fuel={"type": "natural_gas_unknown", "T_K": 298.15, "reference_gas": "AMARILLO"}))
+    assert other["fuel_resolution"]["reference_gas"] == "AMARILLO"
+    with pytest.raises(ValueError, match="no existe"):
+        TS.steam_system_diagnostic(**swap(fuel={"type": "natural_gas_unknown", "T_K": 298.15, "reference_gas": "X"}))
+    with pytest.raises(ValueError, match="quita reference_gas"):
+        TS.steam_system_diagnostic(**swap(fuel={"type": "natural_gas_unknown", "T_K": 298.15, "reference_gas": "AMARILLO"},
+                                           fuel_cost={"bill": BILL_EV}))
+    with pytest.raises(ValueError, match="fuel.T_K"):
+        TS.steam_system_diagnostic(**swap(fuel={"type": "natural_gas_unknown"}))
+    with pytest.raises(ValueError, match="natural_gas_unknown"):                            # no fuel at all: the way out is named
+        TS.steam_system_diagnostic(**swap(fuel=None))
+
+
+def test_co2_comes_from_the_carbon_balance(full):
+    em = full["baseline"]["emissions"]
+    assert em["carbon_balance_error"] < 1e-12 and full["evidence"]["carbon_balance_error"] < 1e-12
+    ann = full["baseline"]["annual"]
+    assert em["co2_tonne_per_year"] == pytest.approx(ann["fuel_kg"] * em["co2_kg_per_kg_fuel"] / 1000.0, rel=1e-12)
+    methane = TS.steam_system_diagnostic(**swap(fuel={"type": "gas", "composition": {"CH4": 1.0}, "T_K": 298.15}))
+    assert methane["baseline"]["emissions"]["co2_kg_per_kg_fuel"] == pytest.approx(44.0095 / 16.0425, rel=2e-4)
+    for m in full["measures"]:
+        if m["status"] == "evaluated":
+            s = m["savings"]
+            assert s["annual"]["co2_tonne"] == pytest.approx(s["annual"]["fuel_GJ"] * 1e9 / full["fuel"][full["fuel_basis"] + "_J_kg"]
+                                                              * em["co2_kg_per_kg_fuel"] / 1000.0, rel=1e-9)
+            assert s["annual"]["max_investment_for_payback"] == {str(n): n * s["annual"]["cost"]["total"] for n in (1, 2, 3)}
+    rep = TS.steam_diagnostic_report(inputs=PLANT)["markdown"]
+    assert "Emisiones directas de CO2" in rep and "Inversión máxima para recuperar en 2 años" in rep
+
+
+def test_data_review_flags_but_never_refuses(full):
+    assert full["data_review"]["flags"] == [] and "excess_air_high" in full["data_review"]["checks_run"]
+    high = TS.steam_system_diagnostic(**plant(combustion={"flue_O2": {"mole_fraction": 0.115, "basis": "dry"}}))
+    assert [f["id"] for f in high["data_review"]["flags"]] == ["excess_air_high"]
+    assert any(w.startswith("REVISAR DATO:") for w in high["warnings"]) and high["evidence"]["verified"] is True
+    cold = TS.steam_system_diagnostic(**plant(combustion={"stack_T_K": 430.0}, measures={}))
+    assert [f["id"] for f in cold["data_review"]["flags"]] == ["stack_below_saturation"]
+    purge = TS.steam_system_diagnostic(**plant(boiler={"blowdown_fraction": 0.14}, measures={}))
+    assert [f["id"] for f in purge["data_review"]["flags"]] == ["blowdown_high"]
+    # a bill with energy and volume is compared with the composition given
+    off = TS.steam_system_diagnostic(**swap(fuel_cost={"bill": {**BILL_EV, "volume_m3": 190000.0}}, measures={}))
+    assert off["evidence"]["billed_heating_value_check"]["difference_fraction"] > 0.02
+    assert "billed_heating_value" in [f["id"] for f in off["data_review"]["flags"]]
+    rep = TS.steam_diagnostic_report(inputs=plant(combustion={"flue_O2": {"mole_fraction": 0.115, "basis": "dry"}}))
+    assert rep["data_flags"] == 1 and "Datos que conviene confirmar antes de decidir" in rep["markdown"]
+
+
+def test_published_setting_loss_scales_with_the_declared_load():
+    kw = _unknown_loss()
+    kw["boiler"]["rated_steam_capacity_kg_s"] = 4.0                                        # production is 2.0 kg/s: 50 % load
+    out = TS.steam_system_diagnostic(**kw)
+    sl = out["setting_loss"]
+    assert sl["load_fraction"] == pytest.approx(0.5) and sl["value"] == pytest.approx(0.020) and sl["full_load_value"] == 0.010
+    assert "50 % de su capacidad nominal" in sl["value_choice"] and "2.00 %" in out["warnings"][0]
+    assert out["baseline"]["boiler"]["losses_fraction_of_heating_value"]["setting"] == pytest.approx(0.020)
+    # the plant's own figure is never rescaled
+    own = TS.steam_system_diagnostic(**plant(boiler={"rated_steam_capacity_kg_s": 4.0}))
+    assert own["baseline"]["boiler"]["losses_fraction_of_heating_value"]["setting"] == pytest.approx(0.015)
+    low = TS.steam_system_diagnostic(**plant(boiler={"rated_steam_capacity_kg_s": 10.0}, measures={}))
+    assert "low_load" in [f["id"] for f in low["data_review"]["flags"]]
+    with pytest.raises(ValueError, match="capacidad nominal"):
+        TS.steam_system_diagnostic(**plant(boiler={"rated_steam_capacity_kg_s": 1.0}))
 
 
 def test_the_data_checklist_names_every_input_of_the_engine():

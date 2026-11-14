@@ -303,7 +303,11 @@ Hard rules:
    published reference price, say so first. Setting loss: ask for it; ONLY if the plant says it does not know it, pass
    combustion.setting_loss_unknown=true (never on your own): the engine then uses a published value (1.0 % HHV, ORNL)
    and you must say first that the boiler efficiency and the steam cost carry an ASSUMED setting loss, with its
-   sensitivity. A stack target at or below the water dew point is not evaluated, and the
+   sensitivity. Natural gas without analysis: ask for the gas bill (energy AND volume with its base conditions) or the
+   supplier's heating value and pass fuel={'type': 'natural_gas_unknown', ...}; the composition is fitted to that heating
+   value and flagged as assumed. Report data_review flags before any saving: they are data the plant should confirm.
+   max_investment_for_payback is a ceiling (N times the annual saving), never a quote. A stack target at or below the
+   water dew point is not evaluated, and the
    ACID dew point is not modelled: say it. For the document the client reads call steam_diagnostic_report with the
    same inputs and show its markdown unchanged: never retype or round its numbers and never add figures of your own.
 

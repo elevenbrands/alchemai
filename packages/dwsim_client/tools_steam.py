@@ -18,14 +18,23 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     una; cada medida, la misma corrida con un solo cambio. Ningún dato de la planta, precio, objetivo ni inversión se supone.
 
     currency: moneda ('MXN', 'USD'...).
-    fuel: como en combustion_efficiency (gas por composición molar, o análisis elemental con poder calorífico medido).
+    fuel: como en combustion_efficiency (gas por composición molar, o análisis elemental con poder calorífico medido). Si
+      es gas natural y la planta declara que NO tiene su análisis: {type: 'natural_gas_unknown', T_K, heating_value?
+      {value_J_m3, basis, volume_reference {T_K, P_Pa}}, reference_gas?}. Con poder calorífico (el de heating_value, o
+      energy_GJ + volume_m3 en fuel_cost.bill) se ajusta una mezcla metano + etano (o metano + nitrógeno) que lo da
+      exactamente; sin él se usa un gas de referencia (por defecto 'GULF-COAST', leído de CoolProp). Siempre marcado como
+      SUPUESTO, con su sensibilidad en `fuel_resolution`.
     combustion: {site_pressure_Pa (atmosférica del sitio), air {T_K, relative_humidity o humidity_ratio_kg_kg}, flue_O2
       {mole_fraction, basis 'dry'|'wet'} O excess_air_fraction, stack_T_K, setting_loss_fraction + setting_loss_basis
       ('HHV'|'LHV'; pérdida por paredes) O setting_loss_unknown=true SOLO si la planta declara que no la conoce: entonces
       se usa 1.0 % (PCS) de ORNL/TM-2001/263 sec. 4.2.5, marcado como SUPUESTO en avisos, procedencia y reporte, con su
       sensibilidad en `setting_loss`; sin ninguno de los dos la tool se niega; opcional flue_CO_dry_mole_fraction}.
-    boiler: {steam_pressure_Pa (ABSOLUTA), blowdown_fraction (purga, fracción de la alimentación); opcionales superheat_K y
-      auxiliary_power_kWh_per_tonne (ventiladores y bombas; sin él la electricidad no se cobra)}.
+    boiler: {steam_pressure_Pa (ABSOLUTA), blowdown_fraction (purga, fracción de la alimentación); opcionales superheat_K,
+      auxiliary_power_kWh_per_tonne (ventiladores y bombas; sin él la electricidad no se cobra) y rated_steam_capacity_kg_s
+      (capacidad de placa: con ella y la producción se conoce la carga; escala la pérdida por paredes publicada)}.
+    El resultado trae además: `baseline.emissions` (CO2 directo, del balance de carbono) y el CO2 evitado por medida;
+    `max_investment_for_payback` (1, 2 y 3 veces el ahorro anual: tope de inversión, no una cotización); `data_review`
+    (datos de la planta que conviene confirmar: señala, no corrige ni rechaza) y `assumed_values` (todo lo supuesto).
     water: {feedwater_heating: 'deaerator_steam' (desaireador o tanque calentado con vapor de la caldera) | 'mixing_only'
       (tanque sin calentador: la temperatura de alimentación se calcula de la mezcla) | 'not_charged' (calentar hasta
       feedwater_T_K no se cobra); feedwater_T_K (no hace falta con 'mixing_only'; si se da, se compara), makeup_water_T_K,
