@@ -1,8 +1,10 @@
 # Post 3 — Convocatoria: plantas piloto para el diagnóstico de vapor (borrador para LinkedIn, español)
 
 > Estado: BORRADOR 2026-11-14. No publicado. Lo publica el owner si lo aprueba.
-> Decisiones del owner que este texto necesita antes de publicarse (marcadas con ⟦ ⟧): si el piloto es gratuito o
-> con costo, cuántas plantas, cómo quiere que lo contacten y el nombre del diagnóstico.
+> Decidido por el owner (2026-11-14): el piloto va **sin costo**, a cambio de los datos y de poder contar el caso sin
+> el nombre de la empresa. El precio después del piloto no está definido.
+> Decisiones del owner que este texto aún necesita antes de publicarse (marcadas con ⟦ ⟧): cuántas plantas y cómo
+> quiere que lo contacten. El nombre del diagnóstico sigue sin definir; el texto dice «diagnóstico de vapor».
 > Las cifras de ejemplo son de una planta INVENTADA (`notebooks/32_diagnostico_de_vapor_reporte.md`); el texto lo dice.
 
 ---
@@ -13,7 +15,7 @@ No el recibo del gas: el vapor. Con el combustible, el agua, la purga, el conden
 
 Si la respuesta es «no exactamente», este mensaje es para ti. Sin ese número no se puede saber qué mejora vale la pena.
 
-Estoy buscando **⟦3⟧ plantas en México con caldera de gas** para hacerles un diagnóstico de vapor piloto ⟦sin costo, a cambio de poder contar el caso sin nombre de la empresa⟧.
+Estoy buscando **⟦3⟧ plantas en México con caldera de gas** para hacerles un diagnóstico de vapor piloto **sin costo**. A cambio pido dos cosas: los datos de la lista de abajo y permiso para contar el caso sin el nombre de la empresa.
 
 **Qué necesito de la planta** (datos que normalmente ya existen):
 - Recibos de gas, agua y luz de los últimos meses.

@@ -379,8 +379,8 @@ en DWSIM 10.2.12 (usar `Isothermal()`); un `solve()` de DWSIM puede no regresar 
 
 ## Decisiones pendientes del owner
 - **M19, diagnóstico de vapor** (2026-11-14):
-  1. Nombre y precio del diagnóstico. No están definidos y no se propusieron.
-  2. Con qué planta se prueba primero y quién la contacta. Nadie fue contactado.
+  1. Nombre del diagnóstico y precio después del piloto. No están definidos y no se propusieron. **Decidido (owner, 2026-11-14): el piloto va sin costo**, a cambio de los datos y de poder contar el caso sin el nombre de la empresa.
+  2. Con qué planta se prueba primero y quién la contacta. Nadie fue contactado. El owner no tiene planta a la mano (2026-11-14); borrador de convocatoria en `docs/posts/03_convocatoria_plantas_piloto.md` (no publicado), al que le faltan dos decisiones: cuántas plantas y cómo lo contactan. Rutas sin intentar: compañeros de generación en plantas, proveedores de calderas y de tratamiento de agua, cámaras y clústeres industriales.
   3. Pérdida por paredes: hoy es obligatoria y la planta casi nunca la tiene. ¿Se permite «no la sé» y se entrega la eficiencia de combustión declarando que falta, o se ofrece un valor etiquetado como supuesto (misma pregunta que M18 punto 1)?
   4. Criterio de aceptación del diagnóstico: ¿bastan los ejemplos del DOE (tres a ≤ 0.04 %, #4 a −3.7 %, #3 no reproducible) o hace falta un caso de planta con medición antes y después?
   5. Pérdida por paredes entre casos: se mantiene como fracción del poder calorífico (hoy) o constante en kW.

@@ -35,7 +35,10 @@ Un **diagnóstico de vapor**: con los datos que la planta ya tiene, un reporte e
 Datos que da la planta (propuesta, por validar): recibos de gas, luz y agua; presión de operación; O₂ y temperatura
 de chimenea; temperatura del agua de alimentación; retorno de condensado; purga; horas de operación.
 
-El nombre del diagnóstico y su precio son decisión del owner. No están definidos.
+Decisión del owner (2026-11-14): el **diagnóstico piloto** para las primeras plantas va **sin costo**, a cambio de los
+datos y de poder contar el caso sin el nombre de la empresa. Cuántas plantas entran al piloto no está decidido.
+
+El nombre del diagnóstico y su precio después del piloto son decisión del owner. No están definidos.
 
 ## Con qué se hace (ya construido)
 

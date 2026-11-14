@@ -11,6 +11,7 @@ Plan completo (12 meses): `docs/PLAN_12_MESES.md`.
 
 **Primer cliente (decisión del owner, 2026-11-14): plantas con vapor.** Oferta inicial: diagnóstico de vapor
 (costo real del vapor, eficiencia de caldera, ahorros en pesos). Definición y lo que falta validar: `docs/CLIENTE_Y_PRODUCTO.md`.
+El piloto para las primeras plantas va sin costo (decisión del owner, 2026-11-14); precio posterior y nombre sin definir.
 
 Reglas:
 - **Verdad = motor + reglas deterministas. La IA solo propone.** Todo resultado lleva evidencia
