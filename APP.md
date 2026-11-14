@@ -75,6 +75,11 @@ docs/                   plan, decisiones, lecturas; MAPA_MOTORES.md = cobertura 
 
 ## Decisiones
 
+- 2026-11-13: **Valor por defecto condicional del término de exceso (bloque M15c-2), decisión del owner (opción C).** Evidencia en `notebooks/28_conditional_excess_default.py` y `.json`.
+  - `excess_enthalpy` pasa de `True` a `None` (automático) en `eo_column_optimize`, `simulate_column_nrtl`, la tool MCP y el agente. Automático = encendido solo si todos los pares vienen de un ajuste conjunto VLE + h^E que pasó el veredicto; si no, apagado con un aviso en `warnings[0]` (pares sin respaldo y cómo encenderlo). Lógica en `nrtl_properties.resolve_excess_enthalpy`.
+  - `True`/`False` explícitos mandan y quedan etiquetados (`properties.excess_enthalpy.decision`: modo, incluido, razón, política).
+  - Cambian los números de referencia con parámetros solo-VLE (todos recalculados; los anteriores quedan como historia): metanol-agua Q_reb 1497.6 → 1507.8 kW, publicada 1481.7 → 1491.6 kW, etanol-agua 1030.0 → 1070.8 kW. La comparación con DWSIM para el caso apagado es «ExpData» (≤ 0.72 % en cargas).
+  - `hE_source` de un par del usuario sigue siendo solo una etiqueta: no enciende el término.
 - 2026-11-13: **h^E de etanol-agua contrastado con calorimetría y ajuste conjunto VLE + h^E (bloque M15c), 69 tools (mismas tools).** Evidencia en `notebooks/27_eo_nrtl_excess_enthalpy.py` y `.json`, `notebooks/27b_explore_tau_lnT.py`, `tests/test_excess_enthalpy.py`.
   - **Datos**: `tests/data/he_ethanol_water_thermoml.json`, 83 puntos en 5 isotermas. Nagamachi y Francesconi 2006 (298.15 y 323.15 K) y Brandt et al. 2014 (333.15, 363.15 y 383.15 K), leídos por script de los archivos ThermoML del NIST. Las tablas gratuitas de DDB ya no están en línea (404).
   - **Hallazgo**: el h^E de parámetros solo-VLE (regresión de Kamihama o banco ChemSep, τ = b/T) es positivo en todo el intervalo; el medido es negativo por debajo de ~363 K y cambia de signo con T y con x. En la alimentación de la columna de referencia (10 %, 350 K) el modelo da +388 J/mol y la calorimetría −154.

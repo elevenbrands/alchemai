@@ -277,7 +277,8 @@ def test_excess_enthalpy_switch_and_homotopy_scale():
     import inspect
     from packages.dwsim_client import tools as T  # noqa: F401
     from packages.dwsim_client import tools_optimize as TO
-    assert inspect.signature(TO.eo_column_optimize).parameters["excess_enthalpy"].default is True
+    # M15b default was True; since M15c-2 (owner's decision, 2026-11-13) it is None = conditional
+    assert inspect.signature(TO.eo_column_optimize).parameters["excess_enthalpy"].default is None
 
 
 def test_dwsim_excess_term_is_the_derivative_of_gamma_not_gibbs_helmholtz():
@@ -305,27 +306,42 @@ def test_dwsim_excess_term_is_the_derivative_of_gamma_not_gibbs_helmholtz():
 
 
 # ------------------------------------------------------------------------------------------------ slow: reference + DWSIM
+# History and current values side by side. excess=True is the default up to M15c (the M15/M15b numbers, kept as
+# history); excess=None is the conditional default of M15c-2 (owner's decision, 2026-11-13): with VLE-only parameters
+# the term is off, and the like-for-like DWSIM mode is «ExpData». New numbers: notebooks/28_conditional_excess_default.
 @slow
-def test_reproduces_the_published_methanol_water_column():
+@pytest.mark.parametrize("excess, q_reb_kW, q_cond_kW", [(True, 1481.74, 820.59),        # M15 (term on)
+                                                         (None, 1491.60, 822.20)])       # por defecto condicional, M15c-2
+def test_reproduces_the_published_methanol_water_column(excess, q_reb_kW, q_cond_kW):
     """Simone 2015 Table 9: 12 stages incl. condenser and reboiler (gPROMS: 10 + feed on 6), RR 4.36 (molar),
     distillate 474 kg/h. Table 10 (Aspen / gPROMS): T 339 / 373 K, Q_reb 1503 / 1522 kW, Q_cond -819 / -810 kW,
     methanol 451 / 450 kg/h top and 49 / 50 kg/h bottom. Their NRTL parameters are not printed: ChemSep's are used.
-    Measured (2026-11-13): T 339.06 / 372.59 K, Q_reb 1481.7 kW (−1.4 % vs Aspen; Aspen and gPROMS differ by 1.3 % and
-    DWSIM gives 1474-1512 kW depending on its liquid-enthalpy mode), Q_cond 820.6 kW, methanol top 448.7 kg/h. The
-    duty tolerance (3 %) is the published models' own spread plus the enthalpy-model choice, not a fit."""
+    M15 (term on): T 339.06 / 372.59 K, Q_reb 1481.7 kW (−1.4 % vs Aspen; Aspen and gPROMS differ by 1.3 %),
+    Q_cond 820.6 kW (+0.2 %), methanol top 448.6 kg/h. M15c-2 (conditional default → term off for the ChemSep bank):
+    Q_reb 1491.6 kW (−0.8 % vs Aspen, −2.0 % vs gPROMS), Q_cond 822.2 kW (+0.4 % / +1.5 %), same temperatures and
+    methanol split. The duty tolerance (3 %) is the published models' own spread plus the enthalpy-model choice."""
     st = C.simulate_column_nrtl(["methanol", "water"], _thesis_feed(), 10, 6, 101300.0, 4.36,
-                                distillate_mass_flow_kg_s=474 / 3600)
+                                distillate_mass_flow_kg_s=474 / 3600, excess_enthalpy=excess)
     d, b = st["distillate"], st["bottoms"]
+    dec = st["excess_enthalpy_decision"]
+    assert dec["included"] is bool(excess) and dec["mode"] == ("usuario" if excess else "automatico")
+    assert (dec["warning"] is not None) == (excess is None)
     assert d["mass_flow_kg_s"] * 3600 == pytest.approx(474, rel=1e-8)
     assert d["T_K"] == pytest.approx(339, abs=0.5) and b["T_K"] == pytest.approx(373, abs=0.5)
     assert st["reboiler_duty_W"] / 1e3 == pytest.approx(1503, rel=0.03)
     assert -st["condenser_duty_W"] / 1e3 == pytest.approx(819, rel=0.03)
+    assert st["reboiler_duty_W"] / 1e3 == pytest.approx(q_reb_kW, rel=2e-4)
+    assert -st["condenser_duty_W"] / 1e3 == pytest.approx(q_cond_kW, rel=2e-4)
     meoh_top = d["flow_mol_s"] * d["mole_fractions"]["methanol"] * 32.04186 * 3.6
     assert meoh_top == pytest.approx(451, rel=0.02)
 
 
 @slow
-def test_nrtl_optimum_matches_dwsim_with_the_same_parameters():
+@pytest.mark.parametrize("excess, mode, rr, q_reb_MW", [(True, "LiqCp_Excess", 4.4911, 1.49762),       # M15 (term on)
+                                                        (None, "ExpData", 4.49377, 1.507777)])        # condicional, M15c-2
+def test_nrtl_optimum_matches_dwsim_with_the_same_parameters(excess, mode, rr, q_reb_MW):
+    """M15 (term on vs DWSIM «LiqCp_Excess»): x_D +0.06 %, Q_reb +0.29 %, Q_cond −0.62 %. M15c-2 (conditional default
+    → off for the ChemSep bank, vs DWSIM «ExpData»): x_D +0.04 %, Q_reb −0.49 %, Q_cond −0.72 %."""
     try:
         from packages.dwsim_client import tools as T  # noqa: F401
     except Exception as ex:  # noqa: BLE001
@@ -333,16 +349,21 @@ def test_nrtl_optimum_matches_dwsim_with_the_same_parameters():
     from packages.eo import dwsim_nrtl as DN
     f = _thesis_feed()
     r = C.eo_column_optimize(["methanol", "water"], f["flow_mol_s"], f["T_K"], f["P_Pa"], f["z"], 10, 6, 101300.0,
-                             MW_SPECS, activity_model="NRTL")
+                             MW_SPECS, activity_model="NRTL", excess_enthalpy=excess)
     ev, o = r["evidence"], r["optimum"]
     assert ev["verified"], ev["reasons"]
+    he = r["properties"]["excess_enthalpy"]
+    assert he["included_in_liquid_enthalpy"] is bool(excess)
+    assert he["decision"]["mode"] == ("usuario" if excess else "automatico")
+    assert any("APAGADO por defecto" in w for w in r["warnings"]) == (excess is None)
+    assert o["reflux_ratio"] == pytest.approx(rr, rel=2e-4) and r["reboiler_duty_MW"] == pytest.approx(q_reb_MW, rel=2e-4)
     assert ev["nrtl_verified"] and ev["thermo_bubble_points_match"]
     assert ev["component_balance_closed"] and ev["phantom_vapour_fraction"] < 1e-4
     params = NP.resolve_parameters(["methanol", "water"])
     dw = DN.column(["Methanol", "Water"], f["T_K"], f["P_Pa"], {"Methanol": f["flow_mol_s"] * f["z"]["methanol"],
                    "Water": f["flow_mol_s"] * f["z"]["water"]}, 12, 7, o["reflux_ratio"], 101300.0,
                    bottoms_mol_s=o["bottoms"]["flow_mol_s"], params=params,
-                   dwsim_names={"methanol": "Methanol", "water": "Water"}, poynting=False, enthalpy_mode="LiqCp_Excess")
+                   dwsim_names={"methanol": "Methanol", "water": "Water"}, poynting=False, enthalpy_mode=mode)
     assert dw["ok"], dw["solver_errors"]
     held = dw["parameters_used"]["Methanol/Water"]
     assert held["b_ij_K"] == pytest.approx(params["tau_b_K"][0][1], rel=1e-9)
@@ -359,41 +380,56 @@ def test_nrtl_optimum_matches_dwsim_with_the_same_parameters():
 
 
 @slow
-def test_regression_chains_into_the_column():
+@pytest.mark.parametrize("excess, rr, q_reb_MW", [(True, 0.70081, 1.030023),           # M15/M15b (term on)
+                                                  (None, 0.703004, 1.070774)])        # por defecto condicional, M15c-2
+def test_regression_chains_into_the_column(excess, rr, q_reb_MW):
     """vle_binary_regression (Kamihama 2012, 101.3 kPa) → eo_column_optimize: the pair is labelled as regressed and
     the optimum is verified; ethanol below the azeotrope. The harder columns M15 left open (15 trays, x_D 0.75 and
-    0.80) are in test_ethanol_water_columns_m15_left_open_converge_and_seal (M15b)."""
+    0.80) are in test_ethanol_water_columns_m15_left_open_converge_and_seal (M15b). With the conditional default the
+    VLE-only regression leaves h^E off (Q_reb +4.0 % vs the M15b number), and the first warning says so."""
     reg = _ew_regression()
     specs = [{"stream": "distillate", "component": "ethanol", "kind": "mole_fraction", "min": 0.70},
              {"stream": "bottoms", "component": "water", "kind": "mole_fraction", "min": 0.995}]
     r = C.eo_column_optimize(["ethanol", "water"], 100.0, 350.0, 101325.0, {"ethanol": 0.1, "water": 0.9}, 20, 14,
-                             101325.0, specs, activity_model="NRTL", binary_parameters=reg)
+                             101325.0, specs, activity_model="NRTL", binary_parameters=reg, excess_enthalpy=excess)
     assert r["properties"]["binary_parameters"][0]["source_kind"] == "vle_binary_regression"
     ev = r["evidence"]
     assert ev["verified"], ev["reasons"]
     assert ev["component_balance_closed"] and ev["phantom_vapour_ok"]
     assert any("Psat" in w for w in r["warnings"])
-    # M15 numbers, unchanged by the M15b start-up (spec continuation on the square system, then the NLP)
-    assert r["optimum"]["reflux_ratio"] == pytest.approx(0.70081, rel=1e-4)
-    assert r["reboiler_duty_MW"] == pytest.approx(1.030023, rel=1e-4)
+    assert r["optimum"]["reflux_ratio"] == pytest.approx(rr, rel=1e-4)
+    assert r["reboiler_duty_MW"] == pytest.approx(q_reb_MW, rel=1e-4)
     assert r["initial_point"]["spec_continuation"]["used"]
     he = r["properties"]["excess_enthalpy"]
-    assert he["included_in_liquid_enthalpy"] and he["first_order_share_of_reboiler_duty"] == pytest.approx(-0.0313, abs=5e-4)
+    assert he["included_in_liquid_enthalpy"] is bool(excess)
+    if excess:
+        assert he["first_order_share_of_reboiler_duty"] == pytest.approx(-0.0313, abs=5e-4)
+        assert he["decision"]["mode"] == "usuario" and he["source"]["class"] == "solo_VLE"
+        assert not any("APAGADO" in w for w in r["warnings"])
+    else:
+        assert he["decision"]["mode"] == "automatico" and he["source"]["class"] == "termino_de_exceso_apagado"
+        assert "APAGADO por defecto" in r["warnings"][0] and "ethanol/water" in r["warnings"][0]
+        assert "excess_enthalpy_sets" in r["warnings"][0] and "SIN h^E: apagado por defecto" in r["assumptions"][1]
+        assert he["first_order_share_of_reboiler_duty"] == pytest.approx(-0.0301, abs=5e-4)      # what it would be
 
 
 @slow
-@pytest.mark.parametrize("xd, n, f, rr, q_reb_kW", [(0.70, 15, 10, 0.74817, 971.665), (0.75, 20, 14, 0.89482, 979.835),
-                                                    (0.80, 20, 14, 1.55851, 1229.630)])
-def test_ethanol_water_columns_m15_left_open_converge_and_seal(xd, n, f, rr, q_reb_kW):
+@pytest.mark.parametrize("excess, xd, n, f, rr, q_reb_kW", [
+    (True, 0.70, 15, 10, 0.74817, 971.665), (True, 0.75, 20, 14, 0.89482, 979.835), (True, 0.80, 20, 14, 1.55851, 1229.630),   # M15b
+    (None, 0.70, 15, 10, 0.74811, 1011.366), (None, 0.75, 20, 14, 0.89743, 1020.582),        # por defecto condicional, M15c-2
+    (None, 0.80, 20, 14, 1.56650, 1273.625)])
+def test_ethanol_water_columns_m15_left_open_converge_and_seal(excess, xd, n, f, rr, q_reb_kW):
     """M15b: bubble-point feed, 10 % ethanol. M15: 15 trays converged without the seal, x_D 0.75 did not converge from
     any start, x_D 0.80 kept phantom vapour. Now each one starts (non-ideality homotopy when the first start fails),
-    reaches the specs by continuation on the square system and passes the whole seal. Reference values = notebook 26,
-    where DWSIM («ExpData», same parameters, excess_enthalpy=False) agrees within 0.7 % on both duties."""
+    reaches the specs by continuation on the square system and passes the whole seal. Reference values = notebook 26
+    (term on = M15b default; term off = the conditional default of M15c-2, re-run in notebook 28), where DWSIM
+    («ExpData», same parameters) agrees with the term-off columns within 0.7 % on both duties."""
     reg = _ew_regression()
     p = NP.resolve_parameters(["ethanol", "water"], reg)
     T_bub = C._feed_two_phase_T({"z": EW_Z}, 101325.0, ["ethanol", "water"], p, 0.0)
     r = C.eo_column_optimize(["ethanol", "water"], 100.0, T_bub, 101325.0, EW_Z, n, f, 101325.0, EW_SPECS(xd),
-                             activity_model="NRTL", binary_parameters=reg)
+                             activity_model="NRTL", binary_parameters=reg, excess_enthalpy=excess)
+    assert r["properties"]["excess_enthalpy"]["included_in_liquid_enthalpy"] is bool(excess)
     ev = r["evidence"]
     assert ev["verified"], ev["reasons"]
     assert ev["component_balance_closed"] and ev["phantom_vapour_ok"] and ev["duals_consistent"]
@@ -414,11 +450,13 @@ def test_ethanol_water_matches_dwsim_like_for_like():
     from packages.eo import dwsim_nrtl as DN
     reg = _ew_regression()
     p = NP.resolve_parameters(["ethanol", "water"], reg)
+    # since M15c-2 this is the DEFAULT for a VLE-only regression (it was excess_enthalpy=False, explicit, in M15b)
     r = C.eo_column_optimize(["ethanol", "water"], 100.0, 350.0, 101325.0, EW_Z, 20, 14, 101325.0, EW_SPECS(0.70),
-                             activity_model="NRTL", binary_parameters=reg, excess_enthalpy=False)
+                             activity_model="NRTL", binary_parameters=reg)
     o = r["optimum"]
     assert r["evidence"]["verified"], r["evidence"]["reasons"]
     assert not r["properties"]["excess_enthalpy"]["included_in_liquid_enthalpy"]
+    assert r["properties"]["excess_enthalpy"]["decision"]["mode"] == "automatico"
     dw = DN.column(["Ethanol", "Water"], 350.0, 101325.0, {"Ethanol": 10.0, "Water": 90.0}, 22, 15, o["reflux_ratio"],
                    101325.0, bottoms_mol_s=o["bottoms"]["flow_mol_s"], params=p,
                    dwsim_names={"ethanol": "Ethanol", "water": "Water"}, poynting=False, enthalpy_mode="ExpData")

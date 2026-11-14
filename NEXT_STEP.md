@@ -1,24 +1,42 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M15c cerrados: h^E de etanol-agua contrastado con calorimetría)
+Actualizado: 2026-11-13 (M1-M15c-2 cerrados: valor por defecto condicional del término de exceso)
 
 ## Dónde estamos
+**Bloque M15c-2 (2026-11-13): valor por defecto condicional de `excess_enthalpy`, 69 tools (mismas tools), ✅.** Decisión del owner del 2026-11-13, opción C, transmitida por la sesión principal.
+- `eo_column_optimize` y `simulate_column_nrtl`: `excess_enthalpy=None` (nuevo valor por defecto) enciende h^E solo si los parámetros de todos los pares vienen de un ajuste conjunto VLE + h^E de `vle_binary_regression` que pasó su veredicto. En cualquier otro caso queda apagado y `warnings[0]` dice qué pares no tienen respaldo calorimétrico y cómo encenderlo.
+- `True` o `False` explícitos siempre mandan y salen etiquetados como elección del usuario (`properties.excess_enthalpy.decision`). Con `True` sobre parámetros solo-VLE se conserva la etiqueta «sin validación calorimétrica».
+- La ruta ideal (M8b) no tiene término de exceso y no cambió.
+- Referencias con parámetros solo-VLE recalculadas con re-solves (historia conservada en `BENCHMARK.md` y en los tests con `True` explícito):
+  - Metanol-agua publicada (Simone 2015): Q_reb 1481.7 → 1491.6 kW (vs Aspen −1.41 % → −0.76 %), Q_cond 820.6 → 822.2 kW (+0.19 % → +0.39 %).
+  - Metanol-agua óptimo: RR 4.4911 → 4.4938, Q_reb 1497.6 → 1507.8 kW; vs DWSIM «ExpData» Q_reb −0.49 %, Q_cond −0.72 %.
+  - Etanol-agua cadena: RR 0.7008 → 0.7030, Q_reb 1030.0 → 1070.8 kW; vs DWSIM «ExpData» +0.20 %, +0.09 %.
+  - Arranque M15b (x_D 0.70 con 15 platos, 0.75, 0.80, 0.82): Q_reb +3.0 a +4.2 %; vs DWSIM «ExpData» −0.51 a −0.70 %.
+- Con los datos reales de hoy el modo automático nunca enciende el término: los cuatro ajustes conjuntos de etanol-agua fallan el veredicto (el de 363 K, por 0.04 J/mol). La rama «encendido» está probada con el ajuste sintético.
+- De paso: un resultado de regresión sin cita rompía `resolve_parameters` (fallo de M15); corregido.
+- Tests: 4 rápidos nuevos; los lentos llevan cada caso con `True` (historia M15/M15b) y con el valor por defecto (M15c-2): 51 de 51 con `ALCHEMAI_SLOW_EO_NRTL=1`. Suite completa 548 passed, 19 skipped.
+
+Pendiente (decisiones del owner marcadas):
+1. **Owner: tolerancias del veredicto** (`JOINT_TOLERANCES`). Ahora deciden el valor por defecto de la columna; siguen como las puse, sin decidir.
+2. **Owner (propuesta, no implementada): ¿un par del usuario puede contar como validado?** Hoy `hE_source` (cita) es solo una etiqueta y no enciende el término. Opción: aceptar del usuario la evidencia mínima (cita + AAD de h^E + intervalo de T) para encenderlo por defecto.
+3. Opción D de M15c (h^E medido como correlación propia en la entalpía líquida): no forma parte de este bloque.
+
 **Bloque M15c (2026-11-13): h^E de etanol-agua contra calorimetría y ajuste conjunto VLE + h^E, 69 tools (mismas tools), ✅ con un resultado negativo declarado.**
 - Datos reales: 83 puntos de h^E en 5 isotermas (298.15-383.15 K), de los archivos ThermoML del NIST (Nagamachi y Francesconi 2006; Brandt et al. 2014). Guardados con cita en `tests/data/he_ethanol_water_thermoml.json`.
 - La hipótesis se confirma: el h^E medido es negativo por debajo de ~363 K y el de parámetros solo-VLE es positivo siempre. AAD global 443 J/mol con el término (regresión de Kamihama), 463 (ChemSep), 232 sin término.
 - Columna de referencia de M15b: Q_reb 1030.0 kW con el término, 1070.8 sin él, ≈ 1084 con el h^E medido (estimación por balance de entalpía). Encendido −5.0 %, apagado −1.2 %.
 - `vle_binary_regression` ajusta VLE + h^E a la vez (pesos y AAD separados, IC 95 %, veredicto). Sintético recuperado 12/12. Etanol-agua real: un juego NRTL (a + b/T) no representa ambos, y la tool lo dice.
 - Los juegos conjuntos corren en `eo_column_optimize` de punta a punta (6 re-solves con sello; DWSIM «ExpData» con los mismos a + b/T: cargas ≤ 0.22 %). No mejoran la carga: el que conserva el VLE (solo 363 K) queda igual que apagado (−1.2 %).
-- La salida de la columna dice de dónde viene h^E y cuánto pesa en Q_reb. El valor por defecto de `excess_enthalpy` no se tocó.
+- La salida de la columna dice de dónde viene h^E y cuánto pesa en Q_reb. En M15c el valor por defecto de `excess_enthalpy` no se tocó (cambió en M15c-2).
 - Tests: 16 rápidos + 1 lento nuevos (`tests/test_excess_enthalpy.py`); suite completa 544 passed, 13 skipped.
 
 Pendiente (decisiones del owner marcadas):
-1. **Owner: valor por defecto de `excess_enthalpy`.** Evidencia: un solo sistema (etanol-agua), que es un caso difícil conocido.
+1. ~~**Owner: valor por defecto de `excess_enthalpy`.**~~ → **decidido por el owner el 2026-11-13: opción C (condicional)**, implementada en M15c-2 (arriba). Evidencia: un solo sistema (etanol-agua), que es un caso difícil conocido.
    - A. Dejarlo encendido (hoy). Es consistente con Gibbs-Helmholtz y es lo que hace Aspen con sus parámetros; con parámetros solo-VLE puede dar el signo contrario (etanol-agua: Q_reb −5.0 %). Ya sale etiquetado.
    - B. Apagarlo por defecto. Etanol-agua queda en −1.2 %. Cambia los números de referencia de M15/M15b (metanol-agua 1497.6 → 1507.8 kW).
    - C. Condicional: encendido solo si todos los pares vienen de un ajuste con h^E que pase el veredicto; si no, apagado con aviso. En etanol-agua equivale a B. También cambia las referencias con parámetros solo-VLE.
    - D. (Capacidad nueva, otro bloque) llevar el h^E medido a la entalpía líquida como correlación propia de los datos (Redlich-Kister en x, polinomio en T), con γ de los parámetros de VLE. Es la única vía que mete el h^E real en la columna; rompe la consistencia formal entre γ y h^E.
-   - Recomendación: C como política y D para etanol-agua. Mientras no se decida, sigue A.
+   - Recomendación: C como política y D para etanol-agua. D sigue sin decidir.
 2. **Owner: tolerancias del veredicto** (`JOINT_TOLERANCES`: AAD_T 0.5 K, AAD_y 0.01, AAD_hE 10 % del máximo) y σ de h^E por defecto (5 J/mol + 1 %). Son elecciones mías, en `MOCKS.md`.
 3. Las cargas «con h^E medido» son una estimación (flujos y reflujo fijos): reproduce el par resuelto con/sin a 1.2 kW en la referencia y a 3-6 kW en los juegos conjuntos. Un re-solve exacto pide la opción D.
 4. No hay isoterma medida cerca de 350 K: la alimentación se interpola entre 333.15 y 363.15 K (±9 J/mol según el orden de la interpolación). Larkin 1975 (298-383 K), Ott 1986-87, Costigan 1980, Lama y Lu 1965 y Boyne y Williamson 1967 no se buscaron uno por uno: ThermoML bastó.

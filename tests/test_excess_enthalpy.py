@@ -29,6 +29,8 @@ EW = ["ethanol", "water"]
 slow = pytest.mark.skipif(os.environ.get("ALCHEMAI_SLOW_EO_NRTL") != "1" or not C.ipopt_available(),
                           reason="slow M15 reference/DWSIM tests: ALCHEMAI_SLOW_EO_NRTL=1")
 _CACHE: dict = {}
+EW_SPECS = [{"stream": "distillate", "component": "ethanol", "kind": "mole_fraction", "min": 0.70},
+            {"stream": "bottoms", "component": "water", "kind": "mole_fraction", "min": 0.995}]
 
 
 def _vle():
@@ -330,6 +332,109 @@ def test_column_report_says_where_hE_comes_from_and_its_share_of_the_duty():
     assert NP.excess_enthalpy_source(user, True)["class"] == "no_declarado"
 
 
+# ------------------------------------------------------------------------------------------------ conditional default
+def _joint_synthetic():
+    """A joint VLE + h^E fit that PASSES the verdict (synthetic data from known parameters: a made-up mixture under the
+    names ethanol/water, used only to exercise the «on» branch of the conditional default)."""
+    if "joint_synthetic" not in _CACHE:
+        vle, he = _synthetic(0)
+        _CACHE["joint_synthetic"] = vle_binary_regression(
+            EW, [{"label": "sint", "points": vle}], models=["NRTL"], temperature_dependence="a+b/T", nrtl_alpha=0.3,
+            compare_unifac=False, excess_enthalpy_sets=he)
+    r = _CACHE["joint_synthetic"]
+    assert r["modelos"]["NRTL"]["veredicto_conjunto"]["representa_VLE_y_hE"] is True
+    return r
+
+
+def test_conditional_default_turns_the_term_on_only_with_a_joint_fit_that_passed():
+    """Owner's decision of 2026-11-13 (option C): excess_enthalpy=None → ON only if EVERY pair comes from a joint
+    VLE + h^E regression that passed its verdict; otherwise OFF with a Spanish warning that names the pairs, says the
+    term is off for that reason and how to turn it on."""
+    user = {"components": EW, "b_ij_K": -29.2, "b_ji_K": 624.9, "alpha": 0.2937, "source": "cita del usuario"}
+    comps, vle = _vle()
+    w0 = vle_binary_regression(comps, vle, models=["NRTL"], compare_unifac=False, temperature_dependence="a+b/T",
+                               excess_enthalpy_sets=_he([363.15]), weights={"hE": 0.0})
+    off_cases = {"banco ChemSep ajustados solo a VLE": None,
+                 "vle_binary_regression ajustados solo a VLE": _vle_only(),
+                 "NO pasó el veredicto": _joint_all(),
+                 "NO pasó el veredicto (falla: AAD_hE Brandt2014_363.15K": _joint_363(),      # by 0.04 J/mol: still off
+                 "h^E medido solo comparado, peso 0": w0,
+                 "parámetros del usuario sin procedencia de h^E": [user],
+                 "hE_source declarado (Brandt et al. 2014), pero sin un ajuste que la tool pueda comprobar":
+                     [{**user, "hE_source": "Brandt et al. 2014"}]}
+    for words, bp in off_cases.items():
+        d = NP.resolve_excess_enthalpy(NP.resolve_parameters(EW, bp), None)
+        assert d["included"] is False and d["mode"] == "automatico" and d["requested"] is None, words
+        w = d["warning"]
+        assert words in w and "ethanol/water" in w and "APAGADO por defecto" in w and "Σ x·h_i" in w, w
+        assert "excess_enthalpy=True" in w and "excess_enthalpy_sets" in w and "veredicto" in w
+        assert d["pairs_without_calorimetric_support"] and d["reason"].startswith("apagado por defecto")
+        assert "decisión del owner" in d["policy"]
+    on = NP.resolve_excess_enthalpy(NP.resolve_parameters(EW, _joint_synthetic()), None)
+    assert on["included"] is True and on["warning"] is None and not on["pairs_without_calorimetric_support"]
+    assert on["reason"].startswith("encendido por defecto")
+
+
+def test_explicit_choice_always_wins_and_is_labelled():
+    bank = NP.resolve_parameters(EW, None)
+    forced = NP.resolve_excess_enthalpy(bank, True)
+    assert forced["included"] is True and forced["mode"] == "usuario" and forced["warning"] is None
+    assert "pedido por el usuario (excess_enthalpy=True)" in forced["reason"] and "sin respaldo calorimétrico" in forced["reason"]
+    src = NP.excess_enthalpy_source(bank, True, forced)
+    assert src["class"] == "solo_VLE" and "SIN validación calorimétrica" in src["text"] and "pedido por el usuario" in src["text"]
+    joint = NP.resolve_parameters(EW, _joint_synthetic())
+    declined = NP.resolve_excess_enthalpy(joint, False)
+    assert declined["included"] is False and declined["mode"] == "usuario" and declined["warning"] is None
+    assert declined["reason"] == "pedido por el usuario (excess_enthalpy=False)"
+    assert NP.excess_enthalpy_source(joint, False, declined)["class"] == "termino_de_exceso_apagado"
+    auto = NP.resolve_excess_enthalpy(bank, None)
+    off = NP.excess_enthalpy_source(bank, False, auto)
+    assert off["class"] == "termino_de_exceso_apagado" and "apagado por defecto" in off["text"]
+    for bad in ("auto", 1, 0.0):
+        with pytest.raises(ValueError, match="True, False o None"):
+            NP.resolve_excess_enthalpy(bank, bad)
+
+
+def test_mixed_provenance_keeps_the_term_off_and_names_only_the_unsupported_pairs():
+    names = ["methanol", "ethanol", "water"]
+    d = NP.resolve_excess_enthalpy(NP.resolve_parameters(names, _joint_synthetic()), None)
+    assert d["included"] is False
+    lacking = [t.split(":")[0] for t in d["pairs_without_calorimetric_support"]]
+    assert lacking == ["methanol/ethanol", "methanol/water"]          # ethanol/water (joint fit that passed) is not named
+    assert "methanol/ethanol" in d["warning"] and "banco ChemSep" in d["warning"]
+
+
+def test_columns_use_the_resolved_decision(monkeypatch):
+    """eo_column_optimize and simulate_column_nrtl hand the RESOLVED flag to the property package (checked by stopping
+    at build_configuration: no solve): default → off for the bank and for a VLE-only regression, on for a joint fit
+    that passed, and the explicit value otherwise. The ideal route has no excess term and never asks."""
+    class Stop(Exception):
+        pass
+
+    def fake(names, P, params, extra_T=(), excess_enthalpy="missing"):
+        raise Stop(excess_enthalpy)
+    monkeypatch.setattr(NP, "build_configuration", fake)
+    feed = {"flow_mol_s": 100.0, "T_K": 350.0, "P_Pa": 101325.0, "z": {"ethanol": 0.1, "water": 0.9}}
+    cases = [({}, False), ({"binary_parameters": _vle_only()}, False), ({"excess_enthalpy": True}, True),
+             ({"binary_parameters": _joint_all()}, False), ({"binary_parameters": _joint_all(), "excess_enthalpy": True}, True),
+             ({"excess_enthalpy": False}, False)]
+    for kw, expected in cases:
+        with pytest.raises(Stop) as e:
+            C.eo_column_optimize(EW, 100.0, 350.0, 101325.0, feed["z"], 20, 14, 101325.0, EW_SPECS, activity_model="NRTL", **kw)
+        assert e.value.args[0] is expected, kw
+        with pytest.raises(Stop) as e:
+            C.simulate_column_nrtl(EW, feed, 20, 14, 101325.0, 0.7, distillate_flow_mol_s=13.7, **kw)
+        assert e.value.args[0] is expected, kw
+    with pytest.raises(Stop) as e:     # the «on» branch of the default, with the synthetic set that passed its verdict
+        C.simulate_column_nrtl(EW, feed, 20, 14, 101325.0, 0.7, distillate_flow_mol_s=13.7, binary_parameters=_joint_synthetic())
+    assert e.value.args[0] is True
+    with pytest.raises(ValueError, match="True, False o None"):
+        C.simulate_column_nrtl(EW, feed, 20, 14, 101325.0, 0.7, distillate_flow_mol_s=13.7, excess_enthalpy="si")
+    monkeypatch.setattr(NP, "resolve_excess_enthalpy", lambda *a, **k: (_ for _ in ()).throw(AssertionError("ideal route asked")))
+    import inspect
+    assert "resolve_excess_enthalpy" not in inspect.getsource(C.eo_column_optimize)      # only _eo_nrtl resolves it
+
+
 def test_idaes_package_takes_the_temperature_dependent_set():
     """The joint a + b/T parameters inside the IDAES property package: ln γ and h^E equal to thermo.nrtl.NRTL and to a
     finite difference of g^E/RT (no solve)."""
@@ -345,8 +450,11 @@ def test_tool_signatures_expose_the_new_arguments():
     from packages.dwsim_client import tools as T  # noqa: F401  (import order, see M8c handover)
     from packages.dwsim_client import tools_optimize as TO
     from packages.agent import agent as A
-    assert inspect.signature(TO.eo_column_optimize).parameters["excess_enthalpy"].default is True      # default unchanged
-    assert inspect.signature(C.eo_column_optimize).parameters["excess_enthalpy"].default is True
+    # None = conditional default (owner's decision of 2026-11-13, option C); it was True up to M15c
+    for fn in (TO.eo_column_optimize, C.eo_column_optimize, C.simulate_column_nrtl, A.eo_column_optimize):
+        fn = getattr(fn, "func", fn)
+        assert inspect.signature(fn).parameters["excess_enthalpy"].default is None, fn
+    assert "conditional" in TO.eo_column_optimize.__doc__ and "ExpData" in TO.eo_column_optimize.__doc__
     reg = inspect.signature(vle_binary_regression).parameters
     assert reg["excess_enthalpy_sets"].default is None and reg["weights"].default is None
     for name in ("vle_binary_regression", "eo_column_optimize"):
@@ -356,8 +464,6 @@ def test_tool_signatures_expose_the_new_arguments():
 
 
 # ------------------------------------------------------------------------------------------------ slow: column + DWSIM
-EW_SPECS = [{"stream": "distillate", "component": "ethanol", "kind": "mole_fraction", "min": 0.70},
-            {"stream": "bottoms", "component": "water", "kind": "mole_fraction", "min": 0.995}]
 # notebooks/27_eo_nrtl_excess_enthalpy.json, case J_363 (EO vs DWSIM «ExpData» there: Q_reb +0.22 %, Q_cond +0.09 %)
 J363_REF = {"Q_reb_on_kW": 1066.1717, "Q_reb_off_kW": 1066.2512, "dwsim_tol": 0.005}
 

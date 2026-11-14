@@ -296,7 +296,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                        feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
                        reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0, boilup_ratio_min: float = 0.1,
                        boilup_ratio_max: float = 20.0, activity_model: str = "ideal",
-                       binary_parameters: list | dict | None = None, excess_enthalpy: bool = True) -> dict:
+                       binary_parameters: list | dict | None = None, excess_enthalpy: bool | None = None) -> dict:
     """Equation-oriented column optimisation (IDAES + ipopt, the whole column and the specs as ONE NLP) for a mixture
     of 2+ components named in English (chemicals names, e.g. "n-hexane", "methanol", "water"): minimum reboiler duty
     of a tray column (total condenser, partial reboiler, n_trays equilibrium trays, feed_tray counted from the top)
@@ -319,12 +319,17 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     temperatures are re-checked as bubble points with thermo's NRTL (properties.thermo_bubble_check).
     Binary NRTL with two specs: a McCabe-Thiele check with the same NRTL runs first (`shortcut`: N_min, R_min) and
     REFUSES columns with too few trays, a reflux bound that cannot reach the specs, or a product closer than 0.03 K
-    (dew − bubble) to an azeotrope; relay the Spanish reason. excess_enthalpy=True (default) adds NRTL's h^E to the
-    liquid enthalpy; properties.excess_enthalpy.source says where it comes from (parameters fitted to VLE only = NOT
-    validated by calorimetry, possibly the wrong sign as in ethanol-water below ~363 K; parameters fitted to h^E data
-    by vle_binary_regression(excess_enthalpy_sets=...), with their citation; or term off) and
-    first_order_share_of_reboiler_duty its share of the duty (pass False for ideal mixing, e.g. to compare with
-    DWSIM's «ExpData» mode). A user pair may add "hE_source": citation of the h^E data behind its parameters.
+    (dew − bubble) to an azeotrope; relay the Spanish reason. Excess enthalpy h^E of NRTL in the liquid enthalpy
+    (Gibbs-Helmholtz, same parameters), excess_enthalpy: None (DEFAULT, conditional: the owner's policy) = ON only if
+    EVERY pair's parameters come from a vle_binary_regression fit that included h^E data (excess_enthalpy_sets) and
+    passed its verdict (representa_VLE_y_hE); in any other case (ChemSep bank, VLE-only regression, user values, a
+    joint fit that failed the verdict, mixed sources) it is OFF and `warnings` carries a Spanish notice naming the
+    pairs without calorimetric support and how to turn it on. True / False = the user's explicit choice, always
+    honoured and labelled (True on VLE-only parameters stays labelled «no validado con calorimetría»: it can have the
+    wrong sign, as in ethanol-water below ~363 K). properties.excess_enthalpy has `decision` (mode automatico|usuario,
+    included, reason), `source` (where h^E comes from, with citations) and first_order_share_of_reboiler_duty (its
+    share of the duty, or what it would be if off). The like-for-like DWSIM mode for the OFF case is «ExpData».
+    A user pair may add "hE_source": a citation, kept as a label only (it does NOT turn the term on by default).
     Returns the optimum (RR, BR, duties, products), Lagrange multipliers = MW per unit of each spec, `warnings`
     (parameter extrapolation, Psat source of a regression) and `evidence`: ipopt optimal, specs met, properties
     verified, 8 neighbours ±1 % no better and feasible, multipliers = finite differences within 5 %, NRTL γ and h^E

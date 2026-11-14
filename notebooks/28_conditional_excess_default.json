@@ -1,0 +1,685 @@
+{
+ "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+ "1_simone_2015": {
+  "published": {
+   "aspen": {
+    "T_D_K": 339.0,
+    "T_B_K": 373.0,
+    "Q_reb_kW": 1503.0,
+    "Q_cond_kW": 819.0,
+    "methanol_top_kg_h": 451.0
+   },
+   "gproms": {
+    "T_D_K": 339.0,
+    "T_B_K": 373.0,
+    "Q_reb_kW": 1522.0,
+    "Q_cond_kW": 810.0,
+    "methanol_top_kg_h": 450.0
+   }
+  },
+  "source": "Simone, TU Wien 2015, Tablas 9 y 10 (Aspen Plus RadFrac / gPROMS); sus parámetros NRTL no están impresos: se usan los de ChemSep",
+  "conditional_default": {
+   "values": {
+    "T_D_K": 339.0599022593118,
+    "T_B_K": 372.5911359846148,
+    "Q_reb_kW": 1491.5948859669486,
+    "Q_cond_kW": 822.1948660850586,
+    "methanol_top_kg_h": 448.60798922517733
+   },
+   "decision": {
+    "requested": null,
+    "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+    "pairs_without_calorimetric_support": [
+     "methanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+    ],
+    "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en methanol/water: parámetros de banco ChemSep ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+    "mode": "automatico",
+    "included": false,
+    "reason": "apagado por defecto: methanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+   },
+   "seconds": 13.955505132675171,
+   "dev_vs_aspen_pct": {
+    "Q_reb_kW": -0.7588232889588431,
+    "Q_cond_kW": 0.39009353907919486,
+    "methanol_top_kg_h": -0.5303793292289694
+   },
+   "dev_vs_gproms_pct": {
+    "Q_reb_kW": -1.9977078865342612,
+    "Q_cond_kW": 1.5055390228467358,
+    "methanol_top_kg_h": -0.30933572773836904
+   },
+   "dT_vs_published_K": {
+    "T_D_K": 0.059902259311797934,
+    "T_B_K": -0.408864015385177
+   }
+  },
+  "explicit_on_as_M15": {
+   "values": {
+    "T_D_K": 339.0577361971934,
+    "T_B_K": 372.59157754428804,
+    "Q_reb_kW": 1481.7359713502296,
+    "Q_cond_kW": 820.5876217815311,
+    "methanol_top_kg_h": 448.64880891268456
+   },
+   "decision": {
+    "requested": true,
+    "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+    "pairs_without_calorimetric_support": [
+     "methanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+    ],
+    "warning": null,
+    "mode": "usuario",
+    "included": true,
+    "reason": "pedido por el usuario (excess_enthalpy=True); sin respaldo calorimétrico en methanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+   },
+   "seconds": 11.23222303390503,
+   "dev_vs_aspen_pct": {
+    "Q_reb_kW": -1.41477236525418,
+    "Q_cond_kW": 0.1938488133737648,
+    "methanol_top_kg_h": -0.5213284007351326
+   },
+   "dev_vs_gproms_pct": {
+    "Q_reb_kW": -2.6454683738351137,
+    "Q_cond_kW": 1.3071138001890192,
+    "methanol_top_kg_h": -0.30026468607009527
+   },
+   "dT_vs_published_K": {
+    "T_D_K": 0.0577361971933783,
+    "T_B_K": -0.4084224557119569
+   }
+  }
+ },
+ "2_methanol_water_optimum": {
+  "new_default": {
+   "RR": 4.493772463295551,
+   "BR": 0.25144105874446493,
+   "x_D": 0.9168001709754268,
+   "x_B_heavy": 0.9971019229413534,
+   "T_D_K": 338.93330747092165,
+   "T_B_K": 372.61702833711905,
+   "D_mol_s": 4.264632854142105,
+   "B_mol_s": 146.55056723928251,
+   "Q_reb_kW": 1507.7765205678486,
+   "Q_cond_kW": 838.1133150332264,
+   "verified": true,
+   "reasons": [],
+   "duals": {
+    "mole_fraction:methanol@distillate": 0.5023283689434103,
+    "recovery:methanol@distillate": 2.7044478519448147
+   },
+   "dual_rel_diff": {
+    "mole_fraction:methanol@distillate": 0.001137560315495157,
+    "recovery:methanol@distillate": 1.3234375675142662e-05
+   },
+   "hE_decision": {
+    "requested": null,
+    "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+    "pairs_without_calorimetric_support": [
+     "methanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+    ],
+    "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en methanol/water: parámetros de banco ChemSep ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+    "mode": "automatico",
+    "included": false,
+    "reason": "apagado por defecto: methanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+   },
+   "hE_included": false,
+   "hE_class": "termino_de_exceso_apagado",
+   "hE_share_if_included": -0.005525830501979973,
+   "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en methanol/water: parámetros de banco ChemSep ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+   "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: methanol/water: parámetros de banco ChemSep ajustados solo a VLE. política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+   "seconds": 9.801910877227783
+  },
+  "dwsim_ExpData": {
+   "ok": true,
+   "mode": "ExpData",
+   "values": {
+    "x_D": 0.9164561221800113,
+    "x_B_heavy": 0.9970920111462316,
+    "T_D_K": 339.00062624949703,
+    "T_B_K": 372.5889372982893,
+    "Q_reb_kW": 1515.1437966549447,
+    "Q_cond_kW": 844.2298874457051
+   },
+   "dev_eo_vs_dwsim_pct": {
+    "x_D": 0.037541218514314245,
+    "x_B_heavy": 0.000994070257398505,
+    "T_D_K": -0.0198580100928325,
+    "T_B_K": 0.007539418382473961,
+    "Q_reb_kW": -0.48624269876965664,
+    "Q_cond_kW": -0.7245150288371027
+   }
+  },
+  "old_M15_term_on": {
+   "RR": 4.491114237431555,
+   "BR": 0.250061694482809,
+   "Q_reb_kW": 1497.6195109566343,
+   "Q_cond_kW": 836.2875598172307,
+   "duals": {
+    "mole_fraction:methanol@distillate": 0.4903709350244265,
+    "recovery:methanol@distillate": 2.715633337814099
+   },
+   "dev_vs_dwsim_LiqCp_Excess_pct": {
+    "x_D": 0.05598076443831257,
+    "x_B_heavy": 0.0014880589064514282,
+    "T_D_K": -0.020617844210402136,
+    "T_B_K": 0.0077798335944123664,
+    "Q_reb_kW": 0.29073903874903273,
+    "Q_cond_kW": -0.6198444775948775
+   }
+  },
+  "new_vs_old_pct": {
+   "RR": 0.059188560420952996,
+   "Q_reb_kW": 0.6782102888554409,
+   "Q_cond_kW": 0.21831667762639562
+  }
+ },
+ "3_ethanol_water_chain": {
+  "new_default": {
+   "RR": 0.7030043290271579,
+   "BR": 0.2976853588658453,
+   "x_D": 0.7,
+   "x_B_heavy": 0.9950000000000001,
+   "T_D_K": 351.68902598789225,
+   "T_B_K": 371.6785598070815,
+   "D_mol_s": 13.668654500573165,
+   "B_mol_s": 86.3313454994268,
+   "Q_reb_kW": 1070.7737615487604,
+   "Q_cond_kW": 925.72932656908,
+   "verified": true,
+   "reasons": [],
+   "duals": {
+    "mole_fraction:ethanol@distillate": 0.24338910229969768,
+    "mole_fraction:water@bottoms": 10.27257942991564
+   },
+   "dual_rel_diff": {
+    "mole_fraction:ethanol@distillate": 0.0001023801163844056,
+    "mole_fraction:water@bottoms": 0.0005172469119588465
+   },
+   "hE_decision": {
+    "requested": null,
+    "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+    "pairs_without_calorimetric_support": [
+     "ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+    ],
+    "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+    "mode": "automatico",
+    "included": false,
+    "reason": "apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+   },
+   "hE_included": false,
+   "hE_class": "termino_de_exceso_apagado",
+   "hE_share_if_included": -0.030134023604815176,
+   "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+   "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+   "seconds": 89.69535517692566
+  },
+  "dwsim_ExpData": {
+   "ok": true,
+   "mode": "ExpData",
+   "values": {
+    "x_D": 0.6921865454455252,
+    "x_B_heavy": 0.9937596100535171,
+    "T_D_K": 351.98795306362814,
+    "T_B_K": 371.34504049632886,
+    "Q_reb_kW": 1068.6006192141513,
+    "Q_cond_kW": 924.8895962251553
+   },
+   "dev_eo_vs_dwsim_pct": {
+    "x_D": 1.128807632261286,
+    "x_B_heavy": 0.12481790706067031,
+    "T_D_K": -0.08492537120492472,
+    "T_B_K": 0.08981385891322358,
+    "Q_reb_kW": 0.20336337968878127,
+    "Q_cond_kW": 0.09079249538019862
+   }
+  },
+  "old_M15b_term_on": {
+   "RR": 0.7008078175950011,
+   "BR": 0.2882749517622547,
+   "Q_reb_kW": 1030.022989938933,
+   "Q_cond_kW": 917.2433742788553
+  },
+  "new_vs_old_pct": {
+   "RR": 0.31342564637688586,
+   "Q_reb_kW": 3.956297287329802,
+   "Q_cond_kW": 0.9251581999048408
+  }
+ },
+ "4_startup": {
+  "feed_T_bubble_K": 359.12396611189877,
+  "cases": {
+   "B_xD0.70_15trays_feed10_bubble": {
+    "new_default": {
+     "RR": 0.7481091950538006,
+     "BR": 0.28113914021189973,
+     "x_D": 0.7000003512816271,
+     "x_B_heavy": 0.994999998030971,
+     "T_D_K": 351.6890245538995,
+     "T_B_K": 371.6785592537367,
+     "D_mol_s": 13.668636481619863,
+     "B_mol_s": 86.33136351838041,
+     "Q_reb_kW": 1011.3659182723298,
+     "Q_cond_kW": 950.2464325507767,
+     "verified": true,
+     "reasons": [],
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.2516293915537494,
+      "mole_fraction:water@bottoms": 11.31981298028793
+     },
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.0020350867934735618,
+      "mole_fraction:water@bottoms": 0.0020434199590827775
+     },
+     "hE_decision": {
+      "requested": null,
+      "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+      "pairs_without_calorimetric_support": [
+       "ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+      ],
+      "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+      "mode": "automatico",
+      "included": false,
+      "reason": "apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+     },
+     "hE_included": false,
+     "hE_class": "termino_de_exceso_apagado",
+     "hE_share_if_included": null,
+     "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+     "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+     "seconds": 52.53225493431091
+    },
+    "old_M15b_term_on": {
+     "RR": 0.748167051767429,
+     "Q_reb_kW": 971.6651789313057,
+     "Q_cond_kW": 942.7833721746925
+    },
+    "new_vs_old_pct": {
+     "RR": -0.007733127714160126,
+     "Q_reb_kW": 4.085845639203556,
+     "Q_cond_kW": 0.7915986425247823
+    },
+    "dwsim_ExpData": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.6939025948947801,
+      "x_B_heavy": 0.9940329620663788,
+      "T_D_K": 351.98112857877777,
+      "T_B_K": 371.4182580881369,
+      "Q_reb_kW": 1018.4174250506185,
+      "Q_cond_kW": 949.2586737988073
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.8787625859464576,
+      "x_B_heavy": 0.09728409434048846,
+      "T_D_K": -0.08298854715811377,
+      "T_B_K": 0.07008302901954089,
+      "Q_reb_kW": -0.6923984807053141,
+      "Q_cond_kW": 0.1040558047277651
+     }
+    }
+   },
+   "C_xD0.75_20trays_feed14_bubble": {
+    "new_default": {
+     "RR": 0.8974288572556628,
+     "BR": 0.2807169453281814,
+     "x_D": 0.7500001463837922,
+     "x_B_heavy": 0.9949999984750828,
+     "T_D_K": 351.50747732884275,
+     "T_B_K": 371.6785593785343,
+     "D_mol_s": 12.75116161232552,
+     "B_mol_s": 87.24883838767457,
+     "Q_reb_kW": 1020.5819792620099,
+     "Q_cond_kW": 958.4440376555237,
+     "verified": true,
+     "reasons": [],
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.5813214406313794,
+      "mole_fraction:water@bottoms": 10.726631137723992
+     },
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.00666591497070563,
+      "mole_fraction:water@bottoms": 0.0005975551685775929
+     },
+     "hE_decision": {
+      "requested": null,
+      "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+      "pairs_without_calorimetric_support": [
+       "ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+      ],
+      "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+      "mode": "automatico",
+      "included": false,
+      "reason": "apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+     },
+     "hE_included": false,
+     "hE_class": "termino_de_exceso_apagado",
+     "hE_share_if_included": null,
+     "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+     "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+     "seconds": 71.399099111557
+    },
+    "old_M15b_term_on": {
+     "RR": 0.8948190061910571,
+     "Q_reb_kW": 979.8347095995255,
+     "Q_cond_kW": 950.9205468170555
+    },
+    "new_vs_old_pct": {
+     "RR": 0.2916624531384082,
+     "Q_reb_kW": 4.15858606184083,
+     "Q_cond_kW": 0.7911797535189447
+    },
+    "dwsim_ExpData": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.7432056263957091,
+      "x_B_heavy": 0.9940026141686792,
+      "T_D_K": 351.80788099916373,
+      "T_B_K": 371.41035955685794,
+      "Q_reb_kW": 1027.8185146748178,
+      "Q_cond_kW": 957.6197930028409
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.9142180503979969,
+      "x_B_heavy": 0.10034020959168721,
+      "T_D_K": -0.0853885562392187,
+      "T_B_K": 0.07221118495357448,
+      "Q_reb_kW": -0.7040674311162287,
+      "Q_cond_kW": 0.08607222393537395
+     }
+    }
+   },
+   "D_xD0.80_20trays_feed14_bubble": {
+    "new_default": {
+     "RR": 1.5665041670868247,
+     "BR": 0.347269612838946,
+     "x_D": 0.7999999990003194,
+     "x_B_heavy": 0.9949999971263549,
+     "T_D_K": 351.3746122894892,
+     "T_B_K": 371.6785590003425,
+     "D_mol_s": 11.949414416151026,
+     "B_mol_s": 88.05058558384899,
+     "Q_reb_kW": 1273.6248861717547,
+     "Q_cond_kW": 1210.7352381271876,
+     "verified": true,
+     "reasons": [],
+     "duals": {
+      "mole_fraction:ethanol@distillate": 10.100651660340768,
+      "mole_fraction:water@bottoms": 12.756744776610908
+     },
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.0014730023712838532,
+      "mole_fraction:water@bottoms": 2.1664445919649008e-06
+     },
+     "hE_decision": {
+      "requested": null,
+      "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+      "pairs_without_calorimetric_support": [
+       "ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+      ],
+      "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+      "mode": "automatico",
+      "included": false,
+      "reason": "apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+     },
+     "hE_included": false,
+     "hE_class": "termino_de_exceso_apagado",
+     "hE_share_if_included": null,
+     "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+     "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+     "seconds": 74.17234301567078
+    },
+    "old_M15b_term_on": {
+     "RR": 1.5585083783652955,
+     "Q_reb_kW": 1229.6301524901794,
+     "Q_cond_kW": 1200.8172062889016
+    },
+    "new_vs_old_pct": {
+     "RR": 0.5130411124203205,
+     "Q_reb_kW": 3.577883446699781,
+     "Q_cond_kW": 0.8259401835969182
+    },
+    "dwsim_ExpData": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.7925112784893075,
+      "x_B_heavy": 0.993981251795532,
+      "T_D_K": 351.6830370151783,
+      "T_B_K": 371.4046046345233,
+      "Q_reb_kW": 1280.6872885296555,
+      "Q_cond_kW": 1209.514100567062
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.9449355124998338,
+      "x_B_heavy": 0.10249140303024706,
+      "T_D_K": -0.08769963098212985,
+      "T_B_K": 0.07376170419017836,
+      "Q_reb_kW": -0.5514540841589088,
+      "Q_cond_kW": 0.10096100240195582
+     }
+    }
+   },
+   "E_xD0.82_20trays_feed14_bubble": {
+    "new_default": {
+     "RR": 2.2457090552129633,
+     "BR": 0.4223657859931467,
+     "x_D": 0.8199999947099053,
+     "x_B_heavy": 0.9949999959453276,
+     "T_D_K": 351.33623850819265,
+     "T_B_K": 371.6785586684737,
+     "D_mol_s": 11.65603124272003,
+     "B_mol_s": 88.34396875728001,
+     "Q_reb_kW": 1553.573177722638,
+     "Q_cond_kW": 1490.9967056568607,
+     "verified": true,
+     "reasons": [],
+     "duals": {
+      "mole_fraction:ethanol@distillate": 19.301680865751102,
+      "mole_fraction:water@bottoms": 15.290846426953218
+     },
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.001968788532381155,
+      "mole_fraction:water@bottoms": 3.886187111948787e-05
+     },
+     "hE_decision": {
+      "requested": null,
+      "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+      "pairs_without_calorimetric_support": [
+       "ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+      ],
+      "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+      "mode": "automatico",
+      "included": false,
+      "reason": "apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE"
+     },
+     "hE_included": false,
+     "hE_class": "termino_de_exceso_apagado",
+     "hE_share_if_included": null,
+     "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+     "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: ethanol/water: parámetros de vle_binary_regression ajustados solo a VLE. política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+     "seconds": 73.90510582923889
+    },
+    "old_M15b_term_on": {
+     "RR": 2.2356187419043434,
+     "Q_reb_kW": 1507.8048220547607,
+     "Q_cond_kW": 1479.6075580971594
+    },
+    "new_vs_old_pct": {
+     "RR": 0.45134320622239876,
+     "Q_reb_kW": 3.0354297186492962,
+     "Q_cond_kW": 0.7697411044823355
+    },
+    "dwsim_ExpData": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.8119747883494187,
+      "x_B_heavy": 0.9939373733568982,
+      "T_D_K": 351.64823176346823,
+      "T_B_K": 371.392791036516,
+      "Q_reb_kW": 1561.4619606893812,
+      "Q_cond_kW": 1489.9736459739877
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 0.9883565937804706,
+      "x_B_heavy": 0.10691041678416724,
+      "T_D_K": -0.08872311221671536,
+      "T_B_K": 0.07694485161120479,
+      "Q_reb_kW": -0.505217748837139,
+      "Q_cond_kW": 0.06866293814238311
+     }
+    }
+   },
+   "G_ChemSep_xD0.70_20trays_350K": {
+    "new_default": {
+     "RR": 0.753759238330182,
+     "BR": 0.30683626266148656,
+     "x_D": 0.6999999999999998,
+     "x_B_heavy": 0.995,
+     "T_D_K": 351.6159997015404,
+     "T_B_K": 371.831070352782,
+     "D_mol_s": 13.668646711421019,
+     "B_mol_s": 86.33135328857898,
+     "Q_reb_kW": 1099.4608956336965,
+     "Q_cond_kW": 953.5216315330659,
+     "verified": true,
+     "reasons": [],
+     "duals": {
+      "mole_fraction:ethanol@distillate": 0.2490203482750803,
+      "mole_fraction:water@bottoms": 10.669186882122883
+     },
+     "dual_rel_diff": {
+      "mole_fraction:ethanol@distillate": 0.00010705243950551864,
+      "mole_fraction:water@bottoms": 0.0009604911845061459
+     },
+     "hE_decision": {
+      "requested": null,
+      "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+      "pairs_without_calorimetric_support": [
+       "ethanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+      ],
+      "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de banco ChemSep ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+      "mode": "automatico",
+      "included": false,
+      "reason": "apagado por defecto: ethanol/water: parámetros de banco ChemSep ajustados solo a VLE"
+     },
+     "hE_included": false,
+     "hE_class": "termino_de_exceso_apagado",
+     "hE_share_if_included": -0.02778964928546344,
+     "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: parámetros de banco ChemSep ajustados solo a VLE. Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+     "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: ethanol/water: parámetros de banco ChemSep ajustados solo a VLE. política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+     "seconds": 71.81286597251892
+    },
+    "old_M15b_term_on": {
+     "RR": 0.7530305574678349,
+     "Q_reb_kW": 1059.436948126198,
+     "Q_cond_kW": 944.0497733307477
+    },
+    "new_vs_old_pct": {
+     "RR": 0.09676643996989753,
+     "Q_reb_kW": 3.777850827110374,
+     "Q_cond_kW": 1.0033219084307543
+    },
+    "dwsim_ExpData": {
+     "ok": true,
+     "mode": "ExpData",
+     "values": {
+      "x_D": 0.6920673971462107,
+      "x_B_heavy": 0.9937388713456431,
+      "T_D_K": 351.9166362912292,
+      "T_B_K": 371.52236566131353,
+      "Q_reb_kW": 1097.4287261042537,
+      "Q_cond_kW": 952.661217667476
+     },
+     "dev_eo_vs_dwsim_pct": {
+      "x_D": 1.146218256559961,
+      "x_B_heavy": 0.12690744930297093,
+      "T_D_K": -0.0854283539582501,
+      "T_B_K": 0.08309181895924667,
+      "Q_reb_kW": 0.18517553633363715,
+      "Q_cond_kW": 0.09031687756710927
+     }
+    }
+   }
+  }
+ },
+ "5_joint_fit_that_failed_the_verdict": {
+  "new_default": {
+   "RR": 0.6965240666831828,
+   "BR": 0.2953971959044551,
+   "x_D": 0.7,
+   "x_B_heavy": 0.9949999999999999,
+   "T_D_K": 351.7752726480771,
+   "T_B_K": 371.5195448075286,
+   "D_mol_s": 13.668670490132481,
+   "B_mol_s": 86.33132950986752,
+   "Q_reb_kW": 1066.2511714002876,
+   "Q_cond_kW": 922.1298045883233,
+   "verified": true,
+   "reasons": [],
+   "duals": {
+    "mole_fraction:ethanol@distillate": 0.24297251049662005,
+    "mole_fraction:water@bottoms": 10.282016695786732
+   },
+   "dual_rel_diff": {
+    "mole_fraction:ethanol@distillate": 9.648736446255699e-05,
+    "mole_fraction:water@bottoms": 0.00035635761663960165
+   },
+   "hE_decision": {
+    "requested": null,
+    "policy": "política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto",
+    "pairs_without_calorimetric_support": [
+     "ethanol/water: ajuste conjunto VLE + h^E que NO pasó el veredicto (falla: AAD_hE Brandt2014_363.15K 363.15 K)"
+    ],
+    "warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: ajuste conjunto VLE + h^E que NO pasó el veredicto (falla: AAD_hE Brandt2014_363.15K 363.15 K). Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+    "mode": "automatico",
+    "included": false,
+    "reason": "apagado por defecto: ethanol/water: ajuste conjunto VLE + h^E que NO pasó el veredicto (falla: AAD_hE Brandt2014_363.15K 363.15 K)"
+   },
+   "hE_included": false,
+   "hE_class": "termino_de_exceso_apagado",
+   "hE_share_if_included": 0.004402955659027476,
+   "first_warning": "Término de exceso h^E APAGADO por defecto (entalpía del líquido = Σ x·h_i): sin respaldo calorimétrico en ethanol/water: ajuste conjunto VLE + h^E que NO pasó el veredicto (falla: AAD_hE Brandt2014_363.15K 363.15 K). Sin ese respaldo el h^E de NRTL es una extrapolación del modelo que puede tener hasta el signo contrario al medido. Para encenderlo: pasa excess_enthalpy=True (queda etiquetado como no validado con calorimetría) o ajusta los parámetros con datos de h^E en vle_binary_regression(excess_enthalpy_sets=..., temperature_dependence='a+b/T') y pasa ese resultado en binary_parameters; se enciende solo si el ajuste pasa el veredicto (representa_VLE_y_hE).",
+   "hE_assumption_line": "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: apagado por defecto: ethanol/water: ajuste conjunto VLE + h^E que NO pasó el veredicto (falla: AAD_hE Brandt2014_363.15K 363.15 K). política condicional (decisión del owner, 2026-11-13): por defecto h^E solo se suma a la entalpía del líquido si los parámetros de TODOS los pares vienen de un ajuste conjunto VLE + h^E de vle_binary_regression que pasó su veredicto.",
+   "seconds": 129.8321340084076
+  },
+  "verdict": {
+   "representa_VLE_y_hE": false,
+   "criterios": [
+    {
+     "criterio": "AAD_T_K",
+     "valor": 0.14039296253369166,
+     "tolerancia": 0.5,
+     "cumple": true
+    },
+    {
+     "criterio": "AAD_y",
+     "valor": 0.0033929335850502902,
+     "tolerancia": 0.01,
+     "cumple": true
+    },
+    {
+     "criterio": "AAD_hE Brandt2014_363.15K 363.15 K",
+     "valor": 36.64010246974829,
+     "tolerancia": 36.6,
+     "cumple": false
+    }
+   ],
+   "no_cumple": [
+    "AAD_hE Brandt2014_363.15K 363.15 K"
+   ]
+  },
+  "explicit_off_of_notebook_27": {
+   "RR": 0.6965240666831828,
+   "Q_reb_kW": 1066.2511714002876,
+   "Q_cond_kW": 922.1298045883233
+  },
+  "new_vs_explicit_off_pct": {
+   "RR": 0.0,
+   "Q_reb_kW": 0.0,
+   "Q_cond_kW": 0.0
+  }
+ }
+}

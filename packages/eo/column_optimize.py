@@ -229,16 +229,18 @@ def simulate_column(n_trays: int, feed_tray: int, feed: dict, pressure_Pa: float
 def simulate_column_nrtl(components: list[str], feed: dict, n_trays: int, feed_tray: int, pressure_Pa: float,
                          reflux_ratio: float, distillate_mass_flow_kg_s: float | None = None,
                          distillate_flow_mol_s: float | None = None, binary_parameters=None,
-                         excess_enthalpy: bool = True) -> dict:
+                         excess_enthalpy: bool | None = None) -> dict:
     """Square NRTL column at a given reflux ratio and distillate rate (molar or mass, as a published case states it):
-    the M15 reference-case solve. feed = {flow_mol_s, T_K, P_Pa, z}."""
+    the M15 reference-case solve. feed = {flow_mol_s, T_K, P_Pa, z}. excess_enthalpy: None = conditional default
+    (nrtl_properties.resolve_excess_enthalpy), True/False = explicit; the decision is in `excess_enthalpy_decision`."""
     from pyomo.environ import value
     from packages.eo import nrtl_properties as NP
     if (distillate_mass_flow_kg_s is None) == (distillate_flow_mol_s is None):
         raise ValueError("da distillate_mass_flow_kg_s o distillate_flow_mol_s (uno)")
     params = NP.resolve_parameters(components, binary_parameters)
+    he_decision = NP.resolve_excess_enthalpy(params, excess_enthalpy)
     cfg, prov = NP.build_configuration(components, pressure_Pa, params, extra_T=[feed["T_K"]],
-                                       excess_enthalpy=excess_enthalpy)
+                                       excess_enthalpy=he_decision["included"])
     solver = _solver()
     bounds = {"reflux_ratio": (0.1, 50.0), "boilup_ratio": (0.01, 50.0)}
     mw = {c: prov["components"][c]["MW_g_mol"] * 1e-3 for c in components}
@@ -289,6 +291,7 @@ def simulate_column_nrtl(components: list[str], feed: dict, n_trays: int, feed_t
     st["initial_point"] = start
     st["component_balance_rel"] = component_balance(m)
     st["binary_parameters"] = params["pairs"]
+    st["excess_enthalpy_decision"] = he_decision
     st["thermo_bubble_check"] = NP.thermo_bubble_points(params, pressure_Pa, {k: st[k]["mole_fractions"]
                                                                               for k in STREAMS})
     return st
@@ -370,7 +373,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                        reflux_ratio_bounds: tuple[float, float] = (0.1, 20.0),
                        boilup_ratio_bounds: tuple[float, float] = (0.1, 20.0), evidence: bool = True,
                        property_package: str = "chemicals", activity_model: str = "ideal",
-                       binary_parameters: list | dict | None = None, excess_enthalpy: bool = True) -> dict:
+                       binary_parameters: list | dict | None = None, excess_enthalpy: bool | None = None) -> dict:
     """Minimum reboiler duty of a tray column meeting purity/recovery specs, solved as one NLP (IDAES + ipopt), with a
     property package generated from chemicals/thermo. spec = {"stream": "distillate"|"bottoms", "component": name,
     "kind": "mole_fraction"|"recovery", "min": value}.
@@ -379,8 +382,10 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     (binary_parameters=[{"components": [i, j], "b_ij_K", "b_ji_K" | "dg_ij_J_mol", "dg_ji_J_mol" | "dg_ij_cal_mol",
     "dg_ji_cal_mol", optional "a_ij", "a_ji", "alpha", "source"}]), the result dict of vle_binary_regression (passed
     as is, alone or inside the list), or the ChemSep NRTL databank of thermo; refused if none has the pair.
-    excess_enthalpy (NRTL only, M15b): True adds NRTL's h^E (Gibbs-Helmholtz, same parameters) to the liquid enthalpy;
-    False keeps Σ x·h_i. Its weight in the duty is reported in properties.excess_enthalpy either way."""
+    excess_enthalpy (NRTL only): True adds NRTL's h^E (Gibbs-Helmholtz, same parameters) to the liquid enthalpy, False
+    keeps Σ x·h_i, and None (default, M15c-2, the owner's «condicional») turns it on only when every pair comes from a
+    joint VLE + h^E fit of vle_binary_regression that passed its verdict, and otherwise leaves it off with a warning.
+    The decision, the provenance of h^E and its weight in the duty are in properties.excess_enthalpy either way."""
     from packages.eo import ideal_properties as IP
     _validate(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays, feed_tray, pressure_Pa,
               specs, property_package)
@@ -448,7 +453,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
 
 
 def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds, br_bounds, evidence,
-             binary_parameters, t_sat, t0, excess_enthalpy=True) -> dict:
+             binary_parameters, t_sat, t0, excess_enthalpy=None) -> dict:
     """activity_model='NRTL' path (M15): screening → generated package with NRTL liquid → same NLP and evidence."""
     from packages.eo import ideal_properties as IP
     from packages.eo import nrtl_properties as NP
@@ -456,6 +461,8 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
         params = NP.resolve_parameters(components, binary_parameters)
     except NP.MissingParameters as ex:
         raise ValueError(str(ex)) from ex
+    he_decision = NP.resolve_excess_enthalpy(params, excess_enthalpy)
+    excess_enthalpy = he_decision["included"]
     virial, vreasons = IP.virial_check(components, pressure_Pa)
     if vreasons:
         raise ValueError("el vapor no se puede tratar como gas ideal: " + "; ".join(vreasons) + f" (tolerancia "
@@ -533,7 +540,8 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
     bub["tolerance_K"] = BUBBLE_T_TOL_K
     bub["verified"] = all(abs(v["dT_K"]) <= BUBBLE_T_TOL_K for v in bub["points"].values())
     T_lo, T_hi = min(opt[s_]["T_K"] for s_ in STREAMS), max(opt[s_]["T_K"] for s_ in STREAMS)
-    warnings = NP.parameter_range_warnings(params, T_lo, T_hi) + cross["warnings"]
+    warnings = ([he_decision["warning"]] if he_decision["warning"] else []) + \
+        NP.parameter_range_warnings(params, T_lo, T_hi) + cross["warnings"]
     out = {"components": components, "optimum": opt, "reboiler_duty_MW": opt["reboiler_duty_W"] / 1e6,
            "condenser_duty_MW": opt["condenser_duty_W"] / 1e6,
            "specs": [sp | {"value": _spec_value(opt, feed, sp)} for sp in specs],
@@ -546,7 +554,8 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
                           "screening": {"B_P_over_RT_at_Tsat": virial, "max_B_P_RT": IP.MAX_B_P_RT,
                                         "azeotropes_with_these_parameters": azeos, "unifac_cross_check": cross},
                           "thermo_bubble_check": bub,
-                          "excess_enthalpy": NP.excess_enthalpy_report(params, pressure_Pa, feed, opt, excess_enthalpy)},
+                          "excess_enthalpy": NP.excess_enthalpy_report(params, pressure_Pa, feed, opt, excess_enthalpy,
+                                                                       he_decision)},
            "shortcut": shortcut,
            "warnings": warnings,
            "engine": "IDAES TrayColumn (modular generic properties, fase líquida NRTL propia) + ipopt (idaes-ext)",
@@ -555,9 +564,10 @@ def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds
                f"{IP.MAX_B_P_RT}, Tsonopoulos sin términos polares; no capta la asociación en el vapor de ácidos "
                "carboxílicos). Parámetros binarios: una fuente etiquetada por par (properties.binary_parameters).",
                ("Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros (Gibbs-Helmholtz). "
-                "Origen de ese h^E: " + NP.excess_enthalpy_source(params, True)["text"] +
+                "Origen de ese h^E: " + NP.excess_enthalpy_source(params, True, he_decision)["text"] +
                 " (su peso en Q_reb está en properties.excess_enthalpy)." if excess_enthalpy else
-                "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E (excess_enthalpy=False, pedido por el usuario)."),
+                "Entalpía del líquido = Σ x·h_i (paquete M8b), SIN h^E: " + he_decision["reason"] + ". " +
+                NP.HE_POLICY + "."),
                "Paquete puro generado de chemicals/thermo (fuentes en properties.provenance.sources), igual que M8b.",
                "Azeótropos buscados solo en pares binarios con estos parámetros; con 3+ compuestos y un azeótropo "
                "binario la tool se niega (no evalúa fronteras de destilación). UNIFAC Dortmund solo como comparación.",

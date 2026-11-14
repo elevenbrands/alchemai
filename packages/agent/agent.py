@@ -146,11 +146,17 @@ Hard rules:
    when neither is given). If the tool says a pair has no parameters, ask for VLE data and run vle_binary_regression;
    never invent parameters. Report RR, boil-up, Q_reboiler and the multipliers as "MW per unit of spec", the property
    sources, the parameter source of every pair, the UNIFAC cross-check, the azeotropes found with those parameters and
-   any warnings (extrapolation, Psat of the regression), with the seal only if verified. ALWAYS say where the excess
-   enthalpy comes from (properties.excess_enthalpy.source.text) and how much of Q_reb it is
-   (first_order_share_of_reboiler_duty): with VLE-only parameters h^E is NOT validated by calorimetry and can even
-   have the wrong sign (ethanol-water: measured h^E is negative below ~363 K, the VLE-only NRTL gives it positive);
-   offer excess_enthalpy=False or a joint VLE + h^E regression when the user has calorimetric data. If the specs cross an
+   any warnings (extrapolation, Psat of the regression), with the seal only if verified. Excess enthalpy (h^E): leave
+   excess_enthalpy unset unless the user asks; the default is CONDITIONAL (the owner's policy): the term is added only
+   when every pair's parameters come from a joint VLE + h^E regression that passed its verdict, and is OFF otherwise
+   (ChemSep bank, VLE-only regression, user values, a joint fit that failed). ALWAYS tell the user which it was and why
+   (properties.excess_enthalpy.decision.reason; when it is off by default the first entry of `warnings` says which
+   pairs lack calorimetric support), where h^E comes from (properties.excess_enthalpy.source.text) and how much of
+   Q_reb it is or would be (first_order_share_of_reboiler_duty). The way to enable it properly is calorimetric data:
+   ask for heat-of-mixing data and run vle_binary_regression with excess_enthalpy_sets. excess_enthalpy=True forces it
+   on VLE-only parameters only if the user explicitly asks, and you must say it is not validated by calorimetry and
+   can have the wrong sign (ethanol-water: measured h^E negative below ~363 K, VLE-only NRTL positive; Q_reb −5 %).
+   Never present a duty without saying whether h^E is in it. If the specs cross an
    azeotrope the tool refuses: explain it and offer entrainer/pressure-swing schemes on the DWSIM column
    (optimize_design_multi).
 17. Surrogate optimisation of a built DWSIM flowsheet (slow or many-variable flowsheets, or the user asks for a
@@ -1024,7 +1030,7 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                        feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
                        reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0, boilup_ratio_min: float = 0.1,
                        boilup_ratio_max: float = 20.0, activity_model: str = "ideal",
-                       binary_parameters: list | dict | None = None, excess_enthalpy: bool = True) -> str:
+                       binary_parameters: list | dict | None = None, excess_enthalpy: bool | None = None) -> str:
     """Equation-oriented (IDAES + ipopt) minimum reboiler duty of a tray column for a mixture of 2+ components
     (English chemicals names), meeting purity/recovery specs: specs = [{"stream": "distillate"|"bottoms", "component",
     "kind": "mole_fraction"|"recovery", "min"}]. Property package generated from chemicals/thermo and checked vs DIPPR.
@@ -1032,11 +1038,11 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     activity_model="NRTL": NRTL liquid + ideal gas; binary_parameters = the user's pairs [{"components": [i, j],
     "b_ij_K", "b_ji_K" (or dg_*_J_mol / dg_*_cal_mol), optional "a_ij", "a_ji", "alpha", "source"}] and/or the whole
     result of vle_binary_regression; missing pairs come from thermo's ChemSep NRTL bank or are refused (never
-    invented). Specs across an azeotrope predicted with those parameters are refused. excess_enthalpy=True (default)
-    adds NRTL's h^E (Gibbs-Helmholtz, same parameters) to the liquid enthalpy, False keeps ideal mixing in enthalpy;
-    properties.excess_enthalpy.source says where that h^E comes from (VLE-only parameters = not validated by
-    calorimetry, parameters fitted to h^E data with their citation, or term off) and its share of Q_reb. A user pair
-    may carry "hE_source": citation of the h^E data its parameters were fitted to. Returns optimal reflux/boil-up,
+    invented). Specs across an azeotrope predicted with those parameters are refused. excess_enthalpy (NRTL's h^E in the
+    liquid enthalpy): None (default) = conditional, ON only if every pair comes from a vle_binary_regression fit with
+    h^E data that passed its verdict, otherwise OFF with a warning; True/False = the user's explicit choice.
+    properties.excess_enthalpy has the decision, where h^E comes from (with citations) and its share of Q_reb. A user
+    pair may carry "hE_source" (citation; a label only, it does not turn the term on). Returns optimal reflux/boil-up,
     duties, products, multipliers (MW per unit of spec), parameter source per pair, UNIFAC cross-check, warnings and
     evidence (neighbours, multipliers vs finite differences, NRTL vs thermo)."""
     return json.dumps(TO.eo_column_optimize(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays,
