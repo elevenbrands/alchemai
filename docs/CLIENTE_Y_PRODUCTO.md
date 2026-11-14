@@ -52,6 +52,7 @@ El nombre del diagnóstico y su precio después del piloto son decisión del own
 | Diagnóstico de punta a punta en un solo flujo | `steam_system_diagnostic` (M19) | hecho: línea base, 5 medidas, caso combinado, procedencia; reproduce los ejemplos de 5 hojas del DOE (3 a ≤ 0.04 %, 2 con diferencia explicada) |
 | Reporte para el cliente | `steam_diagnostic_report` (M19) | hecho: Markdown en español armado sin modelo de lenguaje; ejemplo ilustrativo en `notebooks/32_diagnostico_de_vapor_reporte.md` |
 | Lista de datos que se piden a la planta | `docs/DATOS_PARA_DIAGNOSTICO.md` | hecha desde las entradas reales del motor; sin validar con plantas |
+| Planta que no conoce la pérdida por paredes de su caldera | `combustion.setting_loss_unknown` (M19b) | hecho: usa 1.0 % (PCS) de la guía ORNL/TM-2001/263 del DOE, marcado como supuesto y con su sensibilidad; sin validar con calderas reales |
 | Diagnóstico con datos de una planta real | — | no existe: 0 plantas |
 
 ## Qué es nuevo y qué no

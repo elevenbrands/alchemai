@@ -44,8 +44,8 @@ Si te interesa o conoces a alguien a cargo de calderas o energía en una planta,
 
 Notas para el owner:
 - Este post pide algo; conviene publicarlo después del post 2 (el del error en DWSIM), que es el que da credibilidad.
-- Lo que el diagnóstico exige hoy y una planta casi nunca tiene: la pérdida por paredes de la caldera. Decidir qué
-  hacer con eso (ver `NEXT_STEP.md`, decisiones de M19) antes de recibir datos reales.
+- La pérdida por paredes de la caldera, que una planta casi nunca tiene, ya no bloquea (decisión del owner,
+  2026-11-14): si la planta dice que no la conoce se usa 1.0 % de una guía del DOE y el reporte lo marca como supuesto.
 - Si alguna planta candidata es de tu empleador o de un cliente suyo, revisa antes su política de conflicto de interés.
 - Rutas para llegar a la primera planta además del post: compañeros de generación que trabajen en plantas;
   proveedores de calderas y de tratamiento de agua (visitan plantas y les sirve llevar un diagnóstico); cámaras y

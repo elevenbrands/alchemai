@@ -1,7 +1,9 @@
 # Datos para el diagnóstico de vapor
 
 Lista de lo que hay que pedirle a la planta. Sale de las entradas reales de `steam_system_diagnostic` (bloque M19); la columna
-«Parámetro» es el nombre exacto que recibe la herramienta. Ningún dato se supone: lo que falte se niega o se reporta como faltante.
+«Parámetro» es el nombre exacto que recibe la herramienta. Ningún dato se supone en silencio: lo que falte se niega o se reporta como faltante.
+La única excepción, decidida por el owner el 2026-11-14, es la pérdida por paredes de la caldera: si la planta declara que no la
+conoce, se usa un valor publicado y el reporte lo marca como supuesto.
 Estado: propuesta sin validar con plantas (0 conversaciones al 2026-11-14).
 
 Quién suele tenerlo: **C** jefe de calderas o de servicios · **A** administración o compras · **P** proveedor (quemador, tratamiento de agua, equipo).
@@ -17,7 +19,7 @@ Quién suele tenerlo: **C** jefe de calderas o de servicios · **A** administrac
 | Oxígeno medido en la chimenea, y si el analizador lo da en base seca o húmeda (o el exceso de aire) | C | Cuánto aire sobra: la mayor pérdida controlable | `combustion.flue_O2` o `combustion.excess_air_fraction` |
 | Temperatura de los gases en la chimenea, a la misma carga que el O2 | C | Pérdida por chimenea | `combustion.stack_T_K` |
 | Temperatura y humedad del aire que entra al quemador | C | Pérdida por chimenea y humedad de los gases | `combustion.air` (`T_K` y `relative_humidity` o `humidity_ratio_kg_kg`) |
-| Pérdida por paredes y radiación de la caldera, como porcentaje del poder calorífico (hoja de datos del fabricante o prueba) | P / C | Eficiencia de la caldera. **No hay valor típico** | `combustion.setting_loss_fraction`, `combustion.setting_loss_basis` |
+| Pérdida por paredes y radiación de la caldera, como porcentaje del poder calorífico (hoja de datos del fabricante o prueba) | P / C | Eficiencia de la caldera. **Si la planta no la conoce**, se declara y se usa 1.0 % (base PCS) de la guía ORNL/TM-2001/263 del DOE (sección 4.2.5: calderas de tubos de agua en buen estado, cerca de plena carga), marcado como supuesto y con su sensibilidad | `combustion.setting_loss_fraction`, `combustion.setting_loss_basis`; o `combustion.setting_loss_unknown` |
 | Purga, como porcentaje del agua de alimentación (0 si de verdad no hay) | C / P | Calor y agua que se tiran por la purga | `boiler.blowdown_fraction` |
 | Cómo se calienta el agua de alimentación: con vapor de la caldera (desaireador o tanque con serpentín o inyección), sin calentador, o no se quiere cobrar | C | Define cuánto vapor se gasta en la propia casa de calderas | `water.feedwater_heating` (`deaerator_steam`, `mixing_only`, `not_charged`) |
 | Temperatura del agua que entra a la caldera (no hace falta si el tanque no tiene calentador; si se da, se compara) | C | Calor que debe poner el combustible | `water.feedwater_T_K` |

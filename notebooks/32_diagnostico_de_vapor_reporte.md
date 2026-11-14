@@ -104,7 +104,7 @@ Datos que faltaron y qué impide cada uno:
 
 ## 6. De dónde sale cada número
 
-Tres orígenes posibles: **dato de la planta** (lo entregó la planta; no se comprobó en sitio), **calculado** (lo produjo una herramienta a partir de esos datos) y **referencia publicada** (un precio de una fuente pública con fecha, usado solo porque se pidió).
+Tres orígenes posibles: **dato de la planta** (lo entregó la planta; no se comprobó en sitio), **calculado** (lo produjo una herramienta a partir de esos datos) y **referencia publicada** (un precio o un valor de una fuente pública con fecha, usado solo porque se pidió o porque la planta declaró que no tiene el dato).
 
 Datos de la planta:
 

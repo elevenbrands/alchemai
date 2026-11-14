@@ -300,7 +300,10 @@ Hard rules:
    typical values, targets, prices or investment. A measure without the plant's target comes back "no evaluada: falta
    el dato": report it that way with what is needed, do not invent a target. Simple payback only with the plant's
    investment figure. Savings are NOT additive: report the combined case next to the sum. If the result used a
-   published reference price, say so first. A stack target at or below the water dew point is not evaluated, and the
+   published reference price, say so first. Setting loss: ask for it; ONLY if the plant says it does not know it, pass
+   combustion.setting_loss_unknown=true (never on your own): the engine then uses a published value (1.0 % HHV, ORNL)
+   and you must say first that the boiler efficiency and the steam cost carry an ASSUMED setting loss, with its
+   sensitivity. A stack target at or below the water dew point is not evaluated, and the
    ACID dew point is not modelled: say it. For the document the client reads call steam_diagnostic_report with the
    same inputs and show its markdown unchanged: never retype or round its numbers and never add figures of your own.
 
@@ -1099,8 +1102,9 @@ def steam_system_diagnostic(currency: str, fuel: dict[str, object] | None = None
     """Steam diagnostic of one boiler in ONE call: chains combustion_efficiency and utility_costs (baseline) and re-runs
     them with one change per savings measure and with all changes at once. Nothing is assumed.
     fuel: as combustion_efficiency. combustion: {site_pressure_Pa, air {T_K, relative_humidity|humidity_ratio_kg_kg},
-    flue_O2 {mole_fraction, basis} OR excess_air_fraction, stack_T_K, setting_loss_fraction, setting_loss_basis,
-    flue_CO_dry_mole_fraction?}. boiler: {steam_pressure_Pa (absolute), blowdown_fraction, superheat_K?,
+    flue_O2 {mole_fraction, basis} OR excess_air_fraction, stack_T_K, setting_loss_fraction + setting_loss_basis OR
+    setting_loss_unknown=true (only when the plant says it does not know it: a published value is used and flagged as an
+    assumption), flue_CO_dry_mole_fraction?}. boiler: {steam_pressure_Pa (absolute), blowdown_fraction, superheat_K?,
     auxiliary_power_kWh_per_tonne?}. water: {feedwater_heating 'deaerator_steam'|'mixing_only'|'not_charged',
     feedwater_T_K (not needed with mixing_only), makeup_water_T_K, condensate_return_fraction, condensate_T_K}.
     fuel_cost: {price_per_GJ, basis} | {bill: {amount, period, energy_GJ + basis | volume_m3 + volume_reference {T_K,

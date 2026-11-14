@@ -142,7 +142,9 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     skipped = [m for m in d["measures"] if m["status"] != "evaluated"]
     comb = d.get("combined")
     comb_ok = bool(comb and comb.get("savings"))
-    refs = d["provenance"]["published_references"]
+    refs = [r for r in d["provenance"]["published_references"] if r.get("kind") != "setting_loss"]
+    loss = d.get("setting_loss") or {}
+    loss_assumed = bool(loss.get("assumed"))
     L: list[str] = []
     numbers: dict = {}
 
@@ -198,6 +200,14 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
         L += ["> **Aviso: al menos un precio es una REFERENCIA PUBLICADA, no el contrato de la planta.** "
               + " ".join(f"{r['item']}: {r['detail']}." for r in refs)
               + " Las cifras en dinero cambian cuando se sustituya por el precio real.", ""]
+    if loss_assumed:
+        sv = loss["sensitivity"]
+        L += ["> **Aviso: la pérdida por paredes de la caldera es un SUPUESTO tomado de una publicación, no un dato de la "
+              f"planta.** La planta declaró que no la conoce. Se usó {_pct(loss['value'])} de la energía del combustible "
+              f"(base {'PCS' if loss['basis'] == 'HHV' else 'PCI'}), de {loss['source']}. Si la pérdida real fuera un punto "
+              f"porcentual mayor, la eficiencia bajaría {_n(-sv['efficiency_change_points'], 2)} puntos y el vapor costaría "
+              f"{_pct(sv['cost_change_fraction'], 2)} más. La eficiencia y el costo de este reporte dejan de ser supuestos "
+              "cuando la planta entregue ese dato (hoja del fabricante o prueba).", ""]
     if not d["evidence"]["verified"]:
         L += [f"> **ATENCIÓN: las comprobaciones internas NO cerraron** ({'; '.join(d['evidence']['reasons'])}). No uses estas "
               f"cifras sin revisar.", ""]
@@ -252,7 +262,8 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
             ["Se va con la purga", _n(100 * boiler["blowdown_heat_fraction_of_fuel"], 1), "agua caliente que se tira para controlar las sales"]]
     for k, v in boiler["losses_fraction_of_heating_value"].items():
         if abs(v) > 5e-5:
-            rows.append([LOSS_ES[k][0], _n(100 * v, 1), LOSS_ES[k][1]])
+            note = " **Valor supuesto de una publicación, no medido en la planta**" if k == "setting" and loss_assumed else ""
+            rows.append([LOSS_ES[k][0], _n(100 * v, 1), LOSS_ES[k][1] + ("." + note if note else "")])
     for k, v in boiler["credits_fraction_of_heating_value"].items():
         if abs(v) > 5e-5:
             rows.append([CREDIT_ES[k], _n(-100 * v, 1), "entra con el aire o el combustible; se resta de las pérdidas"])
@@ -352,9 +363,17 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     # ------------------------------------------------------------------------------------------------ provenance
     L += ["## 6. De dónde sale cada número", "",
           "Tres orígenes posibles: **dato de la planta** (lo entregó la planta; no se comprobó en sitio), **calculado** (lo "
-          "produjo una herramienta a partir de esos datos) y **referencia publicada** (un precio de una fuente pública con "
-          "fecha, usado solo porque se pidió).", "", "Datos de la planta:", ""]
+          "produjo una herramienta a partir de esos datos) y **referencia publicada** (un precio o un valor de una fuente "
+          "pública con fecha, usado solo porque se pidió o porque la planta declaró que no tiene el dato).", "",
+          "Datos de la planta:", ""]
     L += _table(["Dato", "Valor"], [[_es(p["item"]), _es(_plant_value(p))] for p in d["provenance"]["plant_data"]])
+    if loss_assumed:
+        L += ["Valor supuesto de una publicación (no es dato de la planta):", ""]
+        L += _table(["Dato", "Valor", "Origen", "Detalle"],
+                    [["Pérdida por paredes y radiación de la caldera",
+                      f"{_pct(loss['value'])} del poder calorífico (base {'PCS' if loss['basis'] == 'HHV' else 'PCI'})",
+                      loss["origin"], f"{loss['statement']}; {loss['value_choice']}. {loss['source']}. Consultada el "
+                                      f"{loss['retrieved']}. Límites: " + "; ".join(loss["limits"]) + "."]])
     L += ["Precios:", ""]
     L += _table(["Precio", "Valor", "Origen", "Detalle"],
                 [[p["item"], _plant_value(p) if isinstance(p["value"], dict) or p["unit"].startswith("fracción")
@@ -403,5 +422,5 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     return {"markdown": md, "headline": numbers, "currency": cur, "fuel_basis": basis,
             "sections": [x[3:] for x in L if x.startswith("## ")], "integrity": integrity,
             "evaluated_measures": [m["id"] for m in evaluated], "not_evaluated_measures": [m["id"] for m in skipped],
-            "uses_published_reference_price": bool(refs), "verified": ev["verified"], "diagnostic": d}
+            "uses_published_reference_price": bool(refs), "uses_assumed_setting_loss": loss_assumed, "verified": ev["verified"], "diagnostic": d}
 

@@ -21,7 +21,9 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     fuel: como en combustion_efficiency (gas por composición molar, o análisis elemental con poder calorífico medido).
     combustion: {site_pressure_Pa (atmosférica del sitio), air {T_K, relative_humidity o humidity_ratio_kg_kg}, flue_O2
       {mole_fraction, basis 'dry'|'wet'} O excess_air_fraction, stack_T_K, setting_loss_fraction + setting_loss_basis
-      ('HHV'|'LHV'; pérdida por paredes, no hay valor típico); opcional flue_CO_dry_mole_fraction}.
+      ('HHV'|'LHV'; pérdida por paredes) O setting_loss_unknown=true SOLO si la planta declara que no la conoce: entonces
+      se usa 1.0 % (PCS) de ORNL/TM-2001/263 sec. 4.2.5, marcado como SUPUESTO en avisos, procedencia y reporte, con su
+      sensibilidad en `setting_loss`; sin ninguno de los dos la tool se niega; opcional flue_CO_dry_mole_fraction}.
     boiler: {steam_pressure_Pa (ABSOLUTA), blowdown_fraction (purga, fracción de la alimentación); opcionales superheat_K y
       auxiliary_power_kWh_per_tonne (ventiladores y bombas; sin él la electricidad no se cobra)}.
     water: {feedwater_heating: 'deaerator_steam' (desaireador o tanque calentado con vapor de la caldera) | 'mixing_only'

@@ -570,6 +570,79 @@ def test_tools_are_registered_with_spanish_descriptions():
     assert "blowdown_heat_recovery" in TU.utility_costs.__doc__
 
 
+def _unknown_loss() -> dict:
+    kw = copy.deepcopy(PLANT)
+    del kw["combustion"]["setting_loss_fraction"], kw["combustion"]["setting_loss_basis"]
+    kw["combustion"]["setting_loss_unknown"] = True
+    return kw
+
+
+def test_unknown_setting_loss_uses_the_published_value_and_flags_it_everywhere(full):
+    """Owner decision 2026-11-14: a plant that does not know its setting loss gets a published value, never silently."""
+    R = SD.SETTING_LOSS_REFERENCE
+    assert R["value"] == 0.010 and R["basis"] == "HHV" and "ORNL/TM-2001/263" in R["source"] and "4.2.5" in R["source"]
+    kw = _unknown_loss()
+    out = TS.steam_system_diagnostic(**kw)
+    json.dumps(out)
+    # same result as a plant that gives exactly the published number, so only the labelling differs
+    same = TS.steam_system_diagnostic(**plant(combustion={"setting_loss_fraction": R["value"], "setting_loss_basis": "HHV"}))
+    assert out["baseline"]["steam"]["cost_per_tonne"] == pytest.approx(same["baseline"]["steam"]["cost_per_tonne"], rel=1e-12)
+    assert out["baseline"]["boiler"]["efficiency"] == pytest.approx(same["baseline"]["boiler"]["efficiency"], rel=1e-12)
+    assert out["baseline"]["boiler"]["losses_fraction_of_heating_value"]["setting"] == pytest.approx(R["value"])
+    # labelled: first warning, missing data, assumptions, provenance (published, not plant)
+    assert out["warnings"][0].startswith(SD.SETTING_LOSS_FLAG) and R["url"] in out["warnings"][0]
+    assert any("pérdida por paredes" in m["item"] and "supuesto" in m["prevents"] for m in out["missing_data"])
+    assert any("NO es un dato de la planta" in a for a in out["assumptions"])
+    sl = out["setting_loss"]
+    assert sl["assumed"] is True and sl["origin"] == SD.REF and sl["reference"] == R["id"] and sl["limits"]
+    pub = [p for p in out["provenance"]["published_references"] if p.get("kind") == "setting_loss"]
+    assert len(pub) == 1 and pub[0]["origin"] == SD.REF and pub[0]["value"] == R["value"]
+    assert not any("paredes" in p["item"] for p in out["provenance"]["plant_data"])
+    # sensitivity: one more point of loss costs one point of efficiency and makes steam dearer
+    sv = sl["sensitivity"]
+    assert sv["setting_loss_fraction"] == pytest.approx(0.020) and sv["efficiency_change_points"] == pytest.approx(-1.0, abs=1e-9)
+    assert sv["cost_per_tonne_change"] > 0 and 0.005 < sv["cost_change_fraction"] < 0.02
+    two = TS.steam_system_diagnostic(**plant(combustion={"setting_loss_fraction": 0.020, "setting_loss_basis": "HHV"}))
+    assert sv["cost_per_tonne"] == pytest.approx(two["baseline"]["steam"]["cost_per_tonne"], rel=1e-12)
+    assert out["evidence"]["verified"] is True
+    # a plant that gives its own number is not flagged
+    assert full["setting_loss"] == {"origin": SD.PLANT, "assumed": False, "value": 0.015, "basis": "HHV"}
+    assert not any(w.startswith(SD.SETTING_LOSS_FLAG) for w in full["warnings"])
+    assert not any(p.get("kind") == "setting_loss" for p in full["provenance"]["published_references"])
+
+
+def test_setting_loss_is_never_assumed_without_the_declaration():
+    kw = _unknown_loss()
+    del kw["combustion"]["setting_loss_unknown"]
+    with pytest.raises(ValueError, match="setting_loss_unknown=true"):                    # still refused; the way out is named
+        TS.steam_system_diagnostic(**kw)
+    kw["combustion"]["setting_loss_unknown"] = False
+    with pytest.raises(ValueError, match="setting_loss_fraction"):
+        TS.steam_system_diagnostic(**kw)
+    with pytest.raises(ValueError, match="también setting_loss_unknown"):                 # contradictory
+        TS.steam_system_diagnostic(**plant(combustion={"setting_loss_unknown": True}))
+    kw = _unknown_loss()
+    kw["combustion"]["setting_loss_basis"] = "LHV"
+    with pytest.raises(ValueError, match="la base la fija la publicación"):
+        TS.steam_system_diagnostic(**kw)
+    kw = _unknown_loss()
+    kw["combustion"]["setting_loss_unknown"] = "yes"
+    with pytest.raises(ValueError, match="true o false"):
+        TS.steam_system_diagnostic(**kw)
+
+
+def test_report_says_first_that_the_setting_loss_is_assumed(full):
+    rep = TS.steam_diagnostic_report(inputs=_unknown_loss())
+    md = rep["markdown"]
+    assert rep["uses_assumed_setting_loss"] is True and rep["uses_published_reference_price"] is False
+    notice = md.index("la pérdida por paredes de la caldera es un SUPUESTO")
+    assert md.index("## Resumen") < notice < md.index("## 1.")
+    assert "ORNL/TM-2001/263" in md and "Valor supuesto de una publicación (no es dato de la planta)" in md
+    assert "Valor supuesto de una publicación, no medido en la planta" in md             # in the table of losses too
+    plain = TS.steam_diagnostic_report(inputs=PLANT)
+    assert plain["uses_assumed_setting_loss"] is False and "SUPUESTO" not in plain["markdown"]
+
+
 def test_the_data_checklist_names_every_input_of_the_engine():
     """docs/DATOS_PARA_DIAGNOSTICO.md is what the owner hands to a plant: it must not drift from the engine's inputs."""
     from pathlib import Path
@@ -582,4 +655,4 @@ def test_the_data_checklist_names_every_input_of_the_engine():
              "volume_m3_per_year", "mass_kg_per_year", "from_fuel_bill", "volume_reference", "energy_GJ", "volume_m3", "mass_kg"}
     missing = sorted(k for k in keys if f"`{k}`" not in doc and f".{k}`" not in doc and f"`{k}" not in doc)
     assert not missing, missing
-    assert "No hay valor típico" in doc and "no evaluada: falta el dato" in doc and "la inversión nunca se estima" in doc
+    assert "Si la planta no la conoce" in doc and "marcado como supuesto" in doc and "no evaluada: falta el dato" in doc and "la inversión nunca se estima" in doc
