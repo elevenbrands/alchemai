@@ -12,7 +12,7 @@ Actualizado: 2026-11-13 (M1-M15b cerrados: etanol-agua en la columna EO con NRTL
 
 Pendiente (decisiones del owner marcadas):
 1. **Owner**: h^E de etanol-agua pesa −3.8 % en Q_reb y viene de parámetros de VLE. ¿Se deja por defecto (consistente con Gibbs-Helmholtz) o se busca h^E calorimétrico publicado y parámetros con dependencia en T?
-2. **Owner**: ¿reportar a DWSIM la fórmula del término de exceso?
+2. ~~¿Reportar a DWSIM la fórmula del término de exceso?~~ → reportado el 2026-11-13 con OK del owner: https://github.com/DanWBR/dwsim10/issues/137 (fórmula confirmada en su fuente, `master` 9ab62b6; medido solo NRTL en 10.2.12). Falta: respuesta del mantenedor; si lo corrige, re-medir y volver a comparar con h^E contra «LiqCp_Excess».
 3. x_D +0.9 a +1.1 % vs DWSIM en etanol-agua: atribuido a la Psat de DWSIM (T_D +0.30 K), sin auditar.
 4. `simulate_column_nrtl` (RR y D fijos) sigue frágil en etanol-agua; con 1 o 3+ specs y en multicomponentes la ruta es el NLP de M15.
 5. Destilado más allá de x 0.82 en etanol-agua: hace falta otra formulación de equilibrio (complementariedad en vez de SmoothVLE).

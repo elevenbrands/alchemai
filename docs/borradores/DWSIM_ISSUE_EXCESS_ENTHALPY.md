@@ -1,10 +1,10 @@
-# Borrador — issue para DanWBR/dwsim10
+# Issue publicado en DanWBR/dwsim10
 
-> Estado: BORRADOR, sin publicar. Publicar solo con OK del owner.
+> Estado: PUBLICADO el 2026-11-13 con OK del owner: https://github.com/DanWBR/dwsim10/issues/137
 > Destino: https://github.com/DanWBR/dwsim10/issues (plantilla «Bug report»).
 > Verificado el 2026-11-13: fórmula leída en el código fuente (`master` 9ab62b6, v10.2.16-17) y números medidos en
 > DWSIM 10.2.12 con `hex_repro` (12 estados, coincidencia a 0.1 J/mol). No hay issue previo sobre esto.
-> Por confirmar antes de publicar: el campo «How did you install it?» y si se repite la medición en 10.2.16.
+> El campo «How did you install it?» se publicó vacío (es opcional). La medición no se repitió en 10.2.16.
 
 ---
 
