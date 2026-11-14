@@ -38,6 +38,11 @@ COMPONENTS = ("benzene", "toluene")          # the M8a package
 PACKAGES = ("chemicals", "idaes_BT_ideal")
 STREAMS = ("distillate", "bottoms")
 KINDS = ("mole_fraction", "recovery")
+ACTIVITY_MODELS = ("ideal", "NRTL")
+BUBBLE_T_TOL_K = 0.05        # IDAES product T vs thermo bubble T with the same NRTL parameters and Psat
+SMOOTH_EPS_STEPS = (1e-3, 1e-4)  # K; SmoothVLE eps_1 continued from IDAES's 0.01 on the NRTL path (eps_2 = eps_1/20)
+PHANTOM_VF_TOL = 1e-3        # max vapour fraction SmoothVLE leaves in a saturated-liquid inlet (reflux, tray liquid)
+BALANCE_TOL = 1e-4           # relative closure of each component, feed vs distillate + bottoms
 
 
 def ipopt_available() -> bool:
@@ -74,7 +79,88 @@ def bt_ideal_configuration(corrected: bool = True) -> dict:
     return cfg
 
 
-def build_column(n_trays: int, feed_tray: int, feed: dict, pressure_Pa: float, corrected: bool = True, config: dict | None = None):
+def _set_smooth_eps(m, eps: tuple[float, float]) -> int:
+    """SmoothVLE smoothing temperatures eps_1 (Teq = smooth_max(T, Tbub)) and eps_2 (smooth_min(·, Tdew)) of every state
+    block under m. IDAES defaults 0.01 / 0.0005 K. A saturated liquid (condenser outlet, reflux, liquid passed between
+    trays) is evaluated at Teq ≈ Tbub + eps_1/2, so a phantom vapour fraction ≈ (eps_1/2)/(Tdew − Tbub) appears: the
+    total condenser then drops it from the component balance (methanol-water 0.18 %, ethanol-water near the azeotrope
+    1.1 %) and every liquid inlet carries vapour enthalpy. Harmless for wide-boiling mixtures, not near a pinch (M15)."""
+    from pyomo.environ import Param
+    n = 0
+    for prm in m.component_objects(Param, descend_into=True):
+        if prm.local_name.startswith("eps_1_"):
+            prm.set_value(eps[0])
+            n += 1
+        elif prm.local_name.startswith("eps_2_"):
+            prm.set_value(eps[1])
+            n += 1
+    return n
+
+
+def phantom_vapour(m) -> float:
+    """Largest vapour fraction in the liquid inlets of the trays and the condenser outlet (should be ~0)."""
+    from pyomo.environ import value
+    u = m.fs.unit
+    blocks = [u.condenser.control_volume.properties_out[0]]
+    for sec in (u.rectification_section, u.stripping_section):
+        blocks += [sec[i].properties_in_liq[0] for i in sec]
+    blocks.append(u.feed_tray.properties_in_liq[0])
+    return max(value(b.phase_frac["Vap"]) for b in blocks)
+
+
+def _optimise_tightening(m, specs, bounds, solver):
+    """_optimise at IDAES's SmoothVLE eps (robust), then re-optimise warm while eps_1 goes down SMOOTH_EPS_STEPS (a
+    small eps from a cold start does not converge). A failed step restores the last optimum and its eps; the evidence
+    then reports the phantom vapour left (phantom_vapour) against PHANTOM_VF_TOL."""
+    ok, term, duals = _optimise(m, specs, bounds, solver)
+    reached = (0.01, 0.0005)
+    if not ok:
+        return ok, term, duals, list(reached)
+    snap = _snapshot(m)
+    for e1 in SMOOTH_EPS_STEPS:
+        e = (e1, e1 / 20)
+        _set_smooth_eps(m, e)
+        ok2, term2, duals2 = _optimise(m, specs, bounds, solver)
+        if ok2:
+            reached, term, duals, snap = e, term2, duals2, _snapshot(m)
+        else:
+            _restore(snap)
+            _set_smooth_eps(m, reached)
+            break
+    return ok, term, duals, list(reached)
+
+
+def _tighten_square(m, solver) -> list[float]:
+    """Same eps continuation for a square (simulation) model."""
+    reached, snap = (0.01, 0.0005), _snapshot(m)
+    for e1 in SMOOTH_EPS_STEPS:
+        e = (e1, e1 / 20)
+        _set_smooth_eps(m, e)
+        if _square(m, solver):
+            reached, snap = e, _snapshot(m)
+        else:
+            _restore(snap)
+            _set_smooth_eps(m, reached)
+            break
+    return list(reached)
+
+
+def component_balance(m) -> dict:
+    """Overall feed − (distillate + bottoms) per component, relative to the feed (closes to the solver tolerance when
+    the model is consistent)."""
+    from pyomo.environ import value
+    u = m.fs.unit
+    d, b = u.condenser.distillate, u.reboiler.bottoms
+    out = {}
+    for c in m.fs.properties.component_list:
+        fin = value(u.feed.flow_mol[0] * u.feed.mole_frac_comp[0, c])
+        prod = value(d.flow_mol[0] * d.mole_frac_comp[0, c] + b.flow_mol[0] * b.mole_frac_comp[0, c])
+        out[c] = (prod - fin) / fin
+    return out
+
+
+def build_column(n_trays: int, feed_tray: int, feed: dict, pressure_Pa: float, corrected: bool = True, config: dict | None = None,
+                 smooth_eps: tuple[float, float] | None = None):
     """IDAES TrayColumn (total condenser at bubble point, partial reboiler). feed = {flow_mol_s, T_K, P_Pa, z: {comp: x}}
     (or the M8a form with x_benzene). config=None → the M8a benzene-toluene package (corrected or stock)."""
     from pyomo.environ import ConcreteModel
@@ -96,6 +182,8 @@ def build_column(n_trays: int, feed_tray: int, feed: dict, pressure_Pa: float, c
     for c, x in z.items():
         u.feed.mole_frac_comp[0, c].fix(x)
     u.condenser.condenser_pressure.fix(pressure_Pa)
+    if smooth_eps is not None:
+        _set_smooth_eps(m, smooth_eps)
     return m
 
 
@@ -128,6 +216,72 @@ def simulate_column(n_trays: int, feed_tray: int, feed: dict, pressure_Pa: float
     if not check_optimal_termination(res):
         raise RuntimeError(f"ipopt no resolvió la columna: {res.solver.termination_condition}")
     return _state(m)
+
+
+def simulate_column_nrtl(components: list[str], feed: dict, n_trays: int, feed_tray: int, pressure_Pa: float,
+                         reflux_ratio: float, distillate_mass_flow_kg_s: float | None = None,
+                         distillate_flow_mol_s: float | None = None, binary_parameters=None) -> dict:
+    """Square NRTL column at a given reflux ratio and distillate rate (molar or mass, as a published case states it):
+    the M15 reference-case solve. feed = {flow_mol_s, T_K, P_Pa, z}."""
+    from pyomo.environ import value
+    from packages.eo import nrtl_properties as NP
+    if (distillate_mass_flow_kg_s is None) == (distillate_flow_mol_s is None):
+        raise ValueError("da distillate_mass_flow_kg_s o distillate_flow_mol_s (uno)")
+    params = NP.resolve_parameters(components, binary_parameters)
+    cfg, prov = NP.build_configuration(components, pressure_Pa, params, extra_T=[feed["T_K"]])
+    solver = _solver()
+    bounds = {"reflux_ratio": (0.1, 50.0), "boilup_ratio": (0.01, 50.0)}
+    mw = {c: prov["components"][c]["MW_g_mol"] * 1e-3 for c in components}
+    if distillate_flow_mol_s is None:       # first guess of D in mol/s from the mass rate at the feed's light end
+        light = min(components, key=lambda c: prov["components"][c]["Tc_K"])
+        D0 = distillate_mass_flow_kg_s / mw[light]
+    else:
+        D0 = distillate_flow_mol_s
+    B0 = feed["flow_mol_s"] - D0
+    br0 = (reflux_ratio + 1.0) * D0 / B0
+    m, start = _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, params=params,
+                              extra_starts=[(reflux_ratio, br0)])
+    u = m.fs.unit
+    u.condenser.reflux_ratio.fix(reflux_ratio)
+    d = u.condenser.distillate
+    molar = distillate_flow_mol_s is not None
+    target = distillate_flow_mol_s if molar else distillate_mass_flow_kg_s
+    _hold_distillate(m, value(d.flow_mol[0]))
+    ok = _square(m, solver)
+    eps = _tighten_square(m, solver)
+    # continue the held distillate (mol/s, or the mass rate through the composition) to the target
+    for _ in range(60):
+        cur = value(d.flow_mol[0]) if molar else value(sum(d.flow_mol[0] * d.mole_frac_comp[0, c] * mw[c]
+                                                           for c in components))
+        if abs(cur / target - 1) < 1e-10:
+            break
+        snap = _snapshot(m)
+        Dnow = value(d.flow_mol[0])
+        step = 1.0
+        while step > 1e-3:
+            Dtry = Dnow * (1 + step * (target / cur - 1))
+            m.hold_distillate.set_value(d.flow_mol[0] == Dtry)
+            if _square(m, solver):
+                break
+            _restore(snap)
+            step *= 0.5
+        else:
+            raise RuntimeError("la columna no llega al destilado pedido")
+    if not ok and not _square(m, solver):
+        raise RuntimeError("ipopt no resolvió la columna NRTL")
+    st = _state(m)
+    st["smooth_eps_K"] = eps
+    st["phantom_vapour_fraction"] = phantom_vapour(m)
+    st["distillate"]["mass_flow_kg_s"] = sum(st["distillate"]["flow_mol_s"] * st["distillate"]["mole_fractions"][c] *
+                                             mw[c] for c in components)
+    st["bottoms"]["mass_flow_kg_s"] = sum(st["bottoms"]["flow_mol_s"] * st["bottoms"]["mole_fractions"][c] * mw[c]
+                                          for c in components)
+    st["initial_point"] = start
+    st["component_balance_rel"] = component_balance(m)
+    st["binary_parameters"] = params["pairs"]
+    st["thermo_bubble_check"] = NP.thermo_bubble_points(params, pressure_Pa, {k: st[k]["mole_fractions"]
+                                                                              for k in STREAMS})
+    return st
 
 
 def _spec_key(sp: dict) -> str:
@@ -163,7 +317,10 @@ def _optimise(m, specs: list[dict], bounds: dict, solver):
     cons = [m.specs.add(_spec_expr(m, sp) >= sp["min"]) for sp in specs]
     m.obj = Objective(expr=u.reboiler.heat_duty[0] * 1e-6, sense=minimize)
     m.dual = Suffix(direction=Suffix.IMPORT)
-    res = solver.solve(m)
+    try:
+        res = solver.solve(m)
+    except ValueError as ex:          # ipopt evaluation error: Pyomo cannot load a result with status "error"
+        return False, f"error de ipopt ({ex})", {_spec_key(sp): float("nan") for sp in specs}
     ok = check_optimal_termination(res)
     # ipopt's multiplier for g(x) ≥ b is ≥ 0 in Pyomo's sign convention for a minimisation: d(obj)/d(b)
     duals = {_spec_key(sp): abs(m.dual.get(c, 0.0)) for sp, c in zip(specs, cons)}
@@ -202,21 +359,37 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
                        feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
                        reflux_ratio_bounds: tuple[float, float] = (0.1, 20.0),
                        boilup_ratio_bounds: tuple[float, float] = (0.1, 20.0), evidence: bool = True,
-                       property_package: str = "chemicals") -> dict:
-    """Minimum reboiler duty of a tray column meeting purity/recovery specs, solved as one NLP (IDAES + ipopt), for an
-    ideal mixture whose property package is generated from chemicals/thermo. spec = {"stream": "distillate"|"bottoms",
-    "component": name, "kind": "mole_fraction"|"recovery", "min": value}."""
+                       property_package: str = "chemicals", activity_model: str = "ideal",
+                       binary_parameters: list | dict | None = None) -> dict:
+    """Minimum reboiler duty of a tray column meeting purity/recovery specs, solved as one NLP (IDAES + ipopt), with a
+    property package generated from chemicals/thermo. spec = {"stream": "distillate"|"bottoms", "component": name,
+    "kind": "mole_fraction"|"recovery", "min": value}.
+    activity_model="ideal" (default, M8b): Raoult, refused if UNIFAC finds the mixture non-ideal.
+    activity_model="NRTL" (M15): γ from NRTL with binary parameters from ONE labelled source per pair — the user's
+    (binary_parameters=[{"components": [i, j], "b_ij_K", "b_ji_K" | "dg_ij_J_mol", "dg_ji_J_mol" | "dg_ij_cal_mol",
+    "dg_ji_cal_mol", optional "a_ij", "a_ji", "alpha", "source"}]), the result dict of vle_binary_regression (passed
+    as is, alone or inside the list), or the ChemSep NRTL databank of thermo; refused if none has the pair."""
     from packages.eo import ideal_properties as IP
     _validate(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays, feed_tray, pressure_Pa,
               specs, property_package)
+    if activity_model not in ACTIVITY_MODELS:
+        raise ValueError(f"activity_model debe ser uno de {ACTIVITY_MODELS}")
+    if activity_model != "ideal" and property_package != "chemicals":
+        raise ValueError("activity_model NRTL solo con property_package='chemicals'")
+    if activity_model == "ideal" and binary_parameters:
+        raise ValueError("binary_parameters solo aplica con activity_model='NRTL'")
     components = list(components)
     t0 = time.perf_counter()
+    t_sat = {c: IP.saturation_T(c, pressure_Pa) for c in components}
+    feed = {"flow_mol_s": feed_flow_mol_s, "T_K": feed_T_K, "P_Pa": feed_P_Pa, "z": dict(feed_mole_fractions)}
+    if activity_model == "NRTL":
+        return _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, reflux_ratio_bounds,
+                        boilup_ratio_bounds, evidence, binary_parameters, t_sat, t0)
     ideality = IP.ideality_check(components, pressure_Pa)
     if not ideality["ideal"]:
-        raise ValueError("mezcla no ideal: esta tool solo resuelve VLE ideal (Raoult + gas ideal). "
-                         + "; ".join(ideality["reasons"]) + ". Usa la columna de DWSIM con NRTL/UNIQUAC/UNIFAC "
-                         "(optimize_design_multi).")
-    t_sat = {c: IP.saturation_T(c, pressure_Pa) for c in components}
+        raise ValueError("mezcla no ideal: con activity_model='ideal' solo se resuelve VLE ideal (Raoult + gas ideal). "
+                         + "; ".join(ideality["reasons"]) + ". Usa activity_model='NRTL' con parámetros binarios (tuyos, "
+                         "de vle_binary_regression o del banco ChemSep), o la columna de DWSIM (optimize_design_multi).")
     if property_package == "chemicals":
         cfg, prov = IP.build_configuration(components, pressure_Pa, extra_T=[feed_T_K])
         lo, hi = min(t_sat.values()), max(t_sat.values())
@@ -224,7 +397,6 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     else:
         cfg, pcheck = bt_ideal_configuration(True), None
         prov = {"package": "IDAES BT_ideal (Perry's/RPP4) con cp líquido corregido (M8a)", "temperature_window_K": (273.15, 450.0)}
-    feed = {"flow_mol_s": feed_flow_mol_s, "T_K": feed_T_K, "P_Pa": feed_P_Pa, "z": dict(feed_mole_fractions)}
     bounds = {"reflux_ratio": tuple(reflux_ratio_bounds), "boilup_ratio": tuple(boilup_ratio_bounds)}
     solver = _solver()
     m, start = _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver)
@@ -263,23 +435,141 @@ def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: 
     return out
 
 
+def _eo_nrtl(components, feed, n_trays, feed_tray, pressure_Pa, specs, rr_bounds, br_bounds, evidence,
+             binary_parameters, t_sat, t0) -> dict:
+    """activity_model='NRTL' path (M15): screening → generated package with NRTL liquid → same NLP and evidence."""
+    from packages.eo import ideal_properties as IP
+    from packages.eo import nrtl_properties as NP
+    try:
+        params = NP.resolve_parameters(components, binary_parameters)
+    except NP.MissingParameters as ex:
+        raise ValueError(str(ex)) from ex
+    virial, vreasons = IP.virial_check(components, pressure_Pa)
+    if vreasons:
+        raise ValueError("el vapor no se puede tratar como gas ideal: " + "; ".join(vreasons) + f" (tolerancia "
+                         f"|B·P/RT| ≤ {IP.MAX_B_P_RT}). Usa DWSIM con una ecuación de estado para el vapor.")
+    azeos, areasons = NP.azeotrope_refusals(params, pressure_Pa, feed["z"], specs)
+    if areasons:
+        raise ValueError("especificaciones inalcanzables por destilación simple: " + "; ".join(areasons) +
+                         ". Cambia las especificaciones al lado del azeótropo de la alimentación, o usa destilación "
+                         "azeotrópica/extractiva o por cambio de presión en DWSIM.")
+    cross = NP.unifac_cross_check(params, pressure_Pa)
+    cfg, prov = NP.build_configuration(components, pressure_Pa, params, extra_T=[feed["T_K"]])
+    lo, hi = min(t_sat.values()), max(t_sat.values())
+    grid_T = [lo + f * (hi - lo) for f in (0.0, 1 / 3, 2 / 3, 1.0)]
+    pcheck = IP.property_check(cfg, components, grid_T)
+    gcheck = NP.nrtl_check(cfg, params, grid_T)
+    bounds = {"reflux_ratio": tuple(rr_bounds), "boilup_ratio": tuple(br_bounds)}
+    solver = _solver()
+    m, start = _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, params=params,
+                              extra_starts=_spec_start_points(feed, specs))
+    ok, term, duals, eps = _optimise_tightening(m, specs, bounds, solver)
+    if not ok:
+        raise RuntimeError(f"ipopt no encontró un óptimo ({term}): las especificaciones pueden ser inalcanzables con "
+                           f"{n_trays} platos dentro de los límites de reflujo/boil-up {bounds}")
+    start["smooth_eps_K"] = eps
+    opt = _state(m)
+    bal = component_balance(m)
+    phantom = phantom_vapour(m)
+    bub = NP.thermo_bubble_points(params, pressure_Pa, {s_: opt[s_]["mole_fractions"] for s_ in STREAMS})
+    for s_ in STREAMS:
+        bub["points"][s_]["T_idaes_K"] = opt[s_]["T_K"]
+        bub["points"][s_]["dT_K"] = opt[s_]["T_K"] - bub["points"][s_]["T_bubble_K"]
+    bub["tolerance_K"] = BUBBLE_T_TOL_K
+    bub["verified"] = all(abs(v["dT_K"]) <= BUBBLE_T_TOL_K for v in bub["points"].values())
+    T_lo, T_hi = min(opt[s_]["T_K"] for s_ in STREAMS), max(opt[s_]["T_K"] for s_ in STREAMS)
+    warnings = NP.parameter_range_warnings(params, T_lo, T_hi) + cross["warnings"]
+    out = {"components": components, "optimum": opt, "reboiler_duty_MW": opt["reboiler_duty_W"] / 1e6,
+           "condenser_duty_MW": opt["condenser_duty_W"] / 1e6,
+           "specs": [sp | {"value": _spec_value(opt, feed, sp)} for sp in specs],
+           "duals_MW_per_unit_spec": duals, "active_specs": [k for k, v in duals.items() if v > 1e-6],
+           "column": {"n_trays": n_trays, "feed_tray_from_top": feed_tray, "condenser": "total, at bubble point",
+                      "reboiler": "partial", "pressure_Pa": pressure_Pa, "stages_incl_condenser_reboiler": n_trays + 2},
+           "saturation_T_K_at_column_P": t_sat, "initial_point": start,
+           "properties": {"package": "chemicals", "activity_model": "NRTL", "provenance": prov, "property_check": pcheck,
+                          "nrtl_check": gcheck, "binary_parameters": params["pairs"],
+                          "screening": {"B_P_over_RT_at_Tsat": virial, "max_B_P_RT": IP.MAX_B_P_RT,
+                                        "azeotropes_with_these_parameters": azeos, "unifac_cross_check": cross},
+                          "thermo_bubble_check": bub},
+           "warnings": warnings,
+           "engine": "IDAES TrayColumn (modular generic properties, fase líquida NRTL propia) + ipopt (idaes-ext)",
+           "assumptions": [
+               "Líquido NRTL (Raoult modificado, sin factor de Poynting) y vapor gas ideal (|B·P/RT| ≤ "
+               f"{IP.MAX_B_P_RT}, Tsonopoulos sin términos polares; no capta la asociación en el vapor de ácidos "
+               "carboxílicos). Parámetros binarios: una fuente etiquetada por par (properties.binary_parameters).",
+               "Entalpía del líquido = Σ x·h_i (paquete M8b) + h^E de NRTL con los mismos parámetros; la calidad de h^E "
+               "depende de la dependencia en T de los parámetros (tau = a + b/T).",
+               "Paquete puro generado de chemicals/thermo (fuentes en properties.provenance.sources), igual que M8b.",
+               "Azeótropos buscados solo en pares binarios con estos parámetros; con 3+ compuestos y un azeótropo "
+               "binario la tool se niega (no evalúa fronteras de destilación). UNIFAC Dortmund solo como comparación.",
+               "Platos de equilibrio (eficiencia 100 %), sin caída de presión ni pérdidas de calor.",
+               "Objetivo = carga del rehervidor; variables = reflujo y boil-up dentro de los límites dados (límites del "
+               "solver, no datos del usuario)."]}
+    if evidence:
+        ev = _evidence(m, cfg, opt, duals, specs, bounds, solver, n_trays, feed_tray, feed, pressure_Pa, pcheck,
+                       prov["temperature_window_K"])
+        ev["nrtl_verified"] = gcheck["verified"]
+        ev["thermo_bubble_points_match"] = bub["verified"]
+        ev["component_balance_rel"] = bal
+        ev["component_balance_closed"] = all(abs(v) <= BALANCE_TOL for v in bal.values())
+        ev["smooth_eps_K"] = eps
+        ev["phantom_vapour_fraction"] = phantom
+        ev["phantom_vapour_ok"] = phantom <= PHANTOM_VF_TOL
+        if not ev["component_balance_closed"]:
+            ev["reasons"].append(f"el balance por componente no cierra a {BALANCE_TOL:g}: {bal}")
+        if not ev["phantom_vapour_ok"]:
+            ev["reasons"].append(f"el suavizado de SmoothVLE (eps {eps[0]:g} K) deja {phantom:.2%} de vapor ficticio en "
+                                 "líquidos saturados (zona de pellizco/azeótropo): duties y composiciones no confiables")
+        if not gcheck["verified"]:
+            ev["reasons"].append("γ/h^E del paquete IDAES no coinciden con thermo.nrtl / diferencia finita")
+        if not bub["verified"]:
+            ev["reasons"].append(f"T de producto vs T de burbuja de thermo difiere más de {BUBBLE_T_TOL_K} K")
+        ev["verified"] = not ev["reasons"]
+        out["evidence"] = ev
+    out["seconds"] = time.perf_counter() - t0
+    return out
+
+
 START_POINTS = ((2.0, 2.0), (3.0, 3.0), (1.5, 3.0), (3.0, 2.0), (5.0, 5.0), (1.0, 1.5))
+NRTL_START_POINTS = ((4.0, 0.2), (2.0, 0.1), (2.0, 0.2), (1.0, 0.1), (4.0, 0.1), (1.0, 0.2))
 
 
-def _feed_two_phase_T(feed: dict, pressure_Pa: float, cfg_names: list[str]) -> float:
-    """Mid-way between the Raoult bubble and dew temperature of the feed (thermo Psat): a two-phase feed the IDAES
-    TrayColumn initialises from."""
+def _feed_two_phase_T(feed: dict, pressure_Pa: float, cfg_names: list[str], params: dict | None = None,
+                      frac: float = 0.5) -> float:
+    """T_bubble + frac·(T_dew − T_bubble) of the feed (thermo Psat; Raoult, or NRTL γ when params are given): a
+    two-phase feed the IDAES TrayColumn initialises from (frac = 0.5, mid-way, in the ideal path)."""
     from scipy.optimize import brentq
     from packages.eo.ideal_properties import saturation_T
     from thermo import VaporPressure
     from chemicals import CAS_from_any
     ps = {c: VaporPressure(CASRN=CAS_from_any(c)) for c in cfg_names}
     ts = [saturation_T(c, pressure_Pa) for c in cfg_names]
-    lo, hi = min(ts) - 1.0, max(ts) + 1.0
     z = feed["z"]
-    tb = brentq(lambda T: sum(z[c] * ps[c](T) for c in cfg_names) - pressure_Pa, lo, hi)
-    td = brentq(lambda T: sum(z[c] / ps[c](T) for c in cfg_names) - 1.0 / pressure_Pa, lo, hi)
-    return 0.5 * (tb + td)
+    if params is None:
+        lo, hi = min(ts) - 1.0, max(ts) + 1.0
+        tb = brentq(lambda T: sum(z[c] * ps[c](T) for c in cfg_names) - pressure_Pa, lo, hi)
+        td = brentq(lambda T: sum(z[c] / ps[c](T) for c in cfg_names) - 1.0 / pressure_Pa, lo, hi)
+        return tb + frac * (td - tb)
+    from packages.eo.nrtl_properties import gammas
+    names = params["names"]
+    lo, hi = min(ts) - 60.0, max(ts) + 60.0
+    zs = [z[c] for c in names]
+    tb = brentq(lambda T: sum(zi * g * ps[c](T) for zi, g, c in zip(zs, gammas(params, T, zs), names)) - pressure_Pa,
+                lo, hi)
+
+    def dew_resid(T):
+        x = list(zs)
+        for _ in range(200):
+            g = gammas(params, T, x)
+            xn = [zi * pressure_Pa / (gi * ps[c](T)) for zi, gi, c in zip(zs, g, names)]
+            sx = sum(xn)
+            xn = [v / sx for v in xn]
+            if max(abs(a - b) for a, b in zip(x, xn)) < 1e-12:
+                break
+            x = xn
+        return sx - 1.0
+    td = brentq(dew_resid, lo, hi)
+    return tb + frac * (td - tb)
 
 
 def _square(m, solver) -> bool:
@@ -290,13 +580,26 @@ def _square(m, solver) -> bool:
         return False
 
 
+def _snapshot(m) -> list:
+    from pyomo.environ import Var
+    return [(v, v.value) for v in m.component_data_objects(Var, descend_into=True)]
+
+
+def _restore(snap) -> None:
+    for v, val in snap:
+        v.set_value(val, skip_validation=True)
+
+
 def _continue_feed_T(m, T_target: float, solver, max_steps: int = 200) -> bool:
-    """Move the fixed feed temperature from its current value to T_target, halving the step on failure."""
+    """Move the fixed feed temperature from its current value to T_target, halving the step on failure. A failed
+    solve leaves the variables wherever ipopt stopped, so the last converged point is restored from a snapshot
+    (re-solving from the failed iterate does not reliably return to it)."""
     from pyomo.environ import value
     u = m.fs.unit
     T = value(u.feed.temperature[0])
     step = (T_target - T) / 4.0
     n = 0
+    snap = _snapshot(m)
     while abs(T_target - T) > 1e-9 and n < max_steps:
         n += 1
         T_try = T + step if abs(step) < abs(T_target - T) else T_target
@@ -304,16 +607,46 @@ def _continue_feed_T(m, T_target: float, solver, max_steps: int = 200) -> bool:
         if _square(m, solver):
             T = T_try
             step *= 1.5
+            snap = _snapshot(m)
         else:
+            _restore(snap)
             u.feed.temperature.fix(T)
-            _square(m, solver)
             step *= 0.5
             if abs(step) < 0.01:
                 return False
     return abs(T_target - T) <= 1e-9
 
 
-def _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, first=None):
+def _hold_distillate(m, D: float) -> None:
+    """Distillate flow (an Expression of the condenser split) held by a constraint; the boil-up ratio is freed."""
+    from pyomo.environ import Constraint
+    if hasattr(m, "hold_distillate"):
+        m.del_component(m.hold_distillate)
+    m.hold_distillate = Constraint(expr=m.fs.unit.condenser.distillate.flow_mol[0] == D)
+    m.fs.unit.reboiler.boilup_ratio.unfix()
+
+
+def _spec_start_points(feed: dict, specs: list[dict], rr_list=(2.0, 4.0)) -> list[tuple[float, float]]:
+    """(RR, BR) pairs whose distillate/feed ratio matches the specs: D/F ≈ z_c·recovery/purity for a component c
+    specified in the distillate (B/F likewise for the bottoms); BR = (RR + 1)·D/B from the column balance."""
+    z = feed["z"]
+    frac = {}
+    for sp in specs:
+        frac.setdefault((sp["stream"], sp["component"]), {})[sp["kind"]] = sp["min"]
+    ratios = []
+    for (stream, c), k in frac.items():
+        f = z[c] * k.get("recovery", 1.0) / k.get("mole_fraction", 1.0) if "mole_fraction" in k else z[c] * k["recovery"]
+        f = min(max(f, 1e-3), 0.999)
+        ratios.append(f if stream == "distillate" else 1.0 - f)
+    out = []
+    for dF in sorted(set(round(r, 6) for r in ratios)):
+        for rr in rr_list:
+            out.append((rr, (rr + 1.0) * dF / (1.0 - dF)))
+    return out
+
+
+def _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, first=None, params=None,
+                   extra_starts=()):
     """Square solve at the first (RR, BR) of the list that converges (the column is a hard NLP from a cold start).
     IDAES's TrayColumn does not start from a subcooled/superheated feed (M8a's package fails too, e.g. benzene-toluene
     at 340-362 K), so on failure the column is started with a two-phase feed and the feed temperature is continued to
@@ -322,12 +655,20 @@ def _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, f
     clip = lambda v, b: min(max(v, b[0]), b[1])  # noqa: E731
     comps = list(feed["z"]) if feed.get("z") else list(COMPONENTS)
     tried = []
-    for rr, br in ((first,) if first else ()) + START_POINTS:
+    # NRTL path: start from a feed only slightly vaporised (30 % / 10 % of the way from bubble to dew), so that a low
+    # boil-up gives a distillate of the order the specs need; the ideal path keeps M8b's mid-way start.
+    modes = ("direct", "feed_T_continuation") if params is None else ("two_phase_0.3", "two_phase_0.1", "direct")
+    if params is None:
+        starts = ((first,) if first else ()) + tuple(extra_starts) + START_POINTS
+    else:       # low boil-up first: what converged on the methanol-water and ethanol-water grids (M15)
+        starts = ((first,) if first else ()) + NRTL_START_POINTS + tuple(extra_starts) + START_POINTS
+    for rr, br in starts:
         rr, br = clip(rr, bounds["reflux_ratio"]), clip(br, bounds["boilup_ratio"])
-        for mode in ("direct", "feed_T_continuation"):
+        for mode in modes:
             f0 = dict(feed)
-            if mode == "feed_T_continuation":
-                f0["T_K"] = _feed_two_phase_T(feed, pressure_Pa, comps)
+            if mode != "direct":
+                frac = 0.5 if mode == "feed_T_continuation" else float(mode.split("_")[-1])
+                f0["T_K"] = _feed_two_phase_T(feed, pressure_Pa, comps, params, frac)
             m = build_column(n_trays, feed_tray, f0, pressure_Pa, config=cfg)
             m.fs.unit.condenser.reflux_ratio.fix(rr)
             m.fs.unit.reboiler.boilup_ratio.fix(br)
@@ -336,11 +677,25 @@ def _initial_point(n_trays, feed_tray, feed, pressure_Pa, cfg, bounds, solver, f
             except Exception:  # noqa: BLE001
                 pass
             ok = _square(m, solver)
-            if ok and mode == "feed_T_continuation":
-                ok = _continue_feed_T(m, feed["T_K"], solver)
+            if ok and mode != "direct":
+                if params is not None:
+                    # NRTL path: hold the distillate flow and free the boil-up while the feed is cooled (a subcooled
+                    # feed condenses vapour; at fixed boil-up the distillate can collapse), then fix the boil-up again
+                    from pyomo.environ import value
+                    u = m.fs.unit
+                    _hold_distillate(m, value(u.condenser.distillate.flow_mol[0]))
+                    ok = _continue_feed_T(m, feed["T_K"], solver)
+                    br_now = value(u.reboiler.boilup_ratio)
+                    m.del_component(m.hold_distillate)
+                    u.reboiler.boilup_ratio.fix(br_now)
+                    ok = ok and bounds["boilup_ratio"][0] <= br_now <= bounds["boilup_ratio"][1] and _square(m, solver)
+                    br = br_now
+                else:
+                    ok = _continue_feed_T(m, feed["T_K"], solver)
             if ok:
-                return m, {"reflux_ratio": rr, "boilup_ratio": br, "mode": mode,
-                           "start_feed_T_K": f0["T_K"], "tried": tried}
+                info = {"reflux_ratio": rr, "boilup_ratio": br, "mode": mode, "start_feed_T_K": f0["T_K"],
+                        "tried": tried}
+                return m, info
             tried.append((rr, br, mode))
     raise RuntimeError(f"la columna no converge en ningún punto inicial {tried}; revisa alimentación, presión y número "
                        "de platos")
@@ -370,14 +725,20 @@ def _evidence(m, cfg, opt, duals, specs, bounds, solver, n_trays, feed_tray, fee
     m.specs.deactivate()
     m.obj.deactivate()
     neighbours, better_feasible = [], []
+    at_opt = _snapshot(m)
     for fr in (1 - PERTURB, 1.0, 1 + PERTURB):
         for fb in (1 - PERTURB, 1.0, 1 + PERTURB):
             if fr == fb == 1.0:
                 continue
+            _restore(at_opt)              # every neighbour starts from the optimum
             u.condenser.reflux_ratio.fix(rr0 * fr)
             u.reboiler.boilup_ratio.fix(br0 * fb)
-            res = solver.solve(m)
-            if not check_optimal_termination(res):
+            try:
+                res = solver.solve(m)
+                solved = bool(check_optimal_termination(res))
+            except (ValueError, RuntimeError):      # ipopt evaluation error → Pyomo cannot load the result
+                solved = False
+            if not solved:
                 neighbours.append({"rr": rr0 * fr, "br": br0 * fb, "solved": False})
                 continue
             s = _state(m)
@@ -396,19 +757,27 @@ def _evidence(m, cfg, opt, duals, specs, bounds, solver, n_trays, feed_tray, fee
         if duals[key] <= 1e-6:
             dual_checks[key] = {"active": False}
             continue
-        tight = [dict(s2) for s2 in specs]
-        tight[i]["min"] = sp["min"] + DELTA_SPEC
-        u.condenser.reflux_ratio.fix(rr0)
-        u.reboiler.boilup_ratio.fix(br0)
-        _square(m, solver)
-        ok, _, _ = _optimise(m, tight, bounds, solver)
-        fd = (value(u.reboiler.heat_duty[0]) * 1e-6 - q0 * 1e-6) / DELTA_SPEC if ok else float("nan")
+        ok, fd, used = False, float("nan"), None
+        for delta in (DELTA_SPEC, DELTA_SPEC / 4, DELTA_SPEC * 4):   # a failed re-optimisation retries another step
+            tight = [dict(s2) for s2 in specs]
+            tight[i]["min"] = sp["min"] + delta
+            _restore(at_opt)
+            u.condenser.reflux_ratio.fix(rr0)
+            u.reboiler.boilup_ratio.fix(br0)
+            try:
+                ok, _, _ = _optimise(m, tight, bounds, solver)
+            except (ValueError, RuntimeError):
+                ok = False
+            if ok:
+                fd, used = (value(u.reboiler.heat_duty[0]) * 1e-6 - q0 * 1e-6) / delta, delta
+                break
         rel = abs(fd - duals[key]) / max(abs(duals[key]), 1e-12) if ok else float("inf")
-        dual_checks[key] = {"active": True, "dual": duals[key], "finite_difference": fd, "rel_diff": rel,
+        dual_checks[key] = {"active": True, "dual": duals[key], "finite_difference": fd, "delta_spec": used, "rel_diff": rel,
                             "consistent": ok and rel < DUAL_REL_TOL}
         if not dual_checks[key]["consistent"]:
             reasons.append(f"el multiplicador de {key} no coincide con la diferencia finita ({rel:.1%})")
     # restore the optimum on the model
+    _restore(at_opt)
     u.condenser.reflux_ratio.fix(rr0)
     u.reboiler.boilup_ratio.fix(br0)
     _square(m, solver)

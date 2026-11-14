@@ -138,10 +138,17 @@ Hard rules:
    takes heaters/coolers as the current utilities): show the extracted stream table so the user can check it, say
    which units were not extracted (column condensers/reboilers, reactors) and that supply/target T are today's.
 16. Minimum energy (or reflux) of a column for given purities/recoveries, or the marginal cost of a spec:
-   eo_column_optimize (equation-oriented, IDAES + ipopt) for an IDEAL mixture (Raoult + ideal gas). Ask for every feed
-   value, the trays, feed tray, pressure and specs (no defaults). Report RR, boil-up, Q_reboiler and the multipliers as
-   "MW per unit of spec", the property sources and the ideal-mixture check, with the seal only if verified. If the tool
-   refuses the mixture as non-ideal, say why (UNIFAC) and use optimize_design_multi on the DWSIM column (NRTL/UNIQUAC).
+   eo_column_optimize (equation-oriented, IDAES + ipopt). Ask for every feed value, the trays, feed tray, pressure and
+   specs (no defaults). Ideal mixtures: activity_model="ideal". Non-ideal (the ideal call refuses with UNIFAC, or water/
+   alcohols/ketones/acids): activity_model="NRTL" with binary parameters from ONE labelled source per pair: the user's
+   (with citation) > the result of vle_binary_regression on the user's/published VLE data (pass its whole result dict
+   as binary_parameters: chain vle_binary_regression → eo_column_optimize) > thermo's ChemSep NRTL databank (automatic
+   when neither is given). If the tool says a pair has no parameters, ask for VLE data and run vle_binary_regression;
+   never invent parameters. Report RR, boil-up, Q_reboiler and the multipliers as "MW per unit of spec", the property
+   sources, the parameter source of every pair, the UNIFAC cross-check, the azeotropes found with those parameters and
+   any warnings (extrapolation, Psat of the regression), with the seal only if verified. If the specs cross an
+   azeotrope the tool refuses: explain it and offer entrainer/pressure-swing schemes on the DWSIM column
+   (optimize_design_multi).
 17. Surrogate optimisation of a built DWSIM flowsheet (slow or many-variable flowsheets, or the user asks for a
    surrogate/neural network/OMLT): optimize_design_surrogate. Ask for the bounds of every variable, the objective and
    every limit (no defaults; prices only from the user), and the accuracy wanted for each constrained readout
@@ -204,7 +211,9 @@ Hard rules:
    dudoso, with each test's number and criterion), the azeotrope comparison and the UNIFAC comparison. When the
    parameters are strongly correlated (|ρ| > 0.98) say the individual values are not identifiable with these data.
    Never call data "consistent" unless the tool says so, and never feed parameters from an inconsistent set to a
-   design without the user's OK. Regression here does not change eo_column_optimize (still ideal mixtures only).
+   design without the user's OK. To design a column with the fitted parameters, pass this tool's whole result to
+   eo_column_optimize(activity_model="NRTL", binary_parameters=<result>) (NRTL model only; say the Psat source of
+   the regression and the column's, Wagner-McGarry, may differ).
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -994,15 +1003,22 @@ def packed_column_hydraulics(flowsheet_id: str, gas_stream: str, liquid_stream: 
 def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: float, feed_P_Pa: float,
                        feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
                        reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0, boilup_ratio_min: float = 0.1,
-                       boilup_ratio_max: float = 20.0) -> str:
-    """Equation-oriented (IDAES + ipopt) minimum reboiler duty of a tray column for any IDEAL mixture of 2+ components
+                       boilup_ratio_max: float = 20.0, activity_model: str = "ideal",
+                       binary_parameters: list | dict | None = None) -> str:
+    """Equation-oriented (IDAES + ipopt) minimum reboiler duty of a tray column for a mixture of 2+ components
     (English chemicals names), meeting purity/recovery specs: specs = [{"stream": "distillate"|"bottoms", "component",
-    "kind": "mole_fraction"|"recovery", "min"}]. Property package generated from chemicals/thermo and checked vs DIPPR;
-    non-ideal mixtures (UNIFAC azeotrope or |ln γi/γj| > 0.10) are refused. Returns optimal reflux/boil-up, duties,
-    products, multipliers (MW per unit of spec) and evidence (neighbours, multipliers vs finite differences)."""
+    "kind": "mole_fraction"|"recovery", "min"}]. Property package generated from chemicals/thermo and checked vs DIPPR.
+    activity_model="ideal": Raoult, non-ideal mixtures (UNIFAC azeotrope or |ln γi/γj| > 0.10) refused.
+    activity_model="NRTL": NRTL liquid + ideal gas; binary_parameters = the user's pairs [{"components": [i, j],
+    "b_ij_K", "b_ji_K" (or dg_*_J_mol / dg_*_cal_mol), optional "a_ij", "a_ji", "alpha", "source"}] and/or the whole
+    result of vle_binary_regression; missing pairs come from thermo's ChemSep NRTL bank or are refused (never
+    invented). Specs across an azeotrope predicted with those parameters are refused. Returns optimal reflux/boil-up,
+    duties, products, multipliers (MW per unit of spec), parameter source per pair, UNIFAC cross-check, warnings and
+    evidence (neighbours, multipliers vs finite differences, NRTL vs thermo)."""
     return json.dumps(TO.eo_column_optimize(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays,
                                             feed_tray, pressure_Pa, specs, reflux_ratio_min, reflux_ratio_max,
-                                            boilup_ratio_min, boilup_ratio_max), default=float)
+                                            boilup_ratio_min, boilup_ratio_max, activity_model, binary_parameters),
+                      default=float)
 
 
 @beta_tool

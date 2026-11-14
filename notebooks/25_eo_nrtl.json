@@ -1,0 +1,596 @@
+{
+ "1_published": {
+  "source": "Simone 2015 (TU Wien), Tablas 7, 9, 10, pp. 48-51",
+  "eo_nrtl": {
+   "T_top_K": 339.0577361971934,
+   "T_bottom_K": 372.59157754428804,
+   "Q_reb_kW": 1481.7359713502296,
+   "Q_cond_kW": -820.5876217815311,
+   "MeOH_top_kg_h": 448.64880891268456,
+   "W_top_kg_h": 25.351191107180224,
+   "MeOH_bottom_kg_h": 51.34256771648655,
+   "W_bottom_kg_h": 9474.653657314231
+  },
+  "aspen_plus": {
+   "T_top_K": 339,
+   "T_bottom_K": 373,
+   "Q_reb_kW": 1503,
+   "Q_cond_kW": -819,
+   "MeOH_top_kg_h": 451,
+   "W_top_kg_h": 23,
+   "MeOH_bottom_kg_h": 49,
+   "W_bottom_kg_h": 9477
+  },
+  "gproms": {
+   "T_top_K": 339,
+   "T_bottom_K": 373,
+   "Q_reb_kW": 1522,
+   "Q_cond_kW": -810,
+   "MeOH_top_kg_h": 450,
+   "W_top_kg_h": 24,
+   "MeOH_bottom_kg_h": 50,
+   "W_bottom_kg_h": 9476
+  },
+  "dev_vs_aspen_pct": {
+   "T_top_K": 0.01703132660570983,
+   "T_bottom_K": -0.10949663692009226,
+   "Q_reb_kW": -1.41477236525418,
+   "Q_cond_kW": 0.1938488133737648,
+   "MeOH_top_kg_h": -0.5213284007351326,
+   "W_top_kg_h": 10.222570031218359,
+   "MeOH_bottom_kg_h": 4.780750441809278,
+   "W_bottom_kg_h": -0.024758285172199468
+  },
+  "dev_vs_gproms_pct": {
+   "T_top_K": 0.01703132660570983,
+   "T_bottom_K": -0.10949663692009226,
+   "Q_reb_kW": -2.6454683738351137,
+   "Q_cond_kW": 1.3071138001890192,
+   "MeOH_top_kg_h": -0.30026468607009527,
+   "W_top_kg_h": 5.629962946584266,
+   "MeOH_bottom_kg_h": 2.685135432973107,
+   "W_bottom_kg_h": -0.01420792196885623
+  },
+  "x_D": {
+   "methanol": 0.9086773978513135,
+   "water": 0.09132260214868657
+  },
+  "x_B": {
+   "methanol": 0.003037500525906912,
+   "water": 0.9969624994740934
+  },
+  "boilup_ratio": 0.2474192958284144,
+  "thermo_bubble_check": {
+   "distillate": {
+    "T_bubble_K": 339.05778619653313,
+    "y_bubble": {
+     "methanol": 0.9618286857614438,
+     "water": 0.038171314238556124
+    },
+    "method": "FlashVL PVF (VF = 0)"
+   },
+   "bottoms": {
+    "T_bubble_K": 372.59157754782154,
+    "y_bubble": {
+     "methanol": 0.022888580102686667,
+     "water": 0.9771114198973121
+    },
+    "method": "Σ x·γ·Psat = P (brentq) con γ de GibbsExcessLiquid/thermo.nrtl; el flash PVF de thermo no converge aquí"
+   }
+  },
+  "seconds": 18.61723303794861
+ },
+ "2_optimum": {
+  "reflux_ratio": 4.49111423743096,
+  "boilup_ratio": 0.2500616944828274,
+  "eo": {
+   "x_D_MeOH": 0.9168001753884159,
+   "x_B_W": 0.9971019226847581,
+   "T_D_K": 338.9333074034359,
+   "T_B_K": 372.6170282902305,
+   "Q_reb_kW": 1497.619510956678,
+   "Q_cond_kW": 836.2875598171732
+  },
+  "duals": {
+   "mole_fraction:methanol@distillate": 0.4903709350243234,
+   "recovery:methanol@distillate": 2.7156333378139434
+  },
+  "verified": true,
+  "reasons": [],
+  "screening": {
+   "pairs": [
+    {
+     "pair": [
+      "methanol",
+      "water"
+     ],
+     "gamma_inf_methanol_en_water": {
+      "T_K": 373.15427191366234,
+      "NRTL": 2.2120979096382536,
+      "UNIFAC_Do": 2.311470596199356
+     },
+     "gamma_inf_water_en_methanol": {
+      "T_K": 337.6824173090943,
+      "NRTL": 1.7284843844257578,
+      "UNIFAC_Do": 1.6838314718565068
+     },
+     "azeotrope": {
+      "NRTL": false,
+      "UNIFAC_Do": false
+     }
+    }
+   ],
+   "warnings": [],
+   "method": "UNIFAC modificado Dortmund (thermo.unifac, DDBST) solo como comparación cruzada de γ∞ y azeótropos"
+  },
+  "thermo_bubble_check": {
+   "points": {
+    "distillate": {
+     "T_bubble_K": 338.9333574027421,
+     "y_bubble": {
+      "methanol": 0.965224633694256,
+      "water": 0.03477536630574389
+     },
+     "method": "FlashVL PVF (VF = 0)",
+     "T_idaes_K": 338.9333074034359,
+     "dT_K": -4.999930621352178e-05
+    },
+    "bottoms": {
+     "T_bubble_K": 372.61702829389077,
+     "y_bubble": {
+      "methanol": 0.02186154116949439,
+      "water": 0.9781384588305064
+     },
+     "method": "Σ x·γ·Psat = P (brentq) con γ de GibbsExcessLiquid/thermo.nrtl; el flash PVF de thermo no converge aquí",
+     "T_idaes_K": 372.6170282902305,
+     "dT_K": -3.6602614272851497e-09
+    }
+   },
+   "engine": "thermo FlashVL (GibbsExcessLiquid + thermo.nrtl.NRTL, IdealGas; Psat Wagner-McGarry)",
+   "tolerance_K": 0.05,
+   "verified": true
+  },
+  "warnings": [],
+  "seconds": 10.413420208002208,
+  "dwsim": {
+   "LiqCp_Excess": {
+    "values": {
+     "x_D_MeOH": 0.9162872307921636,
+     "x_B_W": 0.9970870854415561,
+     "T_D_K": 339.0032025556078,
+     "T_B_K": 372.5880415606073,
+     "Q_reb_kW": 1493.277968906741,
+     "Q_cond_kW": 841.5035732450882
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": 0.05598076443877886,
+     "x_B_W": 0.0014880589086496698,
+     "T_D_K": -0.02061784421061308,
+     "T_B_K": 0.00777983359363521,
+     "Q_reb_kW": 0.2907390412459687,
+     "Q_cond_kW": -0.6198444776414291
+    },
+    "settings": {
+     "poynting": false,
+     "enthalpy_mode": "LiqCp_Excess",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   },
+   "LiqCp_Excess_poynting": {
+    "values": {
+     "x_D_MeOH": 0.9174266053981034,
+     "x_B_W": 0.9971202531732842,
+     "T_D_K": 338.9835081476681,
+     "T_B_K": 372.5915974107978,
+     "Q_reb_kW": 1493.11107587458,
+     "Q_cond_kW": 841.3384706450241
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": -0.0682812124699339,
+     "x_B_W": -0.0018383428145085645,
+     "T_D_K": -0.01480919957036475,
+     "T_B_K": 0.00682540336642834,
+     "Q_reb_kW": 0.3019490749847309,
+     "Q_cond_kW": -0.6003423121705764
+    },
+    "settings": {
+     "poynting": true,
+     "enthalpy_mode": "LiqCp_Excess",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   },
+   "ExpData": {
+    "values": {
+     "x_D_MeOH": 0.9163328654888382,
+     "x_B_W": 0.997088415763027,
+     "T_D_K": 339.0025064003953,
+     "T_B_K": 372.58828365312195,
+     "Q_reb_kW": 1514.7500704825056,
+     "Q_cond_kW": 843.8423706433794
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": 0.050997832466515014,
+     "x_B_W": 0.001354636310835211,
+     "T_D_K": -0.02041253254856379,
+     "T_B_K": 0.007714852659002069,
+     "Q_reb_kW": -1.1309165689869172,
+     "Q_cond_kW": -0.8952869740880609
+    },
+    "settings": {
+     "poynting": false,
+     "enthalpy_mode": "ExpData",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   },
+   "ExpData_poynting": {
+    "values": {
+     "x_D_MeOH": 0.9174675013703988,
+     "x_B_W": 0.9971214438343138,
+     "T_D_K": 338.9828856521407,
+     "T_B_K": 372.5918151604301,
+     "Q_reb_kW": 1514.583614056358,
+     "Q_cond_kW": 843.6473294759569
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": -0.07273565341401333,
+     "x_B_W": -0.0019577504501988585,
+     "T_D_K": -0.014625590495342955,
+     "T_B_K": 0.006766957505366378,
+     "Q_reb_kW": -1.1200506160400692,
+     "Q_cond_kW": -0.8723751503315058
+    },
+    "settings": {
+     "poynting": true,
+     "enthalpy_mode": "ExpData",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   },
+   "Ideal": {
+    "values": {
+     "x_D_MeOH": 0.9189112147062046,
+     "x_B_W": 0.9971634591124418,
+     "T_D_K": 338.96318883189133,
+     "T_B_K": 372.6019305530309,
+     "Q_reb_kW": 1531.6297642514537,
+     "Q_cond_kW": 842.6736240123159
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": -0.2297326753666562,
+     "x_B_W": -0.006171147480515948,
+     "T_D_K": -0.00881553792269063,
+     "T_B_K": 0.0040519750333034565,
+     "Q_reb_kW": -2.220527054813237,
+     "Q_cond_kW": -0.7578336396404595
+    },
+    "settings": {
+     "poynting": false,
+     "enthalpy_mode": "Ideal",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   },
+   "Ideal_poynting": {
+    "values": {
+     "x_D_MeOH": 0.9200170716792677,
+     "x_B_W": 0.9971956503691118,
+     "T_D_K": 338.944096633821,
+     "T_B_K": 372.60537532610374,
+     "Q_reb_kW": 1531.4732287625202,
+     "Q_cond_kW": 842.4921807901135
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": -0.34965615202989797,
+     "x_B_W": -0.00939912687335509,
+     "T_D_K": -0.0031831887595257236,
+     "T_B_K": 0.0031274278092574548,
+     "Q_reb_kW": -2.210532784382868,
+     "Q_cond_kW": -0.7364603630055533
+    },
+    "settings": {
+     "poynting": true,
+     "enthalpy_mode": "Ideal",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   },
+   "Excess": {
+    "values": {
+     "x_D_MeOH": 0.9189008687410782,
+     "x_B_W": 0.9971631606855079,
+     "T_D_K": 338.9633466242327,
+     "T_B_K": 372.6018760304888,
+     "Q_reb_kW": 1510.1536811715005,
+     "Q_cond_kW": 840.3992912569964
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": -0.22860935538567828,
+     "x_B_W": -0.006141221734246027,
+     "T_D_K": -0.00886208526555965,
+     "T_B_K": 0.004066608548281003,
+     "Q_reb_kW": -0.8299930246237652,
+     "Q_cond_kW": -0.489259270277731
+    },
+    "settings": {
+     "poynting": false,
+     "enthalpy_mode": "Excess",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   },
+   "Excess_poynting": {
+    "values": {
+     "x_D_MeOH": 0.9200111807715466,
+     "x_B_W": 0.9971954834423644,
+     "T_D_K": 338.9441863995308,
+     "T_B_K": 372.60534458359314,
+     "Q_reb_kW": 1509.9968294344853,
+     "Q_cond_kW": 840.247173423728
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_MeOH": -0.3490180826322131,
+     "x_B_W": -0.009382388825451837,
+     "T_D_K": -0.0032096718372565114,
+     "T_B_K": 0.003135678756960303,
+     "Q_reb_kW": -0.8196916865343962,
+     "Q_cond_kW": -0.4712439067686036
+    },
+    "settings": {
+     "poynting": true,
+     "enthalpy_mode": "Excess",
+     "vapor_fugacity": "Ideal"
+    },
+    "parameters_used": {
+     "Methanol/Water": {
+      "b_ij_K": -95.13209282738782,
+      "b_ji_K": 398.95345259688855,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2999,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Methanol/Water",
+      "A12_cal_mol": -189.04744618751334,
+      "A21_cal_mol": 792.8042905350628
+     }
+    }
+   }
+  }
+ },
+ "3_regression_chain": {
+  "pair": [
+   {
+    "i": "ethanol",
+    "j": "water",
+    "a_ij": 0.0,
+    "a_ji": 0.0,
+    "b_ij_K": -51.26244374049498,
+    "b_ji_K": 687.4526578258977,
+    "alpha": 0.3,
+    "source_kind": "vle_binary_regression",
+    "source": "vle_binary_regression con los datos: Datos copiados de los seed_data de VLizard (MIT, github.com/Lemonexe/VLizard, commit f515470), que citan: Kamihama, N. et al. J. Chem. Eng. Data 2012, doi:10.1021/je2008704 (101.3 kPa) y Voutsas, E. et al. Fluid Phase Equilib. 2011, doi:10.1016/j.fluid.2011.06.009 (32.86 kPa). Antoine extendida de Aspen Plus V14.5 tal como la trae VLizard (AntoineExt.tsv). Resultados publicados de las pruebas: Zbytovský et al., ACS Omega 2025, 10, 46809, doi:10.1021/acsomega.5c04650, Tabla 2 (EtOH-H2O A 101.3 kPa: Redlich-Kister D = 3.0; B 32.9 kPa: D = 3.8).",
+    "form": "tau = a + b/T (convención de packages/vle/models.py = thermo)",
+    "ci95": {
+     "b12": 8.357675651713661,
+     "b21": 15.7869410124694,
+     "Δg12": 69.48958177954202,
+     "Δg21": 131.25993090074792
+    },
+    "regression_psat": [
+     "thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)",
+     "thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)"
+    ],
+    "regression_vapor": "gas ideal (Φ = 1)",
+    "regression_statistics": {
+     "n_puntos": 21,
+     "AAD_T_K": 0.11428702396907349,
+     "RMSD_T_K": 0.13430038564444843,
+     "max_T_K": 0.2802156115638468,
+     "sesgo_T_K": 0.03852157075492154,
+     "AAD_y": 0.0038548722823486697,
+     "RMSD_y": 0.004826868320196394,
+     "max_y": 0.01041664840958939,
+     "sesgo_y": -0.0038165163246654636
+    },
+    "T_range_K": [
+     351.26,
+     368.18
+    ]
+   }
+  ],
+  "reflux_ratio": 0.7008078175953223,
+  "boilup_ratio": 0.28827495176224993,
+  "eo": {
+   "x_D_EtOH": 0.7000003788011595,
+   "x_B_W": 0.9949999992457554,
+   "T_D_K": 351.6890244415601,
+   "T_B_K": 371.6785595951146,
+   "Q_reb_kW": 1030.0229899389221,
+   "Q_cond_kW": 917.2433742791318
+  },
+  "verified": true,
+  "reasons": [],
+  "warnings": [
+   "ethanol/water: los parámetros (vle_binary_regression) vienen de datos en 351.3-368.2 K y la columna opera en 351.7-371.7 K: extrapolación",
+   "ethanol/water: la regresión usó Psat ['thermo.VaporPressure, método HEOS_FIT (chemicals; rango 159.0-514.7 K)', 'thermo.VaporPressure, método IAPWS_PSAT (chemicals; rango 235.0-647.1 K)']; la columna usa Wagner-McGarry. Si difieren, el equilibrio de la columna no reproduce exactamente el ajuste"
+  ],
+  "azeotropes": [
+   {
+    "pair": [
+     "ethanol",
+     "water"
+    ],
+    "x_az": {
+     "ethanol": 0.8914214840132502,
+     "water": 0.10857851598674984
+    },
+    "T_az_K": 351.27441194269164,
+    "kind": "mínimo punto de ebullición",
+    "gammas": [
+     1.006228551109623,
+     2.3101263689697564
+    ]
+   }
+  ],
+  "dwsim": {
+   "mismos_parametros": {
+    "values": {
+     "x_D_EtOH": 0.6940198099349795,
+     "x_B_W": 0.9940498109266956,
+     "T_D_K": 351.9806515194548,
+     "T_B_K": 371.4230842659471,
+     "Q_reb_kW": 967.433457452536,
+     "Q_cond_kW": 909.2382523373824
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_EtOH": 0.8617288412474,
+     "x_B_W": 0.0955875961762942,
+     "T_D_K": -0.08285315588677511,
+     "T_B_K": 0.06878283552902431,
+     "Q_reb_kW": 6.469647292455449,
+     "Q_cond_kW": 0.8804207171410283
+    },
+    "parameters_used": {
+     "Ethanol/Water": {
+      "b_ij_K": -51.26244374049498,
+      "b_ji_K": 687.4526578258977,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.3,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Ethanol/Water",
+      "A12_cal_mol": -101.86924082554903,
+      "A21_cal_mol": 1366.1127961582022
+     }
+    }
+   },
+   "banco_propio_de_DWSIM": {
+    "values": {
+     "x_D_EtOH": 0.6771786660391381,
+     "x_B_W": 0.9913810255304727,
+     "T_D_K": 351.97906549507456,
+     "T_B_K": 370.96291716621425,
+     "Q_reb_kW": 971.9266647825958,
+     "Q_cond_kW": 907.9992281886512
+    },
+    "dev_eo_vs_dwsim_pct": {
+     "x_D_EtOH": 3.370116913975907,
+     "x_B_W": 0.365043673631571,
+     "T_D_K": -0.0824029273179927,
+     "T_B_K": 0.1929148159517391,
+     "Q_reb_kW": 5.977439169170395,
+     "Q_cond_kW": 1.0180786286483556
+    },
+    "parameters_used": {
+     "Ethanol/Water": {
+      "b_ij_K": -29.16657021653474,
+      "b_ji_K": 624.8658168990696,
+      "a_ij": 0.0,
+      "a_ji": 0.0,
+      "alpha": 0.2937,
+      "C12": 0.0,
+      "C21": 0.0,
+      "stored_as": "Ethanol/Water",
+      "A12_cal_mol": -57.9601,
+      "A21_cal_mol": 1241.7396
+     }
+    }
+   }
+  }
+ }
+}

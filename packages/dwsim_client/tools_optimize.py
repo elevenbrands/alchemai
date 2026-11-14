@@ -295,23 +295,37 @@ def _optimize_with_integers(fid, variables, objective, cons, maximize, grid_poin
 def eo_column_optimize(components: list[str], feed_flow_mol_s: float, feed_T_K: float, feed_P_Pa: float,
                        feed_mole_fractions: dict, n_trays: int, feed_tray: int, pressure_Pa: float, specs: list[dict],
                        reflux_ratio_min: float = 0.1, reflux_ratio_max: float = 20.0, boilup_ratio_min: float = 0.1,
-                       boilup_ratio_max: float = 20.0) -> dict:
-    """Equation-oriented column optimisation (IDAES + ipopt, the whole column and the specs as ONE NLP) for ANY ideal
-    mixture (Raoult + ideal gas) of 2+ components named in English (chemicals names, e.g. "n-hexane", "p-xylene"):
-    minimum reboiler duty of a tray column (total condenser, partial reboiler, n_trays equilibrium trays, feed_tray
-    counted from the top) meeting every spec, varying reflux and boil-up ratio. specs = [{"stream": "distillate" |
-    "bottoms", "component": name, "kind": "mole_fraction" | "recovery", "min": value}, ...]; feed_mole_fractions =
-    {name: z} summing to 1. The IDAES property package is generated from chemicals/thermo (Psat Wagner-McGarry, cp
-    ideal gas Poling, density DIPPR 105, cp liquid fitted to thermo, ΔHvap = DIPPR 106 at Tsat) and checked against
-    DIPPR in `properties.property_check`; the mixture is screened with Dortmund UNIFAC and REFUSED (ValueError) if an
-    azeotrope or |ln γi/γj| > 0.10 is predicted. Returns the optimum (RR, BR, duties, products), Lagrange multipliers
-    = MW per unit of each spec, and `evidence`: ipopt optimal, specs met, properties verified, 8 neighbours ±1 % no
-    better and feasible, multipliers = finite differences within 5 % → verified. 20-60 s. Use it for 'minimum
-    energy/reflux for these purities/recoveries' and to price a spec; non-ideal mixtures go to optimize_design_multi
-    on the DWSIM column (NRTL/UNIQUAC)."""
+                       boilup_ratio_max: float = 20.0, activity_model: str = "ideal",
+                       binary_parameters: list | dict | None = None) -> dict:
+    """Equation-oriented column optimisation (IDAES + ipopt, the whole column and the specs as ONE NLP) for a mixture
+    of 2+ components named in English (chemicals names, e.g. "n-hexane", "methanol", "water"): minimum reboiler duty
+    of a tray column (total condenser, partial reboiler, n_trays equilibrium trays, feed_tray counted from the top)
+    meeting every spec, varying reflux and boil-up ratio. specs = [{"stream": "distillate" | "bottoms", "component":
+    name, "kind": "mole_fraction" | "recovery", "min": value}, ...]; feed_mole_fractions = {name: z} summing to 1. The
+    IDAES property package is generated from chemicals/thermo (Psat Wagner-McGarry, cp ideal gas Poling, liquid density
+    DIPPR 105 or a cubic fit to VDI-PPDS, cp liquid fitted to thermo, ΔHvap = DIPPR 106 at Tsat) and checked against
+    DIPPR in `properties.property_check`.
+    activity_model="ideal" (default): Raoult + ideal gas; screened with Dortmund UNIFAC and REFUSED if an azeotrope or
+    |ln γi/γj| > 0.10 is predicted.
+    activity_model="NRTL": non-ideal liquid (modified Raoult with NRTL γ and NRTL excess enthalpy) + ideal-gas vapour.
+    Binary parameters, ONE labelled source per pair, in this order: (a) the user's own, binary_parameters=[{"components":
+    [i, j], "b_ij_K", "b_ji_K" (tau = a + b/T; or "dg_ij_J_mol"/"dg_ji_J_mol" or "dg_ij_cal_mol"/"dg_ji_cal_mol"),
+    optional "a_ij", "a_ji", "alpha", "source": citation}]; (b) the full result dict of vle_binary_regression (pass it
+    as is, alone or in the list: chain vle_binary_regression → eo_column_optimize when the user has VLE data);
+    (c) the ChemSep NRTL databank shipped by thermo (the same table DWSIM's NRTL uses). A pair with none of the three
+    is REFUSED: run vle_binary_regression on published data, never invent parameters. REFUSED too: specs on the far side
+    of an azeotrope predicted with the chosen parameters, any binary azeotrope in a 3+ component mixture, and a vapour
+    with |B·P/RT| > 0.10. UNIFAC is reported as a cross-check (γ∞, azeotrope) in properties.screening; the products'
+    temperatures are re-checked as bubble points with thermo's NRTL (properties.thermo_bubble_check).
+    Returns the optimum (RR, BR, duties, products), Lagrange multipliers = MW per unit of each spec, `warnings`
+    (parameter extrapolation, Psat source of a regression) and `evidence`: ipopt optimal, specs met, properties
+    verified, 8 neighbours ±1 % no better and feasible, multipliers = finite differences within 5 %, NRTL γ and h^E
+    equal to thermo's → verified. 20-120 s. Use it for 'minimum energy/reflux for these purities/recoveries' and to
+    price a spec; azeotropic separations (entrainers, pressure swing) go to the DWSIM column (optimize_design_multi)."""
     from packages.eo.column_optimize import eo_column_optimize as _eo
     return _eo(components, feed_flow_mol_s, feed_T_K, feed_P_Pa, feed_mole_fractions, n_trays, feed_tray, pressure_Pa,
-               specs, (reflux_ratio_min, reflux_ratio_max), (boilup_ratio_min, boilup_ratio_max))
+               specs, (reflux_ratio_min, reflux_ratio_max), (boilup_ratio_min, boilup_ratio_max),
+               activity_model=activity_model, binary_parameters=binary_parameters)
 
 
 def optimize_design_surrogate(flowsheet_id: str, variables: list[dict], objective: dict, constraints: list[dict] | None = None,

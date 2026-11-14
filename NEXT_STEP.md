@@ -1,8 +1,24 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-13 (M1-M14 cerrados: regresión de parámetros binarios VLE)
+Actualizado: 2026-11-13 (M1-M15 cerrados: columna EO con NRTL para mezclas no ideales)
 
 ## Dónde estamos
+**Bloque M15 (2026-11-13): `eo_column_optimize` con NRTL, 69 tools (misma tool), ✅ con dos desviaciones declaradas.**
+- `activity_model="NRTL"` + `binary_parameters` (usuario > resultado de `vle_binary_regression` > banco ChemSep de thermo; nunca por defecto). Rechaza pares sin parámetros, specs del otro lado de un azeótropo, 3+ compuestos con azeótropo y vapor con |B·P/RT| > 0.10.
+- Caso publicado Simone 2015 (metanol-agua, Aspen/gPROMS): T a ≤ 0.4 K, Q_cond +0.2 %, metanol arriba −0.5 %, Q_reb −1.4 % (Aspen y gPROMS difieren 1.3 % entre sí).
+- DWSIM con los mismos parámetros en el óptimo metanol-agua: todo ≤ 0.62 % (Q_reb +0.29 %, Q_cond −0.62 %).
+- Hallazgo: el ε de SmoothVLE (0.01 K) mete vapor ficticio en líquidos saturados; en la ruta NRTL se continúa a 1e-4 K y el sello lo comprueba.
+- Cadena regresión → columna verificada en etanol-agua (Kamihama 2012, 20 platos, x_D 0.70).
+
+Pendiente:
+1. Etanol-agua de la cadena vs DWSIM: Q_reb +6.5 % (composiciones ≤ 0.86 %, Q_cond +0.88 %); causa no identificada (reflujo bajo: Q_reb lo domina el calor sensible/de mezcla de la alimentación subenfriada). Comparar h de la alimentación y de los fondos entre los dos motores.
+2. Robustez del arranque en columnas acuosas: etanol-agua 15 platos con x_D 0.70-0.75 no converge; junto al azeótropo (x_D 0.80) el pellizco deja vapor ficticio y no hay sello. Probar inicialización por perfil (T y x lineales) o otra formulación de equilibrio.
+3. Medir el mismo efecto de ε en la ruta ideal (M8b) y decidir si se le aplica la continuación (cambia sus números de referencia; decisión del owner).
+4. Una columna no ideal publicada que imprima sus parámetros NRTL (la de Simone 2015 no los trae).
+5. UNIQUAC/Wilson en la columna EO; vapor no ideal (Hayden-O'Connell, asociación); fronteras de destilación con 3+ compuestos.
+
+Siguiente: **decisión del owner** (pendientes 1-5 o pasar a otro tema: layout, 3D, árbol de fallas, BST).
+
 **Bloque M14 (2026-11-13): regresión de parámetros binarios desde datos VLE, 69 tools, ✅ en su núcleo.** Paquete `packages/vle/` y tool `vle_binary_regression`:
 - NRTL (α fijo o ajustado), UNIQUAC (r, q de grupos UNIFAC) y Wilson (V de thermo) desde Pxy, Txy o PTxy, uno o varios conjuntos.
 - Dos funciones objetivo: punto de burbuja (T o P, más y) y máxima verosimilitud de Britt-Luecke. Salen IC 95 %, correlación, AAD y residuos por punto.
@@ -18,7 +34,7 @@ Pendiente:
 2. **Conjunto inconsistente publicado con datos legibles.** Hoy el rechazo se prueba con un conjunto sintético. Bredig 1927 y el SI de ACS Omega 2025 no se pudieron abrir.
 3. Discrepancias de Hartanto 2025: la RMSD(T) de sus parámetros sale 0.79 K, no 0.38, y su Van Ness (ΔP 0.4 %) sale 1.9 %. Se podría cerrar con la isobara de 61.3 kPa de Ortega y Espiau.
 4. LLE; varias fuentes con pesos de calidad (TDE); asociación en el virial (Hayden-O'Connell).
-5. Usar los parámetros regresados en `eo_column_optimize` (hoy solo mezclas ideales, M8b) o mandarlos a DWSIM.
+5. ~~Usar los parámetros regresados en `eo_column_optimize`~~ → hecho en M15 (NRTL).
 
 Siguiente: **decisión del owner**: llevar los parámetros a la columna (M8b no ideal o DWSIM) o pasar a otro tema (layout, 3D, árbol de fallas, BST).
 

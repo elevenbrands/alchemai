@@ -29,12 +29,15 @@ T_REF = 298.15
 MAX_LN_GAMMA_RATIO = 0.10      # relative-volatility error tolerated by the Raoult assumption
 MAX_B_P_RT = 0.10              # |B·P/RT| (Tsonopoulos second virial) tolerated by the ideal-gas assumption
 CP_LIQ_FIT_TOL = 0.02          # max relative residual of the liquid-cp cubic fit
+DENS_FIT_TOL = 0.005           # max relative residual of the liquid-density cubic fit (compounds without DIPPR 105)
 PROPERTY_TOLS = {"psat_same_source": 1e-6, "psat_vs_dippr101": 0.03, "cp_ig_same_source": 1e-6, "cp_ig_vs_trc": 0.03,
-                 "dens_liq_same_source": 1e-6, "cp_liq_vs_source": CP_LIQ_FIT_TOL, "dhvap_vs_dippr106": 0.03}
+                 "dens_liq_same_source": 1e-6, "dens_liq_fit_vs_source": DENS_FIT_TOL, "cp_liq_vs_source": CP_LIQ_FIT_TOL, "dhvap_vs_dippr106": 0.03}
 SOURCES = {
     "pressure_sat": "Wagner (forma 3-6) de McGarry 1983 vía chemicals.vapor_pressure.Psat_data_WagnerMcGarry → IDAES RPP4",
     "cp_ig": "Polinomio de Poling, Prausnitz y O'Connell (2001, apéndice A) vía chemicals.heat_capacity.Cp_data_Poling → IDAES RPP5",
     "dens_liq": "DIPPR 105 de Perry's 8.ª ed. (tabla 2-32) vía chemicals.volume.rho_data_Perry_8E_105_l → IDAES Perrys",
+    "dens_liq_fit": "sin DIPPR 105 en Perry's (p. ej. agua): cúbica en T (IDAES Perrys eqn_type 2) ajustada a "
+                    "thermo.VolumeLiquid VDI_PPDS (VDI Heat Atlas, ecuación DIPPR 116) en la ventana de la columna, residuo reportado",
     "cp_liq": "thermo.HeatCapacityLiquid (método por defecto, nombrado por componente) ajustado a DIPPR 100 cúbico → IDAES Perrys",
     "dhvap_ref": "DIPPR 106 de Perry's 8.ª ed. vía thermo.EnthalpyVaporization(DIPPR_PERRY_8E); ΔHvap del paquete = DIPPR "
                  "en Tsat de cada compuesto a la presión de la columna",
@@ -73,8 +76,10 @@ def pure_data(name: str) -> dict:
         missing.append("Psat (Wagner McGarry)")
     if cas not in HC.Cp_data_Poling.index or math.isnan(_f(HC.Cp_data_Poling.at[cas, "a0"])):
         missing.append("cp gas ideal (Poling)")
-    if cas not in V.rho_data_Perry_8E_105_l.index:
-        missing.append("densidad líquida (DIPPR 105)")
+    from thermo import VolumeLiquid
+    dens_fit = cas not in V.rho_data_Perry_8E_105_l.index
+    if dens_fit and "VDI_PPDS" not in VolumeLiquid(CASRN=cas).all_methods:
+        missing.append("densidad líquida (DIPPR 105 o VDI PPDS)")
     dh = EnthalpyVaporization(CASRN=cas)
     if "DIPPR_PERRY_8E" not in dh.all_methods:
         missing.append("ΔHvap (DIPPR 106)")
@@ -86,14 +91,15 @@ def pure_data(name: str) -> dict:
                          "no se generan coeficientes a mano")
     w = VP.Psat_data_WagnerMcGarry.loc[cas]
     p = HC.Cp_data_Poling.loc[cas]
-    d = V.rho_data_Perry_8E_105_l.loc[cas]
+    d = None if dens_fit else V.rho_data_Perry_8E_105_l.loc[cas]
     dh.method = "DIPPR_PERRY_8E"
     hf = Hfg(cas)
     return {**info,
             "wagner": {k: _f(w[k]) for k in ("A", "B", "C", "D")}, "Tc_K": _f(w["Tc"]), "Pc_Pa": _f(w["Pc"]),
             "psat_Tmin_K": _f(w["Tmin"]),
             "poling": {f"a{i}": _f(p[f"a{i}"]) for i in range(5)}, "cp_ig_range_K": (_f(p["Tmin"]), _f(p["Tmax"])),
-            "dippr105": {k: _f(d[k]) for k in ("C1", "C2", "C3", "C4")}, "dens_range_K": (_f(d["Tmin"]), _f(d["Tmax"])),
+            "dippr105": None if d is None else {k: _f(d[k]) for k in ("C1", "C2", "C3", "C4")},
+            "dens_range_K": None if d is None else (_f(d["Tmin"]), _f(d["Tmax"])), "dens_fit": dens_fit,
             "dhvap_ref_J_mol": _f(dh(T_REF)), "dhvap_anchor": dh, "h_form_gas_J_mol": None if hf is None else _f(hf),
             "cp_liq_method": cpl.method}
 
@@ -122,6 +128,23 @@ def fit_cp_liq(name: str, T_lo: float, T_hi: float) -> dict:
             "fit_range_K": (T_lo, T_hi), "max_rel_residual": resid}
 
 
+def fit_dens_liq(name: str, T_lo: float, T_hi: float) -> dict:
+    """Cubic molar density (mol/m³, T in K; IDAES Perrys eqn_type 2) fitted to thermo VolumeLiquid VDI_PPDS."""
+    import numpy as np
+    from thermo import VolumeLiquid
+    from chemicals import CAS_from_any
+    vl = VolumeLiquid(CASRN=CAS_from_any(name))
+    vl.method = "VDI_PPDS"
+    Ts = np.linspace(T_lo, T_hi, 41)
+    rho = np.array([1.0 / vl.T_dependent_property(T) for T in Ts], dtype=float)
+    c3, c2, c1, c0 = np.polyfit(Ts, rho, 3)
+    resid = float(np.max(np.abs(np.polyval([c3, c2, c1, c0], Ts) / rho - 1)))
+    if resid > DENS_FIT_TOL:
+        raise ValueError(f"{name}: el ajuste cúbico de la densidad líquida se desvía {resid:.2%} de VDI_PPDS")
+    return {"coeffs_mol_m3": [float(c0), float(c1), float(c2), float(c3)], "method": "VDI_PPDS",
+            "fit_range_K": (T_lo, T_hi), "max_rel_residual": resid}
+
+
 def temperature_window(names: list[str], P_Pa: float, extra_T: list[float] = ()) -> tuple[float, float]:
     ts = [saturation_T(n, P_Pa) for n in names] + list(extra_T)
     return min(ts) - 30.0, max(ts) + 30.0
@@ -134,8 +157,6 @@ def ideality_check(names: list[str], P_Pa: float) -> dict:
     from thermo.unifac import UNIFAC, UNIFAC_group_assignment_DDBST, DOUFSG, DOUFIP2016
     from thermo import VaporPressure
     from chemicals import CAS_from_any
-    from chemicals.virial import BVirial_Tsonopoulos
-    from chemicals import Tc as Tc_, Pc as Pc_, omega as omega_
     pairs, reasons = [], []
     groups, psat = {}, {}
     for n in names:
@@ -173,17 +194,27 @@ def ideality_check(names: list[str], P_Pa: float) -> dict:
         elif dev > MAX_LN_GAMMA_RATIO:
             reasons.append(f"{a}/{b}: no ideal (γ∞ {g_inf[a]:.2f} / {g_inf[b]:.2f}; α con Raoult se equivoca hasta "
                            f"{math.exp(dev) - 1:.0%})")
-    virial = {}
+    virial, vreasons = virial_check(names, P_Pa)
+    reasons += vreasons
+    return {"ideal": not reasons, "pairs": pairs, "B_P_over_RT_at_Tsat": virial, "reasons": reasons,
+            "tolerances": {"max_ln_gamma_ratio": MAX_LN_GAMMA_RATIO, "max_B_P_RT": MAX_B_P_RT},
+            "method": SOURCES["ideality"] + "; " + SOURCES["virial"]}
+
+
+def virial_check(names: list[str], P_Pa: float) -> tuple[dict, list[str]]:
+    """|B·P/RT| of each pure vapour at its saturation temperature at P (Tsonopoulos, non-polar form)."""
+    from thermo import VaporPressure
+    from chemicals import CAS_from_any, Tc as Tc_, Pc as Pc_, omega as omega_
+    from chemicals.virial import BVirial_Tsonopoulos
+    virial, reasons = {}, []
     for n in names:
         cas = CAS_from_any(n)
-        T = psat[n].solve_property(P_Pa)
+        T = VaporPressure(CASRN=cas).solve_property(P_Pa)
         B = BVirial_Tsonopoulos(T, Tc_(cas), Pc_(cas), omega_(cas))
         virial[n] = B * P_Pa / (R * T)
         if abs(virial[n]) > MAX_B_P_RT:
             reasons.append(f"{n}: el vapor no es gas ideal a {P_Pa:.0f} Pa (|B·P/RT| = {abs(virial[n]):.2f})")
-    return {"ideal": not reasons, "pairs": pairs, "B_P_over_RT_at_Tsat": virial, "reasons": reasons,
-            "tolerances": {"max_ln_gamma_ratio": MAX_LN_GAMMA_RATIO, "max_B_P_RT": MAX_B_P_RT},
-            "method": SOURCES["ideality"] + "; " + SOURCES["virial"]}
+    return virial, reasons
 
 
 def build_configuration(names: list[str], P_Pa: float, extra_T: list[float] = ()) -> tuple[dict, dict]:
@@ -213,6 +244,16 @@ def build_configuration(names: list[str], P_Pa: float, extra_T: list[float] = ()
                      - sum(c[i] / (i + 1) * (T_a ** (i + 1) - T_REF ** (i + 1)) for i in range(4)))
         dhv = d["dhvap_anchor"](T_a) - kirchhoff          # ΔH_ref that makes ΔHvap(T_a) = DIPPR 106
         hfg = d["h_form_gas_J_mol"] if d["h_form_gas_J_mol"] is not None else dhv
+        if d["dens_fit"]:
+            dfit = fit_dens_liq(n, T_lo, T_hi)
+            q = dfit["coeffs_mol_m3"]
+            m3 = pyunits.m ** -3
+            dens = {"eqn_type": 2, "1": (q[0], mol * m3), "2": (q[1], mol * m3 / K), "3": (q[2], mol * m3 / K ** 2),
+                    "4": (q[3], mol * m3 / K ** 3)}
+        else:
+            dfit = None
+            dens = {"eqn_type": 1, "1": (d["dippr105"]["C1"], mol * pyunits.m ** -3), "2": (d["dippr105"]["C2"], None),
+                    "3": (d["dippr105"]["C3"], K), "4": (d["dippr105"]["C4"], None)}
         comps[n] = {
             "type": Component,
             "dens_mol_liq_comp": Perrys, "enth_mol_liq_comp": Perrys, "enth_mol_ig_comp": RPP5,
@@ -220,9 +261,7 @@ def build_configuration(names: list[str], P_Pa: float, extra_T: list[float] = ()
             "parameter_data": {
                 "mw": (d["MW_g_mol"] * 1e-3, pyunits.kg / mol),
                 "pressure_crit": (d["Pc_Pa"], pyunits.Pa), "temperature_crit": (d["Tc_K"], K),
-                "dens_mol_liq_comp_coeff": {"eqn_type": 1, "1": (d["dippr105"]["C1"], mol * pyunits.m ** -3),
-                                            "2": (d["dippr105"]["C2"], None), "3": (d["dippr105"]["C3"], K),
-                                            "4": (d["dippr105"]["C4"], None)},
+                "dens_mol_liq_comp_coeff": dens,
                 "cp_mol_ig_comp_coeff": {"a0": (d["poling"]["a0"], None), "a1": (d["poling"]["a1"], K ** -1),
                                          "a2": (d["poling"]["a2"], K ** -2), "a3": (d["poling"]["a3"], K ** -3),
                                          "a4": (d["poling"]["a4"], K ** -4)},
@@ -235,14 +274,15 @@ def build_configuration(names: list[str], P_Pa: float, extra_T: list[float] = ()
             },
         }
         ranges = {"psat_from_K": d["psat_Tmin_K"], "cp_ig_K": d["cp_ig_range_K"], "dens_liq_K": d["dens_range_K"]}
-        extrap = [k for k, v in ranges.items() if (T_lo < v if isinstance(v, float) else (T_lo < v[0] or T_hi > v[1]))]
+        extrap = [k for k, v in ranges.items() if v is not None and
+                  (T_lo < v if isinstance(v, float) else (T_lo < v[0] or T_hi > v[1]))]
         prov["components"][n] = {"CAS": d["CAS"], "common_name": d["common_name"], "formula": d["formula"],
                                  "MW_g_mol": d["MW_g_mol"], "Tc_K": d["Tc_K"], "Pc_Pa": d["Pc_Pa"],
                                  "dhvap_dippr106_298_kJ_mol": d["dhvap_ref_J_mol"] / 1e3,
                                  "dhvap_anchor_T_K": T_a, "dhvap_anchor_kJ_mol": d["dhvap_anchor"](T_a) / 1e3,
                                  "h_ref_liq_kJ_mol_effective": (hfg - dhv) / 1e3,
                                  "h_form_gas_kJ_mol": None if d["h_form_gas_J_mol"] is None else hfg / 1e3,
-                                 "cp_liq_fit": cpl, "correlation_ranges_K": ranges,
+                                 "cp_liq_fit": cpl, "dens_liq_fit": dfit, "correlation_ranges_K": ranges,
                                  "window_outside_correlation_range": extrap}
     cfg = {
         "components": comps,
@@ -292,7 +332,9 @@ def property_check(cfg: dict, names: list[str], temperatures: list[float]) -> di
         dh = EnthalpyVaporization(CASRN=cas)
         dh.method = "DIPPR_PERRY_8E"
         vl = VolumeLiquid(CASRN=cas)
-        vl.method = "DIPPR_PERRY_8E"
+        fitted = cfg["components"][n]["parameter_data"]["dens_mol_liq_comp_coeff"]["eqn_type"] == 2
+        vl.method = "VDI_PPDS" if fitted else "DIPPR_PERRY_8E"
+        dens_key = "dens_liq_fit_vs_source" if fitted else "dens_liq_same_source"
         cobj = m.fs.p.get_component(n)
         for T in temperatures:
             s.temperature.fix(T)
@@ -311,12 +353,12 @@ def property_check(cfg: dict, names: list[str], temperatures: list[float]) -> di
                  "psat_Pa": psat, "psat_wagner_mcgarry_Pa": ps_w(T), "psat_dippr101_Pa": ps_d(T),
                  "cp_ig_J_mol_K": cpig, "cp_ig_poling": cg_p(T), "cp_ig_" + cg_t.method.lower(): cg_t(T),
                  "cp_liq_J_mol_K": cpl, "cp_liq_" + cl.method.lower(): cl(T),
-                 "dens_liq_mol_m3": rho, "dens_liq_dippr105_mol_m3": 1.0 / vl.T_dependent_property(T),
+                 "dens_liq_mol_m3": rho, "dens_liq_" + ("vdi_ppds" if fitted else "dippr105") + "_mol_m3": 1.0 / vl.T_dependent_property(T),
                  "dhvap_kJ_mol": dhv / 1e3, "dhvap_dippr106_kJ_mol": dh(T) / 1e3}
             rows.append(r)
             for k, got, ref in (("psat_same_source", psat, ps_w(T)), ("psat_vs_dippr101", psat, ps_d(T)),
                                 ("cp_ig_same_source", cpig, cg_p(T)), ("cp_ig_vs_trc", cpig, cg_t(T)),
-                                ("dens_liq_same_source", rho, 1.0 / vl.T_dependent_property(T)), ("cp_liq_vs_source", cpl, cl(T)),
+                                (dens_key, rho, 1.0 / vl.T_dependent_property(T)), ("cp_liq_vs_source", cpl, cl(T)),
                                 ("dhvap_vs_dippr106", dhv, dh(T))):
                 worst[k] = max(worst[k], abs(got / ref - 1))
     ok = {k: worst[k] <= tol for k, tol in PROPERTY_TOLS.items()}
