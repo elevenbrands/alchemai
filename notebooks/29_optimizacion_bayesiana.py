@@ -1,6 +1,8 @@
 """Notebook 29 — Bayesian optimisation (bloque M16): `optimize_design_bayesian` and `suggest_experiments`.
 
-functions  Branin (f* = 0.397887), Hartmann-6 (f* = −3.32237) and the constrained toy problem of Gramacy et al. 2016
+functions_default  the same functions with the tool's default since 2026-11-14 (restarts = 1) and its default budget,
+           plus a two-well toy: success rate and, among the failures, how many still come out «verified».
+functions  (history, restarts = 0) Branin (f* = 0.397887), Hartmann-6 (f* = −3.32237) and the constrained toy problem of Gramacy et al. 2016
            (f* = 0.5998), N seeds each: success rate at a tolerance and a budget stated BEFORE running (CRITERIA).
 dwsim      The repo's own known optima (notebook 23): A three-stage compressor, B the same with the HAZOP limit,
            C the hexane-heptane column. Bayesian vs optimize_design_multi (grid + Nelder-Mead) vs
@@ -34,7 +36,15 @@ OUT = Path(os.environ.get("ALCHEMAI_NB29_OUT") or ROOT / "notebooks" / "29_optim
 CRITERIA = {"branin": {"tolerance": 0.01, "budget": 40, "fmin": B.BRANIN_FMIN},
             "hartmann6": {"tolerance": 0.033, "budget": 120, "fmin": B.HARTMANN6_FMIN},        # 1 % of |f*|; local minimum −3.2032 fails it
             "gramacy": {"tolerance": 0.006, "budget": 60, "fmin": B.GRAMACY_FMIN},             # 1 % of f*; local optimum 0.75 fails it
-            "hartmann6_restarts2": {"tolerance": 0.033, "budget": 120, "fmin": B.HARTMANN6_FMIN, "restarts": 2}}   # same budget, 2 restarts
+            "hartmann6_restarts2": {"tolerance": 0.033, "budget": 120, "fmin": B.HARTMANN6_FMIN, "restarts": 2},   # same budget, 2 restarts
+            # restarts = 1 by default (owner's decision, 2026-11-14). budget None = the tool's default, 40 + 20·n
+            "branin_default": {"tolerance": 0.01, "budget": None, "fmin": B.BRANIN_FMIN, "restarts": None},
+            "gramacy_default": {"tolerance": 0.006, "budget": None, "fmin": B.GRAMACY_FMIN, "restarts": None},
+            "hartmann6_default_budget120": {"tolerance": 0.033, "budget": 120, "fmin": B.HARTMANN6_FMIN, "restarts": None},
+            "hartmann6_default": {"tolerance": 0.033, "budget": None, "fmin": B.HARTMANN6_FMIN, "restarts": None},
+            "two_wells_default": {"tolerance": 0.01, "budget": None, "fmin": B.TWO_WELLS_FMIN, "restarts": None},
+            "two_wells_restarts0": {"tolerance": 0.01, "budget": None, "fmin": B.TWO_WELLS_FMIN, "restarts": 0}}
+DEFAULT_NAMES = ("branin_default", "gramacy_default", "hartmann6_default_budget120", "hartmann6_default", "two_wells_default", "two_wells_restarts0")
 SNAR = {"sty": {"maximize": True, "optimum": 11562.26, "x": [0.5, 5.0, 0.5, 30.899]},          # `truth` below
         "e_factor": {"maximize": False, "optimum": 8.4516, "x": [2.0, 1.1839, 0.5, 62.078]}}
 SNAR_TOL_PCT, SNAR_BATCH, SNAR_ROUNDS = 1.0, 4, 10
@@ -50,20 +60,22 @@ def _save(key, value):
 def _run_function(a):
     name, seed = a
     c = CRITERIA[name]
-    if name == "branin":
-        r = C.bayes_optimize(lambda x: {"solved_ok": True, "objective": B.branin(x), "constraints": {}}, B.BRANIN_VARS,
-                             max_evaluations=c["budget"], objective_tolerance=c["tolerance"], seed=seed)
+    kw = dict(max_evaluations=c["budget"], objective_tolerance=c["tolerance"], seed=seed, restarts=c.get("restarts", 0))
+    f = lambda fun: (lambda x: {"solved_ok": True, "objective": fun(x), "constraints": {}})
+    if name.startswith("branin"):
+        r = C.bayes_optimize(f(B.branin), B.BRANIN_VARS, **kw)
     elif name.startswith("hartmann6"):
-        r = C.bayes_optimize(lambda x: {"solved_ok": True, "objective": B.hartmann6(x), "constraints": {}}, B.HARTMANN6_VARS,
-                             max_evaluations=c["budget"], objective_tolerance=c["tolerance"], seed=seed, restarts=c.get("restarts", 0))
+        r = C.bayes_optimize(f(B.hartmann6), B.HARTMANN6_VARS, **kw)
+    elif name.startswith("two_wells"):
+        r = C.bayes_optimize(f(B.two_wells), B.TWO_WELLS_VARS, **kw)
     else:
-        r = C.bayes_optimize(B.gramacy, B.GRAMACY_VARS, B.GRAMACY_LIMITS, max_evaluations=c["budget"],
-                             objective_tolerance=c["tolerance"], seed=seed)
+        r = C.bayes_optimize(B.gramacy, B.GRAMACY_VARS, B.GRAMACY_LIMITS, **kw)
     gap = r["best"]["objective"] - c["fmin"]
+    ag = r.get("restart_agreement") or {}
     return {"seed": seed, "gap": gap, "success": bool(gap <= c["tolerance"]), "n_evaluations": r["n_evaluations"],
             "stopped_by": r["stopped_by"]["reason"], "status": r["status"], "model_seconds": r["suitability"]["model_seconds"],
-            "runs_best": [x["best_objective"] for x in r["runs"]],
-            "restarts_disagree": bool((r.get("restart_agreement") or {}).get("runs_at_a_worse_optimum"))}
+            "runs_best": [x["best_objective"] for x in r["runs"]], "runs_evaluations": [x["n_evaluations"] for x in r["runs"]],
+            "agreement": ag.get("state"), "agreement_gap": ag.get("gap_max"), "budget": r["method"]["stopping_rules"]["max_evaluations"]}
 
 
 def functions(n_seeds=20, names=("branin", "gramacy", "hartmann6", "hartmann6_restarts2")):
@@ -72,12 +84,18 @@ def functions(n_seeds=20, names=("branin", "gramacy", "hartmann6", "hartmann6_re
         with Pool(7) as p:
             rows = p.map(_run_function, [(name, s) for s in range(n_seeds)])
         ev = [r["n_evaluations"] for r in rows]
-        out[name] = {"criteria": CRITERIA[name], "n_seeds": n_seeds, "n_success": sum(r["success"] for r in rows),
+        fails = [r for r in rows if not r["success"]]
+        st = lambda rr: {k: sum(r["status"] == k for r in rr) for k in ("verified", "runs_disagree", "not_verified")}
+        out[name] = {"criteria": CRITERIA[name], "budget_used_as_limit": rows[0]["budget"], "n_seeds": n_seeds,
+                     "n_success": sum(r["success"] for r in rows),
                      "evaluations_median": float(np.median(ev)), "evaluations_min_max": [min(ev), max(ev)],
                      "gap_median": float(np.median([r["gap"] for r in rows])), "gap_max": max(r["gap"] for r in rows),
                      "stopped_by": {k: sum(r["stopped_by"] == k for r in rows) for k in {r["stopped_by"] for r in rows}},
-                     "verified_but_failed": sum(r["status"] == "verified" and not r["success"] for r in rows),
-                     "failed_and_flagged_by_restart_disagreement": sum(r["restarts_disagree"] and not r["success"] for r in rows), "runs": rows}
+                     "status_of_successes": st([r for r in rows if r["success"]]), "status_of_failures": st(fails),
+                     "false_verified": sum(r["status"] == "verified" for r in fails),      # wrong optimum reported as verified
+                     "failures_flagged": sum(r["status"] != "verified" for r in fails),
+                     "verified_total": sum(r["status"] == "verified" for r in rows),
+                     "verified_and_correct": sum(r["status"] == "verified" and r["success"] for r in rows), "runs": rows}
         print(name, {k: v for k, v in out[name].items() if k != "runs"}, flush=True)
         _save("functions_" + name, out[name])
     return out
@@ -91,7 +109,8 @@ def _nb23():
     return m
 
 
-def dwsim(cases=("A", "B", "C"), seeds=(0, 1, 2, 3, 4)):
+def dwsim(cases=("A", "B", "C"), seeds=(0, 1, 2, 3, 4), restarts=None, tag="_restarts1"):
+    """restarts=None = the tool's default (1 since 2026-11-14); the M16 rows of 2026-11-14 used restarts=0, tag ""."""
     from packages.dwsim_client import tools as T
     from packages.dwsim_client.tools_optimize import optimize_design_bayesian, optimize_design_multi, optimize_design_surrogate
     nb = _nb23()
@@ -113,9 +132,12 @@ def dwsim(cases=("A", "B", "C"), seeds=(0, 1, 2, 3, 4)):
         runs = []
         for seed in seeds:
             fid = build(); t = time.time()
-            r = optimize_design_bayesian(fid, var, obj, cons, seed=seed)
+            r = optimize_design_bayesian(fid, var, obj, cons, seed=seed, restarts=restarts)
             T.close_flowsheet(fid)
+            ag = r.get("restart_agreement") or {}
             runs.append({"seed": seed, "status": r["status"], "reasons": r.get("reasons"), "stopped_by": r["stopped_by"]["reason"],
+                         "agreement": ag.get("state"), "agreement_gap": ag.get("gap_max"), "agreement_gap_pct": ag.get("gap_max_pct"),
+                         "runs": [(x["n_evaluations"], x["best_objective"]) for x in r["runs"]],
                          "values": r["best"]["values"], "objective": r["best"]["objective"], "constraints": r["best"]["constraints"],
                          "n_evaluations": r["n_evaluations"] + 1, "n_failed": r["n_failed_evaluations"],
                          "rel_gap_pct": 100 * (r["best"]["objective"] - direct["objective"]) / abs(direct["objective"]),
@@ -123,17 +145,17 @@ def dwsim(cases=("A", "B", "C"), seeds=(0, 1, 2, 3, 4)):
                          "one_step_ahead": r["gp_diagnostics"].get("one_step_ahead"), "active_constraints": r["active_constraints"],
                          "seconds": round(time.time() - t, 1), "model_seconds": r["suitability"]["model_seconds"],
                          "suitability_notes": r["suitability"]["notes"]})
-            print(name, "seed", seed, runs[-1]["status"], runs[-1]["stopped_by"], runs[-1]["n_evaluations"], runs[-1]["values"],
+            print(name, "seed", seed, runs[-1]["status"], runs[-1]["agreement"], runs[-1]["runs"], runs[-1]["n_evaluations"], runs[-1]["values"],
                   round(runs[-1]["objective"], 3), "gap %", round(runs[-1]["rel_gap_pct"], 4), flush=True)
         out[name] = {"direct_nelder_mead": direct, "surrogate_omlt": sur, "bayesian": runs,
                      "bayesian_evaluations_median": float(np.median([r["n_evaluations"] for r in runs])),
                      "bayesian_rel_gap_pct_max": max(r["rel_gap_pct"] for r in runs)}
         print(name, "direct", direct, "\n  surrogate", sur, flush=True)
-        _save("dwsim_" + name, out[name])
+        _save("dwsim_" + name + tag, out[name])
     return out
 
 
-def integers(seeds=(0, 1, 2)):
+def integers(seeds=(0, 1, 2), restarts=None, tag="_restarts1"):
     """Ethanol-water column of notebook 20 (bloque 26): stages 8-60 (INTEGER) × reflux 1-5, total annual cost with
     illustrative prices (MOCKS.md, PRECIOS-ILUSTRATIVOS), x_D ≥ 0.80. Known optimum, recorded in
     notebooks/20_variables_enteras.jsonl by optimize_design_multi (enumeration of the stages, 442 DWSIM solves):
@@ -153,9 +175,12 @@ def integers(seeds=(0, 1, 2)):
     runs = []
     for seed in seeds:
         fid = nb20.column(); t = time.time()
-        r = optimize_design_bayesian(fid, var, nb20.COST, cons, seed=seed)
+        r = optimize_design_bayesian(fid, var, nb20.COST, cons, seed=seed, restarts=restarts)
         T.close_flowsheet(fid)
+        ag = r.get("restart_agreement") or {}
         runs.append({"seed": seed, "status": r["status"], "reasons": r.get("reasons"), "stopped_by": r["stopped_by"]["reason"],
+                     "agreement": ag.get("state"), "agreement_gap": ag.get("gap_max"), "agreement_gap_pct": ag.get("gap_max_pct"),
+                     "runs": [(x["n_evaluations"], x["best_objective"], x["best_values"]) for x in r["runs"]],
                      "values": r["best"]["values"], "objective": r["best"]["objective"], "constraints": r["best"]["constraints"],
                      "n_evaluations": r["n_evaluations"] + 1, "n_failed": r["n_failed_evaluations"],
                      "n_infeasible": sum(1 for h in r["history"] if h["solved_ok"] and not h["feasible"]),
@@ -164,7 +189,7 @@ def integers(seeds=(0, 1, 2)):
                      "stages_tried": sorted({h["values"]["T-101.stages"] for h in r["history"]}), "seconds": round(time.time() - t, 1)})
         print("bayes", runs[-1], flush=True)
     out = {"direct_enumeration": direct, "bayesian": runs}
-    _save("integers", out)
+    _save("integers" + tag, out)
     return out
 
 
@@ -236,4 +261,5 @@ def truth():
 if __name__ == "__main__":
     arg = sys.argv[1] if len(sys.argv) > 1 else "functions"
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 20
-    {"functions": lambda: functions(n), "dwsim": dwsim, "integers": integers, "snar": lambda: snar(n), "truth": truth}[arg]()
+    {"functions": lambda: functions(n), "functions_default": lambda: functions(n, DEFAULT_NAMES), "dwsim": dwsim, "integers": integers,
+     "snar": lambda: snar(n), "truth": truth}[arg]()

@@ -107,7 +107,7 @@ def test_leave_one_out_closed_form_equals_refitting():
 # ------------------------------------------------------------------------------------------------------- the loop
 @pytest.mark.parametrize("seed", [0, 1])
 def test_branin_within_tolerance_and_budget(seed):
-    r = C.bayes_optimize(_f(B.branin), B.BRANIN_VARS, max_evaluations=40, objective_tolerance=0.01, seed=seed)
+    r = C.bayes_optimize(_f(B.branin), B.BRANIN_VARS, max_evaluations=40, objective_tolerance=0.01, seed=seed, restarts=0)
     assert r["best"]["objective"] - B.BRANIN_FMIN <= 0.01 and r["n_evaluations"] <= 40
     x = (r["best"]["values"]["x1."], r["best"]["values"]["x2."])
     assert min(math.dist(x, m) for m in B.BRANIN_MINIMA) < 0.6
@@ -123,6 +123,7 @@ def test_branin_within_tolerance_and_budget(seed):
 def test_constrained_problem_reaches_the_known_optimum():
     r = C.bayes_optimize(B.gramacy, B.GRAMACY_VARS, B.GRAMACY_LIMITS, max_evaluations=60, objective_tolerance=0.006, seed=0)
     assert r["status"] == "verified", r["reasons"]
+    assert len(r["runs"]) == 2 and r["restart_agreement"]["state"] == "agree"        # default: one independent run, same optimum
     assert r["best"]["objective"] == pytest.approx(B.GRAMACY_FMIN, abs=0.006)
     assert r["best"]["constraints"]["c1"] <= 0 and r["best"]["constraints"]["c2"] <= 0     # hard constraints: a feasible evaluated point
     assert r["active_constraints"] == ["c1 ≤ 0.0"] and r["engine_constraint_violation"] == {"c1": 0.0, "c2": 0.0}
@@ -142,7 +143,7 @@ def test_failed_evaluations_are_infeasible_points_not_crashes():
             return {"solved_ok": True, "objective": float("nan"), "constraints": {}}
         return {"solved_ok": True, "objective": B.branin(x), "constraints": {}}
 
-    r = C.bayes_optimize(evaluate, B.BRANIN_VARS, max_evaluations=45, objective_tolerance=0.01, seed=0)
+    r = C.bayes_optimize(evaluate, B.BRANIN_VARS, max_evaluations=45, objective_tolerance=0.01, seed=0, restarts=0)
     assert r["n_failed_evaluations"] >= 3 and r["n_evaluations"] == len(r["history"]) and calls["n"] == r["n_evaluations"] + 1
     failed = [h for h in r["history"] if not h["solved_ok"]]
     assert all(h["objective"] is None and not h["feasible"] for h in failed) and any("solver diverged" in h.get("error", "") for h in failed)
@@ -171,6 +172,63 @@ def test_same_seed_same_run_and_budget_stop_is_not_verified():
     assert [h["values"] for h in a["history"]] != [h["values"] for h in c["history"]]
     assert a["stopped_by"]["reason"] == "budget" and a["n_evaluations"] == 12
     assert a["status"] == "not_verified" and a["evidence"]["converged_before_budget"] is False and "presupuesto" in a["reasons"][0]
+
+
+def test_default_is_one_independent_restart_and_agreement_is_reported():
+    """Owner's decision (2026-11-14): by default one independent run checks the optimum; the default budget doubles."""
+    import inspect
+    assert inspect.signature(C.bayes_optimize).parameters["restarts"].default is None and C.DEFAULT_RESTARTS == 1
+    r = C.bayes_optimize(_f(B.branin), B.BRANIN_VARS, objective_tolerance=0.01, seed=0)
+    m = r["method"]
+    assert m["restarts"] == 1 and "por defecto" in m["restarts_origin"] and m["stopping_rules"]["max_evaluations"] == 80   # (20 + 10·2)·2
+    assert [x["run"] for x in r["runs"]] == [0, 1] and {h["run"] for h in r["history"]} == {0, 1}
+    ag = r["restart_agreement"]
+    assert ag["state"] == "agree" and ag["runs_compared"] == 2 and 0 <= ag["gap_max"] <= 0.01 and ag["other_runs"][0]["verdict"] == "agrees"
+    assert r["status"] == "verified" and r["evidence"]["independent_runs_agree"] is True and len(r["evidence"]) == 7
+    assert "baja el riesgo de un óptimo local" in r["note"] and "no demuestra que sea el global" in r["note"]
+    assert abs(r["best"]["objective"] - B.BRANIN_FMIN) <= 0.01
+
+
+def test_explicit_zero_restarts_is_the_users_choice_and_keeps_the_single_run_note():
+    r = C.bayes_optimize(_f(B.branin), B.BRANIN_VARS, objective_tolerance=0.01, seed=0, restarts=0)
+    assert r["method"]["restarts"] == 0 and "elegido por el usuario" in r["method"]["restarts_origin"]
+    assert r["method"]["stopping_rules"]["max_evaluations"] == 40 and len(r["runs"]) == 1 and r["restart_agreement"] is None
+    assert r["status"] == "verified" and "independent_runs_agree" not in r["evidence"] and len(r["evidence"]) == 6
+    assert "no que el óptimo sea global" in r["note"] and "sin comprobación independiente (restarts = 0 elegido por el usuario)" in r["note"]
+    assert any("restarts = 0 por elección del usuario" in a for a in r["assumptions"])
+    with pytest.raises(ValueError, match="restarts entre 0 y 5"):
+        C.bayes_optimize(_f(B.branin), B.BRANIN_VARS, restarts=6)
+
+
+def test_runs_that_disagree_are_not_verified():
+    """Two wells (local −1.0, global −1.5). Seed 6: the first run converges to the local one; alone it is «verified»
+    (the trap). With the default restart the second run finds −1.5: the best point is returned, as "runs_disagree"."""
+    assert B.two_wells([0.8, 0.8]) == pytest.approx(B.TWO_WELLS_FMIN) and B.two_wells([0.2, 0.2]) == pytest.approx(B.TWO_WELLS_LOCAL)
+    alone = C.bayes_optimize(_f(B.two_wells), B.TWO_WELLS_VARS, objective_tolerance=0.01, seed=6, restarts=0)
+    assert alone["status"] == "verified" and alone["best"]["objective"] == pytest.approx(B.TWO_WELLS_LOCAL, abs=0.01)
+    r = C.bayes_optimize(_f(B.two_wells), B.TWO_WELLS_VARS, objective_tolerance=0.01, seed=6)
+    assert [x["best_objective"] for x in r["runs"]] == pytest.approx([B.TWO_WELLS_LOCAL, B.TWO_WELLS_FMIN], abs=0.01)
+    assert r["status"] == "runs_disagree" and r["verified"] is False and r["evidence"]["independent_runs_agree"] is False
+    assert all(v for k, v in r["evidence"].items() if k not in ("independent_runs_agree", "verified"))      # the only failed check
+    assert r["best"]["objective"] == pytest.approx(B.TWO_WELLS_FMIN, abs=0.01) and r["best"]["run"] == 1 and r["feasible"]
+    assert r["engine_at_optimum"]["objective"] == r["best"]["objective"]                 # still a real, re-evaluated point
+    ag = r["restart_agreement"]
+    assert ag["state"] == "disagree" and ag["gap_max"] == pytest.approx(0.5, abs=0.02) and ag["gap_max_pct"] == pytest.approx(33.3, abs=1.5)
+    assert ag["other_runs"][0]["verdict"] == "disagrees" and ag["other_runs"][0]["max_normalised_distance"] > 0.5
+    assert len(r["reasons"]) == 1 and "óptimos distintos" in r["reasons"][0] and "óptimo local" in r["reasons"][0]
+    assert "restarts = 2 o 3" in r["reasons"][0] and "max_evaluations" in r["reasons"][0]
+    assert r["note"].startswith("ÓPTIMO EN DUDA") and "no se reporta como verificado" in r["note"]
+
+
+def test_runs_that_agree_and_a_check_cut_short_by_the_budget():
+    r = C.bayes_optimize(_f(B.two_wells), B.TWO_WELLS_VARS, objective_tolerance=0.01, seed=2)
+    assert r["status"] == "verified" and r["restart_agreement"]["state"] == "agree"
+    assert [x["best_objective"] for x in r["runs"]] == pytest.approx([B.TWO_WELLS_FMIN] * 2, abs=0.01)
+    # a budget that only fits the first run: the check is incomplete and the result is not verified
+    cut = C.bayes_optimize(_f(B.branin), B.BRANIN_VARS, max_evaluations=40, objective_tolerance=0.01, seed=0)
+    assert len(cut["runs"]) == 1 and cut["restart_agreement"]["state"] == "incomplete" and cut["status"] == "not_verified"
+    assert cut["evidence"]["converged_before_budget"] is True and "no quedó presupuesto" in cut["reasons"][0]
+    assert abs(cut["best"]["objective"] - B.BRANIN_FMIN) <= 0.01
 
 
 def test_integer_and_log_scale_variables():
@@ -307,6 +365,12 @@ def test_tools_are_wired():
         assert getattr(TO, name) in TO.OPTIMIZE_TOOLS and getattr(TO, name) in T.TOOLS
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
     assert "PROPOSAL" in TO.suggest_experiments.__doc__ and "optimize_design_multi" in TO.optimize_design_bayesian.__doc__
+    import inspect
+    assert inspect.signature(TO.optimize_design_bayesian).parameters["restarts"].default is None       # None = default, 1 restart
+    assert "DEFAULT 1" in TO.optimize_design_bayesian.__doc__ and "runs_disagree" in TO.optimize_design_bayesian.__doc__
+    ag = next(t for t in AG.AGENT_TOOLS if getattr(t, "name", "") == "optimize_design_bayesian")
+    assert "runs_disagree" in ag.description and "default 1" in ag.description
+    assert "restarts" not in inspect.signature(TO.suggest_experiments).parameters                      # no optimiser loop there
     with pytest.raises(ValueError, match="objective.type"):
         TO.optimize_design_bayesian("none", [{"kind": "unit", "name": "K-1", "param": "outlet_P_Pa", "lower": 1e5, "upper": 2e5}], {"type": "x"})
 
@@ -320,30 +384,38 @@ def test_dwsim_constrained_compressor_matches_the_direct_optimum():
     r = optimize_design_bayesian(fid, nb.VARS_K, nb.OBJ_K, nb.LIMIT_B, seed=0)
     assert r["feasible"] and r["best"]["objective"] == pytest.approx(892.68, rel=0.001)
     assert r["best"]["constraints"]["s1.T_K"] <= 430.0 and r["engine_at_optimum"]["objective"] == r["best"]["objective"]
-    assert r["n_evaluations"] <= 40 and r["n_failed_evaluations"] == 0
+    assert r["n_evaluations"] <= 80 and r["n_failed_evaluations"] == 0
+    assert len(r["runs"]) == 2 and r["restart_agreement"]["state"] == "agree" and r["status"] == "verified"
+    assert r["active_constraints"] == ["s1.T_K ≤ 430.0"]
     assert T.read_stream(fid, "s1")["T_K"] == pytest.approx(r["best"]["constraints"]["s1.T_K"])       # left solved at the optimum
     T.close_flowsheet(fid)
 
 
 @slow
 def test_success_rates_on_test_functions():
-    """Recorded (20 seeds, notebook 29): Branin 20/20, Gramacy 20/20, Hartmann-6 8/20 in one run and 13/20 with two
-    restarts in the same 120 evaluations (the others stop in a local minimum, mostly −3.2032)."""
+    """Recorded (20 seeds, notebook 29). Single run (restarts=0, history): Branin 20/20, Gramacy 20/20, Hartmann-6 8/20
+    with the 12 failures «verified». Default since 2026-11-14 (one restart): Branin 20/20, Gramacy 20/20, all verified;
+    Hartmann-6 13/20, and of its 7 failures 3 are flagged (runs_disagree) and 4 still come out «verified»."""
     nb = _nb("nb29")
-    out = nb.functions(20)
-    assert out["branin"]["n_success"] >= 19 and out["gramacy"]["n_success"] >= 19
-    assert out["hartmann6"]["n_success"] >= 6 and out["hartmann6_restarts2"]["n_success"] >= 11
-    assert out["hartmann6_restarts2"]["n_success"] > out["hartmann6"]["n_success"]
+    old = nb.functions(20, names=("branin", "gramacy", "hartmann6"))
+    assert old["branin"]["n_success"] >= 19 and old["gramacy"]["n_success"] >= 19 and old["hartmann6"]["n_success"] >= 6
+    new = nb.functions(20, names=("branin_default", "gramacy_default", "hartmann6_default"))
+    for k in ("branin_default", "gramacy_default"):
+        assert new[k]["n_success"] >= 19 and new[k]["false_verified"] == 0 and new[k]["verified_and_correct"] >= 19
+    h0, h1 = old["hartmann6"], new["hartmann6_default"]
+    assert h1["n_success"] >= 11 and h1["n_success"] > h0["n_success"]
+    assert h1["false_verified"] <= 6 and h1["false_verified"] < h0["false_verified"] / 2 and h1["failures_flagged"] >= 2
 
 
 @slow
 def test_dwsim_cases_against_direct_optimizer_and_failing_column():
+    """Default (one restart): 33-34 DWSIM solves per case against 80/145/85 (Nelder-Mead) and 67 (surrogate)."""
     nb = _nb("nb29")
     out = nb.dwsim(seeds=(0, 1, 2))
     for case in ("A", "B", "C"):
         assert out[case]["bayesian_rel_gap_pct_max"] <= 0.1, case
         assert out[case]["bayesian_evaluations_median"] < out[case]["direct_nelder_mead"]["n_evaluations"] / 2
-        assert all(r["status"] == "verified" for r in out[case]["bayesian"])
+        assert all(r["status"] == "verified" and r["agreement"] == "agree" for r in out[case]["bayesian"])
     assert out["B"]["bayesian"][0]["active_constraints"] == ["s1.T_K ≤ 430.0"]
     # a column whose bottoms spec exceeds the feed in part of the range: DWSIM fails there, the run goes on
     nb23 = _nb("nb23")
@@ -359,10 +431,12 @@ def test_dwsim_cases_against_direct_optimizer_and_failing_column():
 
 @slow
 def test_integer_stages_and_snar_campaign():
-    """Recorded: 31 stages, R 1.358, 884 913-884 921 USD/year in 20-36 solves (enumeration: 29, 1.394, 885 080 in 442)."""
+    """Recorded: 31 stages, R 1.358, 884 913-884 921 USD/year (enumeration: 29, 1.394, 885 080 in 442 solves), in
+    20-36 solves with one run and 50-66 with the default restart, which agrees within 0.07 %."""
     nb = _nb("nb29")
     it = nb.integers(seeds=(0,))
-    assert it["bayesian"][0]["all_integer"] and abs(it["bayesian"][0]["rel_gap_pct"]) <= 0.5 and it["bayesian"][0]["n_evaluations"] <= 41
+    b = it["bayesian"][0]
+    assert b["all_integer"] and abs(b["rel_gap_pct"]) <= 0.5 and b["n_evaluations"] <= 81 and b["agreement"] == "agree"
     s = nb.snar(10, noise_levels=(0.0,))
     assert s["sty_noise0"]["bayes_success_by_round"][-1] >= 8 and s["sty_noise0"]["random_success_by_round"][-1] <= 1
     for key in ("e_factor_noise0", "e_factor_log_noise0"):       # converges towards the optimum, beats random; 1 % only in part

@@ -237,12 +237,15 @@ Hard rules:
    5-10 variables: optimize_design_bayesian. Ask for the bounds of every variable, the objective, every limit and the
    evaluation budget (no defaults for bounds, prices or limits). Report in Spanish the best point with the DWSIM
    values (engine_at_optimum), how many evaluations were spent and how many failed, which stopping rule fired, the
-   model's leave-one-out prediction ± uncertainty at the optimum against DWSIM, and the status. "not_verified" with
-   converged_before_budget false means the budget ran out: say there may be a better point and offer more
-   evaluations. Never call the result a global optimum: one run converges to the first optimum it finds. When the
-   user needs that checked, or the response may have several optima, pass restarts=1 or 2 and report
-   restart_agreement (how many independent runs reached the same optimum). Repeat suitability.notes when present
-   (they say when a direct optimizer would have been the better choice).
+   model's leave-one-out prediction ± uncertainty at the optimum against DWSIM, the status and restart_agreement.
+   By default the tool runs ONE independent restart to check the optimum (about twice the evaluations): leave it on
+   unless the user explicitly asks to skip it (restarts=0), and then say there was no independent check. Status
+   "verified" with state "agree": say the independent runs reached the same optimum, which lowers the risk of a local
+   optimum but does not prove a global one. Status "runs_disagree": the runs found different optima; give the best
+   point and its DWSIM values, say plainly that a local optimum is likely and that the result is NOT verified, quote
+   the gap, and offer more restarts (2-3) or more budget. State "incomplete" or converged_before_budget false: the
+   budget ran out; offer more evaluations. Never call the result a global optimum. Repeat suitability.notes when
+   present (they say when a direct optimizer would have been the better choice).
 25. Real experiments (laboratory, pilot plant, plant trials: "what should I run next", design of experiments,
    reaction optimisation from data): suggest_experiments. There is NO simulator in this tool: the variables, their
    bounds, every past run with its MEASURED result, the objective and its direction, any limit and the batch size
@@ -1111,15 +1114,18 @@ def optimize_design_bayesian(flowsheet_id: str, variables: list[dict[str, object
                              constraints: list[dict[str, object]] | None = None, maximize: bool = False,
                              max_evaluations: int | None = None, n_initial: int | None = None, tolerance_pct: float = 0.5,
                              objective_tolerance: float | None = None, stall_iterations: int | None = None, seed: int = 0,
-                             restarts: int = 0) -> str:
+                             restarts: int | None = None) -> str:
     """Bayesian optimisation of a built DWSIM flowsheet (Gaussian process + constrained expected improvement) for
     EXPENSIVE or failure-prone solves with a budget of tens of evaluations: 1-10 variables
     [{kind, name, param, lower, upper, log_scale, integer}] (integers native), objective/constraints as in
-    optimize_design. Failed solves are infeasible points, never a crash. Stops on max_evaluations (default 20 + 10·n per
-    run), expected improvement below 0.1 × tolerance for 5 iterations, or no improvement in stall_iterations.
-    restarts = independent extra runs to check for a local optimum (restart_agreement). Returns best re-evaluated in
-    DWSIM, gp_at_optimum, gp_diagnostics, history, runs, n_evaluations, stopped_by, evidence, status, suitability. For 1 variable use optimize_design; for 2-4 on a fast flowsheet optimize_design_multi; for an
-    algebraic model optimize_design_surrogate."""
+    optimize_design. Failed solves are infeasible points, never a crash. Stops on max_evaluations (default 40 + 20·n
+    with the default restart), expected improvement below 0.1 × tolerance for 5 iterations, or no improvement in
+    stall_iterations. restarts (default 1) = independent run that checks for a local optimum; restarts=0 only if the
+    user asks to skip the check. Returns best re-evaluated in DWSIM, restart_agreement (agree | disagree |
+    incomplete, gap), gp_at_optimum, gp_diagnostics, history, runs, n_evaluations, stopped_by, evidence, suitability
+    and status: "verified", "runs_disagree" (different optima: a local optimum is likely) or "not_verified". For 1
+    variable use optimize_design; for 2-4 on a fast flowsheet optimize_design_multi; for an algebraic model
+    optimize_design_surrogate."""
     return json.dumps(TO.optimize_design_bayesian(flowsheet_id, variables, objective, constraints, maximize, max_evaluations,
                                                   n_initial, tolerance_pct, objective_tolerance, stall_iterations, seed,
                                                   restarts),

@@ -94,3 +94,17 @@ def snar(tau: float, equiv_pldn: float, conc_dfnb: float, temperature: float, no
     waste = 1e-3 * sum(SNAR_M[i] * C[i] * q for i in range(5) if i != 2)
     e_factor = (q * 0.789 + waste) / (1e-3 * SNAR_M[2] * C[2] * q) if C[2] > 1e-12 else 1e3
     return {"sty": float(sty), "e_factor": float(min(e_factor, 1e3)), "yield_ortho": float(C[2] / conc_dfnb)}
+
+
+# ----------------------------------------------------------------- two-well toy (synthetic, for the restart check)
+TWO_WELLS_VARS = [{"name": "x", "param": "1", "lower": 0.0, "upper": 1.0}, {"name": "x", "param": "2", "lower": 0.0, "upper": 1.0}]
+TWO_WELLS_FMIN, TWO_WELLS_LOCAL = -1.5, -1.0
+
+
+def two_wells(x) -> float:
+    """Made-up function with two separate wells of width 0.1: a local minimum −1.0 at (0.2, 0.2) and the global one
+    −1.5 at (0.8, 0.8) (each well is 1e-16 deep at the other's centre). A single Bayesian run converges to whichever
+    it finds first; it exists to test that independent restarts expose the disagreement."""
+    a = math.exp(-((x[0] - 0.2) ** 2 + (x[1] - 0.2) ** 2) / (2 * 0.1 ** 2))
+    b = math.exp(-((x[0] - 0.8) ** 2 + (x[1] - 0.8) ** 2) / (2 * 0.1 ** 2))
+    return -1.0 * a - 1.5 * b

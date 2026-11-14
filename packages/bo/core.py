@@ -60,6 +60,7 @@ LOCAL_SCALES = (0.1, 0.03, 0.01, 0.003)
 N_POLISH = 5
 DUPLICATE_DISTANCE = 1e-6
 EI_PATIENCE = 5
+DEFAULT_RESTARTS = 1                  # one independent run checks the optimum (owner's decision, 2026-11-14)
 EI_STOP_FRACTION = 0.1                # stop when max EI < this fraction of the objective tolerance ...
 MIN_MODEL_ITERATIONS = lambda n: max(10, 5 * n)   # ... but never before this many model-guided evaluations
 ENGINE = "scikit-learn GaussianProcessRegressor"
@@ -395,12 +396,14 @@ def build_models(Z: np.ndarray, rows: list[dict], limits: dict[str, dict], sgn: 
 def bayes_optimize(evaluate: Evaluator, variables: list[dict], limits: dict[str, dict] | None = None, maximize: bool = False,
                    max_evaluations: int | None = None, n_initial: int | None = None, tolerance_pct: float = 0.5,
                    objective_tolerance: float | None = None, stall_iterations: int | None = None, seed: int = 0,
-                   restarts: int = 0, label: Callable[[dict], str] | None = None, engine_name: str = "DWSIM") -> dict:
+                   restarts: int | None = None, label: Callable[[dict], str] | None = None, engine_name: str = "DWSIM") -> dict:
     """Core of optimize_design_bayesian with an injected evaluator (DWSIM in the tool; an analytic function in the
     tests). evaluate(x) → {"solved_ok": bool, "objective": float, "constraints": {key: value}}; an exception or
     solved_ok false is a failed point (kept as infeasible, never fatal). limits = {key: {"max"|"min": value,
     "tolerance": optional absolute}}. restarts = independent extra runs (new initial design, a model that sees only its
-    own points) started after a run converges, while the budget lasts: the cheap check against a local optimum."""
+    own points) started after a run converges, while the budget lasts: the check against a local optimum. Default 1
+    (None); an explicit 0 is the user's choice and skips the check. If the runs end at different optima the status is
+    "runs_disagree", never "verified". Default budget (20 + 10·n)·(1 + restarts) = 40 + 20·n evaluations."""
     t0 = time.time()
     limits = limits or {}
     space = Space(variables, label or (lambda v: f"{v['name']}.{v['param']}"))
@@ -408,14 +411,17 @@ def bayes_optimize(evaluate: Evaluator, variables: list[dict], limits: dict[str,
     for k, lim in limits.items():
         if lim.get("max") is None and lim.get("min") is None:
             raise ValueError(f"la restricción {k} necesita max o min")
-    if not 0 <= int(restarts) <= 5:
+    restarts_assumed = restarts is None
+    restarts = DEFAULT_RESTARTS if restarts is None else int(restarts)
+    if not 0 <= restarts <= 5:
         raise ValueError("restarts entre 0 y 5")
     sgn = -1.0 if maximize else 1.0
     budget_assumed, init_assumed, stall_assumed = max_evaluations is None, n_initial is None, stall_iterations is None
     budget = int(max_evaluations) if max_evaluations is not None else (20 + 10 * n) * (1 + int(restarts))
     n_init = int(n_initial) if n_initial is not None else 2 * (n + 1)
     stall = int(stall_iterations) if stall_iterations is not None else max(20, 10 * n)
-    if space.n_integer_points is not None:
+    enumerable = space.n_integer_points is not None
+    if enumerable:                                   # an all-integer space is enumerated: nothing left for a second run
         budget, restarts = min(budget, space.n_integer_points), 0
     n_init = max(2, min(n_init, budget))
     rng = np.random.default_rng(seed)
@@ -523,7 +529,8 @@ def bayes_optimize(evaluate: Evaluator, variables: list[dict], limits: dict[str,
     return _report(space, rows, Z, limits, sgn, runs, evaluate, engine_name, seed, t0, fit_s, engine_s,
                    {"budget": budget, "budget_assumed": budget_assumed, "n_initial": n_init, "init_assumed": init_assumed,
                     "stall": stall, "stall_assumed": stall_assumed, "tolerance_pct": tolerance_pct,
-                    "objective_tolerance": objective_tolerance, "restarts": int(restarts)})
+                    "objective_tolerance": objective_tolerance, "restarts": int(restarts), "restarts_assumed": restarts_assumed,
+                    "enumerable": enumerable})
 
 
 def _report(space, rows, Z, limits, sgn, runs, evaluate, engine_name, seed, t0, fit_s, engine_s, cfg) -> dict:
@@ -536,7 +543,10 @@ def _report(space, rows, Z, limits, sgn, runs, evaluate, engine_name, seed, t0, 
         "stopping_rules": {"max_evaluations": cfg["budget"], "expected_improvement_below": f"{EI_STOP_FRACTION:g} × tolerancia, "
                            f"{EI_PATIENCE} iteraciones seguidas, tras al menos {MIN_MODEL_ITERATIONS(n)} evaluaciones guiadas por el modelo",
                            "no_improvement_in": cfg["stall"]},
-        "restarts_requested": cfg["restarts"],
+        "restarts": cfg["restarts"],
+        "restarts_origin": ("0: espacio entero que se enumera, no hay segunda corrida posible" if cfg["enumerable"] else
+                            "por defecto (1 corrida independiente de comprobación)" if cfg["restarts_assumed"] else
+                            "elegido por el usuario" + (": sin comprobación independiente" if cfg["restarts"] == 0 else "")),
         "integer_variables": [k for k, it in zip(space.names, space.int) if it] or None,
         "seed": seed}
     ib = min(feas, key=lambda i: sgn * rows[i]["objective"]) if feas else None
@@ -561,14 +571,16 @@ def _report(space, rows, Z, limits, sgn, runs, evaluate, engine_name, seed, t0, 
                            "notes": suit or None}
     base["assumptions"] = [
         "Cotas de las variables = las del usuario; no se evalúa ni se propone nada fuera de ellas.",
-        f"Presupuesto: {cfg['budget']} evaluaciones{' (por defecto (20 + 10·n) por corrida, supuesto del método)' if cfg['budget_assumed'] else ''}; "
+        f"Presupuesto: {cfg['budget']} evaluaciones{' (por defecto (20 + 10·n)·(1 + restarts), supuesto del método)' if cfg['budget_assumed'] else ''}; "
         f"diseño inicial de {cfg['n_initial']} puntos{' (por defecto 2·(n + 1))' if cfg['init_assumed'] else ''}; paro sin mejora en "
         f"{cfg['stall']} evaluaciones{' (por defecto max(20, 10·n))' if cfg['stall_assumed'] else ''}.",
         "Tolerancia del objetivo: " + (f"±{obj_tol:.4g} (dada por el usuario)" if obj_tol is not None
                                        else f"{tol_pct} % del mejor valor factible"),
         "El proceso gaussiano supone una respuesta suave (Matérn 5/2) y determinista. NO garantiza el óptimo global: en "
         "funciones con varios mínimos una corrida converge al que encuentra primero (Hartmann-6: ver BENCHMARK.md); "
-        "`restarts` lanza corridas independientes para comprobarlo.",
+        "por eso se lanza una corrida independiente de comprobación (`restarts`, 1 por defecto): si coincide baja el "
+        "riesgo de un óptimo local, sin demostrar el global."
+        + (" Aquí restarts = 0 por elección del usuario: no hubo comprobación." if cfg["restarts"] == 0 and not cfg["enumerable"] else ""),
         "Las restricciones son duras: el óptimo reportado es siempre un punto evaluado que las cumple.",
     ]
     if ib is None:
@@ -657,34 +669,72 @@ def _report(space, rows, Z, limits, sgn, runs, evaluate, engine_name, seed, t0, 
     out["active_constraints"] = act or None
     at_bound = [k for k, z in zip(space.names, zb) if min(z, 1 - z) <= 1e-3]
     out["variables_at_bound"] = at_bound or None
-    # independent restarts: do the converged runs agree?
-    done = [r for r in runs if r["best_objective"] is not None and r["stopped_by"]["reason"] != "budget"]
-    multi = None
-    if len(done) >= 2:
-        worse = [r for r in done if sgn * (r["best_objective"] - best["objective"]) > tol]
-        multi = {"converged_runs": len(done), "runs_at_the_best_optimum": len(done) - len(worse),
-                 "runs_at_a_worse_optimum": [{"run": r["run"], "objective": r["best_objective"], "values": r["best_values"]} for r in worse],
-                 "text": ("las corridas independientes coinciden dentro de la tolerancia" if not worse else
-                          f"{len(worse)} de {len(done)} corridas convergieron a un óptimo peor: el problema tiene varios óptimos "
-                          "locales y no hay garantía de que el mejor encontrado sea el global")}
+    # independent restarts: do the runs agree on the optimum?
+    need_check = cfg["restarts"] >= 1
+    multi, state = None, None
+    if need_check:
+        others = [r for r in runs if r is not run_best]
+        comp = []
+        for r in others:
+            conv = r["stopped_by"]["reason"] != "budget"
+            if r["best_objective"] is None:
+                comp.append({"run": r["run"], "objective": None, "values": None, "converged": conv, "gap": None, "verdict": "incomplete"})
+                continue
+            gap = sgn * (r["best_objective"] - best["objective"])
+            dist = float(np.max(np.abs(space.to_z([[r["best_values"][k] for k in space.names]])[0] - zb)))
+            comp.append({"run": r["run"], "objective": r["best_objective"], "values": r["best_values"], "converged": conv,
+                         "gap": float(gap), "gap_pct": float(100 * gap / max(abs(best["objective"]), 1e-300)),
+                         "max_normalised_distance": dist,
+                         "verdict": "agrees" if gap <= tol else ("disagrees" if conv else "incomplete")})
+        state = ("disagree" if any(c["verdict"] == "disagrees" for c in comp) else
+                 "agree" if any(c["verdict"] == "agrees" for c in comp) else "incomplete")
+        gaps = [c["gap"] for c in comp if c["gap"] is not None]
+        far = [c for c in comp if c["verdict"] == "agrees" and c["max_normalised_distance"] > 0.1]
+        if state == "agree":
+            text = (f"{sum(c['verdict'] == 'agrees' for c in comp) + 1} corridas independientes llegaron al mismo valor óptimo dentro de la "
+                    f"tolerancia (diferencia máxima {max(gaps):.4g}): esto baja el riesgo de un óptimo local, pero no demuestra que sea el global"
+                    + ("; lo alcanzaron en puntos distintos: hay varios óptimos equivalentes" if far else ""))
+        elif state == "disagree":
+            w = max((c for c in comp if c["verdict"] == "disagrees"), key=lambda c: c["gap"])
+            text = (f"las corridas independientes encontraron óptimos distintos (diferencia {w['gap']:.4g} = {w['gap_pct']:.3g} % del "
+                    f"mejor, tolerancia {tol:.4g}): es probable que alguna esté en un óptimo local y no hay evidencia de que el mejor "
+                    "encontrado sea el global. Qué hacer: más reinicios (restarts = 2 o 3) o más presupuesto (max_evaluations)")
+        else:
+            text = ("la comprobación independiente no se completó: " +
+                    ("no quedó presupuesto para iniciar la corrida de comprobación" if not others else
+                     "la corrida de comprobación agotó el presupuesto sin converger y sin alcanzar el mejor valor") +
+                    ". Da más evaluaciones (max_evaluations) o pasa restarts = 0 para renunciar a la comprobación")
+        multi = {"state": state, "runs_compared": len(comp) + 1, "tolerance": tol, "gap_max": max(gaps) if gaps else None,
+                 "gap_max_pct": max((c["gap_pct"] for c in comp if c["gap"] is not None), default=None),
+                 "other_runs": comp, "text": text}
+        checks["independent_runs_agree"] = state == "agree"
     out["restart_agreement"] = multi
-    verified = all(checks.values()) and len(checks) == 5
+    verified = all(checks.values()) and len(checks) == (6 if need_check else 5)
     out["evidence"] = checks | {"verified": verified}
     out["verified"] = verified
-    out["status"] = "verified" if verified else "not_verified"
     failed = [k for k, v in checks.items() if not v]
+    out["status"] = ("verified" if verified else
+                     "runs_disagree" if state == "disagree" and failed == ["independent_runs_agree"] else "not_verified")
     reasons = {"engine_solved_at_optimum": "el motor no resolvió al reevaluar el óptimo",
                "engine_constraints_met": "el motor no cumple las restricciones en el óptimo reevaluado",
                "reevaluation_reproduces": "la reevaluación no reproduce el valor registrado (motor ruidoso)",
                "gp_consistent_at_optimum": "el proceso gaussiano no predice el óptimo dentro de 3 σ ni de la tolerancia",
                "converged_before_budget": "se agotó el presupuesto antes de que se cumpliera un criterio de convergencia: "
-                                          "puede haber un punto mejor; da más evaluaciones"}
+                                          "puede haber un punto mejor; da más evaluaciones",
+               "independent_runs_agree": multi["text"] if multi else ""}
     out["reasons"] = [reasons[k] for k in failed] or None
-    out["note"] = (("mejor punto confirmado en " + engine_name + " (" + stop["text"] + "); «verified» significa que el motor "
-                    "confirma el punto y que la búsqueda convergió, no que el óptimo sea global"
-                    + ("; " + multi["text"] if multi else "")
-                    + ("; variable en la cota: amplía el rango" if at_bound else ""))
-                   if verified else "NO verificado: " + "; ".join(reasons[k] for k in failed) + ". El mejor punto evaluado sí "
-                   "es un resultado real del motor, pero no hay evidencia de que sea el óptimo.")
+    no_check = ("" if need_check else "; sin comprobación independiente (" +
+                ("el espacio entero se enumera" if cfg["enumerable"] else "restarts = 0 elegido por el usuario") + ")")
+    if verified:
+        out["note"] = ("mejor punto confirmado en " + engine_name + " (" + stop["text"] + "); «verified» significa que el motor "
+                       "confirma el punto y que la búsqueda convergió, no que el óptimo sea global"
+                       + ("; " + multi["text"] if multi else no_check)
+                       + ("; variable en la cota: amplía el rango" if at_bound else ""))
+    elif out["status"] == "runs_disagree":
+        out["note"] = ("ÓPTIMO EN DUDA: " + multi["text"] + ". El mejor punto es un resultado real del motor, confirmado al reevaluarlo, "
+                       "pero no se reporta como verificado.")
+    else:
+        out["note"] = ("NO verificado: " + "; ".join(reasons[k] for k in failed) + ". El mejor punto evaluado sí es un resultado "
+                       "real del motor, pero no hay evidencia de que sea el óptimo.")
     out["elapsed_s"] = round(time.time() - t0, 1)
     return out
