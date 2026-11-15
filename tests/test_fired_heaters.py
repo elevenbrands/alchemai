@@ -387,7 +387,9 @@ def test_convection_section_and_the_whole_chain():
     rad = FH.radiant_section(fuel_flow_kg_s=0.3, excess_air_fraction=0.15, tube_wall_T_K=700.0, **RAD)
     args = (NG, AIR, P, 0.3, rad["bridgewall_T_K"], BANK, PROC)
     cv = FH.convection_section(*args, excess_air_fraction=0.15)
-    assert cv["evidence"]["energy_balance_error"] < 1e-9 and cv["evidence"]["validated_against_literature"] is False
+    assert cv["evidence"]["energy_balance_error"] < 1e-9
+    # M18 asserted `validated_against_literature is False`; M18b validated the bank (tests/test_fired_heater_validation.py)
+    assert cv["evidence"]["validated_against_literature"] == FH.CONVECTION_VALIDATION
     assert PROC["inlet_T_K"] < cv["stack_T_K"] < rad["bridgewall_T_K"]
     assert cv["duty_W"] == pytest.approx(PROC["capacity_rate_W_K"] * (cv["process_outlet_T_K"] - PROC["inlet_T_K"]), rel=1e-6)
     gas = [r["gas_out_K"] for r in cv["rows"]]
@@ -396,7 +398,8 @@ def test_convection_section_and_the_whole_chain():
     assert cv["mean_beam_length_m"] == pytest.approx(FH.bank_beam_length(0.2032, 0.176, 0.1143))
     bare = FH.convection_section(*args, excess_air_fraction=0.15, gas_radiation=False)
     assert bare["stack_T_K"] > cv["stack_T_K"] and bare["gas_radiation_share_of_duty"] == 0 < cv["gas_radiation_share_of_duty"]
-    # the convective coefficient of a row is ht's Zukauskas with Cantera properties at the row's mean temperatures
+    # the convective coefficient of a row is Zukauskas with Cantera properties at the row's mean temperatures. For this
+    # staggered bank (St/Sl = 1.15, Re 1e3-2e5) the engine's own function (M18b) and ht's coincide, so the assertion stays
     from ht.conv_tube_bank import Nu_Zukauskas_Bejan
     c = CB.solve_combustion(NG, AIR, P, excess_air_fraction=0.15)
     row = bare["rows"][3]
@@ -435,7 +438,9 @@ def test_tools_are_registered_with_spanish_descriptions():
     for name in mine:
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
     assert "no hay valor típico" in TCB.combustion_efficiency.__doc__ and "utility_costs" in TCB.combustion_efficiency.__doc__
-    assert "validación parcial" in TCB.fired_heater_radiant.__doc__ and "NO validada" in TCB.fired_heater_convection.__doc__
+    assert "±5 %" in TCB.fired_heater_radiant.__doc__ and "±35 K" in TCB.fired_heater_radiant.__doc__
+    assert "Žukauskas" in TCB.fired_heater_convection.__doc__ and "ESCOA" in TCB.fired_heater_convection.__doc__
+    assert "no se modelan" in TCB.fired_heater_convection.__doc__                     # studded tubes: said, not hidden
     assert "27. Boilers and fired heaters" in AG.SYSTEM and "SAME basis" in AG.SYSTEM
     out = TCB.combustion_efficiency(NG, AIR, P, flue_O2={"mole_fraction": 0.03, "basis": "dry"}, stack_T_K=450.0,
                                     setting_loss_fraction=0.02, setting_loss_basis="LHV", absorbed_duty_W=5e6)

@@ -18,8 +18,24 @@ Sourced numbers (nothing typed from memory):
   * Mean beam length 3.6 V/A: the same paper («The mean path length, L, was approximated by 3.6 volume/area»).
   * Tube-row effectiveness alpha: exact crossed-strings view factor of a plane to one row of tubes, plus the re-radiation of
     the refractory behind it, alpha = F (2 - F); a test integrates the view factor numerically.
-  * Convection across the bank: Zukauskas as implemented in `ht.conv_tube_bank.Nu_Zukauskas_Bejan`; gas viscosity,
-    conductivity and cp from Cantera (GRI-Mech 3.0 transport data, mixture averaged).
+  * Convection across the bank: Žukauskas, «Heat Transfer from Tubes in Crossflow», Advances in Heat Transfer 8 (1972)
+    93-160, eqs. (39)-(44), read 2026-11-14 in the scan of the volume at the Internet Archive (identifier
+    AdvancesInHeatTransfer) and coded here in `zukauskas_bank_nusselt` with the arrangement given explicitly. The row-count
+    factor is the table digitised in `ht.conv_tube_bank.Zukauskas_tube_row_correction`. `ht`'s own
+    `Nu_Zukauskas_Bejan` (ht 1.2.0) is NOT used: it guesses the arrangement from the pitch ratio (an in-line bank with
+    St != Sl is computed as staggered), has the exponent 0.05 instead of 0.5 for in-line banks at Re 100-1000 and lacks the
+    St/Sl > 2 branch. Gas viscosity, conductivity and cp from Cantera (GRI-Mech 3.0 transport data, mixture averaged).
+
+Validation (bloque M18b, 2026-11-14; numbers and sources in tests/test_fired_heater_validation.py):
+  * Gas emissivity: against Leckner's 1972 correlation (independent), 70 points 800-2000 K, 0.03-3 atm m: -12 % to +18 %;
+    at the two points of Kern's examples both agree (0.398 vs 0.39-0.40; 0.115 vs 0.12) and Kern's 1950 charts are the
+    outlier at long path (0.496). The WSGG of Smith et al. stays as the only model.
+  * Radiant section: Kern (1950) examples 19.1 (Lobo-Evans) and 19.2 (Wilson-Lobo-Hottel) reproduced: radiant duty
+    -3.2 % and -1.7 %, bridgewall +33 K and +11 K with this module's own emissivity; +0.2 % and +2 K with Kern's emissivity.
+  * Convection: the bank coefficient reproduces Incropera example 7.7 (staggered, +0.7 % on the FOSSEE transcription) and
+    Cengel example 7-7 (in-line, +0.2 %); the gas radiation between tubes is 10 % above Kern's example 19.4 with his beam
+    length; the convection section of Nelson's (1941) example 68 comes out with +5 % in the overall coefficient and +2 % in
+    the heat given up by the gas.
 
 Every operating input (firing, geometry, tube emissivity, wall temperature or inside coefficient, convective coefficient in
 the firebox, setting loss, allowable flux) is the caller's; nothing typical is assumed."""
@@ -135,6 +151,178 @@ def bank_beam_length(transverse_pitch_m: float, longitudinal_pitch_m: float, dia
     return 3.6 * (transverse_pitch_m * longitudinal_pitch_m - math.pi * diameter_m ** 2 / 4) / (math.pi * diameter_m)
 
 
+RADIANT_VALIDATION = (
+    "Validado contra dos ejemplos resueltos de Kern, Process Heat Transfer (1950), cap. 19, mismo hogar: 19.1 (Lobo y Evans, "
+    "fuel oil) carga radiante -3.2 % y pared divisoria +33 K; 19.2 (Wilson, Lobo y Hottel, gas) -1.7 % y +11 K. Con la "
+    "emisividad de las cartas de Kern en vez de la propia: +0.2 % y +2 K. La emisividad WSGG de Smith 1982 coincide con la "
+    "correlación independiente de Leckner 1972 (-12 % a +18 % en 70 puntos, 800-2000 K y 0.03-3 atm·m; 1-2 % en el punto del "
+    "ejemplo); las cartas de Kern quedan 23-27 % arriba de ambas a trayectoria larga. Banda a esperar: carga radiante ±5 %, "
+    "pared divisoria ±35 K, en hogares de caja de una fila con llama no luminosa. El análisis del combustible de los "
+    "ejemplos no está publicado y se dedujo de sus propios datos.")
+CONVECTION_VALIDATION = (
+    "Validado por partes. Coeficiente de convección del banco: Incropera ej. 7.7 (tresbolillo, transcripción FOSSEE) +0.7 % con "
+    "las propiedades del libro y +1.9 % con las de Cantera; Çengel ej. 7-7 (en línea) +0.2 %; Grimison y ESDU 73031 a "
+    "-7 %...+10 %. Radiación del gas entre tubos: Kern ej. 19.4, +10 % con su longitud de haz y +32 % con 3.6 V/A (paso 1.7 D). Sección completa: "
+    "Nelson, Petroleum Refinery Engineering (1941), ej. 68: coeficiente global +5 %, carga +2 % sobre el calor que cede el gas "
+    "(+12 % sobre lo que absorbe el aceite: el ejemplo descuenta por paredes del banco 2 % del calor liberado, que este modelo "
+    "no tiene) y chimenea +48 K (su carta de entalpías da 2.8 puntos menos a 1700 °F). El paso, el arreglo y la emisividad de "
+    "tubo de ese ejemplo no están publicados y se supusieron. Banda a esperar: coeficiente de convección ±10 %, carga de la "
+    "sección ±12 %, chimenea ±50 K. Solo tubos lisos.")
+ZUKAUSKAS_SOURCE = ("A. Žukauskas, «Heat Transfer from Tubes in Crossflow», Advances in Heat Transfer 8 (1972) 93-160, ecs. "
+                    "(39)-(44); factor por número de filas de ht.conv_tube_bank.Zukauskas_tube_row_correction")
+
+
+def bank_free_width(duct_width_m: float, tubes_per_row: int, diameter_m: float, transverse_pitch_m: float,
+                    longitudinal_pitch_m: float, arrangement: str) -> float:
+    """Width of the minimum free cross-section of a bank, m (the maximum velocity is the flow divided by it and the length).
+
+    In-line: the transverse gaps. Staggered: the smaller of the transverse gaps and the two diagonal gaps per tube."""
+    gap = duct_width_m - tubes_per_row * diameter_m
+    if arrangement == "staggered":
+        diagonal = math.sqrt(longitudinal_pitch_m ** 2 + (transverse_pitch_m / 2) ** 2)
+        gap = min(gap, tubes_per_row * 2 * (diagonal - diameter_m))
+    return gap
+
+
+def zukauskas_bank_nusselt(Re: float, Pr: float, Pr_wall: float, n_rows: int, transverse_pitch_m: float,
+                           longitudinal_pitch_m: float, arrangement: str) -> dict:
+    """Mean Nusselt number of a bank of bare tubes in cross flow (Žukauskas 1972).
+
+    Re on the tube diameter and the velocity in the minimum free section, properties at the mean bulk temperature, Pr_wall
+    at the wall temperature. Inner rows: eq. (39) in-line and eqs. (40)-(41) staggered for 1e3 <= Re < 2e5, eqs. (42)-(43)
+    above; the result is multiplied by the row-count factor (banks of fewer than 20 rows). Below Re = 1e3 the constants
+    are those listed in the documentation of `ht` (Bejan, Convection Heat Transfer, 4th ed.), not read in the 1972 text."""
+    if arrangement not in ("staggered", "inline"):
+        raise ValueError("arrangement: 'staggered' o 'inline'")
+    if Re <= 0 or Pr <= 0 or Pr_wall <= 0 or n_rows < 1:
+        raise ValueError("zukauskas_bank_nusselt: Re, Pr, Pr_wall positivos y al menos una fila")
+    from ht.conv_tube_bank import Zukauskas_tube_row_correction
+    staggered, ratio = arrangement == "staggered", transverse_pitch_m / longitudinal_pitch_m
+    notes = []
+    if Re < 1e3:
+        if staggered:
+            c, m, eq = (1.04, 0.4, "Bejan (vía ht), Re < 500") if Re < 500 else (0.71, 0.5, "Bejan (vía ht), 500 <= Re < 1e3")
+        else:
+            c, m, eq = (0.9, 0.4, "Bejan (vía ht), Re < 100") if Re < 100 else (0.52, 0.5, "Bejan (vía ht), 100 <= Re < 1e3")
+        notes.append("Reynolds < 1e3: constantes de la lista de Bejan (documentación de ht), no leídas en Žukauskas 1972 y "
+                     "fuera de lo validado")
+    elif Re < 2e5:
+        if staggered:
+            c, m, eq = (0.35 * ratio ** 0.2, 0.60, "ec. (40)") if ratio < 2 else (0.40, 0.60, "ec. (41)")
+        else:
+            c, m, eq = 0.27, 0.63, "ec. (39)"
+    else:
+        c, m, eq = (0.022, 0.84, "ec. (43)") if staggered else (0.021, 0.84, "ec. (42)")
+        if Re > 2e6:
+            notes.append("Reynolds > 2e6: fuera de los datos de Žukauskas (20 a 2e6)")
+    if not staggered and ratio < 0.7:
+        notes.append("banco en línea con paso transversal / longitudinal < 0.7: Žukauskas avisa que la transferencia medida es "
+                     "mucho menor que la de la ec. (39)")
+    rows = Zukauskas_tube_row_correction(int(n_rows), staggered=staggered, Re=Re)
+    inner = c * Re ** m * Pr ** 0.36 * (Pr / Pr_wall) ** 0.25
+    return {"Nu": inner * rows, "Nu_inner_rows": inner, "row_factor": rows, "C": c, "m": m, "equation": eq,
+            "in_source_range": not notes, "notes": notes}
+
+
+ESCOA_SOURCE = ("ESCOA revisada (1993; Fintube Technologies, Tulsa) tal como la imprime V. Ganapathy, Steam Generators and Waste "
+                "Heat Boilers, CRC Press 2015, apéndice E: Tabla E.2 (C1, C3, C5) y ecs. (E.1)-(E.15), (E.22)-(E.23)")
+FIN_TYPES = ("solid_fin", "serrated_fin")
+FIN_KEYS = ("fin_height_m", "fin_thickness_m", "fins_per_m", "fin_conductivity_W_mK")
+FINNED_VALIDATION = (
+    "Tubos aletados (ESCOA revisada, Ganapathy 2015 ap. E). EN LÍNEA, contra sus ejemplos resueltos: E.10 (aleta segmentada) "
+    "h_c +0.5 %, eficiencia y efectividad de aleta +0.4 %; E.1 (aleta sólida) h_c -0.01 % con sus propiedades, eficiencia de "
+    "aleta -3 % (aquí Bessel exacto; su tabla de Bessel está mal leída, su fórmula simplificada da +0.4 %) y U -1.6 %; E.1 como "
+    "sección completa con propiedades de Cantera y radiación WSGG: carga +2.9 %, U +3.6 %, gas de salida -2 K. EN TRESBOLILLO "
+    "no hay ejemplo resuelto con las constantes revisadas: contra el de Esteem Projects (aleta segmentada, versión anterior de "
+    "ESCOA) h_c -7 %. Límite de tubo liso (aleta -> 0) frente a Žukauskas: tresbolillo -9 % a +18 %; en línea -25 % a -58 % "
+    "(ESCOA no se extrapola a tubo liso: con aletas muy bajas usa tube_type='bare'). Sin tubos con pernos. Banda a esperar: "
+    "h_c y U ±5 % en línea, ±10 % en tresbolillo; carga de la sección ±5 %.")
+
+
+def finned_tube_geometry(diameter_m: float, fin_type: str, fin_height_m: float, fin_thickness_m: float, fins_per_m: float,
+                         segment_width_m: float | None = None) -> dict:
+    """Areas of one metre of finned tube as Ganapathy (2015) app. E writes them.
+
+    Obstruction width d + 2 n b h (eq. E.4), fin area (E.7 solid, E.11 serrated with segment width ws), total outside area
+    A_t = A_f + pi d (1 - n b) (E.8), clear gap between fins s = 1/n - b."""
+    d, h, b, n = diameter_m, fin_height_m, fin_thickness_m, fins_per_m
+    if fin_type not in FIN_TYPES:
+        raise ValueError("bank.tube_type: 'bare', 'solid_fin' o 'serrated_fin'")
+    if min(d, h, b, n) <= 0 or n * b >= 1.0:
+        raise ValueError("aletas: diámetro, altura, espesor y densidad positivos, y espesor × densidad < 1")
+    if fin_type == "solid_fin":
+        A_f = math.pi * n * (2 * d * h + 2 * h ** 2 + b * d + 2 * b * h)
+    else:
+        if not segment_width_m or segment_width_m <= 0:
+            raise ValueError("aletas segmentadas: falta bank.fin_segment_width_m (ancho del segmento, m; entra en el área de "
+                             "aleta y en su eficiencia)")
+        ws = segment_width_m
+        A_f = math.pi * d * n * (2 * h * (ws + b) + b * ws) / ws
+    A_t = A_f + math.pi * d * (1 - n * b)
+    return {"obstruction_m": d + 2 * n * b * h, "fin_area_m2_per_m": A_f, "total_area_m2_per_m": A_t,
+            "fin_gap_m": 1.0 / n - b, "area_ratio_to_bare": A_t / (math.pi * d)}
+
+
+def escoa_colburn(Re: float, n_rows: int, transverse_pitch_m: float, longitudinal_pitch_m: float, diameter_m: float,
+                  fin_height_m: float, fin_gap_m: float, fin_type: str, arrangement: str) -> dict:
+    """Revised ESCOA factors (Ganapathy 2015, Table E.2) and the geometric part of the Colburn factor.
+
+    h_c = C1 C3 C5 ((d + 2h)/d)^0.5 (T_gas/T_fin)^x G cp Pr^-0.67, x = 0.5 in-line and 0.25 staggered (eqs. E.1-E.2), Re on
+    the tube diameter and the mass velocity in the free area between obstructions. C1 in-line is coded as in Ganapathy's
+    worked examples E.1 and E.10: 0.053 (1.45 - 2.9 (S_L/d)^-2.3) Re^-0.21."""
+    if arrangement not in ("staggered", "inline") or fin_type not in FIN_TYPES:
+        raise ValueError("escoa_colburn: arrangement 'staggered'|'inline' y fin_type 'solid_fin'|'serrated_fin'")
+    d, h, s, N, St, Sl = diameter_m, fin_height_m, fin_gap_m, int(n_rows), transverse_pitch_m, longitudinal_pitch_m
+    if Re <= 0 or s <= 0 or N < 1:
+        raise ValueError("escoa_colburn: Re y separación entre aletas positivos, al menos una fila")
+    if arrangement == "inline":
+        geometric = 1.45 - 2.9 * (Sl / d) ** -2.3
+        if geometric <= 0:
+            raise ValueError("ESCOA en línea: paso longitudinal / diámetro demasiado chico (1.45 - 2.9 (S_L/d)^-2.3 <= 0)")
+        C1 = 0.053 * geometric * Re ** -0.21
+        C5 = 1.1 - (0.75 - 1.5 * math.exp(-0.7 * N)) * math.exp(-2.0 * Sl / St)
+        C3 = 0.20 + 0.65 * math.exp(-0.25 * h / s) if fin_type == "solid_fin" else 0.25 + 0.6 * math.exp(-0.26 * h / s)
+        x = 0.5
+    else:
+        C1 = 0.091 * Re ** -0.25
+        C5 = 0.7 + (0.7 - 0.8 * math.exp(-0.15 * N ** 2)) * math.exp(-1.0 * Sl / St)
+        C3 = 0.35 + 0.65 * math.exp(-0.25 * h / s) if fin_type == "solid_fin" else 0.35 + 0.65 * math.exp(-0.17 * h / s)
+        x = 0.25
+    return {"C1": C1, "C3": C3, "C5": C5, "temperature_exponent": x, "j_geometric": C1 * C3 * C5 * ((d + 2 * h) / d) ** 0.5}
+
+
+def fin_efficiency(fin_type: str, outside_coefficient_W_m2K: float, fin_conductivity_W_mK: float, diameter_m: float,
+                   fin_height_m: float, fin_thickness_m: float, segment_width_m: float | None = None) -> dict:
+    """Fin efficiency E and fin-tip temperature ratio (T_gas - T_tip)/(T_gas - T_base), Ganapathy (2015) app. E.
+
+    Solid (annular) fin, adiabatic tip: Bessel solution (E.9), m = (2 h_o / (k b))^0.5, tip ratio (E.22). Serrated fin:
+    straight fin E = tanh(mh)/(mh) with m = (2 h_o (b + ws) / (k b ws))^0.5 (E.13-E.14); tip ratio 1/cosh(mh) (Ganapathy prints
+    cosh(mb); the straight-fin solution is cosh(mh), which is what is coded)."""
+    from scipy.special import i0, i1, k0, k1
+    ho, k, d, h, b = outside_coefficient_W_m2K, fin_conductivity_W_mK, diameter_m, fin_height_m, fin_thickness_m
+    if ho <= 0 or k <= 0:
+        raise ValueError("fin_efficiency: coeficiente exterior y conductividad de la aleta positivos")
+    if fin_type == "solid_fin":
+        m = math.sqrt(2 * ho / (k * b))
+        ro, re = d / 2, d / 2 + h
+        den = i0(m * ro) * k1(m * re) + i1(m * re) * k0(m * ro)
+        E = 2 * ro / (m * (re ** 2 - ro ** 2)) * (i1(m * re) * k1(m * ro) - k1(m * re) * i1(m * ro)) / den
+        tip = (k1(m * re) * i0(m * re) + i1(m * re) * k0(m * re)) / den
+    else:
+        ws = segment_width_m
+        m = math.sqrt(2 * ho * (b + ws) / (k * b * ws))
+        E = math.tanh(m * h) / (m * h)
+        tip = 1.0 / math.cosh(m * h)
+    return {"E": float(E), "m_1_m": m, "mh": m * h, "tip_ratio": float(tip)}
+
+
+def finned_bank_beam_length(transverse_pitch_m: float, longitudinal_pitch_m: float, diameter_m: float,
+                            fin_height_m: float) -> float:
+    """Ganapathy (2015) eq. E.15: L = (d + 2h) (S_T S_L / (d + 2h)^2 - 0.85), m."""
+    D = diameter_m + 2 * fin_height_m
+    return D * (transverse_pitch_m * longitudinal_pitch_m / D ** 2 - 0.85)
+
+
 PROCESS_KEYS = ("bulk_T_K", "inside_coefficient_W_m2K", "tube_inside_diameter_m", "wall_conductivity_W_mK",
                 "inside_fouling_m2K_W")
 
@@ -239,10 +427,9 @@ def radiant_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s: f
                       "pL_atm_m": em.get("pL_atm_m"), "p_H2O_Pa": p_w, "p_CO2_Pa": p_c, "tube_emissivity": tube_emissivity,
                       "gas_emissivity_source": em.get("source")},
         "tube_area_m2": A_tubes, "fuel_kg_s": m, "flue_gas_kg_s": m * c.flue_mass, "excess_air_fraction": c.excess_air,
-        "evidence": {"energy_balance_error": balance, "verified_internal": balance < 1e-9,
-                     "validated_against_literature": "parcial: ver BENCHMARK.md, filas M18 (balance de una zona y factor de "
-                                                     "intercambio reproducidos; la emisividad WSGG difiere de las cartas de "
-                                                     "Kern)"},
+        "evidence": {"energy_balance_error": balance, "verified_internal": balance < 1e-9, "verified": balance < 1e-9,
+                     "reasons": [] if balance < 1e-9 else [f"el balance de energía del hogar no cierra ({balance:.2e})"],
+                     "validated_against_literature": RADIANT_VALIDATION},
         "warnings": warnings,
         "assumptions": list(c.assumptions) + notes + [
             "Hogar de una sola zona de gas bien mezclada: la temperatura efectiva del gas es la de salida (pared divisoria). En "
@@ -305,8 +492,10 @@ CONV_PROCESS_KEYS = ("inlet_T_K", "inside_coefficient_W_m2K", "inside_fouling_m2
 def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s: float, gas_inlet_T_K: float, bank: dict,
                        process: dict, excess_air_fraction: float | None = None, flue_O2: dict | None = None,
                        flue_CO_dry_mole_fraction: float | None = None, gas_radiation: bool = True) -> dict:
-    """Bare-tube convection bank, row by row, flue gas in cross flow and the process fluid counter-current overall."""
-    from ht.conv_tube_bank import Nu_Zukauskas_Bejan
+    """Convection bank, row by row, flue gas in cross flow and the process fluid counter-current overall.
+
+    bank.tube_type: 'bare' (default; Žukauskas) or 'solid_fin' / 'serrated_fin' (revised ESCOA, Ganapathy 2015 app. E: fin
+    efficiency, h_o = h_c + h_radiation, U on the total outside area with the outside fouling after the fin effectiveness)."""
     c = CB.solve_combustion(fuel, air, pressure_Pa, excess_air_fraction, flue_O2, flue_CO_dry_mole_fraction)
     if fuel_flow_kg_s is None or fuel_flow_kg_s <= 0 or gas_inlet_T_K is None:
         raise ValueError("da fuel_flow_kg_s y gas_inlet_T_K (temperatura del gas que entra al banco; la da fired_heater_radiant)")
@@ -322,21 +511,36 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
     n_t, n_r, St, Sl = int(b["tubes_per_row"]), int(b["n_rows"]), b["transverse_pitch_m"], b["longitudinal_pitch_m"]
     if not (0 < Di < Do < St) or Sl <= 0 or n_t < 1 or n_r < 1:
         raise ValueError("bank: se necesita Di < Do < paso transversal, paso longitudinal > 0 y al menos un tubo y una fila")
+    tube_type = b.get("tube_type") or "bare"
+    if tube_type not in ("bare",) + FIN_TYPES:
+        raise ValueError("bank.tube_type: 'bare', 'solid_fin' o 'serrated_fin' (tubos con pernos no están implementados)")
+    finned = tube_type in FIN_TYPES
     width = b.get("duct_width_m") or n_t * St
-    gap = width - n_t * Do
-    if b["arrangement"] == "staggered":
-        diag = math.sqrt(Sl ** 2 + (St / 2) ** 2)
-        gap = min(gap, n_t * 2 * (diag - Do))
+    if finned:
+        _need(b, FIN_KEYS + (("fin_segment_width_m",) if tube_type == "serrated_fin" else ()), "bank (tubos aletados)")
+        hf, bf, kf = b["fin_height_m"], b["fin_thickness_m"], b["fin_conductivity_W_mK"]
+        geo = finned_tube_geometry(Do, tube_type, hf, bf, b["fins_per_m"], b.get("fin_segment_width_m"))
+        if Do + 2 * hf >= St:
+            raise ValueError("bank: el diámetro exterior de la aleta (d + 2 h) no cabe en el paso transversal")
+        gap = width - n_t * geo["obstruction_m"]                 # ESCOA: free area between obstructions (Ganapathy E.3)
+        area_ratio = geo["area_ratio_to_bare"]
+        beam_default = finned_bank_beam_length(St, Sl, Do, hf)
+    else:
+        gap = bank_free_width(width, n_t, Do, St, Sl, b["arrangement"])
+        area_ratio, beam_default = 1.0, bank_beam_length(St, Sl, Do)
     if gap <= 0:
         raise ValueError("bank: no queda área libre entre tubos")
     m, m_gas = float(fuel_flow_kg_s), float(fuel_flow_kg_s) * c.flue_mass
     G_max = m_gas / (gap * L)
-    A_row = n_t * math.pi * Do * L
-    R_in = Do / (Di * p["inside_coefficient_W_m2K"]) + p["inside_fouling_m2K_W"] * Do / Di + \
-        Do * math.log(Do / Di) / (2.0 * b["wall_conductivity_W_mK"])
+    A_row = n_t * math.pi * Do * L * area_ratio                 # total outside area of a row
+    R_in = (Do / (Di * p["inside_coefficient_W_m2K"]) + p["inside_fouling_m2K_W"] * Do / Di +
+            Do * math.log(Do / Di) / (2.0 * b["wall_conductivity_W_mK"])) * area_ratio
     wet = c.flue_mol
     p_w, p_c = c.flue.get("H2O", 0.0) / wet * pressure_Pa, c.flue.get("CO2", 0.0) / wet * pressure_Pa
-    beam = bank_beam_length(St, Sl, Do)
+    beam = b.get("mean_beam_length_m") or beam_default
+    if beam <= 0:
+        raise ValueError("bank: la longitud media de haz sale <= 0 (pasos muy cerrados para esas aletas); da mean_beam_length_m")
+    fin_iter_failed = []
     C_p = None if isothermal else float(p["capacity_rate_W_K"])
     T_in_proc = float(p["inlet_T_K"])
     flags = set()
@@ -350,20 +554,42 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
             pr = _gas_properties(c, Tg, pressure_Pa)
             Tw = min(max(Tp + Q / A_row * R_in, Tp), Tg)
             Re = G_max * Do / pr["mu"]
-            Nu = Nu_Zukauskas_Bejan(Re=Re, Pr=pr["Pr"], tube_rows=n_r, pitch_parallel=Sl, pitch_normal=St,
-                                    Pr_wall=_gas_properties(c, Tw, pressure_Pa)["Pr"])
-            h_c = Nu * pr["k"] / Do
-            h_r, eg = 0.0, None
+            eg = None
             if gas_radiation and Tg - Tw > 1e-6:
                 e = gas_emissivity(Tg, p_w, p_c, beam, pressure_Pa)
                 eg = e["emissivity"]
                 if not e["in_fitted_range"]:
                     flags.add("Emisividad del gas fuera del intervalo del ajuste WSGG (600-2400 K, 0.001-10 atm·m, 1 atm) en "
                               "alguna fila: la parte radiante de esas filas es una extrapolación.")
-                h_r = gas_radiation_coefficient(Tg, Tw, eg, b["tube_emissivity"])
-            U = 1.0 / (1.0 / (h_c + h_r) + b["outside_fouling_m2K_W"] + R_in)
-            return {"Q": Q, "Q_ua": U * A_row * (Tg - Tp), "Tg_out": Tg_out, "Tp_cold": Tp_cold, "Tw": Tw, "Re": Re,
-                    "h_c": h_c, "h_r": h_r, "U": U, "eg": eg, "Tg": Tg, "Tp": Tp}
+            out = {"Q": Q, "Tg_out": Tg_out, "Tp_cold": Tp_cold, "Tw": Tw, "Re": Re, "eg": eg, "Tg": Tg, "Tp": Tp}
+            if not finned:
+                zk = zukauskas_bank_nusselt(Re, pr["Pr"], _gas_properties(c, Tw, pressure_Pa)["Pr"], n_r, St, Sl,
+                                            b["arrangement"])
+                h_c = zk["Nu"] * pr["k"] / Do
+                h_r = gas_radiation_coefficient(Tg, Tw, eg, b["tube_emissivity"]) if eg is not None else 0.0
+                U = 1.0 / (1.0 / (h_c + h_r) + b["outside_fouling_m2K_W"] + R_in)
+                out.update(zk=zk, h_c=h_c, h_r=h_r, U=U)
+            else:
+                ec = escoa_colburn(Re, n_r, St, Sl, Do, hf, geo["fin_gap_m"], tube_type, b["arrangement"])
+                base = ec["j_geometric"] * G_max * pr["cp"] * pr["Pr"] ** -0.67
+                Tf = Tw
+                for _ in range(60):                        # mean fin temperature <-> h_c, h_r, fin efficiency
+                    h_c = base * (Tg / Tf) ** ec["temperature_exponent"]
+                    h_r = gas_radiation_coefficient(Tg, Tf, eg, b["tube_emissivity"]) if eg is not None and Tg - Tf > 1e-6 \
+                        else 0.0
+                    fe = fin_efficiency(tube_type, h_c + h_r, kf, Do, hf, bf, b.get("fin_segment_width_m"))
+                    tip = Tg - (Tg - Tw) * fe["tip_ratio"]
+                    Tf_new = 0.5 * (Tw + tip)
+                    if abs(Tf_new - Tf) < 1e-6:
+                        break
+                    Tf = Tf_new
+                else:
+                    fin_iter_failed.append(Tg)
+                eta = 1.0 - (1.0 - fe["E"]) * geo["fin_area_m2_per_m"] / geo["total_area_m2_per_m"]
+                U = 1.0 / (1.0 / (eta * (h_c + h_r)) + b["outside_fouling_m2K_W"] + R_in)
+                out.update(h_c=h_c, h_r=h_r, U=U, escoa=ec, E=fe["E"], eta=eta, Tf=Tf, Ttip=tip, zk={"notes": []})
+            out["Q_ua"] = out["U"] * A_row * (Tg - Tp)
+            return out
         lo = max(Tp_hot, 300.0)
         f = lambda t: calc(t)["Q"] - calc(t)["Q_ua"]      # noqa: E731
         if Tg_in <= Tp_hot or f(Tg_in - 1e-9) >= 0:
@@ -392,38 +618,83 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
     Q = sum(r["Q"] for r in rows)
     Q_gas = m * (c.flue_sensible(gas_inlet_T_K) - c.flue_sensible(Tg_out))
     rad_share = sum(r["Q"] * r["h_r"] / (r["h_c"] + r["h_r"]) for r in rows) / Q if Q > 0 else 0.0
+    closure = abs(Q - Q_gas) / max(Q_gas, 1e-12)
+    closed = abs(Q - Q_gas) <= 1e-9 * max(Q_gas, 1.0)
     Re_all = [r["Re"] for r in rows]
     warnings = list(c.warnings) + sorted(flags)
-    if min(Re_all) < 1e3 or max(Re_all) > 2e6:
-        warnings.append(f"Reynolds {min(Re_all):.0f}-{max(Re_all):.0f}: fuera del intervalo principal de Zukauskas (1e3-2e6)")
+    for note in sorted({n for r in rows for n in r["zk"]["notes"]}):
+        warnings.append(f"Convección del banco (Reynolds {min(Re_all):.0f}-{max(Re_all):.0f}): {note}.")
+    reasons = [] if closed else [f"el calor al proceso no iguala al que cede el gas ({closure:.2e})"]
+    if fin_iter_failed:
+        reasons.append(f"la temperatura media de aleta no convergió en {len(fin_iter_failed)} evaluaciones de fila")
+    if finned and b["arrangement"] == "staggered":
+        warnings.append("Aletas en tresbolillo: las constantes ESCOA revisadas no tienen ejemplo resuelto leído; contra el "
+                        "ejemplo de Esteem Projects (versión anterior de ESCOA) h_c difiere -7 %. Trata h_c con ±10 %.")
+    if finned:
+        warnings.append("La fuente leída (Ganapathy 2015) no publica el intervalo de Reynolds ni de geometría de la "
+                        f"correlación ESCOA; Reynolds del banco {min(Re_all):.0f}-{max(Re_all):.0f}.")
     import CoolProp.CoolProp as CP
     y_w = c.flue.get("H2O", 0.0) / wet
     dew = CP.PropsSI("T", "P", y_w * pressure_Pa, "Q", 0, "Water") if y_w * pressure_Pa > 700 else None
     if dew is not None and min(r["Tw"] for r in rows) < dew:
         warnings.append(f"Alguna pared de tubo queda bajo el punto de rocío del agua ({dew:.1f} K): condensación y corrosión.")
+    table = []
+    for r in rows:
+        row = {"row": r["row"], "gas_in_K": r["Tg_in"], "gas_out_K": r["Tg_out"], "process_K": r["Tp"], "tube_wall_K": r["Tw"],
+               "duty_W": r["Q"], "flux_W_m2": r["Q"] / A_row, "h_convection_W_m2K": r["h_c"], "h_radiation_W_m2K": r["h_r"],
+               "U_W_m2K": r["U"], "Reynolds": r["Re"], "gas_emissivity": r["eg"]}
+        if finned:
+            row.update(fin_efficiency=r["E"], fin_effectiveness=r["eta"], mean_fin_T_K=r["Tf"], fin_tip_T_K=r["Ttip"])
+        table.append(row)
+    if finned:
+        surface = (f"Tubos con aleta {'sólida' if tube_type == 'solid_fin' else 'segmentada'}. Convección exterior: "
+                   "ESCOA revisada (Ganapathy 2015, ap. E, Tabla E.2) con el arreglo declarado, velocidad másica en el área "
+                   "libre entre obstrucciones (d + 2 n b h), propiedades del gas a la temperatura media de la fila y "
+                   "(T_gas/T_aleta)^x con la temperatura media de aleta (base + punta)/2, iterada.")
+        fin_note = ("Eficiencia de aleta: " + ("solución de Bessel de la aleta anular con punta adiabática" if tube_type ==
+                    "solid_fin" else "aleta recta tanh(mh)/mh con m del segmento") + " (Ganapathy ecs. E.9/E.13), con "
+                    "h_o = h_c + h_radiación; U referido al área exterior total: 1/U = 1/(η h_o) + R_ensuciamiento_ext + "
+                    "resistencias interiores × A_total/A_lisa.")
+        beam_note = "Ganapathy ec. E.15 para tubos aletados"
+        corr, name = ESCOA_SOURCE, "banco de tubos aletados fila por fila"
+        validation = FINNED_VALIDATION
+        not_inc = ["tubos con pernos (studs): sin ejemplo resuelto leído, no implementados"]
+    else:
+        surface = ("Tubos lisos. Convección exterior: Žukauskas 1972, ecs. (39)-(44), con el arreglo declarado, la velocidad en "
+                   "el área mínima de paso y la corrección por número de filas del banco entero aplicada a todas las filas.")
+        fin_note, beam_note, corr, name = None, "3.6 V/A del espacio entre tubos", ZUKAUSKAS_SOURCE, "banco de tubos lisos fila por fila"
+        validation = CONVECTION_VALIDATION
+        not_inc = ["tubos aletados (usa bank.tube_type='solid_fin' o 'serrated_fin') o con pernos"]
+    method = {"name": name, "module": "packages/energy/fired_heater.py", "property_data": CB.SOURCE,
+              "convection_correlation": corr, "tube_type": tube_type}
+    if finned:
+        method.update(escoa_factors=rows[0]["escoa"], fin_area_m2_per_m=geo["fin_area_m2_per_m"],
+                      total_area_m2_per_m=geo["total_area_m2_per_m"])
+    else:
+        method.update(equations_used=sorted({r["zk"]["equation"] for r in rows}), row_factor=rows[0]["zk"]["row_factor"])
     return {
         "stack_T_K": Tg_out, "gas_inlet_T_K": float(gas_inlet_T_K), "duty_W": Q, "gas_radiation_share_of_duty": rad_share,
         "process_outlet_T_K": rows[0]["Tp_hot"], "process_inlet_T_K": T_in_proc,
-        "max_tube_wall_T_K": max(r["Tw"] for r in rows), "outside_area_m2": n_r * A_row, "mass_velocity_kg_m2s": G_max,
-        "mean_beam_length_m": beam, "flue_gas_kg_s": m_gas,
-        "rows": [{"row": r["row"], "gas_in_K": r["Tg_in"], "gas_out_K": r["Tg_out"], "process_K": r["Tp"], "tube_wall_K": r["Tw"],
-                  "duty_W": r["Q"], "flux_W_m2": r["Q"] / A_row, "h_convection_W_m2K": r["h_c"], "h_radiation_W_m2K": r["h_r"],
-                  "U_W_m2K": r["U"], "Reynolds": r["Re"], "gas_emissivity": r["eg"]} for r in rows],
-        "evidence": {"energy_balance_error": abs(Q - Q_gas) / max(Q_gas, 1e-12), "verified_internal": abs(Q - Q_gas) <= 1e-9 * max(Q_gas, 1.0),
-                     "validated_against_literature": False},
+        "max_tube_wall_T_K": max(r["Tw"] for r in rows), "outside_area_m2": n_r * A_row,
+        "bare_tube_area_m2": n_r * n_t * math.pi * Do * L, "mass_velocity_kg_m2s": G_max,
+        "max_fin_tip_T_K": max(r["Ttip"] for r in rows) if finned else None,
+        "mean_beam_length_m": beam, "flue_gas_kg_s": m_gas, "rows": table,
+        "evidence": {"energy_balance_error": closure, "verified_internal": closed, "verified": closed and not fin_iter_failed,
+                     "reasons": reasons, "validated_against_literature": validation},
         "warnings": warnings,
-        "assumptions": list(c.assumptions) + [
-            "Tubos lisos. Convección exterior: Zukauskas (ht.conv_tube_bank.Nu_Zukauskas_Bejan) con la velocidad en el área "
-            "mínima de paso y la corrección por número de filas del banco entero.",
+        "assumptions": list(c.assumptions) + [surface] + ([fin_note] if fin_note else []) + [
             "Propiedades de transporte del gas: Cantera, datos de GRI-Mech 3.0, promedio de mezcla (SO2 contado como CO2).",
-            "Radiación del gas entre tubos" + (": gas gris WSGG con longitud de haz 3.6 V/A del espacio entre tubos y recinto "
-                                               "todo sumidero." if gas_radiation else " NO incluida (gas_radiation=False)."),
+            "Radiación del gas entre tubos" + (": gas gris WSGG con longitud de haz "
+                                               + ("dada por el usuario (bank.mean_beam_length_m)" if b.get("mean_beam_length_m")
+                                                  else beam_note)
+                                               + " y recinto todo sumidero." if gas_radiation
+                                               else " NO incluida (gas_radiation=False)."),
             "Fila por fila con temperaturas medias aritméticas; fluido de proceso en contracorriente global"
             + (" (isotérmico)." if isothermal else ", cp constante (capacity_rate_W_K)."),
             "Ancho del ducto = tubos por fila × paso transversal salvo que se dé duct_width_m."],
-        "not_included": ["tubos aletados o con pernos", "radiación del hogar que escapa a las primeras filas (va como "
-                         "shield_cold_plane_area_m2 en la sección radiante)", "pérdida por paredes del banco",
-                         "caída de presión del gas y tiro", "validación contra un ejemplo publicado"],
-        "method": {"name": "banco de tubos lisos fila por fila", "module": "packages/energy/fired_heater.py",
-                   "property_data": CB.SOURCE},
+        "not_included": not_inc + ["radiación del hogar que escapa a las primeras filas (va como "
+                                   "shield_cold_plane_area_m2 en la sección radiante)", "pérdida por paredes del banco",
+                                   "caída de presión del gas y tiro", "rerradiación de las paredes del ducto (Kern recomienda "
+                                   "el factor de Monrad; no se aplica)"],
+        "method": method,
     }

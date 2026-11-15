@@ -37,6 +37,14 @@ from packages.dwsim_client import tools_flow as TF  # noqa: E402
 from packages.dwsim_client import tools_heat as TH  # noqa: E402
 from packages.dwsim_client import tools_energy as TEN  # noqa: E402
 from packages.dwsim_client import tools_control as TCO  # noqa: E402
+from packages.agent.wrappers_properties import AGENT_WRAPPERS as _W_PROPERTIES  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_catalysis import AGENT_WRAPPERS as _W_CATALYSIS  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_solid_diffusion import AGENT_WRAPPERS as _W_SOLID_DIFFUSION  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_solids import AGENT_WRAPPERS as _W_SOLIDS  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_separations import AGENT_WRAPPERS as _W_SEPARATIONS  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_dynamic import AGENT_WRAPPERS as _W_DYNAMIC  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_dynamic_flowsheet import AGENT_WRAPPERS as _W_DYNAMIC_FLOWSHEET  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_advanced_control import AGENT_WRAPPERS as _W_ADVANCED_CONTROL  # noqa: E402  (bloque M24)
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -287,9 +295,9 @@ Hard rules:
    utility_costs never calls this tool by itself. Geometry given: fired_heater_radiant (mode 'rating' gives the
    bridgewall temperature and radiant duty; mode 'sizing' needs the allowable average flux from the user), then
    fired_heater_convection with gas_inlet_T_K = bridgewall_T_K to get the stack temperature, then
-   combustion_efficiency with that stack temperature. Report in Spanish the stated limits: the radiant section is a
-   one-zone model only partly validated (gas emissivity 20 % below Kern's charts at long paths, no peak flux), and the
-   convection bank is NOT validated against a published example (bare tubes only).
+   combustion_efficiency with that stack temperature. Report in Spanish the stated bands: radiant duty ±5 % and
+   bridgewall ±35 K (one-zone, single-row box furnaces, non-luminous flame, no peak flux); convection: bare tubes ±12 % on
+   duty, finned in-line ±5 %, finned staggered ±10 %; studded tubes are not modelled.
 
 28. Steam diagnostic of a plant ("what does my steam cost", "how efficient is my boiler and where are the losses",
    "what would I save by tuning the burner / an economizer / less blow-down / blow-down heat recovery / more
@@ -312,6 +320,21 @@ Hard rules:
    same inputs and show its markdown unchanged: never retype or round its numbers and never add figures of your own.
    When the plant's data come as the Excel workbook (or the user wants a file to send to a plant): steam_workbook_template
    writes the empty workbook and steam_diagnostic_from_workbook turns the filled one into the HTML/PDF report in ONE call.
+
+29. New engines (bloque M24), all with their own evidence; report their stated validation bands and every flagged
+   assumption: compound_properties (pure-compound data with the method of each value; an estimate is not a measurement)
+   and independent_flash / compare_flash (a second opinion on any DWSIM flash; the model is the user's, never default it;
+   warn when binary parameters are zero by absence). catalyst_effectiveness, packed_bed_catalytic_reactor,
+   gas_liquid_reaction, three_phase_catalytic_reactor (Thiele, Weisz-Prater/Mears, film theory, slurry and trickle bed;
+   every transfer coefficient is the user's). transient_diffusion_solid, membrane_permeation, diffusivity_from_uptake.
+   gas_permeation_module, reverse_osmosis, adsorption_fixed_bed, psa_cycle (PSA with a non-linear isotherm is NOT
+   validated: say so). crystallizer_yield, crystal_size_distribution, dryer_batch, dryer_continuous. Dynamics:
+   dynamic_flowsheet_run / dynamic_flowsheet_steady_state / dynamic_step_test / dynamic_flash_drum (own engine; volumes,
+   valve coefficients, pump curves, kinetics and controller settings are the user's) and dwsim_dynamic_run (DWSIM's own
+   dynamic mode: tanks, liquid valves, PID). Advanced control: mpc_design_and_simulate, nmpc_design_and_simulate (local
+   optimum only), rl_control_experiment (an RL policy is an experiment, never a verified controller: say it has no
+   stability guarantee). Never invent a property, kinetic constant, transfer coefficient, isotherm or model parameter
+   to make one of these tools run: ask for it.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1424,7 +1447,8 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
-               fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet]
+               fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet,
+               *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

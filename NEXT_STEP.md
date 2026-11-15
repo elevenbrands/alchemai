@@ -1,9 +1,14 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-14 (M1-M21: diagnóstico de vapor todo en uno, 80 tools; de la hoja de Excel de la planta al reporte HTML/PDF en un comando; sin validar con plantas)
+Actualizado: 2026-11-14 (M24: las 53 capacidades del mapa en ✅, 106 tools; diagnóstico de vapor todo en uno; sin validar con plantas)
 
 ## Dónde estamos
 **Decisión del owner (2026-11-14): el primer cliente son las plantas con vapor.** Definición del cliente, el problema, la oferta (diagnóstico de vapor) y las hipótesis sin validar en `docs/CLIENTE_Y_PRODUCTO.md`. Motivo: DWSIM ya trae su propio asistente de IA, así que «IA que arma simulaciones» no es lo nuevo; lo que se vende es el estudio comprobado. 0 conversaciones con plantas hasta hoy.
+
+**M24 (2026-11-14): las 53 capacidades del mapa en ✅, 106 tools.** Pedido del owner: «termina las 53 hoy». Se hicieron en paralelo con agentes (primero con Fable, que se quedó sin cupo a medias; se terminaron con Opus desde lo que ya estaba en disco) y cada bloque lo verifiqué: corrí sus pruebas y una comprobación propia a mano (η de una esfera a φ = 3, serie de Crank, MSMPR, permeado en mezcla completa, IAPWS, Fenske). Detalle por fila en `docs/MAPA_MOTORES.md` y validaciones en BENCHMARK (filas M24).
+- Límites que siguen y que cada herramienta declara: PSA con isoterma no lineal sin validar; hornos con un solo horno radiante de referencia y sin tubos con espárragos; flash y columna dinámicos sin balance de energía; transporte de propiedades de puros (salvo agua) sin validar; MPC no lineal solo con óptimo local; una política de RL es un experimento.
+- Fuentes: los ejemplos de Luyben y de Ganapathy se transcribieron de copias de autorización no verificada; se quitaron los enlaces y hay que cotejarlos con un ejemplar legítimo (MOCKS `FUENTES-COPIA-NO-VERIFICADA-M24`).
+- Lo que sigue sin depender de código: ninguna planta piloto propia.
 
 **M20 y M21 (2026-11-14): el diagnóstico de vapor quedó todo en uno, 80 tools.** El owner pidió terminar lo necesario para que el proyecto sirva a las empresas sin encadenar aplicaciones, y delegó las decisiones («toma las decisiones en pro de que sea lo más preciso y práctico»). Qué se decidió y se hizo:
 - **Gas natural sin análisis (M20a).** `fuel = {type: 'natural_gas_unknown'}`: la composición se ajusta al poder calorífico del recibo (energía ÷ volumen) o al del proveedor: metano + etano, o metano + nitrógeno si es más pobre. Sin poder calorífico, gas de referencia «GULF-COAST» leído de CoolProp. Medido contra seis gases de referencia: eficiencia a menos de 0.15 puntos; CO2 0.9-3.2 % bajo. Módulo `packages/energy/fuel_reference.py`.

@@ -1,0 +1,347 @@
+"""Worker of the reinforcement-learning experiment (bloque advcontrol, part B).
+
+This script is NOT imported by the repo: `packages.control.rl_runner` launches it with the interpreter of a separate
+Python 3.11 environment (pc-gym, gymnasium, stable-baselines3, torch, casadi, do-mpc) as `python -I rl_worker.py <job.json>
+<result.json>`. It imports nothing from the repo. Everything it prints goes to stderr/stdout noise; the result is the JSON
+file named in argv[2].
+
+Protocol of one experiment
+  1. Environment: a pc-gym model (Bloor et al. 2024, arXiv:2410.22093) built from the job's env_params, casadi integrator.
+  2. One-step model check (cstr only): the state after one env.step against an independent scipy integration of the two
+     published ODEs (paper eqs. 14-15) with the parameter values of the installed pc-gym model.
+  3. Baselines on the evaluation episodes: uniform random actions, and pc-gym's oracle (NMPC, do-mpc + ipopt, perfect
+     model) whose input sequence is REPLAYED in the same environment so that every return is the environment's own, and
+     the user's discrete PID loops when given (on the same noisy observation the agent sees).
+  4. For every seed: train a stable-baselines3 agent for total_timesteps, save it, evaluate it deterministically on
+     eval_episodes episodes whose noise seeds are disjoint from the training seeds.
+  5. Reproducibility: the first seed is trained twice; the two runs must give the same policy parameters and returns.
+
+Returns are sums of the environment reward over one episode (N − 1 steps; pc-gym ends the episode at t = N − 1)."""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import sys
+import time
+
+EVAL_SEED_BASE = 1_000_000          # evaluation noise seeds start here: disjoint from any training seed below it
+ALGORITHMS = ("PPO", "SAC", "DDPG", "TD3")
+
+
+def _env_params(job: dict):
+    import numpy as np
+    e = job["env"]
+    p = {"N": int(e["N"]), "tsim": float(e["tsim"]), "SP": {k: list(map(float, v)) for k, v in e["SP"].items()},
+         "o_space": {"low": np.array(e["o_space"]["low"], float), "high": np.array(e["o_space"]["high"], float)},
+         "a_space": {"low": np.array(e["a_space"]["low"], float), "high": np.array(e["a_space"]["high"], float)},
+         "x0": np.array(e["x0"], float), "model": job["model"], "integration_method": "casadi",
+         "normalise_a": True, "normalise_o": True}
+    if e.get("r_scale"):
+        p["r_scale"] = {k: float(v) for k, v in e["r_scale"].items()}
+    if e.get("noise_percentage"):
+        p["noise"] = True
+        p["noise_percentage"] = float(e["noise_percentage"])
+    if e.get("constraints"):
+        p["constraints"] = {k: list(map(float, v)) for k, v in e["constraints"].items()}
+        p["cons_type"] = {k: list(v) for k, v in e["cons_type"].items()}
+        p["r_penalty"] = bool(e.get("r_penalty", False))
+        p["done_on_cons_vio"] = False
+    return p
+
+
+def _violations(states: list, names: list, cons: dict | None, ctype: dict | None) -> dict:
+    """Constraint violations of one episode from the true (noise-free, unnormalised) states."""
+    steps, worst = 0, 0.0
+    if cons:
+        for x in states:
+            bad = False
+            for k, vals in cons.items():
+                v = x[names.index(k)]
+                for c, t in zip(vals, ctype[k]):
+                    d = (c - v) if t == ">=" else (v - c)
+                    if d > 0:
+                        bad, worst = True, max(worst, float(d))
+            steps += int(bad)
+    return {"steps_violated": steps, "max_violation": worst}
+
+
+def _rollout(env, act, seed: int, names: list, cons, ctype, keep: bool = False) -> dict:
+    import numpy as np
+    np.random.seed(seed)                      # pc-gym draws its measurement noise from numpy's global generator
+    obs, _ = env.reset()
+    ret, states, actions = 0.0, [], []
+    n_states = len(names)
+    while True:
+        a = np.asarray(act(obs), float).reshape(env.action_space.shape)
+        obs, r, done, trunc, _ = env.step(a)
+        ret += float(np.sum(r))
+        states.append([float(v) for v in env.state[:n_states]])
+        lo, hi = env.env_params["a_space"]["low"], env.env_params["a_space"]["high"]
+        actions.append([float(v) for v in (np.clip(a, -1, 1) + 1) * (hi - lo) / 2 + lo])
+        if done or trunc:
+            break
+    out = {"return": ret, "steps": len(states), **_violations(states, names, cons, ctype)}
+    if keep:
+        out.update(states=states, actions=actions)
+    return out
+
+
+def _summary(values: list) -> dict:
+    import numpy as np
+    v = np.asarray(values, float)
+    return {"mean": float(v.mean()), "std": float(v.std(ddof=0)), "min": float(v.min()), "max": float(v.max()), "n": int(v.size)}
+
+
+def _pid_policy(loops: list, params: dict, names: list, dt: float):
+    """User's discrete PID loops on the (noisy, unnormalised) observation, velocity form with the derivative on the
+    measurement: Δu = Kc·[(e_k − e_{k−1}) + dt/τI·e_k − τD/dt·(y_k − 2y_{k−1} + y_{k−2})], u clipped to a_space (the
+    velocity form needs no other anti-windup). Bumpless start from the given bias. Returns a fresh-episode factory."""
+    import numpy as np
+    lo_o, hi_o = np.asarray(params["o_space"]["low"], float), np.asarray(params["o_space"]["high"], float)
+    lo_a, hi_a = np.asarray(params["a_space"]["low"], float), np.asarray(params["a_space"]["high"], float)
+    sp_names = list(params["SP"])
+    nx = len(names)
+
+    def factory():
+        u = np.array(lo_a + (hi_a - lo_a) / 2, float)
+        for lp in loops:
+            u[lp["input"]] = lp["bias"]
+        mem = [None] * len(loops)
+
+        def act(obs):
+            o = (np.asarray(obs, float)[:len(lo_o)] + 1) / 2 * (hi_o - lo_o) + lo_o
+            for li, lp in enumerate(loops):
+                y, r = o[names.index(lp["state"])], o[nx + sp_names.index(lp["state"])]
+                e = r - y
+                if mem[li] is None:
+                    mem[li] = (e, y, y)
+                e1, y1, y2 = mem[li]
+                du = lp["Kc"] * ((e - e1) + (dt / lp["tau_I"] * e if lp.get("tau_I") else 0.0)
+                                 - (lp.get("tau_D") or 0.0) / dt * (y - 2 * y1 + y2))
+                j = lp["input"]
+                u[j] = min(max(u[j] + du, lo_a[j]), hi_a[j])
+                mem[li] = (e, y, y1)
+            return 2 * (u - lo_a) / (hi_a - lo_a) - 1
+        return act
+    return factory
+
+
+def _model_step_check(make_env, params: dict) -> dict | None:
+    """cstr only: one env.step from x0 against scipy (LSODA, rtol 1e-10) on the published ODEs."""
+    import numpy as np
+    from scipy.integrate import solve_ivp
+    if params["model"] != "cstr":
+        return None
+    p = dict(params)
+    p.pop("noise", None)
+    env = make_env(p)
+    env.reset()
+    m = env.model
+    a = np.array([0.3])                                         # some interior action (normalised)
+    Tc = float((a[0] + 1) * (p["a_space"]["high"][0] - p["a_space"]["low"][0]) / 2 + p["a_space"]["low"][0])
+    x0 = np.array(p["x0"][:2], float)
+
+    def rhs(_, x):                                              # Bloor et al. 2024, eqs. 14-15
+        ca, T = x
+        k = m.k0 * np.exp(-m.EA_over_R / T)
+        return [m.q / m.V * (m.Caf - ca) - k * ca,
+                m.q / m.V * (m.Ti - T) - m.deltaHr / (m.rho * m.C) * k * ca + m.UA / (m.rho * m.C * m.V) * (Tc - T)]
+
+    ref = solve_ivp(rhs, (0.0, env.dt), x0, method="LSODA", rtol=1e-10, atol=1e-12).y[:, -1]
+    env.step(a)
+    got = np.array(env.state[:2], float)
+    return {"dt": float(env.dt), "Tc": Tc, "x0": x0.tolist(), "pcgym_state": got.tolist(), "independent_state": ref.tolist(),
+            "max_rel_diff": float(np.max(np.abs(got - ref) / np.abs(ref))),
+            "parameters": {k: float(getattr(m, k)) for k in ("q", "V", "rho", "C", "deltaHr", "EA_over_R", "k0", "UA", "Ti", "Caf")}}
+
+
+def _train(job: dict, make_env, params: dict, seed: int, save_to: str | None):
+    import numpy as np
+    import stable_baselines3 as sb3
+    import torch
+    from stable_baselines3.common.monitor import Monitor
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    env = Monitor(make_env(params))
+    cls = getattr(sb3, job["algorithm"])
+    model = cls("MlpPolicy", env, seed=seed, device="cpu", verbose=0, **(job.get("hyperparameters") or {}))
+    t0 = time.time()
+    model.learn(total_timesteps=int(job["total_timesteps"]))
+    wall = time.time() - t0
+    rewards, lengths = env.get_episode_rewards(), env.get_episode_lengths()
+    h = hashlib.sha256()
+    for _, v in sorted(model.policy.state_dict().items()):
+        h.update(v.detach().cpu().numpy().tobytes())
+    if save_to:
+        model.save(save_to)
+    return model, {"episode_returns": [float(r) for r in rewards], "episode_lengths": [int(v) for v in lengths],
+                   "train_seconds": wall, "policy_sha256": h.hexdigest()}
+
+
+def _curve(returns: list, lengths: list, bins: int = 20) -> dict:
+    import numpy as np
+    if not returns:
+        return {"episodes": 0, "points": []}
+    r, t = np.asarray(returns), np.cumsum(lengths)
+    edges = np.unique(np.linspace(0, len(r), min(bins, len(r)) + 1).round().astype(int))
+    pts = [{"timesteps": int(t[b - 1]), "episodes": int(b), "mean_return": float(r[a:b].mean())}
+           for a, b in zip(edges[:-1], edges[1:]) if b > a]
+    k = max(1, len(r) // 10)
+    return {"episodes": int(len(r)), "first_10pct_mean_return": float(r[:k].mean()), "last_10pct_mean_return": float(r[-k:].mean()),
+            "best_episode_return": float(r.max()), "points": pts}
+
+
+def run(job: dict) -> dict:
+    import numpy as np
+    import torch
+    torch.set_num_threads(1)
+    torch.use_deterministic_algorithms(True)
+    import casadi
+    import do_mpc
+    import gymnasium
+    import pcgym  # noqa: F401  (fails early with a clear ImportError if pc-gym is missing)
+    import stable_baselines3 as sb3
+    from importlib.metadata import version
+    from pcgym import make_env
+    t_start = time.time()
+    params = _env_params(job)
+    probe = make_env(params)
+    names = list(probe.model.info()["states"])
+    cons, ctype = params.get("constraints"), params.get("cons_type")
+    n_eval = int(job["eval_episodes"])
+    eval_seeds = [EVAL_SEED_BASE + i for i in range(n_eval)]
+    out = {"versions": {"python": sys.version.split()[0], "pcgym": version("pcgym"), "gymnasium": gymnasium.__version__,
+                        "stable_baselines3": sb3.__version__, "torch": torch.__version__, "casadi": casadi.__version__,
+                        "do_mpc": do_mpc.__version__, "numpy": np.__version__},
+           "environment": {"model": params["model"], "states": names, "inputs": list(probe.model.info()["inputs"]),
+                           "steps_per_episode": int(params["N"]) - 1, "dt": float(probe.dt),
+                           "observation_size": int(probe.observation_space.shape[0]), "deterministic": not params.get("noise", False)},
+           "eval_seeds": [eval_seeds[0], eval_seeds[-1]]}
+    out["model_step_check"] = _model_step_check(make_env, params)
+    # baselines -------------------------------------------------------------------------------------------------------
+    env = make_env(params)
+    rng = np.random.default_rng(int(job.get("random_policy_seed", 0)))
+    rnd = [_rollout(env, lambda o: rng.uniform(-1, 1, size=env.action_space.shape), s, names, cons, ctype) for s in eval_seeds]
+    out["random_policy"] = {"return": _summary([r["return"] for r in rnd]),
+                            "steps_violated": _summary([r["steps_violated"] for r in rnd])}
+    pid_ret = None
+    if job.get("pid_baseline"):
+        unknown = [lp["state"] for lp in job["pid_baseline"] if lp["state"] not in names or lp["state"] not in params["SP"]]
+        if unknown:
+            raise ValueError(f"pid_baseline: los estados {unknown} no son estados con consigna del modelo {names} / "
+                             f"{list(params['SP'])}")
+        if any(not 0 <= lp["input"] < env.action_space.shape[0] for lp in job["pid_baseline"]):
+            raise ValueError(f"pid_baseline: 'input' fuera de rango (el modelo tiene {env.action_space.shape[0]} acciones)")
+        make_pid = _pid_policy(job["pid_baseline"], params, names, float(probe.dt))
+        pr = [_rollout(env, make_pid(), s, names, cons, ctype, keep=(s == eval_seeds[0])) for s in eval_seeds]
+        pid_ret = float(np.mean([r["return"] for r in pr]))
+        out["pid_baseline"] = {"return": _summary([r["return"] for r in pr]),
+                               "steps_violated": _summary([r["steps_violated"] for r in pr]),
+                               "max_violation": float(max(r["max_violation"] for r in pr)), "loops": job["pid_baseline"],
+                               "first_episode_final_states": pr[0]["states"][-1],
+                               "first_episode_actions_head": [a[0] for a in pr[0]["actions"][:5]]}
+    oracle_ret = None
+    if job.get("oracle", {}).get("enabled", True):
+        t0 = time.time()
+        try:
+            from pcgym.oracle import oracle as Oracle
+            op = dict(params)
+            op.pop("noise", None)                     # the oracle plans on the noise-free model with the true state
+            mp = {"N": int(job["oracle"].get("horizon", 5))}
+            x_log, u_log = Oracle(make_env, op, mp).mpc()
+            lo, hi = params["a_space"]["low"], params["a_space"]["high"]
+            nu = len(lo)
+            seq = [2 * (u_log[:nu, i] - lo) / (hi - lo) - 1 for i in range(u_log.shape[1])]
+            it = iter(seq)
+            rp = _rollout(make_env(op), lambda o: next(it), 0, names, cons, ctype, keep=True)
+            oracle_ret = rp["return"]
+            out["oracle"] = {"return": oracle_ret, "horizon": mp["N"], "seconds": time.time() - t0,
+                             "steps_violated": rp["steps_violated"], "max_violation": rp["max_violation"],
+                             "replay_vs_oracle_state_max_rel_diff": float(np.max(
+                                 np.abs(np.array(rp["states"]).T - x_log[:, :rp["steps"]]) / np.maximum(np.abs(x_log[:, :rp["steps"]]), 1e-12))),
+                             "final_states": rp["states"][-1], "first_actions": [a[0] for a in rp["actions"][:5]]}
+        except Exception as ex:  # noqa: BLE001 — the oracle is a comparison, its failure must not hide the experiment
+            out["oracle"] = {"error": f"{type(ex).__name__}: {str(ex)[:400]}"}
+    # agents ----------------------------------------------------------------------------------------------------------
+    os.makedirs(job["out_dir"], exist_ok=True)
+    seeds = [int(s) for s in job["seeds"]]
+    per_seed, means = [], []
+    for seed in seeds:
+        path = os.path.join(job["out_dir"], f"{job['algorithm'].lower()}_{params['model']}_seed{seed}")
+        model, info = _train(job, make_env, params, seed, path)
+        ev = [_rollout(env, lambda o: model.predict(o, deterministic=True)[0], s, names, cons, ctype) for s in eval_seeds]
+        rets = [r["return"] for r in ev]
+        means.append(float(np.mean(rets)))
+        per_seed.append({"seed": seed, "policy_path": path + ".zip", "policy_sha256": info["policy_sha256"],
+                         "train_seconds": info["train_seconds"], "learning_curve": _curve(info["episode_returns"], info["episode_lengths"]),
+                         "eval_return": _summary(rets), "eval_returns": rets,
+                         "eval_steps_violated": _summary([r["steps_violated"] for r in ev]),
+                         "eval_max_violation": float(max(r["max_violation"] for r in ev))})
+    out["per_seed"] = per_seed
+    out["eval_return_across_seeds"] = _summary(means)
+    # reproducibility: same seed, same budget → same parameters and same evaluation ------------------------------------
+    if job.get("check_reproducibility", True):
+        model2, info2 = _train(job, make_env, params, seeds[0], None)
+        ev2 = [_rollout(env, lambda o: model2.predict(o, deterministic=True)[0], s, names, cons, ctype)["return"] for s in eval_seeds]
+        a = np.asarray(per_seed[0]["eval_returns"])
+        out["reproducibility"] = {"seed": seeds[0], "same_policy_parameters": info2["policy_sha256"] == per_seed[0]["policy_sha256"],
+                                  "eval_return_max_abs_diff": float(np.max(np.abs(a - np.asarray(ev2)))),
+                                  "eval_return_scale": float(np.max(np.abs(a)))}
+    rnd_mean = out["random_policy"]["return"]["mean"]
+    if oracle_ret is not None:
+        gap = oracle_ret - out["eval_return_across_seeds"]["mean"]
+        den = oracle_ret - rnd_mean
+        out["gap_to_oracle"] = {"absolute": gap, "per_seed": [oracle_ret - m for m in means],
+                                "fraction_of_random_to_oracle_gap_remaining": (gap / den) if den > 0 else None}
+    out["beats_random"] = {"seeds_better_than_random": int(sum(m > rnd_mean for m in means)), "seeds": len(seeds),
+                           "mean_improvement_over_random": out["eval_return_across_seeds"]["mean"] - rnd_mean}
+    if pid_ret is not None:
+        out["vs_pid"] = {"seeds_better_than_pid": int(sum(m > pid_ret for m in means)), "seeds": len(seeds),
+                         "mean_return_minus_pid": out["eval_return_across_seeds"]["mean"] - pid_ret}
+    out["wall_seconds"] = time.time() - t_start
+    return out
+
+
+def oracle_trajectory(job: dict) -> dict:
+    """Closed-loop trajectory of pc-gym's own NMPC oracle (do-mpc + ipopt, noise-free, do-mpc's default orthogonal
+    collocation) for the job's environment: the independent reference used to validate the repo's NMPC."""
+    import numpy as np
+    import casadi
+    import do_mpc
+    from importlib.metadata import version
+    from pcgym import make_env
+    from pcgym.oracle import oracle as Oracle
+    params = _env_params(job)
+    params.pop("noise", None)
+    params.pop("noise_percentage", None)
+    t0 = time.time()
+    mp = {"N": int(job["oracle"]["horizon"])}
+    orc = Oracle(make_env, params, mp)
+    x_log, u_log = orc.mpc()
+    mpc_obj, _ = orc.setup_mpc()
+    st = mpc_obj.settings
+    return {"x_log": np.asarray(x_log).tolist(), "u_log": np.asarray(u_log).tolist(), "dt": float(orc.env.dt),
+            "horizon": mp["N"], "Q_diag": np.diag(orc.Q).tolist(), "R_diag": np.diag(np.atleast_2d(orc.R)).tolist(),
+            "discretization": {"method": str(st.state_discretization), "collocation_type": str(st.collocation_type),
+                               "collocation_deg": int(st.collocation_deg), "collocation_ni": int(st.collocation_ni)},
+            "seconds": time.time() - t0,
+            "versions": {"pcgym": version("pcgym"), "do_mpc": do_mpc.__version__, "casadi": casadi.__version__}}
+
+
+def main() -> int:
+    job_path, result_path = sys.argv[1], sys.argv[2]
+    with open(job_path) as f:
+        job = json.load(f)
+    try:
+        res = {"ok": True, "result": oracle_trajectory(job) if job.get("mode") == "oracle_trajectory" else run(job)}
+    except Exception as ex:  # noqa: BLE001 — reported to the caller, which raises it in Spanish
+        import traceback
+        res = {"ok": False, "error": f"{type(ex).__name__}: {ex}", "traceback": traceback.format_exc()[-2000:]}
+    with open(result_path, "w") as f:
+        json.dump(res, f)
+    return 0 if res["ok"] else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
