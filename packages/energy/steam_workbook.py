@@ -8,6 +8,7 @@ not give its barometric pressure; it is reported in `notes`.
 """
 from __future__ import annotations
 
+import os
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -314,7 +315,41 @@ def build_template(path: str, example: dict | None = None) -> str:
         wt.freeze_panes = "A2"
     wb.active = wb.index(wd)
     wb.save(path)
+    _fix_font_order(path)
     return path
+
+
+# children of <font> in the order the SpreadsheetML schema (CT_Font) requires
+FONT_CHILD_ORDER = ["b", "i", "strike", "condense", "extend", "outline", "shadow", "u", "vertAlign", "sz", "color", "name",
+                    "family", "charset", "scheme"]
+
+
+def _fix_font_order(path: str) -> None:
+    """openpyxl writes the children of the default <font> in an order the Open XML schema does not allow (Excel tolerates
+    it; Microsoft's validator does not). Rewrite xl/styles.xml with the schema order so the file validates cleanly."""
+    import shutil
+    import tempfile
+    import xml.etree.ElementTree as ET
+    import zipfile
+
+    ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    ET.register_namespace("", ns)
+    rank = {name: i for i, name in enumerate(FONT_CHILD_ORDER)}
+    fd, tmp = tempfile.mkstemp(suffix=".xlsx")
+    os.close(fd)
+    with zipfile.ZipFile(path) as zin, zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            data = zin.read(item.filename)
+            if item.filename == "xl/styles.xml":
+                root = ET.fromstring(data)
+                for font in root.iter(f"{{{ns}}}font"):
+                    children = sorted(list(font), key=lambda e: rank.get(e.tag.split("}")[1], len(rank)))
+                    for child in list(font):
+                        font.remove(child)
+                    font.extend(children)
+                data = b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + ET.tostring(root, encoding="utf-8")
+            zout.writestr(item, data)
+    shutil.move(tmp, path)
 
 
 # -------------------------------------------------------------------------------------------------------- reader

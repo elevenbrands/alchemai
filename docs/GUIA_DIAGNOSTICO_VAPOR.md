@@ -59,6 +59,14 @@ Hace lo mismo con una caldera **real**: la de una fábrica de alimentos del Vall
 
 Si las listas desplegables de la hoja no aparecen en tu programa, escribe la unidad a mano (por ejemplo `kg/cm2 man` o `°C`): el lector la reconoce.
 
+## Comprobar la hoja contra el formato de Excel
+
+```bash
+~/.dotnet/dotnet run -c Release --project tools/validar_xlsx -- ejemplos/plantilla_diagnostico_vapor.xlsx
+```
+
+Usa el validador oficial de Microsoft (Open XML SDK). Debe decir 0 errores. No hace falta para el uso diario.
+
 ## Lo que no hace
 
 - No mide nada: usa los datos que entrega la planta.

@@ -171,12 +171,22 @@ def _setting_loss_reference(boiler: dict, load_fraction: float | None, steam_pre
     plus `used_value` when the source already gives the loss at the plant's load."""
     kind = boiler.get("boiler_type")
     rated = boiler.get("rated_steam_capacity_kg_s")
-    if kind != "fire_tube" or rated is None or load_fraction is None:
-        R = dict(SETTING_LOSS_REFERENCE)
-        if kind == "fire_tube":
-            R["limits"] = list(R["limits"]) + ["para usar la tabla del fabricante para tubos de humo hacen falta la capacidad "
-                                               "nominal y la producción de vapor; sin ellas se usó el tope general"]
-        return R
+    if kind == "fire_tube" and (rated is None or load_fraction is None):
+        # no size or load: the general statement for fire-tube boilers (PDF on epa.gov read on 2026-11-14)
+        return {
+            "id": "HARRELL-EPA-TUNE-UP-FIRE-TUBE", "value": 0.005, "used_value": 0.005, "basis": "HHV",
+            "source": "G. Harrell, «Boiler Tune-up Guide for Natural Gas and Light Fuel Oil Operation» (publicada por la U.S. "
+                      "EPA), sección 2.3 «Boiler Shell Loss»",
+            "statement": "las calderas de tubos de humo tienen pérdidas por la envolvente relativamente menores, típicamente "
+                         "menos de 0.5 % de la energía del combustible a carga moderada",
+            "value_choice": "se toma el límite superior de esa afirmación, 0.5 %",
+            "limits": ["a baja carga la fracción real es mayor; con la capacidad nominal y la producción de vapor se usa la "
+                       "tabla del fabricante, que sí depende de la carga",
+                       "con refractario o aislamiento dañado la pérdida real es mayor"],
+            "sensitivity_step": 0.010, "retrieved": "2026-11-14",
+            "url": "https://19january2021snapshot.epa.gov/sites/static/files/2016-09/documents/boiler_tune-up_guide-v1.pdf"}
+    if kind != "fire_tube":
+        return dict(SETTING_LOSS_REFERENCE)
     bhp = float(rated) / BHP_KG_S
     size = "100-350" if bhp <= 375.0 else "400-800"
     psig = (float(steam_pressure_Pa) - float(site_pressure_Pa)) / 6894.757293168

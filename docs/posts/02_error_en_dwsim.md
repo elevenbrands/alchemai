@@ -1,6 +1,6 @@
 # Post 2 — El error que encontramos en DWSIM (borrador para LinkedIn, español)
 
-> Estado: BORRADOR 2026-11-14. No publicado. Lo publica el owner si lo aprueba.
+> Estado: LISTO PARA PUBLICAR (2026-11-14). No publicado: lo publica el owner. Va antes que el post 3.
 > Hechos verificados el 2026-11-14: issue https://github.com/DanWBR/dwsim10/issues/137 (abierto el 13 de noviembre por
 > la noche, cerrado como completado el 14 por la mañana); commit `901b173` de DWSIM leído en su código fuente (los seis
 > modelos usan ya la derivada de ln γ). No verificado: la corrección no se ha vuelto a medir porque sale en la 10.2.17.

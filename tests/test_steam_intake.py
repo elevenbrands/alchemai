@@ -244,6 +244,17 @@ def test_units_and_options_typed_by_hand_are_understood(tmp_path):
     assert n == 55
     for f in SW.FIELDS.values():
         assert all("," not in u for u in f.units), f.key
+    # the file follows the Open XML schema where openpyxl does not: children of every <font> in the order CT_Font requires
+    # (checked with Microsoft's Open XML SDK validator for Office 2010, 2019 and 365: 0 errors; see tools/validar_xlsx)
+    import xml.etree.ElementTree as ET
+    import zipfile
+    styles = ET.fromstring(zipfile.ZipFile(str(tmp_path / "t.xlsx")).read("xl/styles.xml"))
+    ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    fonts = list(styles.iter(ns + "font"))
+    assert len(fonts) >= 3
+    for font in fonts:
+        order = [SW.FONT_CHILD_ORDER.index(child.tag.replace(ns, "")) for child in font]
+        assert order == sorted(order), order
 
 
 def test_fire_tube_boiler_uses_the_manufacturer_table_and_water_price_is_optional(tmp_path):

@@ -153,3 +153,46 @@ ASHRAE = {1.315: (82.5, 203.0, 360.0, 560.0, 813.0), 2.375: (141.0, 350.0, 623.0
 def test_bare_pipe_against_the_ashrae_table():
     dev = [_bare(od, t, 80.0) / published - 1.0 for od, row in ASHRAE.items() for t, published in zip(ASHRAE_T_F, row)]
     assert len(dev) == 20 and -0.025 < min(dev) and max(dev) < 0.008             # the table does not state its emissivity
+
+
+def test_the_doe_bare_pipe_table_follows_the_older_convection_equation():
+    """Why the DOE Steam Tip Sheet #2 table is not reproduced by the engine (+2 to +16 %, growing with diameter).
+    ASTM C680 moved in 2002 from the Langmuir/Rice/Heilman equations to Churchill-Chu (stated in C680-08, appendix X2.3),
+    and the tip sheet says its table was adapted from an older Georgia Tech fact sheet. With the Heilman pipe equation
+    the table is met within 5 % at emissivity 0.8, without the diameter trend. CAVEAT: the Heilman coefficients below are
+    quoted from memory of the pre-2002 practice, not read in a source on 2026-11-14: this is an explanation, not a
+    validation, and the engine does not use it."""
+    import math
+    from CoolProp.CoolProp import PropsSI
+    psig = (15, 150, 300, 600)                                                   # MMBtu/yr per 100 ft of bare line
+    table = {1.315: (140, 285, 375, 495), 2.375: (235, 480, 630, 840), 4.5: (415, 850, 1120, 1500),
+             8.625: (740, 1540, 2030, 2725), 12.75: (1055, 2200, 2910, 3920)}
+    Ta, sigma = F(75.0), 5.670374419e-8
+    old, new = [], []
+    for od_in, row in table.items():
+        for p, published in zip(psig, row):
+            Ts = PropsSI("T", "P", p * 6894.757293168 + 101325.0, "Q", 1, "Water")
+            dT_F, T_avg_R = (Ts - Ta) * 1.8, (Ts + Ta) / 2 * 1.8
+            h = 1.016 * (1 / od_in) ** 0.2 * (1 / T_avg_R) ** 0.181 * dT_F ** 0.266 * 5.678263        # W/m2 K
+            W_m = math.pi * od_in * 0.0254 * (h * (Ts - Ta) + 0.8 * sigma * (Ts ** 4 - Ta ** 4))
+            to_table = 30.48 * 8760 * 3600 / 1055.056e6
+            old.append(W_m * to_table / published - 1.0)
+            r = SDI.bare_surface_heat_loss([{"outer_diameter_m": od_in * 0.0254, "length_m": 1.0, "surface_emissivity": 0.8,
+                                             "steam_pressure_Pa": p * 6894.757293168 + 101325.0}], Ta, 0.0, 101325.0)
+            new.append(r["bare_heat_loss_W"] * to_table / published - 1.0)
+    assert -0.05 < min(old) and max(old) < 0.03                                  # older equation: within 5 %
+    assert 0.02 < min(new) and max(new) < 0.17 and max(new) - min(new) > 0.10    # current ASTM C680 correlation: 2 to 16 %
+
+
+def test_fire_tube_without_size_or_load_uses_the_general_statement():
+    from packages.energy import steam_diagnostic as SD
+    R = SD._setting_loss_reference({"boiler_type": "fire_tube"}, None, 9.0e5, 1.0e5)
+    assert R["used_value"] == 0.005 and "epa.gov" in R["url"] and "menos de 0.5 %" in R["statement"]
+    # the manufacturer's table at moderate load agrees with that statement to within its own spread
+    for bhp in (200, 600):
+        for psig in (10, 125):
+            T = SD._setting_loss_reference({"boiler_type": "fire_tube", "rated_steam_capacity_kg_s": bhp * SD.BHP_KG_S}, 0.5,
+                                           psig * 6894.757293168 + 101325.0, 101325.0)
+            assert 0.005 <= T["used_value"] <= 0.010
+    assert SD._setting_loss_reference({"boiler_type": "water_tube"}, 0.5, 9e5, 1e5)["id"] == "ORNL-TM-2001-263-SHELL-LOSS"
+    assert SD._setting_loss_reference({}, None, 9e5, 1e5)["id"] == "ORNL-TM-2001-263-SHELL-LOSS"
