@@ -215,8 +215,9 @@ INSTRUCTIONS = [
     "",
     "1. Llena la hoja «Datos»: un valor por fila en la columna «Valor» y su unidad en la columna «Unidad» (lista).",
     "2. Lo que no sepas, déjalo vacío. No pongas un número aproximado: el reporte dirá qué faltó y qué impide.",
-    "3. Dos datos casi nunca se conocen y tienen salida: la composición del gas natural (deja vacías sus filas y da el "
-    "recibo con energía y volumen) y la pérdida por paredes de la caldera (marca «No la conozco»).",
+    "3. Dos datos casi nunca se conocen y tienen salida:",
+    "     - la composición del gas natural: deja vacías sus filas y da el recibo con energía y volumen;",
+    "     - la pérdida por paredes de la caldera: marca «No la conozco».",
     "4. Las medidas de ahorro son opcionales. Sin un objetivo, una medida sale como «no evaluada» y se dice qué hace falta.",
     "5. Las hojas «Fugas y trampas» y «Tubería sin aislar» son opcionales: una fila por grupo.",
     "6. Las presiones del manómetro son manométricas («man.»). Si tu dato es absoluto, elige la unidad «abs.».",
@@ -323,8 +324,6 @@ def build_template(path: str, example: dict | None = None) -> str:
         sheet.page_margins.top = sheet.page_margins.bottom = 0.5
         if sheet.title != SHEET_HELP:
             sheet.print_title_rows = "1:1"
-    for r in range(1, len(INSTRUCTIONS) + 1):
-        ws.cell(row=r, column=1).alignment = Alignment(wrap_text=True, vertical="top")
     wb.active = wb.index(wd)
     wb.save(path)
     _fix_font_order(path)

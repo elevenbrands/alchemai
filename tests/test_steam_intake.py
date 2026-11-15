@@ -249,6 +249,8 @@ def test_units_and_options_typed_by_hand_are_understood(tmp_path):
         assert ws.page_setup.orientation == "landscape" and ws.page_setup.fitToWidth == 1 and ws.page_setup.fitToHeight == 0
         assert ws.sheet_properties.pageSetUpPr.fitToPage is True
     assert wb["Datos"].print_title_rows == "$1:$1"
+    # seen in Excel for the web: a wrapped instruction was clipped, so every instruction line fits its column unwrapped
+    assert max(len(line) for line in SW.INSTRUCTIONS) <= 125
     # the file follows the Open XML schema where openpyxl does not: children of every <font> in the order CT_Font requires
     # (checked with Microsoft's Open XML SDK validator for Office 2010, 2019 and 365: 0 errors; see tools/validar_xlsx)
     import xml.etree.ElementTree as ET
