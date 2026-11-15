@@ -8,6 +8,7 @@ not give its barometric pressure; it is reported in `notes`.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 SHEET_DATA, SHEET_HELP, SHEET_LEAKS, SHEET_PIPES = "Datos", "Instrucciones", "Fugas y trampas", "Tubería sin aislar"
@@ -175,6 +176,16 @@ SECTIONS.append(("9. Recorrido de la distribución (solo si llenas las hojas «F
     _n("wind", "Viento sobre esas tuberías (0 si están bajo techo)", SPEED),
 ]))
 FIELDS = {f.key: f for _, fs in SECTIONS for f in fs}
+# a sub-row («   etano») only makes sense next to the row it hangs from: full labels for the copy shown in the report
+FULL_LABEL: dict[str, str] = {}
+for _title, _fields in SECTIONS:
+    _parent = ""
+    for _f in _fields:
+        if _f.label.startswith(" "):
+            FULL_LABEL[_f.key] = f"{_parent.split(':')[0]} — {_f.label.strip()}" if _parent else _f.label.strip()
+        else:
+            _parent = _f.label
+            FULL_LABEL[_f.key] = _f.label
 INSTRUCTIONS = [
     "Diagnóstico de vapor: datos de la planta",
     "",
@@ -293,9 +304,14 @@ class _Sheet:
         for r in range(2, ws.max_row + 1):
             key = ws.cell(row=r, column=COL_KEY).value
             if key in FIELDS:
-                value, unit = ws.cell(row=r, column=COL_VALUE).value, ws.cell(row=r, column=COL_UNIT).value
+                cell = ws.cell(row=r, column=COL_VALUE)
+                value, unit = cell.value, ws.cell(row=r, column=COL_UNIT).value
                 if isinstance(value, str) and not value.strip():
                     value = None
+                # typing «8%» in a spreadsheet stores 0.08 with a percent format: read it back as the 8 the plant meant
+                if isinstance(value, (int, float)) and not isinstance(value, bool) and "%" in (cell.number_format or "") \
+                        and unit == "%":
+                    value = round(value * 100.0, 10)
                 self.raw[key] = (value, unit, f"{SHEET_DATA}!B{r}")
         lost = sorted(k for k in FIELDS if k not in self.raw)
         if lost:
@@ -313,8 +329,13 @@ class _Sheet:
         if value is None:
             return None, None
         if isinstance(value, bool) or not isinstance(value, (int, float)):
+            text = str(value).replace("%", "").replace(" ", "").strip()
+            if "," in text and not re.fullmatch(r"-?\d{1,3}(,\d{3})+(\.\d+)?", text):
+                self.problems.append(f"{self.where(key)}: «{value}» no es un número. Usa punto decimal (por ejemplo 0.045) y, "
+                                     "si separas los miles, que sea con coma (1,500).")
+                return None, None
             try:
-                value = float(str(value).replace(",", "").replace("%", "").strip())
+                value = float(text.replace(",", ""))
             except ValueError:
                 self.problems.append(f"{self.where(key)}: «{value}» no es un número.")
                 return None, None
@@ -549,7 +570,7 @@ def read_workbook(path: str) -> dict:
                    "water": water or None, "fuel_cost": fuel_cost, "water_cost": water_cost,
                    "electricity_cost": electricity_cost, "operation": operation or None, "measures": measures or None,
                    "distribution": distribution or None})
-    as_entered = [[FIELDS[k].label.strip(), v if not isinstance(v, float) else f"{v:g}", u or ""]
+    as_entered = [[FULL_LABEL[k], v if not isinstance(v, float) else f"{v:g}", u or ""]
                   for k, (v, u, _) in s.raw.items() if v is not None and k != "plant_label"]
     return {"inputs": inputs, "plant_label": s.text("plant_label"), "notes": _suspects(s) + notes,
             "missing_essentials": _essentials(s), "as_entered": as_entered}

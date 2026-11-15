@@ -122,6 +122,8 @@ def test_workbook_round_trip_converts_plant_units(tmp_path):
     assert 9.4e4 < p_atm < 9.6e4 and x["combustion"]["site_altitude_m"] == 540.0 and "site_pressure_Pa" not in x["combustion"]
     assert read["notes"] == [] and read["plant_label"].startswith("Planta de ejemplo")
     assert ["Presión de operación", 8, "kg/cm² man."] in read["as_entered"]
+    assert ["Pérdida por paredes y radiación de la caldera — No la conozco", "Sí", ""] in read["as_entered"]
+    assert ["Combustible — energía facturada", 9500, "GJ"] in read["as_entered"]
     assert x["boiler"]["auxiliary_power_kWh_per_tonne_generated"] == 6.0
     assert x["boiler"]["steam_pressure_Pa"] == pytest.approx(8 * SW.KGF_CM2 + p_atm)          # gauge -> absolute
     assert x["boiler"]["rated_steam_capacity_kg_s"] == pytest.approx(600 * 15.65 / 3600.0)    # boiler horsepower
@@ -214,6 +216,23 @@ def test_typical_capture_slips_are_flagged_not_fixed(tmp_path):
     # a stack temperature in °F typed with the °C unit
     hot = TS.steam_system_diagnostic(**SW.read_workbook(_example(tmp_path, stack_T=(428, "°C"), m2_published=None))["inputs"])
     assert "stack_far_above_saturation" in [f["id"] for f in hot["data_review"]["flags"]]
+
+
+def test_numbers_typed_the_way_people_type_them(tmp_path):
+    from openpyxl import load_workbook
+    book = _example(tmp_path, stack_T=("1,220", "°C"), makeup_T=("20.5", "°C"), fuel_bill_amount=("1,425,000.50", None))
+    wb = load_workbook(book)
+    ws = wb["Datos"]
+    row = next(r for r in range(2, ws.max_row + 1) if ws.cell(row=r, column=SW.COL_KEY).value == "blowdown")
+    ws.cell(row=row, column=SW.COL_VALUE, value=0.08).number_format = "0%"                   # what «8%» becomes in a spreadsheet
+    wb.save(book)
+    x = SW.read_workbook(book)
+    assert x["inputs"]["boiler"]["blowdown_fraction"] == pytest.approx(0.08) and x["notes"] == []
+    assert x["inputs"]["combustion"]["stack_T_K"] == pytest.approx(1220 + 273.15)             # thousands separator
+    assert x["inputs"]["water"]["makeup_water_T_K"] == pytest.approx(293.65)
+    assert x["inputs"]["fuel_cost"]["bill"]["amount"] == pytest.approx(1425000.50)
+    with pytest.raises(ValueError, match="Usa punto decimal"):                               # a decimal comma is not guessed
+        SW.read_workbook(_example(tmp_path, makeup_T=("20,5", "°C")))
 
 
 def test_empty_template_is_refused_by_the_engine_not_by_the_reader(tmp_path):

@@ -1213,30 +1213,30 @@
     "engine_warnings": []
    },
    "bare_pipes": {
-    "heat_loss_W": 29888.841378586403,
+    "heat_loss_W": 32247.646709440865,
     "items": [
      {
       "description": "línea a marmitas",
       "outer_diameter_m": 0.1143,
       "length_m": 30.0,
       "surface_T_K": 447.5254127939371,
-      "heat_loss_W": 24504.967587609986,
-      "heat_loss_W_per_m": 816.8322529203328,
-      "steam_condensed_kg_h": 43.374866480159824,
-      "steam_tonne_per_year": 260.24919888095894,
-      "heat_GJ_per_year": 529.3072998923757,
-      "cost_per_year": 131616.94250273617,
-      "co2_tonne_per_year": 44.282591771711665,
+      "heat_loss_W": 26452.745721670562,
+      "heat_loss_W_per_m": 881.7581907223521,
+      "steam_condensed_kg_h": 46.822519132455874,
+      "steam_tonne_per_year": 280.9351147947352,
+      "heat_GJ_per_year": 571.3793075880841,
+      "cost_per_year": 142078.51939575587,
+      "co2_tonne_per_year": 47.802394997898396,
       "insulation": {
        "thickness_m": 0.05,
        "heat_loss_W": 1840.11153174104,
        "jacket_T_K": 311.17056904340495,
-       "saving_W": 22664.856055868946,
-       "saving_fraction": 0.9249086322941548,
-       "saving_steam_tonne_per_year": 240.7067305926372,
-       "saving_heat_GJ_per_year": 489.56089080676924,
-       "saving_cost_per_year": 121733.64627694413,
-       "saving_co2_tonne_per_year": 40.95735139001424
+       "saving_W": 24612.634189929522,
+       "saving_fraction": 0.9304377870221016,
+       "saving_steam_tonne_per_year": 261.39264650641354,
+       "saving_heat_GJ_per_year": 531.6328985024777,
+       "saving_cost_per_year": 132195.22316996384,
+       "saving_co2_tonne_per_year": 44.47715461620096
       }
      },
      {
@@ -1244,38 +1244,38 @@
       "outer_diameter_m": 0.0603,
       "length_m": 12.0,
       "surface_T_K": 447.5254127939371,
-      "heat_loss_W": 5383.873790976418,
-      "heat_loss_W_per_m": 448.6561492480348,
-      "steam_condensed_kg_h": 9.529692540695587,
-      "steam_tonne_per_year": 57.178155244173524,
-      "heat_GJ_per_year": 116.29167388509062,
-      "cost_per_year": 28916.95345670291,
-      "co2_tonne_per_year": 9.729124692120402,
+      "heat_loss_W": 5794.900987770305,
+      "heat_loss_W_per_m": 482.9084156475254,
+      "steam_condensed_kg_h": 10.25722869094389,
+      "steam_tonne_per_year": 61.54337214566334,
+      "heat_GJ_per_year": 125.16986133583858,
+      "cost_per_year": 31124.593304993694,
+      "co2_tonne_per_year": 10.471886317803904,
       "insulation": null,
       "insulation_note": "ahorro no evaluado: falta el espesor y la conductividad del aislamiento propuesto (ficha del proveedor)"
      }
     ],
     "ambient_T_K": 301.15,
     "wind_speed_m_s": 0.0,
-    "steam_tonne_per_year": 317.4273541251324,
-    "heat_GJ_per_year": 645.5989737774663,
-    "cost_per_year": 160533.89595943908,
-    "co2_tonne_per_year": 54.01171646383207,
-    "insulation_saving_W": 22664.856055868946,
-    "insulation_saving_cost_per_year": 121733.64627694413,
+    "steam_tonne_per_year": 342.47848694039857,
+    "heat_GJ_per_year": 696.5491689239227,
+    "cost_per_year": 173203.1127007496,
+    "co2_tonne_per_year": 58.274281315702304,
+    "insulation_saving_W": 24612.634189929522,
+    "insulation_saving_cost_per_year": 132195.22316996384,
     "engine_verified": true,
     "engine_warnings": [
      "solo algunos tramos traen datos de aislamiento: los totales del caso aislado y del ahorro quedan en None; cada tramo con datos trae su propio ahorro"
     ]
    },
    "total": {
-    "cost_per_year": 832301.7248492767,
-    "co2_tonne_per_year": 260.565736257792,
-    "share_of_delivered_steam": 0.04784166960892199,
+    "cost_per_year": 844970.9415905871,
+    "co2_tonne_per_year": 264.8283011096623,
+    "share_of_delivered_steam": 0.04862430596878484,
     "max_investment_for_payback": {
-     "1": 832301.7248492767,
-     "2": 1664603.4496985534,
-     "3": 2496905.17454783
+     "1": 844970.9415905871,
+     "2": 1689941.8831811743,
+     "3": 2534912.8247717614
     }
    },
    "valuation": {
@@ -1299,10 +1299,10 @@
      "source": "U.S. DOE, Steam Tip Sheet #1, DOE/GO-102012-3401, enero 2012: su tabla usa 0.72. Con 0.72 el motor reproduce esa tabla entre −3.8 % y +2.9 %"
     },
     "surface_emissivity": {
-     "value": 0.7,
+     "value": 0.8,
      "origin": "constante del modelo",
-     "what": "emisividad de la superficie del tubo sin aislar",
-     "source": "elección de este estudio: el U.S. DOE Steam Tip Sheet #2 (enero 2012) no declara la suya; con 0.70 el motor queda entre −5 % y +8 % de su tabla de pérdidas de tubería desnuda (con 0.80, entre +2 % y +16 %)"
+     "what": "emisividad de la superficie del tubo de acero sin aislar",
+     "source": "valor de «Steel» en la tabla de metales base del programa 3E Plus v4.1 de NAIMA (guía del usuario, agosto 2012), que implementa ASTM C680; «Iron or steel 0.8» en la Mechanical Insulation Design Guide de la NIA. Con 0.80 el motor reproduce dos resultados de 3E Plus a −0.3 % y la tabla de ASHRAE de tubería de acero desnuda (115 valores) entre −2.3 % y +0.5 %"
     },
     "jacket_emissivity": {
      "value": 0.9,
@@ -1315,7 +1315,7 @@
    "assumptions": [
     "Coeficiente de descarga de una fuga (orificio de borde vivo): 0.60. Fuente: G. Harrell, Steam System Survey Guide, ORNL/TM-2001/263 (U.S. DOE), 2002: un orificio de borde vivo deja pasar aproximadamente 60 % del flujo de una tobera bien redondeada. Con 0.60 el motor reproduce su Tabla 6 entre −0.8 % y +0.4 % (la columna de 300 psig, −4 %).",
     "Coeficiente de descarga de una trampa fallada abierta (orificio reentrante): 0.72. Fuente: U.S. DOE, Steam Tip Sheet #1, DOE/GO-102012-3401, enero 2012: su tabla usa 0.72. Con 0.72 el motor reproduce esa tabla entre −3.8 % y +2.9 %.",
-    "Emisividad de la superficie del tubo sin aislar: 0.70. Fuente: elección de este estudio: el U.S. DOE Steam Tip Sheet #2 (enero 2012) no declara la suya; con 0.70 el motor queda entre −5 % y +8 % de su tabla de pérdidas de tubería desnuda (con 0.80, entre +2 % y +16 %).",
+    "Emisividad de la superficie del tubo de acero sin aislar: 0.80. Fuente: valor de «Steel» en la tabla de metales base del programa 3E Plus v4.1 de NAIMA (guía del usuario, agosto 2012), que implementa ASTM C680; «Iron or steel 0.8» en la Mechanical Insulation Design Guide de la NIA. Con 0.80 el motor reproduce dos resultados de 3E Plus a −0.3 % y la tabla de ASHRAE de tubería de acero desnuda (115 valores) entre −2.3 % y +0.5 %.",
     "Emisividad de la cubierta del aislamiento: 0.90. Fuente: elección conservadora de este estudio (una cubierta opaca pierde más que una de aluminio brillante, así que el ahorro no queda inflado); cambia poco el resultado porque la pérdida ya aislada es pequeña.",
     "El vapor de fugas y trampas falladas se valora al costo de una tonelada de vapor de la línea base (combustible, agua y electricidad), como vapor que sale del sistema. Si una trampa descarga a un retorno de condensado cerrado, el agua no se pierde y el costo real es algo menor.",
     "El calor que pierde la tubería sin aislar se valora solo con el combustible (costo de combustible por GJ de calor entregado), porque el condensado que se forma no sale del sistema.",
@@ -1336,7 +1336,7 @@
    "method": {
     "module": "packages/energy/steam_audit.py",
     "engine": "steam_distribution (flujo por orificio con IAPWS-95; convección natural o forzada más radiación)",
-    "validated_against": "tablas del U.S. DOE Steam Tip Sheet #1 y de la guía ORNL/TM-2001/263 (fugas y trampas) y un ejemplo resuelto de Incropera y DeWitt (tubería); la tabla de tubería desnuda del Tip Sheet #2 solo como sensibilidad"
+    "validated_against": "tablas del U.S. DOE Steam Tip Sheet #1 y de la guía ORNL/TM-2001/263 (fugas y trampas); para tubería, el programa 3E Plus v4.1 de NAIMA, la tabla de ASHRAE de tubería de acero desnuda y un ejemplo resuelto de Incropera y DeWitt"
    }
   },
   "provenance": {

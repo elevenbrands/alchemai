@@ -50,6 +50,7 @@ ALIASES = {"methane": "CH4", "ethane": "C2H6", "propane": "C3H8", "n-butane": "C
 GRI_NAMES = {"CH4": "CH4", "C2H6": "C2H6", "C3H8": "C3H8", "H2": "H2", "CO": "CO", "CO2": "CO2", "N2": "N2", "O2": "O2",
              "H2O": "H2O", "C2H4": "C2H4", "C2H2,acetylene": "C2H2", "Ar": "AR", "NH3": "NH3", "CH3OH": "CH3OH"}
 ELEMENTS = ("C", "H", "O", "N", "S")
+LOW_T_EXTRAPOLATION_K = 60.0      # how far below a NASA fit the sensible enthalpy is continued with constant cp
 
 
 @lru_cache(maxsize=1)
@@ -82,9 +83,16 @@ def _species(name: str):
 def h_molar(name: str, T_K: float) -> float:
     """Molar enthalpy (formation + sensible) of a nasa_gas.yaml species, J/mol."""
     sp = _nasa()[name]
-    if not (sp.thermo.min_temp - 2.0 <= T_K <= sp.thermo.max_temp):   # some fits start at 300 K; 298.15 K is evaluated as is
+    t_min = sp.thermo.min_temp
+    if t_min - LOW_T_EXTRAPOLATION_K <= T_K < t_min - 2.0:
+        # Several heavy hydrocarbons (pentanes, butanes) and SO2 are fitted from 298 or 300 K, but a fuel gas or the
+        # combustion air is often colder. Below the fit the sensible enthalpy is continued with the heat capacity at the
+        # lower limit: over at most 60 K the error of a constant cp is a fraction of a percent of a term that is itself
+        # a few kJ/mol against heating values of hundreds.
+        return (sp.thermo.h(t_min) + sp.thermo.cp(t_min) * (T_K - t_min)) / 1000.0
+    if not (t_min - 2.0 <= T_K <= sp.thermo.max_temp):                # some fits start at 300 K; 298.15 K is evaluated as is
         raise ValueError(f"T = {T_K:.1f} K fuera del intervalo de los polinomios NASA de {name} "
-                         f"({sp.thermo.min_temp:.0f}-{sp.thermo.max_temp:.0f} K)")
+                         f"({t_min - LOW_T_EXTRAPOLATION_K:.0f}-{sp.thermo.max_temp:.0f} K)")
     return sp.thermo.h(T_K) / 1000.0
 
 

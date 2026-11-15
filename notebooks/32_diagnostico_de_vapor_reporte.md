@@ -127,7 +127,7 @@ Datos de la planta:
 | Temperatura de chimenea | 230.0 °C |
 | Pérdida por paredes y radiación (del poder calorífico, base PCS) | 1.50 % |
 | Presión de la caldera | 9.000 bar absolutos |
-| Sobrecalentamiento | 0 K de diferencia |
+| Sobrecalentamiento | 0 °C de diferencia |
 | Purga (del agua de alimentación) | 8.00 % |
 | Agua de alimentación | con vapor de la propia caldera (desaireador o tanque calentado) |
 | Temperatura del agua de repuesto | 22.0 °C |
@@ -173,7 +173,7 @@ Cifras calculadas:
 
 ## 7. Supuestos y límites
 
-Esta sección es técnica: está escrita para quien revise el cálculo y conserva los nombres de los parámetros.
+Esta sección es técnica: está escrita para quien revise el cálculo.
 
 Supuestos del cálculo:
 

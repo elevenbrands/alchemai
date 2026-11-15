@@ -100,7 +100,7 @@ def _plain(text: str) -> str:
 
 def _es(text: str) -> str:
     """HHV/LHV → the Spanish abbreviations the glossary explains."""
-    return text.replace("HHV", "PCS").replace("LHV", "PCI")
+    return text.replace("HHV", "PCS").replace("LHV", "PCI").replace("K de diferencia", "°C de diferencia")
 
 
 def _change(c: dict) -> str:
@@ -488,7 +488,7 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
 
     # ------------------------------------------------------------------------------------------ assumptions, limits
     L += ["## 7. Supuestos y límites", "",
-          "Esta sección es técnica: está escrita para quien revise el cálculo y conserva los nombres de los parámetros.", "",
+          "Esta sección es técnica: está escrita para quien revise el cálculo.", "",
           "Supuestos del cálculo:", ""]
     L += [f"- {_plain(a)}" for a in d["assumptions"]] + ["", "No está incluido en estas cifras:", ""]
     L += [f"- {_plain(a)}" for a in d["not_included"]] + [""]

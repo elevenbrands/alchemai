@@ -115,16 +115,16 @@ Salen del recorrido de la planta: los conteos, diámetros y longitudes son datos
 |---|---|---|---|---|
 | Fuga de vapor: cabezal principal | 4 × orificio de 3.0 mm a 8.8 bar abs | 77.8 kg/h de vapor | 258,372 | 79.4 |
 | Trampa fallada abierta: línea de proceso 2 | 3 × orificio de 4.0 mm a 8.8 bar abs | 124.5 kg/h de vapor | 413,396 | 127.1 |
-| Tubería sin aislar: línea a marmitas | 30 m de 114 mm de diámetro exterior a 174 °C | 24.5 kW de calor (817 W por metro) | 131,617 | 44.3 |
-| Tubería sin aislar: bajante a lavado | 12 m de 60 mm de diámetro exterior a 174 °C | 5.4 kW de calor (449 W por metro) | 28,917 | 9.7 |
+| Tubería sin aislar: línea a marmitas | 30 m de 114 mm de diámetro exterior a 174 °C | 26.5 kW de calor (882 W por metro) | 142,079 | 47.8 |
+| Tubería sin aislar: bajante a lavado | 12 m de 60 mm de diámetro exterior a 174 °C | 5.8 kW de calor (483 W por metro) | 31,125 | 10.5 |
 
-**En total estas pérdidas cuestan 832,302 MXN al año** y emiten 260.6 toneladas de CO2. Equivalen a 4.8 % del vapor que entrega la caldera. Repararlas todas se paga en dos años si cuesta menos de 1,664,603 MXN.
+**En total estas pérdidas cuestan 844,971 MXN al año** y emiten 264.8 toneladas de CO2. Equivalen a 4.9 % del vapor que entrega la caldera. Repararlas todas se paga en dos años si cuesta menos de 1,689,942 MXN.
 
 Con el aislamiento propuesto:
 
 | Tramo | Aislamiento | Pérdida hoy → aislado | Ahorro al año (MXN) |
 |---|---|---|---|
-| línea a marmitas | 50 mm; la cubierta queda a 38 °C | 24.5 → 1.84 kW (92 % menos) | 121,734 |
+| línea a marmitas | 50 mm; la cubierta queda a 38 °C | 26.5 → 1.84 kW (93 % menos) | 132,195 |
 
 Tramos sin aislamiento propuesto (se reporta solo lo que pierden hoy): bajante a lavado.
 
@@ -134,7 +134,7 @@ Constantes del modelo que no se le piden a la planta:
 
 - Coeficiente de descarga de una fuga (orificio de borde vivo): 0.60. Fuente: G. Harrell, Steam System Survey Guide, ORNL/TM-2001/263 (U.S. DOE), 2002: un orificio de borde vivo deja pasar aproximadamente 60 % del flujo de una tobera bien redondeada. Con 0.60 el motor reproduce su Tabla 6 entre −0.8 % y +0.4 % (la columna de 300 psig, −4 %).
 - Coeficiente de descarga de una trampa fallada abierta (orificio reentrante): 0.72. Fuente: U.S. DOE, Steam Tip Sheet #1, DOE/GO-102012-3401, enero 2012: su tabla usa 0.72. Con 0.72 el motor reproduce esa tabla entre −3.8 % y +2.9 %.
-- Emisividad de la superficie del tubo sin aislar: 0.70. Fuente: elección de este estudio: el U.S. DOE Steam Tip Sheet #2 (enero 2012) no declara la suya; con 0.70 el motor queda entre −5 % y +8 % de su tabla de pérdidas de tubería desnuda (con 0.80, entre +2 % y +16 %).
+- Emisividad de la superficie del tubo de acero sin aislar: 0.80. Fuente: valor de «Steel» en la tabla de metales base del programa 3E Plus v4.1 de NAIMA (guía del usuario, agosto 2012), que implementa ASTM C680; «Iron or steel 0.8» en la Mechanical Insulation Design Guide de la NIA. Con 0.80 el motor reproduce dos resultados de 3E Plus a −0.3 % y la tabla de ASHRAE de tubería de acero desnuda (115 valores) entre −2.3 % y +0.5 %.
 - Emisividad de la cubierta del aislamiento: 0.90. Fuente: elección conservadora de este estudio (una cubierta opaca pierde más que una de aluminio brillante, así que el ahorro no queda inflado); cambia poco el resultado porque la pérdida ya aislada es pequeña.
 
 Supuestos de esta sección:
@@ -174,7 +174,7 @@ Datos de la planta:
 | Oxígeno en chimenea (base seca) | 7.00 % |
 | Temperatura de chimenea | 220.0 °C |
 | Presión de la caldera | 8.795 bar absolutos |
-| Sobrecalentamiento | 0 K de diferencia |
+| Sobrecalentamiento | 0 °C de diferencia |
 | Purga (del agua de alimentación) | 8.00 % |
 | Agua de alimentación | con vapor de la propia caldera (desaireador o tanque calentado) |
 | Temperatura del agua de repuesto | 20.0 °C |
@@ -223,7 +223,7 @@ Cifras calculadas:
 
 ## 7. Supuestos y límites
 
-Esta sección es técnica: está escrita para quien revise el cálculo y conserva los nombres de los parámetros.
+Esta sección es técnica: está escrita para quien revise el cálculo.
 
 Supuestos del cálculo:
 
@@ -290,12 +290,12 @@ Copia de la hoja de datos, en las unidades en que se escribió. El resto del rep
 | ¿Qué combustible quema la caldera? | Gas natural |  |
 | Temperatura del combustible en el quemador | 25 | °C |
 | Combustible: importe del recibo | 1425000 | en la moneda elegida |
-| periodo del recibo | octubre 2026 |  |
-| energía facturada | 9500 | GJ |
-| ¿energía superior o inferior? | Superior (PCS) |  |
-| volumen facturado | 248000 | m³ |
-| temperatura base del volumen | 20 | °C |
-| presión base del volumen | 1 | kg/cm² abs. |
+| Combustible — periodo del recibo | octubre 2026 |  |
+| Combustible — energía facturada | 9500 | GJ |
+| Combustible — ¿energía superior o inferior? | Superior (PCS) |  |
+| Combustible — volumen facturado | 248000 | m³ |
+| Combustible — temperatura base del volumen | 20 | °C |
+| Combustible — presión base del volumen | 1 | kg/cm² abs. |
 | Agua de repuesto: precio por m³ | 45 | en la moneda elegida |
 | Electricidad: precio por kWh | 2.4 | en la moneda elegida |
 | Electricidad de ventiladores y bombas de la caldera | 6 | kWh por tonelada de vapor generado |
@@ -304,11 +304,11 @@ Copia de la hoja de datos, en las unidades en que se escribió. El resto del rep
 | Purga, del agua de alimentación | 8 | % |
 | Capacidad nominal (placa) | 600 | CC (caballos caldera) |
 | Oxígeno en la chimenea | 7 | % |
-| ¿base seca o húmeda? | Seca |  |
+| Oxígeno en la chimenea — ¿base seca o húmeda? | Seca |  |
 | Temperatura de los gases en la chimenea | 220 | °C |
 | Temperatura del aire que entra al quemador | 25 | °C |
 | Humedad relativa del aire | 50 | % |
-| No la conozco | Sí |  |
+| Pérdida por paredes y radiación de la caldera — No la conozco | Sí |  |
 | ¿Cómo se calienta el agua de alimentación? | Desaireador o tanque calentado con vapor de la caldera |  |
 | Temperatura del agua que entra a la caldera | 105 | °C |
 | Temperatura del agua de repuesto | 20 | °C |
@@ -316,11 +316,11 @@ Copia de la hoja de datos, en las unidades en que se escribió. El resto del rep
 | Temperatura del condensado que regresa | 80 | °C |
 | Horas de operación al año | 6000 | h al año |
 | Producción promedio de vapor de la caldera | 6 | t/h |
-| No tengo objetivo: usar el publicado (10 % de exceso de aire, solo gas natural) | Sí |  |
-| No tengo objetivo: usar el publicado (121 °C, solo gas natural) | Sí |  |
+| Afinar la combustión — No tengo objetivo: usar el publicado (10 % de exceso de aire, solo gas natural) | Sí |  |
+| Economizador o precalentador — No tengo objetivo: usar el publicado (121 °C, solo gas natural) | Sí |  |
 | Bajar la purga: purga objetivo, del agua de alimentación | 5 | % |
 | Recuperar calor de la purga: presión del tanque de flasheo | 0.3 | kg/cm² man. |
-| temperatura a la que la purga se va al drenaje | 40 | °C |
+| Recuperar calor de la purga — temperatura a la que la purga se va al drenaje | 40 | °C |
 | Regresar más condensado: retorno objetivo, del vapor entregado | 70 | % |
 | Temperatura del aire junto a las tuberías sin aislar | 28 | °C |
 | Viento sobre esas tuberías (0 si están bajo techo) | 0 | m/s |

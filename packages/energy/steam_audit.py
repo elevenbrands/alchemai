@@ -29,9 +29,11 @@ MODEL_CONSTANTS = {
         "source": "U.S. DOE, Steam Tip Sheet #1, DOE/GO-102012-3401, enero 2012: su tabla usa 0.72. Con 0.72 el motor "
                   "reproduce esa tabla entre −3.8 % y +2.9 %"},
     "surface_emissivity": {
-        "value": 0.70, "what": "emisividad de la superficie del tubo sin aislar",
-        "source": "elección de este estudio: el U.S. DOE Steam Tip Sheet #2 (enero 2012) no declara la suya; con 0.70 el motor "
-                  "queda entre −5 % y +8 % de su tabla de pérdidas de tubería desnuda (con 0.80, entre +2 % y +16 %)"},
+        "value": 0.80, "what": "emisividad de la superficie del tubo de acero sin aislar",
+        "source": "valor de «Steel» en la tabla de metales base del programa 3E Plus v4.1 de NAIMA (guía del usuario, agosto "
+                  "2012), que implementa ASTM C680; «Iron or steel 0.8» en la Mechanical Insulation Design Guide de la NIA. "
+                  "Con 0.80 el motor reproduce dos resultados de 3E Plus a −0.3 % y la tabla de ASHRAE de tubería de acero "
+                  "desnuda (115 valores) entre −2.3 % y +0.5 %"},
     "jacket_emissivity": {
         "value": 0.90, "what": "emisividad de la cubierta del aislamiento",
         "source": "elección conservadora de este estudio (una cubierta opaca pierde más que una de aluminio brillante, así "
@@ -210,6 +212,6 @@ def distribution_losses(distribution: dict, site_pressure_Pa: float, currency: s
                                 "datos del recorrido de la planta y no se comprueban."},
         "method": {"module": "packages/energy/steam_audit.py", "engine": TOOL,
                    "validated_against": "tablas del U.S. DOE Steam Tip Sheet #1 y de la guía ORNL/TM-2001/263 (fugas y "
-                                        "trampas) y un ejemplo resuelto de Incropera y DeWitt (tubería); la tabla de tubería "
-                                        "desnuda del Tip Sheet #2 solo como sensibilidad"},
+                                        "trampas); para tubería, el programa 3E Plus v4.1 de NAIMA, la tabla de ASHRAE de "
+                                        "tubería de acero desnuda y un ejemplo resuelto de Incropera y DeWitt"},
     }

@@ -1,0 +1,196 @@
+{
+ "read": "2026-11-14",
+ "not_in_source": {
+  "A": [
+   "composición del gas (se usa el gas de referencia GULF-COAST y se informa la sensibilidad)",
+   "humedad del aire (se corre con 0 y con 60 % de humedad relativa)",
+   "temperatura del gas en el quemador (se toma la del aire)",
+   "precio del agua (hace falta para correr el diagnóstico completo; no entra en ninguna comparación)",
+   "base del poder calorífico facturado (la tesina lo llama una vez «PCI»; se discute abajo)"
+  ],
+  "B": [
+   "humedad del aire (0 y 60 %)",
+   "temperatura del gas en el quemador (la del aire)",
+   "pérdida por radiación (la fuente la toma de una carta ASME y no imprime el valor)"
+  ],
+  "C": []
+ },
+ "A_unam_mexico": {
+  "source_values": {
+   "analyzer_efficiency": 0.8226,
+   "analyzer_excess_air": 0.1318,
+   "CO2_dry": 0.1028,
+   "direct_efficiency": 0.8068
+  },
+  "site_pressure_Pa": 77066.11804716723,
+  "combustion_runs": {
+   "GULF-COAST, HR 0 %": {
+    "efficiency_HHV": 0.8247276447548735,
+    "efficiency_LHV": 0.9142131199719268,
+    "excess_air": 0.13232757097512793,
+    "CO2_dry": 0.10359352766121312
+   },
+   "GULF-COAST, HR 60 %": {
+    "efficiency_HHV": 0.8230307730539168,
+    "efficiency_LHV": 0.9123321324946795,
+    "excess_air": 0.13232757097512793,
+    "CO2_dry": 0.10359352766121312
+   },
+   "AMARILLO, HR 0 %": {
+    "efficiency_HHV": 0.8254391815534032,
+    "efficiency_LHV": 0.9141359918028659,
+    "excess_air": 0.13287754586941358,
+    "CO2_dry": 0.10391298921640918
+   },
+   "AMARILLO, HR 60 %": {
+    "efficiency_HHV": 0.8237415415056866,
+    "efficiency_LHV": 0.9122559334007154,
+    "excess_air": 0.13287754586941358,
+    "CO2_dry": 0.10391298921640921
+   },
+   "NATURAL-GAS-SAMPLE, HR 0 %": {
+    "efficiency_HHV": 0.8243203698987543,
+    "efficiency_LHV": 0.913987700472376,
+    "excess_air": 0.13257338370424843,
+    "CO2_dry": 0.10518501782990654
+   },
+   "NATURAL-GAS-SAMPLE, HR 60 %": {
+    "efficiency_HHV": 0.8226232397467934,
+    "efficiency_LHV": 0.912105961112734,
+    "excess_air": 0.13257338370424843,
+    "CO2_dry": 0.10518501782990654
+   }
+  },
+  "comparison": {
+   "combustion_efficiency_HHV": {
+    "engine": 0.8230307730539168,
+    "engine_range": [
+     0.8226232397467934,
+     0.8254391815534032
+    ],
+    "source": 0.8226,
+    "difference_points": 0.04307730539168109
+   },
+   "combustion_efficiency_LHV_for_reference": 0.9123321324946795,
+   "excess_air": {
+    "engine": 0.13232757097512793,
+    "source": 0.1318,
+    "difference_points": 0.05275709751279278
+   },
+   "CO2_dry": {
+    "engine": 0.10359352766121312,
+    "source": 0.1028,
+    "difference_points": 0.07935276612131142
+   }
+  },
+  "direct_method": {
+   "source_enthalpies_kJ_kg": [
+    2763.9,
+    230.2
+   ],
+   "iapws_enthalpies_kJ_kg": [
+    2763.0531322885563,
+    230.25626158266545
+   ],
+   "with_source_enthalpies": 0.8067739636169453,
+   "with_iapws": 0.8064863916075253,
+   "source": 0.8068
+  },
+  "diagnostic": {
+   "boiler_efficiency_by_losses": 0.7949658201725517,
+   "setting_loss_used": 0.028064952881365055,
+   "load_fraction": 0.3563162939297124,
+   "input_output_efficiency": 0.8095275908786809,
+   "difference_points": 1.4561770706129185,
+   "source_direct_efficiency": 0.8068,
+   "data_flags": [],
+   "verified": true,
+   "assumed": [
+    "fuel_composition",
+    "setting_loss"
+   ]
+  },
+  "reading": "El analizador no dice en qué base da su eficiencia. En base PCS el motor queda a décimas de punto; en base PCI estaría unos 9 puntos arriba. La eficiencia directa de la tesina (80.68 %) solo es coherente con la del analizador (82.26 %) si el poder calorífico facturado es el superior, así que se lee como PCS."
+ },
+ "B_tucuman_argentina": {
+  "source_values": {
+   "CO2_dry": 0.1101,
+   "lambda": 1.08,
+   "direct_efficiency_LHV": 0.744,
+   "balance_efficiency_LHV": 0.767
+  },
+  "comparison": {
+   "CO2_dry": {
+    "engine": 0.11107101660257845,
+    "source": 0.1101,
+    "difference_points": 0.09710166025784506
+   },
+   "lambda": {
+    "engine": 1.0840100276748224,
+    "source": 1.08,
+    "difference": 0.004010027674822281
+   },
+   "direct_efficiency_LHV": {
+    "engine": 0.7256387554232843,
+    "source": 0.744,
+    "difference_points": -1.836124457671573
+   },
+   "direct_efficiency_HHV": 0.6554405547649483,
+   "efficiency_by_losses_LHV_without_radiation": {
+    "engine": 0.8699254798768833,
+    "range_with_humidity": [
+     0.8744788287440699,
+     0.8699254798768833
+    ]
+   },
+   "losses_minus_direct_points": 14.428672445359902
+  },
+  "heating_values": {
+   "LHV_MJ_Nm3": 37.21125109521403,
+   "HHV_MJ_Nm3": 41.196605452889266
+  },
+  "reading": "Con la composición dada y el O2 medido, el CO2 y el exceso de aire del motor coinciden con los medidos. La eficiencia directa rehecha con IAPWS-95 coincide con la de la fuente. La de pérdidas queda muy por encima de la directa: con una diferencia así el diagnóstico marca «efficiency_gap» en vez de dar un número por bueno. La tabla de la fuente da la misma cifra, 316.9, para la temperatura del vapor y la de los gases."
+ },
+ "C_bee_ejemplo": {
+  "losses_percent": {
+   "L1 gases secos": {
+    "engine": 8.234911292243593,
+    "source": 7.86,
+    "difference_points": 0.3749112922435929
+   },
+   "L2 + L3 agua del hidrógeno y humedad del combustible": {
+    "engine": 7.089930836074039,
+    "source": 7.113,
+    "difference_points": -0.023069163925961256
+   },
+   "L4 humedad del aire": {
+    "engine": 0.3880191125781329,
+    "source": 0.38,
+    "difference_points": 0.00801911257813287
+   },
+   "L6 radiación": {
+    "engine": 0.38,
+    "source": 0.38,
+    "difference_points": 0.0
+   }
+  },
+  "credits_percent": {
+   "fuel_sensible": 0.0,
+   "air_sensible": 0.26080513418515094
+  },
+  "efficiency_HHV": {
+   "engine": 0.8416794389328938,
+   "source": 0.8427,
+   "difference_points": -0.10205610671062404
+  },
+  "excess_air": {
+   "engine": 0.5107487411608056,
+   "source": 0.544
+  },
+  "stoichiometric_air_kg_kg": {
+   "engine": 13.753423390533078,
+   "source": 13.92
+  },
+  "reading": "La fuente usa calores específicos constantes (0.23 y 0.45 kcal/kg °C), 584 kcal/kg de calor latente, la fórmula O2/(21 − O2) y referencia a la temperatura ambiente; el motor usa entalpías NASA, el balance exacto de O2 y referencia a 25 °C con créditos."
+ }
+}
