@@ -97,11 +97,12 @@
    "source": 0.8068
   },
   "diagnostic": {
-   "boiler_efficiency_by_losses": 0.7949658201725517,
-   "setting_loss_used": 0.028064952881365055,
+   "boiler_efficiency_by_losses": 0.8140469230728175,
+   "setting_loss_used": 0.008983849981099377,
+   "setting_loss_reference": "CLEAVER-BROOKS-CB-7767-TABLE-1",
    "load_fraction": 0.3563162939297124,
    "input_output_efficiency": 0.8095275908786809,
-   "difference_points": 1.4561770706129185,
+   "difference_points": -0.45193321941365827,
    "source_direct_efficiency": 0.8068,
    "data_flags": [],
    "verified": true,

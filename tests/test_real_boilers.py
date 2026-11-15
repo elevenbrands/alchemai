@@ -36,10 +36,35 @@ def test_mexican_fire_tube_boiler_measured_with_a_flue_gas_analyzer(cases):
     d = a["diagnostic"]
     assert d["verified"] is True and d["data_flags"] == [] and set(d["assumed"]) == {"fuel_composition", "setting_loss"}
     assert d["load_fraction"] == pytest.approx(3345.81 / (600 * 15.65), rel=1e-6)
-    assert abs(d["difference_points"]) < 2.0                                     # losses vs input-output, on real data
-    # what this boiler says about the published setting loss: at 36 % load it is about half of what is assumed
+    assert abs(d["difference_points"]) < 1.0                                     # losses vs input-output, on real data
+    # the setting loss comes from the manufacturer's fire-tube table (0.9 % at 36 % load); what the boiler itself implies,
+    # combustion efficiency minus input-output efficiency, is 1.4 %, which also holds every unaccounted loss and meter error
     implied = c["combustion_efficiency_HHV"]["engine"] - d["input_output_efficiency"]
-    assert 0.010 < implied < 0.018 and d["setting_loss_used"] == pytest.approx(0.010 / d["load_fraction"])
+    assert 0.010 < implied < 0.018 and d["setting_loss_reference"] == "CLEAVER-BROOKS-CB-7767-TABLE-1"
+    assert 0.008 < d["setting_loss_used"] < 0.010
+
+
+def test_the_real_mexican_boiler_through_the_workbook(tmp_path):
+    """The same boiler, captured in the Excel workbook and run with one command, with what the thesis does not give left
+    empty (water price, air humidity) or declared in the notice."""
+    import json
+    from packages.energy import steam_cli as SC
+    assert SC.main(["caso-real", str(tmp_path)]) == 0
+    md = (tmp_path / "reporte.md").read_text()
+    d = json.loads((tmp_path / "resultado.json").read_text())["diagnostic"]
+    assert "CASO REAL PUBLICADO" in md and "tesina de la UNAM" in md
+    x = d["evidence"]["input_output_cross_check"]
+    assert d["baseline"]["boiler"]["efficiency"] == pytest.approx(0.8157, abs=2e-3)       # heat-loss method, dry air
+    assert x["input_output_efficiency"] == pytest.approx(0.8095, abs=2e-3)                 # the plant's own steam and gas meters
+    assert abs(x["difference_points"]) < 1.0 and d["data_review"]["flags"] == [] and d["evidence"]["verified"] is True
+    flags = [w.split(":")[0] for w in d["warnings"]]
+    for flag in ("PÉRDIDA POR PAREDES SUPUESTA, NO MEDIDA", "HUMEDAD DEL AIRE NO DADA", "COMPOSICIÓN DEL GAS SUPUESTA, NO ANALIZADA",
+                 "COSTO DEL AGUA NO INCLUIDO"):
+        assert flag in flags, flag
+    assert d["air_humidity"]["given"] is False and abs(d["air_humidity"]["saturated_air_efficiency_change_points"]) < 0.5
+    assert d["prices"]["water_price_given"] is False and d["baseline"]["steam"]["breakdown_per_tonne"]["water"] == 0.0
+    stack = next(m for m in d["measures"] if m["id"] == "reduce_stack_temperature")
+    assert stack["status"] == "evaluated" and stack["savings"]["annual"]["cost"]["total"] > 0
 
 
 def test_argentinian_water_tube_boiler_with_its_gas_analysis(cases):

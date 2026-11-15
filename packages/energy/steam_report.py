@@ -234,6 +234,10 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
               f"porcentual mayor, la eficiencia bajaría {_n(-sv['efficiency_change_points'], 2)} puntos y el vapor costaría "
               f"{_pct(sv['cost_change_fraction'], 2)} más. La eficiencia y el costo de este reporte dejan de ser supuestos "
               "cuando la planta entregue ese dato (hoja del fabricante o prueba).", ""]
+    if not d["prices"].get("water_price_given", True):
+        L += ["> **Aviso: el costo del agua no está incluido.** La planta no dio lo que paga por el agua de repuesto. El costo "
+              "del vapor y el ahorro de las medidas que ahorran agua (bajar la purga, regresar condensado) quedan por debajo "
+              "de lo real.", ""]
     if gas_assumed:
         worst = max(abs(x["efficiency_change_points"]) for x in gas["sensitivity"])
         L += ["> **Aviso: la composición del gas es un SUPUESTO, no un análisis de la planta.** La planta declaró que no la "
@@ -299,7 +303,8 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     L += ["«Por tonelada» siempre es por tonelada de vapor entregado al proceso. La caldera genera algo más, porque una parte "
           "del vapor se usa para calentar el agua de alimentación.", ""]
     L += [f"Precios usados: combustible {_n(d['prices']['fuel_per_GJ'], 2)} {cur}/GJ ({bes}); agua "
-          f"{_n(d['prices']['boiler_makeup_water_per_m3'], 2)} {cur}/m³"
+          + (f"{_n(d['prices']['boiler_makeup_water_per_m3'], 2)} {cur}/m³" if d["prices"].get("water_price_given", True)
+             else "no se dio su precio (el costo del vapor NO incluye el agua)")
           + (f"; electricidad {_n(d['prices']['electricity_per_kWh'], 3)} {cur}/kWh" if d["prices"]["electricity_per_kWh"] is not None else "")
           + ".", ""]
 

@@ -140,7 +140,7 @@ def test_workbook_round_trip_converts_plant_units(tmp_path):
     assert dist["failed_traps"][0]["description"] == "línea de proceso 2" and dist["wind_speed_m_s"] == 0.0
     assert dist["bare_pipes"][0]["insulation_conductivity_W_m_K"] == 0.045 and "insulation_thickness_m" not in dist["bare_pipes"][1]
     # every field of the template has a row, a label and (numbers) a unit that the reader knows
-    assert len(SW.FIELDS) == sum(len(fs) for _, fs in SW.SECTIONS) == 88
+    assert len(SW.FIELDS) == sum(len(fs) for _, fs in SW.SECTIONS) == 89
     out = TS.steam_system_diagnostic(**x)
     assert out["evidence"]["verified"] is True and out["distribution"]["evidence"]["verified"] is True
     # the atmosphere computed from the altitude is labelled as calculated, never as a plant datum
@@ -218,6 +218,59 @@ def test_typical_capture_slips_are_flagged_not_fixed(tmp_path):
     assert "stack_far_above_saturation" in [f["id"] for f in hot["data_review"]["flags"]]
 
 
+def test_units_and_options_typed_by_hand_are_understood(tmp_path):
+    """If the dropdowns of the spreadsheet program do not work, typing the unit must still do."""
+    a = SW.read_workbook(_example(tmp_path))["inputs"]
+    b = SW.read_workbook(_example(
+        tmp_path, steam_pressure=(8, "kg/cm2 man"), stack_T=(220, "ºc"), blowdown=(8, " % "), steam_production=(6, "T/H"),
+        fuel_bill_volume=(248000, "m3"), o2_basis=("seca", None), setting_loss_unknown=("si", None),
+        fw_mode=("desaireador o tanque calentado con vapor de la caldera", None), m1_published=("SI", None),
+        fuel_bill_basis=("superior (pcs)", None), rated_capacity=(600, "cc (caballos caldera)")))["inputs"]
+    assert a == b
+    assert SW._norm("kg/cm² man.") == "kg/cm2man" and SW._match("PSIG", list(SW.P_GAUGE)) == "psig"
+    # an ambiguous or unknown unit is still a capture error, never a guess
+    with pytest.raises(ValueError, match="elige la unidad de la lista"):
+        SW.read_workbook(_example(tmp_path, steam_pressure=(8, "kg/cm2")))                 # gauge or absolute?
+    with pytest.raises(ValueError, match="elige la unidad de la lista"):
+        SW.read_workbook(_example(tmp_path, stack_T=(220, "grados")))
+    # the list boxes themselves: in-cell dropdown not hidden, formulas inside Excel's 255-character limit, no commas inside options
+    from openpyxl import load_workbook
+    wb = load_workbook(SW.build_template(str(tmp_path / "t.xlsx")))
+    n = 0
+    for ws in wb.worksheets:
+        for dv in ws.data_validations.dataValidation:
+            n += 1
+            assert dv.type == "list" and not dv.showDropDown and len(dv.formula1) <= 255 and dv.formula1.startswith('"')
+    assert n == 55
+    for f in SW.FIELDS.values():
+        assert all("," not in u for u in f.units), f.key
+
+
+def test_fire_tube_boiler_uses_the_manufacturer_table_and_water_price_is_optional(tmp_path):
+    kw = SW.read_workbook(_example(tmp_path, boiler_type=("Tubos de humo (pirotubular)", None), water_price=None))
+    assert kw["missing_essentials"] == [] and "water_cost" not in kw["inputs"] and kw["inputs"]["boiler"]["boiler_type"] == "fire_tube"
+    out = TS.steam_system_diagnostic(**kw["inputs"])
+    sl = out["setting_loss"]
+    assert sl["reference"] == "CLEAVER-BROOKS-CB-7767-TABLE-1" and "CB-7767" in sl["source"]
+    # 600 boiler horsepower, 8 kg/cm2 gauge (about 114 psig), 64 % load: between the 50 % and 75 % rows of the 400-800 class
+    assert 0.004 < sl["value"] < 0.006 and "clase 400-800" in sl["value_choice"]
+    from packages.energy import steam_diagnostic as SD
+    for bhp, psig, load, table in ((200, 125, 0.25, 1.9), (200, 10, 0.75, 0.5), (600, 125, 0.50, 0.6), (600, 10, 1.00, 0.2)):
+        R = SD._setting_loss_reference({"boiler_type": "fire_tube", "rated_steam_capacity_kg_s": bhp * SD.BHP_KG_S}, load,
+                                       psig * 6894.757293168 + 101325.0, 101325.0)
+        assert 100 * R["used_value"] == pytest.approx(table)
+    # the same boiler declared as water-tube keeps the general published limit divided by the load
+    wt = TS.steam_system_diagnostic(**SW.read_workbook(_example(tmp_path, boiler_type=("Tubos de agua (acuotubular)", None)))["inputs"])
+    assert wt["setting_loss"]["reference"] == "ORNL-TM-2001-263-SHELL-LOSS" and wt["setting_loss"]["value"] > 0.015
+    # without a water price: computed, flagged first, and the report says the cost has no water in it
+    assert out["baseline"]["steam"]["breakdown_per_tonne"]["water"] == 0.0 and out["prices"]["water_price_given"] is False
+    flagged = [w for w in out["warnings"] if w.isupper() or w.split(":")[0].isupper()]
+    assert any(w.startswith("COSTO DEL AGUA NO INCLUIDO") for w in flagged) and out["warnings"][:len(flagged)] == flagged
+    assert any(m["parameter"] == "water_cost" for m in out["missing_data"])
+    md = TS.steam_diagnostic_report(inputs=kw["inputs"])["markdown"]
+    assert "el costo del agua no está incluido" in md and "el costo del vapor NO incluye el agua" in md
+
+
 def test_numbers_typed_the_way_people_type_them(tmp_path):
     from openpyxl import load_workbook
     book = _example(tmp_path, stack_T=("1,220", "°C"), makeup_T=("20.5", "°C"), fuel_bill_amount=("1,425,000.50", None))
@@ -238,7 +291,7 @@ def test_numbers_typed_the_way_people_type_them(tmp_path):
 def test_empty_template_is_refused_by_the_engine_not_by_the_reader(tmp_path):
     book = SW.build_template(str(tmp_path / "vacia.xlsx"))
     read = SW.read_workbook(book)                                                          # empty cells are not capture errors
-    assert read["inputs"] == {} and len(read["missing_essentials"]) == 16
+    assert read["inputs"] == {} and len(read["missing_essentials"]) == 14
     with pytest.raises(ValueError) as e:
         SC.run_workbook(book, str(tmp_path / "out"))
     msg = str(e.value)                                                                     # named as the plant sees them

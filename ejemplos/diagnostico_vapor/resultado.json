@@ -13,6 +13,7 @@
    "fuel_per_GJ": 150.0,
    "fuel_basis": "HHV",
    "boiler_makeup_water_per_m3": 45.0,
+   "water_price_given": true,
    "electricity_per_kWh": 2.4
   },
   "baseline": {
@@ -236,6 +237,9 @@
     "stack_above_saturation_K": 200.0
    },
    "meaning": "Revisión de plausibilidad de los datos de la planta. Señala lo que conviene confirmar; no corrige ni descarta ningún dato."
+  },
+  "air_humidity": {
+   "given": true
   },
   "measures": [
    {

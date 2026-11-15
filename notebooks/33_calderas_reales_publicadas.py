@@ -83,7 +83,8 @@ def case_a() -> dict:
         combustion={"site_altitude_m": 2250.0, "air": {"T_K": air_T, "relative_humidity": 0.6},
                     "flue_O2": {"mole_fraction": 0.027, "basis": "dry"}, "flue_CO_dry_mole_fraction": 0.0, "stack_T_K": stack_T,
                     "setting_loss_unknown": True},
-        boiler={"steam_pressure_Pa": P_steam, "blowdown_fraction": 0.02, "rated_steam_capacity_kg_s": 600 * 15.65 / 3600.0},
+        boiler={"steam_pressure_Pa": P_steam, "blowdown_fraction": 0.02, "rated_steam_capacity_kg_s": 600 * 15.65 / 3600.0,
+                "boiler_type": "fire_tube"},
         water={"feedwater_heating": "not_charged", "feedwater_T_K": 55.0 + C, "makeup_water_T_K": 20.0 + C,
                "condensate_return_fraction": 0.0},
         fuel_cost={"price_per_GJ": 122.4796, "basis": hv_basis}, water_cost={"price_per_m3": 1.0},      # water: NOT_IN_SOURCE
@@ -93,6 +94,7 @@ def case_a() -> dict:
     x = d["evidence"]["input_output_cross_check"]
     out["diagnostic"] = {
         "boiler_efficiency_by_losses": d["baseline"]["boiler"]["efficiency"], "setting_loss_used": d["setting_loss"]["value"],
+        "setting_loss_reference": d["setting_loss"]["reference"],
         "load_fraction": d["baseline"]["load_fraction"], "input_output_efficiency": x["input_output_efficiency"],
         "difference_points": x["difference_points"], "source_direct_efficiency": 0.8068,
         "data_flags": [f["id"] for f in d["data_review"]["flags"]], "verified": d["evidence"]["verified"],

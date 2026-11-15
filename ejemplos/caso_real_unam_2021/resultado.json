@@ -1,0 +1,1195 @@
+{
+ "intake_notes": [],
+ "diagnostic": {
+  "currency": "MXN",
+  "fuel_basis": "HHV",
+  "fuel": {
+   "HHV_J_kg": 54141127.60614045,
+   "LHV_J_kg": 48841658.1205446,
+   "HHV_J_Nm3": 40556682.33503613,
+   "type": "gas"
+  },
+  "prices": {
+   "fuel_per_GJ": 122.4796,
+   "fuel_basis": "HHV",
+   "boiler_makeup_water_per_m3": 0.0,
+   "water_price_given": false,
+   "electricity_per_kWh": null
+  },
+  "baseline": {
+   "boiler": {
+    "efficiency": 0.815743794773774,
+    "efficiency_basis": "HHV",
+    "efficiency_HHV": 0.815743794773774,
+    "efficiency_LHV": 0.9042544947544809,
+    "losses_fraction_of_heating_value": {
+     "dry_gas": 0.06225189494546526,
+     "water_from_hydrogen_sensible": 0.014165016444936581,
+     "fuel_moisture_sensible": 0.0,
+     "air_moisture_sensible": 0.0,
+     "unburned_CO": 0.0,
+     "setting": 0.008983849981099377,
+     "water_latent": 0.09788251039298285
+    },
+    "credits_fraction_of_heating_value": {
+     "fuel_sensible": -9.91926399483751e-05,
+     "air_sensible": -0.0008737408217935818
+    },
+    "excess_air_fraction": 0.13232757097512793,
+    "flue_O2_dry_mole_fraction": 0.027000000000000017,
+    "stack_T_K": 484.15,
+    "water_dew_point_K": 324.1147851675044,
+    "blowdown_heat_fraction_of_fuel": 0.0030645520450056332,
+    "useful_steam_heat_fraction_of_fuel": 0.8126792427287685
+   },
+   "steam": {
+    "pressure_Pa": 705000.0,
+    "saturation_T_K": 438.3834534095892,
+    "steam_T_K": 438.3834534095892,
+    "feedwater_T_K": 328.15,
+    "cost_per_tonne": 381.72003331066213,
+    "cost_per_GJ_delivered": 184.87034940758363,
+    "breakdown_per_tonne": {
+     "fuel": 381.72003331066213,
+     "water": 0.0,
+     "power": 0.0
+    },
+    "breakdown_per_GJ_delivered": {
+     "fuel": 184.87034940758363,
+     "water": 0.0,
+     "power": 0.0
+    },
+    "heat_delivered_GJ_per_tonne": 2.064798571181818,
+    "fuel_GJ_per_tonne": 3.116600914035171,
+    "makeup_m3_per_tonne": 1.0222408873618847,
+    "power_kWh_per_tonne": null,
+    "mass_per_kg_delivered": {
+     "generated": 1.0,
+     "feedwater": 1.0204081632653061,
+     "blowdown": 0.020408163265306124,
+     "deaerator_steam": 0.0,
+     "makeup": 1.0204081632653061,
+     "condensate_return": 0.0
+    },
+    "boiler_duty_GJ_per_tonne": 2.5423478564104633,
+    "pressure_gauge_Pa": 627933.8819528328
+   },
+   "annual": {
+    "steam_delivered_tonne": 29309.295599999998,
+    "steam_generated_tonne": 29309.295599999998,
+    "fuel_GJ": 91345.37745668701,
+    "fuel_basis": "HHV",
+    "fuel_GJ_HHV": 91345.37745668701,
+    "fuel_GJ_LHV": 82404.2625984319,
+    "fuel_kg": 1687171.6843652702,
+    "fuel_Nm3": 2252289.196194323,
+    "makeup_water_m3": 29961.16034209578,
+    "electricity_kWh": null,
+    "cost": {
+     "fuel": 11187945.292744042,
+     "water": 0.0,
+     "power": 0.0,
+     "total": 11187945.292744042
+    },
+    "heat_delivered_GJ": 60517.79167722554,
+    "average_firing_kW": 2896.542917830004
+   },
+   "emissions": {
+    "co2_kg_per_kg_fuel": 2.7170022911526526,
+    "co2_kg_per_GJ_fuel_HHV": 50.18370343000581,
+    "co2_kg_per_tonne_steam": 156.40257597962605,
+    "co2_tonne_per_year": 4584.049331988319,
+    "carbon_balance_error": 0.0,
+    "scope": "CO2 directo de la combustión en la caldera. No incluye metano ni N2O, la electricidad comprada ni la cadena de suministro del combustible"
+   },
+   "firing": {
+    "absorbed_duty_W": 2362836.911515748,
+    "fuel_kg_s": 0.05349986315212046,
+    "heat_release_LHV_W": 2613022.0255717887,
+    "heat_release_HHV_W": 2896542.9178300053,
+    "dry_air_kg_s": 1.0162095201417676,
+    "moist_air_kg_s": 1.0162095201417676,
+    "flue_gas_kg_s": 1.069709383293888,
+    "flue_gas_mol_s": 38.326795786875266,
+    "setting_loss_W": 26022.107037600625,
+    "fuel_mol_s": 3.186388816812203,
+    "fuel_Nm3_s": 0.07141962189860235
+   },
+   "derived_quantity": null,
+   "derived_note": "Se dieron la producción de vapor y el consumo de combustible: las cifras anuales usan la producción de vapor y el otro dato sirve de comparación (ver «Comprobaciones»).",
+   "annual_basis": "steam",
+   "load_fraction": 0.3563162939297125,
+   "site_pressure": {
+    "Pa": 77066.11804716723,
+    "from_altitude_m": 2250.0
+   }
+  },
+  "setting_loss": {
+   "origin": "referencia publicada",
+   "assumed": true,
+   "value": 0.008983849981099377,
+   "full_load_value": 0.002704992258109495,
+   "load_fraction": 0.3563162939297125,
+   "basis": "HHV",
+   "reference": "CLEAVER-BROOKS-CB-7767-TABLE-1",
+   "source": "Cleaver-Brooks, «Boiler Efficiency Guide», CB-7767, 2010, Tabla 1",
+   "statement": "pérdidas por radiación y convección esperadas en calderas de tubos de humo de cuatro pasos, por tamaño, presión de operación y porcentaje de carga",
+   "value_choice": "se lee la tabla para una caldera de 600 caballos caldera (clase 400-800), 91 psig y 36 % de carga, interpolando entre sus renglones: 0.90 %",
+   "limits": [
+    "es la pérdida que el fabricante espera de su modelo de cuatro pasos bien aislado, en aire quieto a 27 °C: una caldera vieja, de otro diseño o con el aislamiento dañado pierde más",
+    "la carga usada es el promedio declarado; si la caldera pasa muchas horas a muy baja carga la pérdida real es mayor"
+   ],
+   "url": "publicación CB-7767 de Cleaver-Brooks (leída en una copia del PDF)",
+   "retrieved": "2026-11-14",
+   "sensitivity": {
+    "setting_loss_fraction": 0.01898384998109938,
+    "step_points": 1.0,
+    "efficiency": 0.8057437947737741,
+    "efficiency_change_points": -0.9999999999999898,
+    "cost_per_tonne": 386.4575197894483,
+    "cost_per_tonne_change": 4.737486478786195,
+    "cost_change_fraction": 0.01241089297226012,
+    "meaning": "La misma línea base con un punto porcentual más de pérdida por paredes. Sirve para ver cuánto pesa el supuesto; no es un intervalo de confianza."
+   }
+  },
+  "fuel_resolution": {
+   "origin": "referencia publicada",
+   "assumed": true,
+   "method": "reference",
+   "composition": {
+    "CH4": 0.965222,
+    "N2": 0.002595,
+    "CO2": 0.005956,
+    "C2H6": 0.018186,
+    "C3H8": 0.004596,
+    "i-C4H10": 0.000977,
+    "n-C4H10": 0.001007,
+    "i-C5H12": 0.000473,
+    "n-C5H12": 0.000988
+   },
+   "description": "gas natural de referencia «GULF-COAST» (mezcla predefinida «GulfCoast.mix» de CoolProp 8.0.0 (gases naturales de referencia de NIST; composición leída de la librería, no transcrita)), porque la planta no dio composición ni poder calorífico",
+   "measured_heating_value": null,
+   "heating_value_check": null,
+   "reference_gas": "GULF-COAST",
+   "source": "mezcla predefinida «GulfCoast.mix» de CoolProp 8.0.0 (gases naturales de referencia de NIST; composición leída de la librería, no transcrita)",
+   "sensitivity": [
+    {
+     "gas": "gas de referencia «AMARILLO»",
+     "efficiency_change_points": 0.0711536798529866,
+     "cost_per_tonne_change_fraction": -0.0008714950726813608,
+     "co2_per_tonne_change_fraction": 0.006341867136018253
+    },
+    {
+     "gas": "gas de referencia «EKOFISK»",
+     "efficiency_change_points": 0.2571717551923536,
+     "cost_per_tonne_change_fraction": -0.00314269681215551,
+     "co2_per_tonne_change_fraction": 0.030278743429875687
+    },
+    {
+     "gas": "gas de referencia «HIGH-N2»",
+     "efficiency_change_points": -0.060025692418719245,
+     "cost_per_tonne_change_fraction": 0.0007363818718000292,
+     "co2_per_tonne_change_fraction": 0.010441641385366074
+    },
+    {
+     "gas": "gas de referencia «HIGH-CO2»",
+     "efficiency_change_points": -0.016791353511302898,
+     "cost_per_tonne_change_fraction": 0.00020588339966365332,
+     "co2_per_tonne_change_fraction": 0.08495461350837141
+    },
+    {
+     "gas": "gas de referencia «NATURAL-GAS-SAMPLE»",
+     "efficiency_change_points": -0.0407274856119022,
+     "cost_per_tonne_change_fraction": 0.000499517495132551,
+     "co2_per_tonne_change_fraction": 0.01769120170883487
+    }
+   ],
+   "sensitivity_meaning": "La misma línea base con otra composición de gas y los mismos precios por GJ. Sirve para ver cuánto pesa el supuesto; no es un intervalo de confianza.",
+   "surrogate_validation": null
+  },
+  "assumed_values": [
+   {
+    "id": "fuel_composition",
+    "item": "Composición del gas natural",
+    "value": "CH4 96.52 %, N2 0.26 %, CO2 0.60 %, C2H6 1.82 %, C3H8 0.46 %, i-C4H10 0.10 %, n-C4H10 0.10 %, i-C5H12 0.05 %, n-C5H12 0.10 % (mol)",
+    "origin": "referencia publicada",
+    "detail": "gas natural de referencia «GULF-COAST» (mezcla predefinida «GulfCoast.mix» de CoolProp 8.0.0 (gases naturales de referencia de NIST; composición leída de la librería, no transcrita)), porque la planta no dio composición ni poder calorífico"
+   },
+   {
+    "id": "target_reduce_excess_air",
+    "item": "Objetivo de la medida «Bajar el exceso de aire (afinar la combustión)»",
+    "value": "10 % de exceso de aire",
+    "origin": "referencia publicada",
+    "detail": "en sistemas de gas natural bien diseñados es alcanzable un exceso de aire de 10 %. U.S. DOE, Steam Tip Sheet #4, DOE/GO-102012-3405, enero 2012. Consultada el 2026-11-14. Límite: es lo que la publicación llama alcanzable en un sistema bien diseñado; si el quemador de la planta lo logra sin producir monóxido de carbono lo decide una prueba de combustión. https://www.energy.gov/sites/prod/files/2014/05/f16/steam4_boiler_efficiency.pdf"
+   },
+   {
+    "id": "target_reduce_stack_temperature",
+    "item": "Objetivo de la medida «Bajar la temperatura de chimenea (economizador o precalentador de aire)»",
+    "value": "chimenea a 250 °F (121 °C)",
+    "origin": "referencia publicada",
+    "detail": "la temperatura más baja a la que se pueden enfriar los gases es 250 °F con gas natural, para evitar condensación y corrosión. U.S. DOE, Steam Tip Sheet #3, DOE/GO-102012-3412, enero 2012. Consultada el 2026-11-14. Límite: es el límite inferior que da la publicación, así que el ahorro es el máximo posible con un economizador; el proveedor del equipo dirá a qué temperatura llega de verdad. https://www.energy.gov/sites/prod/files/2014/05/f16/steam3_recovery.pdf"
+   },
+   {
+    "id": "setting_loss",
+    "item": "Pérdida por paredes y radiación de la caldera",
+    "value": "0.90 % del poder calorífico (base PCS)",
+    "origin": "referencia publicada",
+    "detail": "pérdidas por radiación y convección esperadas en calderas de tubos de humo de cuatro pasos, por tamaño, presión de operación y porcentaje de carga; se lee la tabla para una caldera de 600 caballos caldera (clase 400-800), 91 psig y 36 % de carga, interpolando entre sus renglones: 0.90 %. Cleaver-Brooks, «Boiler Efficiency Guide», CB-7767, 2010, Tabla 1. Consultada el 2026-11-14. Límites: es la pérdida que el fabricante espera de su modelo de cuatro pasos bien aislado, en aire quieto a 27 °C: una caldera vieja, de otro diseño o con el aislamiento dañado pierde más; la carga usada es el promedio declarado; si la caldera pasa muchas horas a muy baja carga la pérdida real es mayor."
+   }
+  ],
+  "data_review": {
+   "checks_run": [
+    "stack_below_feedwater",
+    "stack_below_saturation",
+    "stack_far_above_saturation",
+    "excess_air_high",
+    "excess_air_low",
+    "blowdown_high",
+    "efficiency_gap",
+    "low_load"
+   ],
+   "flags": [],
+   "limits": {
+    "excess_air_high": 1.0,
+    "excess_air_low": 0.05,
+    "blowdown_high": 0.1,
+    "efficiency_gap_points": 5.0,
+    "heating_value_gap": 0.02,
+    "low_load": 0.25,
+    "stack_above_saturation_K": 200.0
+   },
+   "meaning": "Revisión de plausibilidad de los datos de la planta. Señala lo que conviene confirmar; no corrige ni descarta ningún dato."
+  },
+  "air_humidity": {
+   "given": false,
+   "used_relative_humidity": 0.0,
+   "saturated_air_efficiency_change_points": -0.286967135788474,
+   "saturated_air_cost_change_fraction": 0.0035302776595049767
+  },
+  "measures": [
+   {
+    "id": "reduce_excess_air",
+    "label": "Bajar el exceso de aire (afinar la combustión)",
+    "status": "evaluated",
+    "reason": null,
+    "needs": null,
+    "changed": [
+     {
+      "what": "oxígeno en chimenea (base seca)",
+      "from": 0.027000000000000017,
+      "to": 0.021065579889933347,
+      "unit": "fracción"
+     },
+     {
+      "what": "exceso de aire",
+      "from": 0.13232757097512793,
+      "to": 0.1,
+      "unit": "fracción"
+     }
+    ],
+    "notes": [
+     "El objetivo (10 % de exceso de aire) NO lo dio la planta ni un proveedor: es de U.S. DOE, Steam Tip Sheet #4, DOE/GO-102012-3405, enero 2012 (en sistemas de gas natural bien diseñados es alcanzable un exceso de aire de 10 %); es lo que la publicación llama alcanzable en un sistema bien diseñado; si el quemador de la planta lo logra sin producir monóxido de carbono lo decide una prueba de combustión.",
+     "La temperatura de chimenea se dejó igual que hoy. Si al afinar el quemador también baja, el ahorro será mayor: da la temperatura de chimenea después de afinar."
+    ],
+    "result": {
+     "boiler": {
+      "efficiency": 0.8176569887344444,
+      "efficiency_basis": "HHV",
+      "efficiency_HHV": 0.8176569887344444,
+      "efficiency_LHV": 0.9063752761191165,
+      "losses_fraction_of_heating_value": {
+       "dry_gas": 0.06036364599112908,
+       "water_from_hydrogen_sensible": 0.014165016444936581,
+       "fuel_moisture_sensible": 0.0,
+       "air_moisture_sensible": 0.0,
+       "unburned_CO": 0.0,
+       "setting": 0.008983849981099377,
+       "water_latent": 0.09788251039298285
+      },
+      "credits_fraction_of_heating_value": {
+       "fuel_sensible": -9.91926399483751e-05,
+       "air_sensible": -0.0008487958154593511
+      },
+      "excess_air_fraction": 0.1,
+      "flue_O2_dry_mole_fraction": 0.021065579889933347,
+      "stack_T_K": 484.15,
+      "water_dew_point_K": 324.65302805294306,
+      "blowdown_heat_fraction_of_fuel": 0.0030717394517652406,
+      "useful_steam_heat_fraction_of_fuel": 0.8145852492826792
+     },
+     "steam": {
+      "pressure_Pa": 705000.0,
+      "saturation_T_K": 438.3834534095892,
+      "steam_T_K": 438.3834534095892,
+      "feedwater_T_K": 328.15,
+      "cost_per_tonne": 380.8268660382498,
+      "cost_per_GJ_delivered": 184.43778068883395,
+      "breakdown_per_tonne": {
+       "fuel": 380.8268660382498,
+       "water": 0.0,
+       "power": 0.0
+      },
+      "breakdown_per_GJ_delivered": {
+       "fuel": 184.43778068883395,
+       "water": 0.0,
+       "power": 0.0
+      },
+      "heat_delivered_GJ_per_tonne": 2.064798571181818,
+      "fuel_GJ_per_tonne": 3.1093085382239147,
+      "makeup_m3_per_tonne": 1.0222408873618847,
+      "power_kWh_per_tonne": null,
+      "mass_per_kg_delivered": {
+       "generated": 1.0,
+       "feedwater": 1.0204081632653061,
+       "blowdown": 0.020408163265306124,
+       "deaerator_steam": 0.0,
+       "makeup": 1.0204081632653061,
+       "condensate_return": 0.0
+      },
+      "boiler_duty_GJ_per_tonne": 2.5423478564104633
+     },
+     "annual": {
+      "steam_delivered_tonne": 29309.295599999998,
+      "steam_generated_tonne": 29309.295599999998,
+      "fuel_GJ": 91131.6430584086,
+      "fuel_basis": "HHV",
+      "fuel_GJ_HHV": 91131.6430584086,
+      "fuel_GJ_LHV": 82211.44905961433,
+      "fuel_kg": 1683223.9572356609,
+      "fuel_Nm3": 2247019.1793691604,
+      "makeup_water_m3": 29961.16034209578,
+      "electricity_kWh": null,
+      "cost": {
+       "fuel": 11161767.189136663,
+       "water": 0.0,
+       "power": 0.0,
+       "total": 11161767.189136663
+      },
+      "heat_delivered_GJ": 60517.79167722554,
+      "average_firing_kW": 2889.7654445208204
+     },
+     "emissions": {
+      "co2_kg_per_kg_fuel": 2.7170022911526526,
+      "co2_kg_per_GJ_fuel_HHV": 50.18370343000581,
+      "co2_kg_per_tonne_steam": 156.0366175546138,
+      "co2_tonne_per_year": 4573.323348332325,
+      "carbon_balance_error": 0.0,
+      "scope": "CO2 directo de la combustión en la caldera. No incluye metano ni N2O, la electricidad comprada ni la cadena de suministro del combustible"
+     }
+    },
+    "savings": {
+     "efficiency_gain_points": 0.19131939606703563,
+     "per_tonne": {
+      "cost": 0.8931672724123132,
+      "fuel_GJ": 0.007292375811256413,
+      "makeup_m3": 0.0,
+      "co2_kg": 0.36595842501225206
+     },
+     "fuel_fraction": 0.0023398490895694124,
+     "cost_fraction": 0.0023398490895693014,
+     "annual": {
+      "fuel_GJ": 213.73439827840775,
+      "fuel_basis": "HHV",
+      "makeup_water_m3": 0.0,
+      "electricity_kWh": null,
+      "cost": {
+       "fuel": 26178.1036073789,
+       "water": 0.0,
+       "power": 0.0,
+       "total": 26178.1036073789
+      },
+      "co2_tonne": 10.725983655994241,
+      "max_investment_for_payback": {
+       "1": 26178.1036073789,
+       "2": 52356.2072147578,
+       "3": 78534.3108221367
+      }
+     }
+    },
+    "investment": null,
+    "simple_payback_years": null,
+    "payback_note": "no calculado: falta la inversión (cotización del proveedor). No se estima.",
+    "published_target": {
+     "id": "DOE-STEAM-TIP-4-EXCESS-AIR",
+     "text": "10 % de exceso de aire",
+     "statement": "en sistemas de gas natural bien diseñados es alcanzable un exceso de aire de 10 %",
+     "source": "U.S. DOE, Steam Tip Sheet #4, DOE/GO-102012-3405, enero 2012",
+     "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/steam4_boiler_efficiency.pdf",
+     "retrieved": "2026-11-14",
+     "caveat": "es lo que la publicación llama alcanzable en un sistema bien diseñado; si el quemador de la planta lo logra sin producir monóxido de carbono lo decide una prueba de combustión"
+    },
+    "residuals": {
+     "boiler_residual_fraction": 1.8316190923031502e-16,
+     "combustion_mass_balance_error": 0.0,
+     "combustion_energy_balance_error": 4.8358026614488256e-11,
+     "cost_breakdown_residual_fraction": 0.0
+    }
+   },
+   {
+    "id": "reduce_stack_temperature",
+    "label": "Bajar la temperatura de chimenea (economizador o precalentador de aire)",
+    "status": "evaluated",
+    "reason": null,
+    "needs": null,
+    "changed": [
+     {
+      "what": "temperatura de chimenea",
+      "from": 484.15,
+      "to": 394.26111111111106,
+      "unit": "K"
+     }
+    ],
+    "notes": [
+     "El objetivo (chimenea a 250 °F (121 °C)) NO lo dio la planta ni un proveedor: es de U.S. DOE, Steam Tip Sheet #3, DOE/GO-102012-3412, enero 2012 (la temperatura más baja a la que se pueden enfriar los gases es 250 °F con gas natural, para evitar condensación y corrosión); es el límite inferior que da la publicación, así que el ahorro es el máximo posible con un economizador; el proveedor del equipo dirá a qué temperatura llega de verdad.",
+     "El punto de rocío ÁCIDO no se modela: con azufre en el combustible la corrosión empieza a una temperatura más alta que el punto de rocío del agua. El límite real lo fija el proveedor del equipo.",
+     "La caldera y el equipo de recuperación se tratan como una sola envolvente: el agua de alimentación y el aire se miden a la entrada de esa envolvente y la chimenea a su salida.",
+     "La temperatura del agua a la salida del economizador supone que los gases siguen saliendo de la caldera a la temperatura de chimenea de hoy."
+    ],
+    "result": {
+     "boiler": {
+      "efficiency": 0.8530368458739861,
+      "efficiency_basis": "HHV",
+      "efficiency_HHV": 0.8530368458739861,
+      "efficiency_LHV": 0.9455939561105153,
+      "losses_fraction_of_heating_value": {
+       "dry_gas": 0.03188123830098389,
+       "water_from_hydrogen_sensible": 0.0072426219892058035,
+       "fuel_moisture_sensible": 0.0,
+       "air_moisture_sensible": 0.0,
+       "unburned_CO": 0.0,
+       "setting": 0.008983849981099377,
+       "water_latent": 0.09788251039298285
+      },
+      "credits_fraction_of_heating_value": {
+       "fuel_sensible": -9.91926399483751e-05,
+       "air_sensible": -0.0008737408217935818
+      },
+      "excess_air_fraction": 0.13232757097512793,
+      "flue_O2_dry_mole_fraction": 0.027000000000000017,
+      "stack_T_K": 394.26111111111106,
+      "water_dew_point_K": 324.1147851675044,
+      "blowdown_heat_fraction_of_fuel": 0.0032046530138954412,
+      "useful_steam_heat_fraction_of_fuel": 0.8498321928600907
+     },
+     "steam": {
+      "pressure_Pa": 705000.0,
+      "saturation_T_K": 438.3834534095892,
+      "steam_T_K": 438.3834534095892,
+      "feedwater_T_K": 328.15,
+      "cost_per_tonne": 365.0320030373109,
+      "cost_per_GJ_delivered": 176.78819044725483,
+      "breakdown_per_tonne": {
+       "fuel": 365.0320030373109,
+       "water": 0.0,
+       "power": 0.0
+      },
+      "breakdown_per_GJ_delivered": {
+       "fuel": 176.78819044725483,
+       "water": 0.0,
+       "power": 0.0
+      },
+      "heat_delivered_GJ_per_tonne": 2.064798571181818,
+      "fuel_GJ_per_tonne": 2.9803494054300543,
+      "makeup_m3_per_tonne": 1.0222408873618847,
+      "power_kWh_per_tonne": null,
+      "mass_per_kg_delivered": {
+       "generated": 1.0,
+       "feedwater": 1.0204081632653061,
+       "blowdown": 0.020408163265306124,
+       "deaerator_steam": 0.0,
+       "makeup": 1.0204081632653061,
+       "condensate_return": 0.0
+      },
+      "boiler_duty_GJ_per_tonne": 2.5423478564104633
+     },
+     "annual": {
+      "steam_delivered_tonne": 29309.295599999998,
+      "steam_generated_tonne": 29309.295599999998,
+      "fuel_GJ": 87351.9417150337,
+      "fuel_basis": "HHV",
+      "fuel_GJ_HHV": 87351.94171503371,
+      "fuel_GJ_LHV": 78801.71437226469,
+      "fuel_kg": 1613411.939819418,
+      "fuel_Nm3": 2153823.6533606215,
+      "makeup_water_m3": 29961.16034209578,
+      "electricity_kWh": null,
+      "cost": {
+       "fuel": 10698830.880480643,
+       "water": 0.0,
+       "power": 0.0,
+       "total": 10698830.880480643
+      },
+      "heat_delivered_GJ": 60517.79167722554,
+      "average_firing_kW": 2769.9119011616467
+     },
+     "emissions": {
+      "co2_kg_per_kg_fuel": 2.7170022911526526,
+      "co2_kg_per_GJ_fuel_HHV": 50.18370343000581,
+      "co2_kg_per_tonne_steam": 149.564970679896,
+      "co2_tonne_per_year": 4383.643937062404,
+      "carbon_balance_error": 0.0,
+      "scope": "CO2 directo de la combustión en la caldera. No incluye metano ni N2O, la electricidad comprada ni la cadena de suministro del combustible"
+     }
+    },
+    "savings": {
+     "efficiency_gain_points": 3.7293051100212082,
+     "per_tonne": {
+      "cost": 16.688030273351217,
+      "fuel_GJ": 0.1362515086051168,
+      "makeup_m3": 0.0,
+      "co2_kg": 6.837605299730058
+     },
+     "fuel_fraction": 0.04371798390725212,
+     "cost_fraction": 0.04371798390725201,
+     "annual": {
+      "fuel_GJ": 3993.4357416533167,
+      "fuel_basis": "HHV",
+      "makeup_water_m3": 0.0,
+      "electricity_kWh": null,
+      "cost": {
+       "fuel": 489114.412263399,
+       "water": 0.0,
+       "power": 0.0,
+       "total": 489114.412263399
+      },
+      "co2_tonne": 200.40539492591506,
+      "max_investment_for_payback": {
+       "1": 489114.412263399,
+       "2": 978228.824526798,
+       "3": 1467343.236790197
+      }
+     }
+    },
+    "investment": null,
+    "simple_payback_years": null,
+    "payback_note": "no calculado: falta la inversión (cotización del proveedor). No se estima.",
+    "published_target": {
+     "id": "DOE-STEAM-TIP-3-STACK",
+     "text": "chimenea a 250 °F (121 °C)",
+     "statement": "la temperatura más baja a la que se pueden enfriar los gases es 250 °F con gas natural, para evitar condensación y corrosión",
+     "source": "U.S. DOE, Steam Tip Sheet #3, DOE/GO-102012-3412, enero 2012",
+     "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/steam3_recovery.pdf",
+     "retrieved": "2026-11-14",
+     "caveat": "es el límite inferior que da la publicación, así que el ahorro es el máximo posible con un economizador; el proveedor del equipo dirá a qué temperatura llega de verdad"
+    },
+    "residuals": {
+     "boiler_residual_fraction": 1.8316190923031502e-16,
+     "combustion_mass_balance_error": 0.0,
+     "combustion_energy_balance_error": 4.8358026614488256e-11,
+     "cost_breakdown_residual_fraction": 0.0
+    },
+    "checks": {
+     "water_dew_point_K": 324.1147851675044,
+     "margin_over_water_dew_point_K": 70.14632594360666,
+     "economizer_heat_J_per_kg_feedwater": 108923.3962197259,
+     "feedwater_T_after_economizer_K": 354.14249942795016
+    }
+   },
+   {
+    "id": "reduce_blowdown",
+    "label": "Bajar la purga",
+    "status": "not_evaluated",
+    "reason": "no evaluada: falta el dato",
+    "needs": "la purga que permite el tratamiento de agua, como porcentaje del agua de alimentación. La da el proveedor del tratamiento según los sólidos disueltos",
+    "changed": [],
+    "notes": [],
+    "result": null,
+    "savings": null,
+    "investment": null,
+    "simple_payback_years": null,
+    "payback_note": null,
+    "needs_parameter": "measures.reduce_blowdown.target_blowdown_fraction"
+   },
+   {
+    "id": "recover_blowdown_heat",
+    "label": "Recuperar el calor de la purga",
+    "status": "not_evaluated",
+    "reason": "no evaluada: falta el dato",
+    "needs": "la presión del tanque de flasheo y/o la temperatura a la que saldría la purga del intercambiador. Las da el proveedor del equipo",
+    "changed": [],
+    "notes": [],
+    "result": null,
+    "savings": null,
+    "investment": null,
+    "simple_payback_years": null,
+    "payback_note": null,
+    "needs_parameter": "measures.recover_blowdown_heat.flash_pressure_Pa y/o drain_T_K"
+   },
+   {
+    "id": "increase_condensate_return",
+    "label": "Regresar más condensado",
+    "status": "not_evaluated",
+    "reason": "no evaluada: falta el dato",
+    "needs": "el porcentaje del vapor que se podría regresar como condensado después de las obras. Sale de un levantamiento de la red de condensado",
+    "changed": [],
+    "notes": [],
+    "result": null,
+    "savings": null,
+    "investment": null,
+    "simple_payback_years": null,
+    "payback_note": null,
+    "needs_parameter": "measures.increase_condensate_return.target_condensate_return_fraction"
+   }
+  ],
+  "combined": {
+   "measures": [
+    "reduce_excess_air",
+    "reduce_stack_temperature"
+   ],
+   "status": "evaluated",
+   "reason": null,
+   "notes": [],
+   "checks": {
+    "water_dew_point_K": 324.65302805294306,
+    "margin_over_water_dew_point_K": 69.608083058168
+   },
+   "result": {
+    "boiler": {
+     "efficiency": 0.8540322498789591,
+     "efficiency_basis": "HHV",
+     "efficiency_HHV": 0.8540322498789591,
+     "efficiency_LHV": 0.9466973644984922,
+     "losses_fraction_of_heating_value": {
+      "dry_gas": 0.030910779302345287,
+      "water_from_hydrogen_sensible": 0.0072426219892058035,
+      "fuel_moisture_sensible": 0.0,
+      "air_moisture_sensible": 0.0,
+      "unburned_CO": 0.0,
+      "setting": 0.008983849981099377,
+      "water_latent": 0.09788251039298285
+     },
+     "credits_fraction_of_heating_value": {
+      "fuel_sensible": -9.91926399483751e-05,
+      "air_sensible": -0.0008487958154593511
+     },
+     "excess_air_fraction": 0.1,
+     "flue_O2_dry_mole_fraction": 0.021065579889933347,
+     "stack_T_K": 394.26111111111106,
+     "water_dew_point_K": 324.65302805294306,
+     "blowdown_heat_fraction_of_fuel": 0.0032083925058763673,
+     "useful_steam_heat_fraction_of_fuel": 0.8508238573730827
+    },
+    "steam": {
+     "pressure_Pa": 705000.0,
+     "saturation_T_K": 438.3834534095892,
+     "steam_T_K": 438.3834534095892,
+     "feedwater_T_K": 328.15,
+     "cost_per_tonne": 364.6065456639879,
+     "cost_per_GJ_delivered": 176.58213772169552,
+     "breakdown_per_tonne": {
+      "fuel": 364.6065456639879,
+      "water": 0.0,
+      "power": 0.0
+     },
+     "breakdown_per_GJ_delivered": {
+      "fuel": 176.58213772169552,
+      "water": 0.0,
+      "power": 0.0
+     },
+     "heat_delivered_GJ_per_tonne": 2.064798571181818,
+     "fuel_GJ_per_tonne": 2.9768757055378026,
+     "makeup_m3_per_tonne": 1.0222408873618847,
+     "power_kWh_per_tonne": null,
+     "mass_per_kg_delivered": {
+      "generated": 1.0,
+      "feedwater": 1.0204081632653061,
+      "blowdown": 0.020408163265306124,
+      "deaerator_steam": 0.0,
+      "makeup": 1.0204081632653061,
+      "condensate_return": 0.0
+     },
+     "boiler_duty_GJ_per_tonne": 2.5423478564104633
+    },
+    "annual": {
+     "steam_delivered_tonne": 29309.295599999998,
+     "steam_generated_tonne": 29309.295599999998,
+     "fuel_GJ": 87250.130018066,
+     "fuel_basis": "HHV",
+     "fuel_GJ_HHV": 87250.130018066,
+     "fuel_GJ_LHV": 78709.86825978354,
+     "fuel_kg": 1611531.4526284537,
+     "fuel_Nm3": 2151313.297702665,
+     "makeup_water_m3": 29961.16034209578,
+     "electricity_kWh": null,
+     "cost": {
+      "fuel": 10686361.02456072,
+      "water": 0.0,
+      "power": 0.0,
+      "total": 10686361.02456072
+     },
+     "heat_delivered_GJ": 60517.79167722554,
+     "average_firing_kW": 2766.6834734292875
+    },
+    "emissions": {
+     "co2_kg_per_kg_fuel": 2.7170022911526526,
+     "co2_kg_per_GJ_fuel_HHV": 50.18370343000581,
+     "co2_kg_per_tonne_steam": 149.39064755469838,
+     "co2_tonne_per_year": 4378.534649056071,
+     "carbon_balance_error": 0.0,
+     "scope": "CO2 directo de la combustión en la caldera. No incluye metano ni N2O, la electricidad comprada ni la cadena de suministro del combustible"
+    }
+   },
+   "savings": {
+    "efficiency_gain_points": 3.828845510518508,
+    "per_tonne": {
+     "cost": 17.11348764667423,
+     "fuel_GJ": 0.13972520849736858,
+     "makeup_m3": 0.0,
+     "co2_kg": 7.0119284249276745
+    },
+    "fuel_fraction": 0.04483256353681209,
+    "cost_fraction": 0.044832563536811976,
+    "annual": {
+     "fuel_GJ": 4095.2474386210088,
+     "fuel_basis": "HHV",
+     "makeup_water_m3": 0.0,
+     "electricity_kWh": null,
+     "cost": {
+      "fuel": 501584.2681833226,
+      "water": 0.0,
+      "power": 0.0,
+      "total": 501584.2681833226
+     },
+     "co2_tonne": 205.51468293224752,
+     "max_investment_for_payback": {
+      "1": 501584.2681833226,
+      "2": 1003168.5363666452,
+      "3": 1504752.8045499679
+     }
+    }
+   },
+   "residuals": {
+    "boiler_residual_fraction": 1.8316190923031502e-16,
+    "combustion_mass_balance_error": 0.0,
+    "combustion_energy_balance_error": 4.8357874068876915e-11,
+    "cost_breakdown_residual_fraction": 0.0
+   },
+   "sum_of_individual": {
+    "per_tonne": {
+     "cost": 17.58119754576353,
+     "fuel_GJ": 0.14354388441637322
+    },
+    "annual": {
+     "cost_total": 515292.5158707779,
+     "fuel_GJ": 4207.170139931724
+    }
+   },
+   "combined_over_sum": 0.9733971535288276,
+   "explanation": "Los ahorros no se suman: cada medida deja menos que ahorrar a las demás (menos gases que enfriar, menos purga de la que recuperar calor, menos combustible sobre el que aplicar la mejora de eficiencia). El caso combinado es una sola corrida con todos los cambios.",
+   "investment": null,
+   "simple_payback_years": null,
+   "payback_note": "no calculado: falta la inversión de al menos una medida o las cifras anuales."
+  },
+  "distribution": null,
+  "provenance": {
+   "plant_data": [
+    {
+     "item": "Altitud del sitio",
+     "value": 2250.0,
+     "unit": "m sobre el nivel del mar",
+     "origin": "dato de la planta",
+     "detail": "combustion.site_altitude_m"
+    },
+    {
+     "item": "Temperatura del combustible en el quemador",
+     "value": 295.66999999999996,
+     "unit": "K",
+     "origin": "dato de la planta",
+     "detail": "fuel.T_K"
+    },
+    {
+     "item": "Temperatura del aire de combustión",
+     "value": 295.66999999999996,
+     "unit": "K",
+     "origin": "dato de la planta",
+     "detail": "combustion.air.T_K"
+    },
+    {
+     "item": "Oxígeno en chimenea (base seca)",
+     "value": 0.027000000000000003,
+     "unit": "fracción",
+     "origin": "dato de la planta",
+     "detail": "combustion.flue_O2"
+    },
+    {
+     "item": "Temperatura de chimenea",
+     "value": 484.15,
+     "unit": "K",
+     "origin": "dato de la planta",
+     "detail": "combustion.stack_T_K"
+    },
+    {
+     "item": "Presión de la caldera",
+     "value": 705000.0,
+     "unit": "Pa",
+     "origin": "dato de la planta",
+     "detail": "boiler.steam_pressure_Pa"
+    },
+    {
+     "item": "Sobrecalentamiento",
+     "value": 0.0,
+     "unit": "K de diferencia",
+     "origin": "dato de la planta",
+     "detail": "boiler.superheat_K"
+    },
+    {
+     "item": "Purga (del agua de alimentación)",
+     "value": 0.02,
+     "unit": "fracción",
+     "origin": "dato de la planta",
+     "detail": "boiler.blowdown_fraction"
+    },
+    {
+     "item": "Agua de alimentación",
+     "value": "su calentamiento no se cobra al combustible",
+     "unit": "texto",
+     "origin": "dato de la planta",
+     "detail": "water.feedwater_heating"
+    },
+    {
+     "item": "Temperatura del agua de repuesto",
+     "value": 293.15,
+     "unit": "K",
+     "origin": "dato de la planta",
+     "detail": "water.makeup_water_T_K"
+    },
+    {
+     "item": "Retorno de condensado (del vapor)",
+     "value": 0.0,
+     "unit": "fracción",
+     "origin": "dato de la planta",
+     "detail": "water.condensate_return_fraction"
+    },
+    {
+     "item": "Monóxido de carbono en chimenea (base seca)",
+     "value": 0.0,
+     "unit": "ppm",
+     "origin": "dato de la planta",
+     "detail": "combustion.flue_CO_dry_mole_fraction"
+    },
+    {
+     "item": "Temperatura del agua de alimentación",
+     "value": 328.15,
+     "unit": "K",
+     "origin": "dato de la planta",
+     "detail": "water.feedwater_T_K"
+    },
+    {
+     "item": "Capacidad nominal de la caldera",
+     "value": 2.608333333333333,
+     "unit": "kg/s",
+     "origin": "dato de la planta",
+     "detail": "boiler.rated_steam_capacity_kg_s"
+    },
+    {
+     "item": "Horas de operación al año",
+     "value": 8760.0,
+     "unit": "h al año",
+     "origin": "dato de la planta",
+     "detail": "operation.hours_per_year"
+    },
+    {
+     "item": "Producción de vapor de la caldera",
+     "value": 0.9293916666666666,
+     "unit": "kg/s",
+     "origin": "dato de la planta",
+     "detail": "operation.steam_generated_kg_s"
+    },
+    {
+     "item": "Consumo de combustible al año",
+     "value": 92046.3,
+     "unit": "GJ al año (HHV)",
+     "origin": "dato de la planta",
+     "detail": "operation.fuel_consumption: energía facturada o medida, tal cual"
+    }
+   ],
+   "prices": [
+    {
+     "item": "Precio del combustible",
+     "value": 122.4796,
+     "unit": "MXN/GJ (HHV)",
+     "origin": "dato de la planta",
+     "detail": "precio dado por la planta",
+     "parameter": "fuel_cost.price_per_GJ"
+    },
+    {
+     "item": "Precio del agua de repuesto",
+     "value": 0.0,
+     "unit": "MXN/m³",
+     "origin": "no dado",
+     "detail": "la planta no dio el precio del agua: el costo del vapor y los ahorros NO incluyen el agua",
+     "parameter": "water_cost"
+    }
+   ],
+   "published_references": [
+    {
+     "kind": "setting_loss",
+     "item": "Pérdida por paredes y radiación de la caldera",
+     "value": 0.008983849981099377,
+     "unit": "fracción del poder calorífico (base PCS)",
+     "origin": "referencia publicada",
+     "reference": "CLEAVER-BROOKS-CB-7767-TABLE-1",
+     "source": "Cleaver-Brooks, «Boiler Efficiency Guide», CB-7767, 2010, Tabla 1",
+     "retrieved": "2026-11-14",
+     "url": "publicación CB-7767 de Cleaver-Brooks (leída en una copia del PDF)",
+     "detail": "pérdidas por radiación y convección esperadas en calderas de tubos de humo de cuatro pasos, por tamaño, presión de operación y porcentaje de carga; se lee la tabla para una caldera de 600 caballos caldera (clase 400-800), 91 psig y 36 % de carga, interpolando entre sus renglones: 0.90 %; Cleaver-Brooks, «Boiler Efficiency Guide», CB-7767, 2010, Tabla 1; consultada el 2026-11-14; referencia «CLEAVER-BROOKS-CB-7767-TABLE-1»; publicación CB-7767 de Cleaver-Brooks (leída en una copia del PDF)"
+    }
+   ],
+   "calculated": [
+    {
+     "figure": "Presión atmosférica del sitio (77.1 kPa)",
+     "origin": "calculado",
+     "tool": "atmósfera estándar de 1976 (librería fluids)",
+     "from": "la altitud del sitio"
+    },
+    {
+     "figure": "Poder calorífico, aire y gases de combustión, punto de rocío del agua",
+     "origin": "calculado",
+     "tool": "combustion_efficiency (M18, método de pérdidas, entalpías NASA)",
+     "from": "combustible, aire, O2 o exceso de aire"
+    },
+    {
+     "figure": "Eficiencia de la caldera y desglose de pérdidas",
+     "origin": "calculado",
+     "tool": "combustion_efficiency (M18, método de pérdidas, entalpías NASA)",
+     "from": "lo anterior + temperatura de chimenea + pérdida por paredes"
+    },
+    {
+     "figure": "Combustible, agua de repuesto y costo por tonelada y por GJ de vapor",
+     "origin": "calculado",
+     "tool": "utility_costs (M17, balance de la isla de vapor con IAPWS-95)",
+     "from": "eficiencia (de la herramienta anterior), presión, purga, retorno de condensado, temperaturas y precios"
+    },
+    {
+     "figure": "Cifras anuales",
+     "origin": "calculado",
+     "tool": "steam_system_diagnostic (M19: resta entre dos corridas de los mismos motores)",
+     "from": "cifras por tonelada × vapor entregado al año. Se dieron la producción de vapor y el consumo de combustible: las cifras anuales usan la producción de vapor y el otro dato sirve de comparación (ver «Comprobaciones»)."
+    },
+    {
+     "figure": "Ahorro de cada medida y del caso combinado",
+     "origin": "calculado",
+     "tool": "steam_system_diagnostic (M19: resta entre dos corridas de los mismos motores)",
+     "from": "línea base − la misma corrida de los dos motores con el objetivo de la planta"
+    },
+    {
+     "figure": "Retorno simple",
+     "origin": "calculado",
+     "tool": "steam_system_diagnostic (M19: resta entre dos corridas de los mismos motores)",
+     "from": "inversión (dato de la planta) ÷ ahorro anual; solo si se dio la inversión"
+    }
+   ]
+  },
+  "missing_data": [
+   {
+    "item": "la pérdida por paredes y radiación de la caldera (hoja de datos del fabricante o prueba)",
+    "parameter": "combustion.setting_loss_fraction y setting_loss_basis",
+    "prevents": "dar la eficiencia de la caldera y el costo del vapor como medidos: llevan un valor supuesto de una publicación (0.90 %, base PCS)"
+   },
+   {
+    "item": "la humedad relativa del aire que entra al quemador",
+    "parameter": "combustion.air.relative_humidity",
+    "prevents": "contar la humedad del aire: se calculó con aire seco (el efecto máximo se indica en los avisos)"
+   },
+   {
+    "item": "el análisis de composición del gas (lo da el proveedor de gas o el transportista)",
+    "parameter": "fuel.composition",
+    "prevents": "dar los gases de combustión y el CO2 como medidos: salen de una composición supuesta (un gas de referencia publicado)"
+   },
+   {
+    "item": "la purga que permite el tratamiento de agua, como porcentaje del agua de alimentación. La da el proveedor del tratamiento según los sólidos disueltos",
+    "parameter": "measures.reduce_blowdown.target_blowdown_fraction",
+    "prevents": "evaluar la medida «Bajar la purga»"
+   },
+   {
+    "item": "la presión del tanque de flasheo y/o la temperatura a la que saldría la purga del intercambiador. Las da el proveedor del equipo",
+    "parameter": "measures.recover_blowdown_heat.flash_pressure_Pa y/o drain_T_K",
+    "prevents": "evaluar la medida «Recuperar el calor de la purga»"
+   },
+   {
+    "item": "el porcentaje del vapor que se podría regresar como condensado después de las obras. Sale de un levantamiento de la red de condensado",
+    "parameter": "measures.increase_condensate_return.target_condensate_return_fraction",
+    "prevents": "evaluar la medida «Regresar más condensado»"
+   },
+   {
+    "item": "la inversión de «Bajar el exceso de aire (afinar la combustión)» (cotización del proveedor, en MXN)",
+    "parameter": "measures.reduce_excess_air.investment",
+    "prevents": "el retorno simple de «Bajar el exceso de aire (afinar la combustión)»"
+   },
+   {
+    "item": "la inversión de «Bajar la temperatura de chimenea (economizador o precalentador de aire)» (cotización del proveedor, en MXN)",
+    "parameter": "measures.reduce_stack_temperature.investment",
+    "prevents": "el retorno simple de «Bajar la temperatura de chimenea (economizador o precalentador de aire)»"
+   },
+   {
+    "item": "el recorrido de la distribución: fugas de vapor, trampas falladas y tramos de tubería sin aislar (cuántos, diámetro del orificio o del tubo, longitud y presión)",
+    "parameter": "distribution",
+    "prevents": "valorar lo que se pierde entre la caldera y el proceso; este estudio cubre solo la casa de calderas"
+   },
+   {
+    "item": "lo que se paga por el agua de repuesto (precio por m³, o importe y volumen del recibo; con el tratamiento si se quiere contar)",
+    "parameter": "water_cost",
+    "prevents": "contar el agua en el costo del vapor y en el ahorro de las medidas: salen solo con combustible y electricidad"
+   },
+   {
+    "item": "el consumo eléctrico de ventiladores y bombas de la caldera (kWh por tonelada de vapor) y el precio de la electricidad",
+    "parameter": "boiler.auxiliary_power_kWh_per_tonne_generated (o auxiliary_power_kWh_per_tonne) y electricity_cost",
+    "prevents": "cobrar la electricidad de la caldera: el costo del vapor no la incluye"
+   }
+  ],
+  "evidence": {
+   "baseline_residuals": {
+    "boiler_residual_fraction": 1.8316190923031502e-16,
+    "combustion_mass_balance_error": 0.0,
+    "combustion_energy_balance_error": 4.8358026614488256e-11,
+    "cost_breakdown_residual_fraction": 0.0
+   },
+   "worst_residual_fraction": 4.8358026614488256e-11,
+   "steam_side_duty_vs_efficiency_times_fuel": 0.0,
+   "annual_fuel_two_routes_difference_fraction": 3.1861306250044e-16,
+   "measures_direction": {
+    "reduce_excess_air": {
+     "cost_per_tonne_saving": 0.8931672724123132,
+     "saves": true
+    },
+    "reduce_stack_temperature": {
+     "cost_per_tonne_saving": 16.688030273351217,
+     "saves": true
+    }
+   },
+   "combined_not_above_sum": {
+    "combined_per_tonne": 17.11348764667423,
+    "sum_per_tonne": 17.58119754576353,
+    "holds": true
+   },
+   "input_output_cross_check": {
+    "input_output_efficiency": 0.8095319946761643,
+    "heat_loss_efficiency": 0.815743794773774,
+    "basis": "HHV",
+    "difference_points": -0.6211800097609688,
+    "steam_from_fuel_over_steam_measured": 1.0076733225350714,
+    "meaning": "Eficiencia por entradas y salidas (calor al vapor medido ÷ combustible medido) contra la del método de pérdidas. Una diferencia grande indica un medidor descalibrado, una purga distinta de la declarada, combustible que se usa en otro equipo o vapor que no se mide."
+   },
+   "carbon_balance_error": 0.0,
+   "verified": true,
+   "reasons": [],
+   "meaning": "verified = los balances de masa y energía de los dos motores cierran en todos los casos y las rutas independientes coinciden. NO significa que los datos de la planta sean correctos."
+  },
+  "warnings": [
+   "OBJETIVO PUBLICADO, NO DEL PROVEEDOR: la medida «Bajar la temperatura de chimenea (economizador o precalentador de aire)» se evaluó con chimenea a 250 °F (121 °C), de U.S. DOE, Steam Tip Sheet #3, DOE/GO-102012-3412, enero 2012 (la temperatura más baja a la que se pueden enfriar los gases es 250 °F con gas natural, para evitar condensación y corrosión); es el límite inferior que da la publicación, así que el ahorro es el máximo posible con un economizador; el proveedor del equipo dirá a qué temperatura llega de verdad.",
+   "OBJETIVO PUBLICADO, NO DEL PROVEEDOR: la medida «Bajar el exceso de aire (afinar la combustión)» se evaluó con 10 % de exceso de aire, de U.S. DOE, Steam Tip Sheet #4, DOE/GO-102012-3405, enero 2012 (en sistemas de gas natural bien diseñados es alcanzable un exceso de aire de 10 %); es lo que la publicación llama alcanzable en un sistema bien diseñado; si el quemador de la planta lo logra sin producir monóxido de carbono lo decide una prueba de combustión.",
+   "PÉRDIDA POR PAREDES SUPUESTA, NO MEDIDA: la planta declaró que no conoce la pérdida por paredes y radiación de su caldera. Se usó 0.90 % del poder calorífico (base PCS), de Cleaver-Brooks, «Boiler Efficiency Guide», CB-7767, 2010, Tabla 1: pérdidas por radiación y convección esperadas en calderas de tubos de humo de cuatro pasos, por tamaño, presión de operación y porcentaje de carga; se lee la tabla para una caldera de 600 caballos caldera (clase 400-800), 91 psig y 36 % de carga, interpolando entre sus renglones: 0.90 %. Con un punto porcentual más de pérdida la eficiencia baja 1.00 puntos y el vapor cuesta +1.24 %. Consultada el 2026-11-14; publicación CB-7767 de Cleaver-Brooks (leída en una copia del PDF).",
+   "HUMEDAD DEL AIRE NO DADA: se calculó con aire seco. Con aire saturado a su temperatura la eficiencia cambia -0.29 puntos y el costo del vapor +0.35 %; el valor real queda entre los dos.",
+   "COMPOSICIÓN DEL GAS SUPUESTA, NO ANALIZADA: la planta declaró que no tiene el análisis de su gas. Se usó gas natural de referencia «GULF-COAST» (mezcla predefinida «GulfCoast.mix» de CoolProp 8.0.0 (gases naturales de referencia de NIST; composición leída de la librería, no transcrita)), porque la planta no dio composición ni poder calorífico. Con las composiciones alternativas probadas la eficiencia cambia como mucho 0.26 puntos y el costo del vapor 0.31 %. Pide a tu proveedor el poder calorífico del gas o da energía y volumen del recibo para ajustar la composición.",
+   "COSTO DEL AGUA NO INCLUIDO: la planta no dio lo que paga por el agua de repuesto. El costo del vapor y el ahorro de las medidas que ahorran agua (purga, condensado) quedan por debajo de lo real.",
+   "water.feedwater_heating='not_charged': calentar el agua hasta feedwater_T_K no se cobra al combustible. Si ese calor sale de vapor de la propia caldera, el costo real del vapor es mayor que el mostrado."
+  ],
+  "assumptions": [
+   "Precio del combustible en base HHV: las eficiencias de caldera y horno deben estar en esa misma base (con LHV la eficiencia es numéricamente mayor que con HHV).",
+   "Cada nivel se calcula como generado directamente a su presión en una caldera, sin cogeneración ni turbinas de contrapresión (con cogeneración el vapor de baja cuesta menos).",
+   "Calor entregado al proceso = entalpía del vapor − líquido saturado a la misma presión (no se acredita el subenfriamiento del condensado ni el vapor de flasheo).",
+   "Agua y vapor: IAPWS-95 (CoolProp). Las corrientes líquidas se evalúan en la línea de saturación a su temperatura; el trabajo de la bomba de alimentación no se cobra aparte.",
+   "feedwater_heating='not_charged': el combustible solo lleva el agua de feedwater_T_K a vapor (costo de generación tipo DOE Steam Tip Sheet #15). Calentar el agua hasta feedwater_T_K no se cobra: es válido si ese calor es recuperado; si no, el costo real es mayor.",
+   "Química supuesta: C → CO2 (o el CO medido), H → H2O, S → SO2, N del combustible → N2 (sin NOx), ceniza inerte, sin carbono sin quemar ni hollín.",
+   "Aire seco: O2 0.2100, N2 0.7800, Ar 0.0100 (composición de air.yaml de Cantera; da air.dry_air_mole_fractions para otra).",
+   "Referencia de entalpía 298.15 K con el agua como vapor; gas ideal. Polinomios NASA Glenn de 9 coeficientes distribuidos con Cantera 3.2.0 (nasa_gas.yaml; agua líquida de nasa_condensed.yaml).",
+   "La purga se descarga como líquido saturado a la presión de la caldera, sin recuperar su calor.",
+   "La humedad del aire de combustión NO es un dato de la planta: se calculó con aire seco.",
+   "La presión atmosférica del sitio (77.1 kPa) no es una lectura de barómetro: se calculó de la altitud (2250 m) con la atmósfera estándar de 1976. Con ella se pasan a absolutas las presiones de manómetro.",
+   "La composición del gas NO es un dato de la planta: es gas natural de referencia «GULF-COAST» (mezcla predefinida «GulfCoast.mix» de CoolProp 8.0.0 (gases naturales de referencia de NIST; composición leída de la librería, no transcrita)), porque la planta no dio composición ni poder calorífico. Nota: n-hexano (0.066 % mol) contado como n-pentano.",
+   "La pérdida por paredes y radiación NO es un dato de la planta: es 0.90 % del poder calorífico (base PCS), tomado de Cleaver-Brooks, «Boiler Efficiency Guide», CB-7767, 2010, Tabla 1 (se lee la tabla para una caldera de 600 caballos caldera (clase 400-800), 91 psig y 36 % de carga, interpolando entre sus renglones: 0.90 %). Límites: es la pérdida que el fabricante espera de su modelo de cuatro pasos bien aislado, en aire quieto a 27 °C: una caldera vieja, de otro diseño o con el aislamiento dañado pierde más; la carga usada es el promedio declarado; si la caldera pasa muchas horas a muy baja carga la pérdida real es mayor.",
+   "La demanda de vapor del proceso (vapor entregado) se mantiene igual en todas las medidas; lo que cambia es el combustible, el agua y la electricidad para producirlo.",
+   "La pérdida por paredes se mantiene como la misma fracción del poder calorífico en todos los casos. En realidad es casi constante en kW, así que al bajar el combustible la fracción sube un poco: el ahorro queda ligeramente sobrestimado.",
+   "Operación en un solo punto promedio: una carga, un O2 y una temperatura de chimenea representan todo el año.",
+   "Los ahorros se valoran con los mismos precios de la línea base."
+  ],
+  "not_included": [
+   "Capital, mano de obra y mantenimiento de la caldera",
+   "Pérdidas de distribución y trampas de vapor",
+   "Tratamiento químico (inclúyelo en el precio del agua de repuesto si lo quieres cobrar)",
+   "Electricidad de ventiladores y bombas de la caldera (da auxiliary_power_kWh_per_tonne para cobrarla)",
+   "combustión: carbono sin quemar en ceniza, hollín y NOx",
+   "combustión: calor sensible de la ceniza",
+   "combustión: vapor de atomización y sopladores de hollín",
+   "combustión: punto de rocío ácido",
+   "combustión: calderas de condensación (chimenea bajo el punto de rocío)",
+   "combustión: purga de caldera (va en utility_costs como blowdown_fraction)",
+   "Inversión de las medidas: nunca se estima; el retorno solo se calcula con la cifra de la planta",
+   "Variación de la carga a lo largo del año, arranques y paros, y eficiencia a carga parcial",
+   "Fugas de vapor, trampas de vapor y aislamiento de tuberías (no se dio el recorrido de la distribución)",
+   "Química del agua: la purga mínima y la calidad del condensado no se comprueban",
+   "Punto de rocío ácido y corrosión de la zona fría",
+   "Emisiones distintas del CO2 directo de la caldera (NOx, metano) y el costo de emitir",
+   "Impuestos, financiamiento y mantenimiento de los equipos nuevos"
+  ],
+  "inputs": {
+   "currency": "MXN",
+   "fuel": {
+    "type": "natural_gas_unknown",
+    "T_K": 295.66999999999996
+   },
+   "combustion": {
+    "site_altitude_m": 2250.0,
+    "stack_T_K": 484.15,
+    "flue_CO_dry_mole_fraction": 0.0,
+    "flue_O2": {
+     "mole_fraction": 0.027000000000000003,
+     "basis": "dry"
+    },
+    "air": {
+     "T_K": 295.66999999999996
+    },
+    "setting_loss_unknown": true
+   },
+   "boiler": {
+    "steam_pressure_Pa": 705000.0,
+    "superheat_K": 0.0,
+    "blowdown_fraction": 0.02,
+    "rated_steam_capacity_kg_s": 2.608333333333333,
+    "boiler_type": "fire_tube"
+   },
+   "water": {
+    "feedwater_heating": "not_charged",
+    "feedwater_T_K": 328.15,
+    "makeup_water_T_K": 293.15,
+    "condensate_return_fraction": 0.0
+   },
+   "fuel_cost": {
+    "price_per_GJ": 122.4796,
+    "basis": "HHV"
+   },
+   "water_cost": null,
+   "electricity_cost": null,
+   "operation": {
+    "hours_per_year": 8760.0,
+    "steam_generated_kg_s": 0.9293916666666666,
+    "fuel_consumption": {
+     "energy_GJ_per_year": 92046.3,
+     "basis": "HHV"
+    },
+    "annual_basis": "steam"
+   },
+   "measures": {
+    "reduce_excess_air": {
+     "use_published_target": true
+    },
+    "reduce_stack_temperature": {
+     "use_published_target": true
+    }
+   },
+   "reference": null,
+   "exchange_rates": null,
+   "today": "2026-11-14",
+   "distribution": null
+  },
+  "method": {
+   "name": "diagnóstico de vapor: línea base y medidas por repetición de los mismos motores con un cambio",
+   "module": "packages/energy/steam_diagnostic.py",
+   "engines": [
+    "combustion_efficiency (M18, método de pérdidas, entalpías NASA)",
+    "utility_costs (M17, balance de la isla de vapor con IAPWS-95)"
+   ],
+   "validated_against": "ejemplos de los U.S. DOE Steam Tip Sheets #3, #4, #8, #9 y #10 (enero 2012) y una prueba unitaria de caldera de MEASUR-Tools-Suite (ORNL); ver BENCHMARK.md, M19"
+  }
+ }
+}

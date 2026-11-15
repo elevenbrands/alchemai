@@ -9,6 +9,7 @@ not give its barometric pressure; it is reported in `notes`.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 
 SHEET_DATA, SHEET_HELP, SHEET_LEAKS, SHEET_PIPES = "Datos", "Instrucciones", "Fugas y trampas", "Tubería sin aislar"
@@ -42,10 +43,27 @@ HEATING = {"Desaireador o tanque calentado con vapor de la caldera": "deaerator_
            "Tanque sin calentador (solo mezcla de condensado y agua de repuesto)": "mixing_only",
            "No cobrar el calentamiento del agua al combustible": "not_charged"}
 DEVICE = {"Economizador": "economizer", "Precalentador de aire": "air_preheater"}
+BOILER_TYPE = {"Tubos de humo (pirotubular)": "fire_tube", "Tubos de agua (acuotubular)": "water_tube"}
 FUELS = ["Gas natural", "Gas LP", "Otro gas", "Diésel", "Combustóleo", "Otro líquido o sólido"]
 COMPONENTS = {"comp_CH4": "CH4", "comp_C2H6": "C2H6", "comp_C3H8": "C3H8", "comp_nC4H10": "n-C4H10", "comp_iC4H10": "i-C4H10",
               "comp_CO2": "CO2", "comp_N2": "N2", "comp_H2": "H2"}
 ELEMENTS = {"ult_C": "C", "ult_H": "H", "ult_O": "O", "ult_N": "N", "ult_S": "S", "ult_ash": "ash", "ult_moisture": "moisture"}
+
+
+def _norm(text) -> str:
+    """Loose form of a unit or an option, so a hand-typed «kg/cm2 man», «ºc» or «si» is read as the listed one."""
+    t = str(text).replace("º", "").replace("°", "").replace("²", "2").replace("³", "3")   # before NFKD turns «º» into «o»
+    t = unicodedata.normalize("NFKD", t)
+    t = "".join(ch for ch in t if not unicodedata.combining(ch))
+    return re.sub(r"[\s\.°º]", "", t).lower()
+
+
+def _match(value, options) -> str | None:
+    """The listed option a typed value means, or None. Exact first; then the loose form, only if it is unambiguous."""
+    if value in options:
+        return value
+    hits = [o for o in options if _norm(o) == _norm(value)]
+    return hits[0] if len(hits) == 1 else None
 
 
 @dataclass(frozen=True)
@@ -105,7 +123,8 @@ SECTIONS: list[tuple[str, list[Field]]] = [
         _n("fuel_bill_mass", "   masa facturada (líquidos o gas LP)", MASS),
         _c("fuel_bill_is_year", "   ¿El recibo cubre un año completo de operación y SOLO esta caldera?", [YES, NO],
            "Si es Sí, se toma como el consumo anual de combustible."),
-        Field("water_price", "Agua de repuesto: precio por m³", "money", (), "Incluye el tratamiento si quieres cobrarlo."),
+        Field("water_price", "Agua de repuesto: precio por m³", "money", (),
+              "Incluye el tratamiento si quieres cobrarlo. Si no lo sabes, déjalo vacío: el costo del vapor saldrá sin agua."),
         Field("water_bill_amount", "Agua: importe del recibo", "money"),
         _n("water_bill_volume", "   volumen facturado", {"m³": 1.0}),
         Field("water_bill_period", "   periodo del recibo", "text"),
@@ -121,6 +140,8 @@ SECTIONS: list[tuple[str, list[Field]]] = [
         _n("superheat", "Sobrecalentamiento (0 si el vapor es saturado)", DELTA_T),
         _n("blowdown", "Purga, del agua de alimentación", PERCENT, "0 solo si de verdad no hay purga."),
         _n("rated_capacity", "Capacidad nominal (placa)", CAPACITY, "Opcional. Sirve para saber a qué carga trabaja."),
+        _c("boiler_type", "Tipo de caldera", BOILER_TYPE,
+           "Opcional. Si no conoces la pérdida por paredes, con el tipo y la capacidad se elige la fuente publicada."),
     ]),
     ("5. La combustión (de la última prueba de gases)", [
         _n("o2", "Oxígeno en la chimenea", PERCENT, "O da el exceso de aire en la fila de abajo, no los dos."),
@@ -129,12 +150,13 @@ SECTIONS: list[tuple[str, list[Field]]] = [
         _n("co", "Monóxido de carbono en chimenea, base seca (opcional)", PPM),
         _n("stack_T", "Temperatura de los gases en la chimenea", TEMP, "A la misma carga que el oxígeno."),
         _n("air_T", "Temperatura del aire que entra al quemador", TEMP),
-        _n("air_RH", "Humedad relativa del aire", PERCENT),
+        _n("air_RH", "Humedad relativa del aire (opcional)", PERCENT, "Sin este dato se calcula con aire seco y se avisa."),
         _n("setting_loss", "Pérdida por paredes y radiación de la caldera", PERCENT,
            "De la hoja del fabricante o de una prueba. Si no la conoces, deja vacío y marca Sí en la fila «No la conozco»."),
         _c("setting_loss_basis", "   ¿del poder calorífico superior o inferior?", BASIS),
         _c("setting_loss_unknown", "   No la conozco", [YES, NO],
-           "Con Sí se usa 1.0 % (guía del Departamento de Energía de EE. UU.) y el reporte lo marca como supuesto."),
+           "Con Sí se usa un valor publicado (guía del Departamento de Energía de EE. UU., o la tabla del fabricante "
+           "Cleaver-Brooks si es de tubos de humo y das capacidad y producción) y el reporte lo marca como supuesto."),
     ]),
     ("6. El agua", [
         _c("fw_mode", "¿Cómo se calienta el agua de alimentación?", HEATING),
@@ -146,7 +168,8 @@ SECTIONS: list[tuple[str, list[Field]]] = [
     ("7. La operación", [
         _n("hours", "Horas de operación al año", {"h al año": 1.0}),
         _n("steam_production", "Producción promedio de vapor de la caldera", FLOW, "O da el consumo anual de combustible."),
-        _n("fuel_year_energy", "Consumo anual de combustible, en energía", ENERGY),
+        _n("fuel_year_energy", "Consumo anual de combustible, en energía", ENERGY,
+           "Si das producción y consumo, las cifras anuales salen de la producción y el consumo sirve de comprobación."),
         _c("fuel_year_basis", "   ¿superior o inferior?", BASIS),
         _n("fuel_year_volume", "Consumo anual de combustible, en volumen", VOLUME, "A las condiciones base del recibo."),
     ]),
@@ -347,10 +370,11 @@ class _Sheet:
         if value is None:
             return None
         f = FIELDS[key]
-        table = dict.fromkeys(f.units)
-        if unit not in table:
+        listed = _match(unit, f.units) if unit is not None else None
+        if listed is None:
             self.problems.append(f"{self.where(key)}: elige la unidad de la lista ({', '.join(f.units)}); se leyó «{unit}».")
             return None
+        unit = listed
         for family in (TEMP, DELTA_T):
             if f.units == tuple(family):
                 return family[unit](value)
@@ -371,10 +395,11 @@ class _Sheet:
         if value is None:
             return None
         options = FIELDS[key].units
-        if value not in options:
+        listed = _match(value, options)
+        if listed is None:
             self.problems.append(f"{self.where(key)}: elige una opción de la lista ({'; '.join(options)}); se leyó «{value}».")
             return None
-        return mapping[value] if mapping else value
+        return mapping[listed] if mapping else listed
 
     def text(self, key: str):
         value = self.raw.get(key, (None,))[0]
@@ -491,7 +516,8 @@ def read_workbook(path: str) -> dict:
 
     boiler = keep({"steam_pressure_Pa": absolute("steam_pressure"), "superheat_K": s.number("superheat"),
                    "blowdown_fraction": s.number("blowdown"), "auxiliary_power_kWh_per_tonne_generated": s.number("aux_power"),
-                   "rated_steam_capacity_kg_s": s.number("rated_capacity")})
+                   "rated_steam_capacity_kg_s": s.number("rated_capacity"),
+                   "boiler_type": s.choice("boiler_type", BOILER_TYPE)})
     combustion = keep({"site_altitude_m": alt if from_altitude else None, "site_pressure_Pa": None if from_altitude else p_atm,
                        "stack_T_K": s.number("stack_T"),
                        "excess_air_fraction": s.number("excess_air"), "flue_CO_dry_mole_fraction": s.number("co"),
@@ -523,6 +549,9 @@ def read_workbook(path: str) -> dict:
                                                               "P_Pa": s.number("fuel_bill_vol_P")}}
     elif s.choice("fuel_bill_is_year") == YES and fuel_cost and "bill" in fuel_cost:
         operation["fuel_consumption"] = {"from_fuel_bill": True}
+    if "fuel_consumption" in operation and "steam_generated_kg_s" in operation:
+        # both given: the annual figures follow the steam meter and the fuel consumption becomes the cross-check
+        operation["annual_basis"] = "steam"
 
     # ---- measures
     measures: dict = {}
@@ -595,16 +624,15 @@ def _essentials(s: _Sheet) -> list[str]:
     either("fuel_price", "fuel_bill_amount", "el precio del combustible o el importe del recibo")
     if s.has("fuel_bill_amount") and not any(s.has(k) for k in ("fuel_bill_energy", "fuel_bill_volume", "fuel_bill_mass")):
         need.append(f"{s.where('fuel_bill_energy')}: la energía, el volumen o la masa que factura el recibo")
-    either("water_price", "water_bill_amount", "el precio del agua o el importe del recibo")
     for key in ("steam_pressure", "blowdown"):
         row(key)
     either("o2", "excess_air", "el oxígeno en chimenea o el exceso de aire")
-    for key in ("stack_T", "air_T", "air_RH"):
+    for key in ("stack_T", "air_T"):
         row(key)
-    if not s.has("setting_loss") and s.raw.get("setting_loss_unknown", (None,))[0] != YES:
+    if not s.has("setting_loss") and _match(s.raw.get("setting_loss_unknown", (None,))[0], [YES, NO]) != YES:
         need.append(f"{s.where('setting_loss')}: la pérdida por paredes, o marcar Sí en «No la conozco»")
     row("fw_mode")
-    mode = s.raw.get("fw_mode", (None,))[0]
+    mode = _match(s.raw.get("fw_mode", (None,))[0], list(HEATING))
     if mode is not None and HEATING.get(mode) != "mixing_only":
         row("fw_T")
     for key in ("makeup_T", "cond_return"):
@@ -646,6 +674,7 @@ def _read_distribution(wb, p_atm, problems: list[str]) -> dict:
     def pressure(sheet: str, r: int, value, unit, what: str):
         if value is None:
             return None
+        unit = _match(unit, [*P_ABS, *P_GAUGE]) if unit is not None else None
         if unit in P_ABS:
             return value * P_ABS[unit]
         if unit in P_GAUGE:
@@ -659,6 +688,7 @@ def _read_distribution(wb, p_atm, problems: list[str]) -> dict:
     def length(sheet: str, r: int, value, unit, table: dict, what: str):
         if value is None:
             return None
+        unit = _match(unit, list(table)) if unit is not None else None
         if unit not in table:
             problems.append(f"{sheet}, fila {r}: elige la unidad de «{what}» de la lista ({', '.join(table)}).")
             return None
@@ -666,7 +696,7 @@ def _read_distribution(wb, p_atm, problems: list[str]) -> dict:
 
     if SHEET_LEAKS in wb.sheetnames:
         for r, v in _table_rows(wb[SHEET_LEAKS], 9):
-            kind, desc = v[0], v[1]
+            kind, desc = (_match(v[0], LEAK_COLUMNS[0][1]) if v[0] is not None else None), v[1]
             count = cell_number(SHEET_LEAKS, r, 3, v[2], "Cantidad")
             d = length(SHEET_LEAKS, r, cell_number(SHEET_LEAKS, r, 4, v[3], "Diámetro del orificio"), v[4], SMALL_LENGTH,
                        "Diámetro del orificio")

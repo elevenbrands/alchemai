@@ -35,6 +35,8 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
       auxiliary_power_kWh_per_tonne (ventiladores y bombas, por tonelada ENTREGADA al proceso; o
       auxiliary_power_kWh_per_tonne_generated, por tonelada GENERADA; sin ninguno la electricidad no se cobra) y
       rated_steam_capacity_kg_s
+      y boiler_type 'fire_tube'|'water_tube': con pérdida por paredes desconocida, tubos de humo con capacidad y
+      producción usan la tabla del fabricante Cleaver-Brooks CB-7767; lo demás, el tope de la guía del DOE entre la carga.
       (capacidad de placa: con ella y la producción se conoce la carga; escala la pérdida por paredes publicada)}.
     El resultado trae además: `baseline.emissions` (CO2 directo, del balance de carbono) y el CO2 evitado por medida;
     `max_investment_for_payback` (1, 2 y 3 veces el ahorro anual: tope de inversión, no una cotización); `data_review`
@@ -62,6 +64,8 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
       increase_condensate_return {target_condensate_return_fraction; opcionales condensate_T_K_after, feedwater_T_K_after}.
       Cada una acepta investment (en currency): solo con ella se calcula el retorno simple; la inversión nunca se estima.
     exchange_rates, today: como en utility_costs.
+    Opcionales que ya no detienen el cálculo: water_cost (sin él el vapor se costea sin agua y se avisa) y la humedad del
+    aire (sin ella se calcula con aire seco y se informa el efecto máximo).
     distribution (opcional, del recorrido de la planta): {leaks [{count, orifice_diameter_m, steam_pressure_Pa,
       back_pressure_Pa?, description?}], failed_traps [igual; trampas falladas ABIERTAS], bare_pipes [{outer_diameter_m,
       length_m, steam_pressure_Pa, insulation_thickness_m? + insulation_conductivity_W_m_K?, description?}], ambient_T_K y

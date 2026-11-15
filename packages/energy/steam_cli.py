@@ -45,6 +45,26 @@ EXAMPLE = {
 }
 
 
+REAL_CASE_NOTICE = ("CASO REAL PUBLICADO: mediciones de una caldera real tomadas de una tesina de la UNAM (E. L. Martínez Obregón, "
+                    "2021). No es un cliente. Tres datos no vienen en la tesina y se capturaron para poder calcular: la "
+                    "temperatura del gas (se tomó la del aire), la del agua de repuesto (20 °C) y la purga de 2 %, que la tesina "
+                    "supone. El precio por GJ se leyó como de poder calorífico superior.")
+# The Mexican fire-tube boiler of notebooks/33 (MOCKS CALDERAS-REALES-PUBLICADAS-M22), as a plant would capture it.
+REAL_CASE_UNAM = {
+    "plant_label": ("Fábrica de alimentos, Valle de México (tesina UNAM 2021)", None), "currency": ("MXN", None),
+    "altitude": (2250, "m"), "fuel_name": ("Gas natural", None), "fuel_T": (22.52, "°C"),
+    "fuel_price": (122.4796, "por GJ"), "fuel_price_basis": ("Superior (PCS)", None),
+    "steam_pressure": (7.05, "bar abs."), "superheat": (0, "°C"), "blowdown": (2, "%"),
+    "rated_capacity": (600, "CC (caballos caldera)"), "boiler_type": ("Tubos de humo (pirotubular)", None),
+    "o2": (2.7, "%"), "o2_basis": ("Seca", None), "co": (0, "ppm"), "stack_T": (211, "°C"), "air_T": (22.52, "°C"),
+    "setting_loss_unknown": (SW.YES, None),
+    "fw_mode": ("No cobrar el calentamiento del agua al combustible", None), "fw_T": (55, "°C"), "makeup_T": (20, "°C"),
+    "cond_return": (0, "%"), "hours": (8760, "h al año"), "steam_production": (3345.81, "kg/h"),
+    "fuel_year_energy": (round(286.81 * 0.036636 * 8760, 1), "GJ"), "fuel_year_basis": ("Superior (PCS)", None),
+    "m1_published": (SW.YES, None), "m2_published": (SW.YES, None),
+}
+
+
 def run_workbook(workbook: str, out_dir: str, notice: str | None = None, pdf: bool = True, today: str | None = None) -> dict:
     """Workbook -> files in out_dir. Returns their paths and the headline numbers. Raises ValueError in Spanish."""
     read = SW.read_workbook(workbook)
@@ -89,6 +109,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--sin-pdf", action="store_true")
     p = sub.add_parser("ejemplo", help="escribe una hoja llena con una planta INVENTADA y su reporte")
     p.add_argument("carpeta")
+    p = sub.add_parser("caso-real", help="hoja y reporte de una caldera REAL publicada (tesina de la UNAM, 2021)")
+    p.add_argument("carpeta")
     a = ap.parse_args(argv)
     try:
         if a.cmd == "plantilla":
@@ -98,6 +120,10 @@ def main(argv: list[str] | None = None) -> int:
             os.makedirs(a.carpeta, exist_ok=True)
             book = SW.build_template(os.path.join(a.carpeta, "datos_planta_ejemplo.xlsx"), EXAMPLE)
             out = run_workbook(book, a.carpeta, notice=ILLUSTRATIVE_NOTICE)
+        elif a.cmd == "caso-real":
+            os.makedirs(a.carpeta, exist_ok=True)
+            book = SW.build_template(os.path.join(a.carpeta, "datos_caldera_unam_2021.xlsx"), REAL_CASE_UNAM)
+            out = run_workbook(book, a.carpeta, notice=REAL_CASE_NOTICE)
         else:
             out = run_workbook(a.archivo, a.salida or os.path.join(os.path.dirname(os.path.abspath(a.archivo)), "reporte_vapor"),
                                pdf=not a.sin_pdf)

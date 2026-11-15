@@ -307,7 +307,7 @@ Copia de la hoja de datos, en las unidades en que se escribió. El resto del rep
 | Oxígeno en la chimenea — ¿base seca o húmeda? | Seca |  |
 | Temperatura de los gases en la chimenea | 220 | °C |
 | Temperatura del aire que entra al quemador | 25 | °C |
-| Humedad relativa del aire | 50 | % |
+| Humedad relativa del aire (opcional) | 50 | % |
 | Pérdida por paredes y radiación de la caldera — No la conozco | Sí |  |
 | ¿Cómo se calienta el agua de alimentación? | Desaireador o tanque calentado con vapor de la caldera |  |
 | Temperatura del agua que entra a la caldera | 105 | °C |

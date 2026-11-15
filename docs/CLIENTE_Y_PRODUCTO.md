@@ -62,6 +62,7 @@ El nombre del diagnóstico y su precio después del piloto son decisión del own
 | Captura de datos para la planta | `ejemplos/plantilla_diagnostico_vapor.xlsx` (M21) | hecha: hoja de Excel en unidades de planta; ninguna planta la ha llenado |
 | De la hoja al reporte entregable, un solo paso | `./vapor diagnostico archivo.xlsx` (M21) | hecho: HTML autocontenido con indicadores y gráficas, PDF, Markdown y JSON; ejemplo en `ejemplos/diagnostico_vapor/` |
 | Diagnóstico con mediciones publicadas de calderas reales | `notebooks/33_calderas_reales_publicadas.py` (M22) | hecho: caldera de una fábrica de alimentos en México (tesina de la UNAM): eficiencia de combustión a 0.04 puntos del analizador; caldera en Tucumán: CO2 y exceso de aire coinciden, y el diagnóstico señala la inconsistencia de la fuente |
+| Caso real de punta a punta por la plantilla | `./vapor caso-real` (M23) | hecho: la caldera de la tesina de la UNAM; 81.6 % por pérdidas contra 81.0 % con los medidores de la planta |
 | Diagnóstico con datos de una planta piloto propia | — | no existe: 0 plantas |
 
 ## Qué es nuevo y qué no

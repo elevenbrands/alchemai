@@ -34,7 +34,9 @@ Chrome), `reporte.md` y `resultado.json`.
 | No tiene | Qué hace en la hoja | Qué usa el diagnóstico |
 |---|---|---|
 | Análisis del gas natural | Deja vacía la composición y da el recibo con energía y volumen | Composición ajustada al poder calorífico del recibo |
-| Pérdida por paredes de la caldera | Marca «No la conozco» | 1.0 % a plena carga, de una guía del Departamento de Energía de EE. UU. |
+| Pérdida por paredes de la caldera | Marca «No la conozco» y, si puede, el tipo de caldera y su capacidad | Tubos de humo: la tabla del fabricante Cleaver-Brooks según tamaño, presión y carga. Tubos de agua o sin tipo: 1.0 % a plena carga, de una guía del Departamento de Energía de EE. UU. |
+| Precio del agua | Lo deja vacío | El costo del vapor sale sin agua y el reporte lo avisa |
+| Humedad del aire | La deja vacía | Aire seco, con el efecto máximo indicado |
 | Objetivo de oxígeno o de chimenea | Marca «usar el publicado» | 10 % de exceso de aire; chimenea a 121 °C (solo gas natural) |
 | Barómetro | Da la altitud | Atmósfera estándar |
 | Cotización de una medida | La deja vacía | Da el ahorro y el tope de inversión; no estima el retorno |
@@ -48,6 +50,14 @@ Todo lo demás se pide. Los detalles y las fuentes están en `docs/DATOS_PARA_DI
 ```
 
 Escribe una hoja llena con una planta **inventada** y su reporte. Hay una copia en `ejemplos/diagnostico_vapor/`.
+
+```bash
+./vapor caso-real carpeta_de_prueba
+```
+
+Hace lo mismo con una caldera **real**: la de una fábrica de alimentos del Valle de México, medida y publicada en una tesina de la UNAM (2021). No es un cliente. Hay una copia en `ejemplos/caso_real_unam_2021/`.
+
+Si las listas desplegables de la hoja no aparecen en tu programa, escribe la unidad a mano (por ejemplo `kg/cm2 man` o `°C`): el lector la reconoce.
 
 ## Lo que no hace
 

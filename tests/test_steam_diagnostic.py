@@ -304,7 +304,7 @@ def test_missing_essentials_are_refused_once_with_everything_that_is_missing():
                                    {"steam_pressure_Pa": 9e5}, {"feedwater_heating": "deaerator_steam"})
     msg = str(e.value)
     for needle in ("no se suponen", "combustion.flue_O2", "combustion.stack_T_K", "setting_loss_fraction", "blowdown_fraction",
-                   "water.feedwater_T_K", "makeup_water_T_K", "condensate_return_fraction", "fuel_cost", "water_cost"):
+                   "water.feedwater_T_K", "makeup_water_T_K", "condensate_return_fraction", "fuel_cost"):
         assert needle in msg, needle
     with pytest.raises(ValueError, match="condensate_T_K"):
         TS.steam_system_diagnostic(**plant(water={"condensate_T_K": None}))
