@@ -65,10 +65,13 @@ def fired_heater_radiant(mode: str, fuel: dict | None = None, air: dict | None =
       número de tubos; después se evalúa el hogar con mode='rating'.
 
     Emisividad del gas: suma ponderada de gases grises de Smith, Shen y Friedman (1982) para CO2 + H2O a 1 atm; longitud de
-    haz 3.6 V/A. Validado contra los ejemplos 19.1 y 19.2 de Kern (método de Lobo-Evans): carga radiante ±5 %, temperatura
-    de pared divisoria ±35 K, en hornos de caja de una fila con llama no luminosa. La emisividad de Smith 1982 concuerda con
-    Leckner 1972 (−12 a +18 %); las cartas de Kern son el valor atípico. No hay flujo pico ni zonas. Devuelve evidence,
-    warnings, assumptions y not_included."""
+    haz 3.6 V/A. Validado contra cuatro hogares publicados: ejemplos 19.1 y 19.2 de Kern (−3.2 % y −1.7 % en carga, +33 K y
+    +11 K), el hogar de caja del tutorial de Esteem Projects (−1.4 %, +10 a +13 K) y un cilíndrico vertical con hoja de datos
+    API 560 de Heat Transfer Consult (pared divisoria −5 K frente a su Lobo-Evans). Banda a esperar: carga radiante ±5 %,
+    temperatura de pared divisoria ±35 K, en hornos de una fila de tubos frente a refractario con llama no luminosa; con varios
+    diámetros de tubo da alpha y un tubo equivalente (mismas áreas de tubo y de plano frío). La emisividad de Smith 1982
+    concuerda con Leckner 1972 (−12 a +18 %); las cartas de Kern son el valor atípico. No hay flujo pico ni zonas. Devuelve
+    evidence, warnings, assumptions y not_included."""
     if mode == "sizing":
         g = geometry or {}
         return FH.radiant_sizing(required_radiant_duty_W, allowable_average_flux_W_m2, g.get("tube_outside_diameter_m"),
@@ -83,8 +86,9 @@ def fired_heater_radiant(mode: str, fuel: dict | None = None, air: dict | None =
 def fired_heater_convection(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s: float, gas_inlet_T_K: float, bank: dict,
                             process: dict, excess_air_fraction: float | None = None, flue_O2: dict | None = None,
                             flue_CO_dry_mole_fraction: float | None = None, gas_radiation: bool = True) -> dict:
-    """Sección de convección de un horno o caldera: gases de combustión cruzando un banco de tubos lisos, fila por fila, hasta
-    la chimenea. Sirve para que la temperatura de chimenea sea un resultado: pásala luego a combustion_efficiency.
+    """Sección de convección de un horno o caldera: gases de combustión cruzando un banco de tubos (lisos, aletados o con
+    pernos), fila por fila, hasta la chimenea. Sirve para que la temperatura de chimenea sea un resultado: pásala luego a
+    combustion_efficiency.
 
     fuel, air, pressure_Pa, excess_air_fraction o flue_O2: como en combustion_efficiency. fuel_flow_kg_s: combustible quemado.
     gas_inlet_T_K: temperatura del gas que entra al banco (bridgewall_T_K de fired_heater_radiant).
@@ -92,16 +96,22 @@ def fired_heater_convection(fuel: dict, air: dict, pressure_Pa: float, fuel_flow
       transverse_pitch_m, longitudinal_pitch_m, arrangement: 'staggered'|'inline', wall_conductivity_W_mK,
       outside_fouling_m2K_W, tube_emissivity; opcional duct_width_m y mean_beam_length_m; tube_type: 'bare' (por defecto),
       'solid_fin' o 'serrated_fin' (aletados: fin_height_m, fin_thickness_m, fins_per_m, fin_conductivity_W_mK; aleta
-      segmentada además fin_segment_width_m). Tubos con espárragos (studs) no se modelan}.
+      segmentada además fin_segment_width_m) o 'studded' (con pernos: stud_length_m, stud_diameter_m, studs_per_plane,
+      stud_planes_per_m (planos de pernos por metro de tubo), stud_conductivity_W_mK)}. Bancos con tipos de tubo mezclados
+      no se modelan en una sola llamada: encadena una llamada por tramo.
     process: {inlet_T_K (entra por el lado frío del gas, contracorriente), capacity_rate_W_K (flujo × cp) o isothermal: true
       (ebullición), inside_coefficient_W_m2K, inside_fouling_m2K_W}.
-    gas_radiation=False quita la radiación del gas entre tubos (cota inferior de la carga).
+    gas_radiation=False quita la radiación del gas entre tubos (cota inferior de la carga; sin efecto con pernos).
 
     Convección exterior: tubos lisos con Žukauskas 1972 y el arreglo declarado; aletados con la correlación ESCOA revisada
-    (Ganapathy, apéndice E) y eficiencia de aleta; propiedades del gas de Cantera. Validado: tubos lisos, coeficiente ±10 % y
-    carga de la sección ±12 % (Incropera 7.7, Çengel 7-7, Nelson ej. 68); aletados en línea, coeficiente y U ±5 % (Ganapathy
-    E.1 y E.10); aletados en tresbolillo ±10 % (sin ejemplo con la versión revisada). Devuelve stack_T_K, duty_W,
-    process_outlet_T_K, max_tube_wall_T_K, la tabla por fila, evidence, warnings, assumptions y not_included."""
+    (Ganapathy, apéndice E) y eficiencia de aleta; con pernos, la correlación del tutorial de Esteem Projects (la radiación del
+    gas va dentro de ella); propiedades del gas de Cantera. Validado: tubos lisos, coeficiente ±10 % y carga de la sección
+    ±12 % (Incropera 7.7, Çengel 7-7, Nelson ej. 68); aletados en línea, coeficiente y U ±5 % (Ganapathy E.1 y E.10,
+    transcritos de una copia sin autorización verificada: pendiente cotejar); aletados en tresbolillo ±10 % (sin ejemplo con
+    la versión revisada); con pernos NO validado (sin ejemplo resuelto publicado; en el límite sin pernos su coeficiente queda
+    31 % bajo el tubo liso con radiación de este módulo: posible subestimación).
+    Devuelve stack_T_K, duty_W, process_outlet_T_K, max_tube_wall_T_K, la tabla por fila, evidence, warnings, assumptions y
+    not_included."""
     return FH.convection_section(fuel, air, pressure_Pa, fuel_flow_kg_s, gas_inlet_T_K, bank, process, excess_air_fraction,
                                  flue_O2, flue_CO_dry_mole_fraction, gas_radiation)
 

@@ -23,9 +23,11 @@ PSA (`psa_skarstrom`): pressurisation (with feed or with product), high-pressure
 countercurrent purge with product, repeated until the cyclic steady state. Bulk binary: the velocity along the bed
 follows from the total balance at uniform pressure,
     d(uC)/dz = -eps dC/dt - rho_b sum_i dq_i/dt ,   C = P(t)/(R T)
-with LDF uptake and linear pressure ramps. For linear isotherms the result is set against the equilibrium theory
-(method of characteristics, no dispersion, instantaneous uptake; the binary-linear-isotherm analysis of Shendalman &
-Mitchell 1972 and Knaebel & Hill 1985, re-derived in `psa_equilibrium_theory`)."""
+with LDF uptake and linear pressure ramps. The result is set against the equilibrium theory (method of characteristics,
+no dispersion, instantaneous uptake): for linear isotherms the binary analysis of Shendalman & Mitchell 1972 and
+Knaebel & Hill 1985, re-derived in `psa_equilibrium_theory`; for Langmuir / extended-Langmuir isotherms the same cycle
+with pressurisation by product, re-derived here from the shock (Rankine-Hugoniot) conditions of the feed step and the
+slowest (c_A -> 0) characteristic of the purge in `psa_equilibrium_theory_nonlinear`."""
 from __future__ import annotations
 
 import math
@@ -536,6 +538,81 @@ def psa_equilibrium_recovery(beta: float, pressure_ratio: float, heavy_feed_mole
     return (f * (1.0 + (beta - 1.0) * yF) - g * inv - beta * (1.0 - inv)) / (f * (1.0 - yF))
 
 
+def psa_equilibrium_theory_nonlinear(bed_length_m: float, bed_void_fraction: float, bulk_density_kg_m3: float, T_K: float,
+                                     isotherms: list, high_pressure_Pa: float, low_pressure_Pa: float,
+                                     heavy_feed_mole_fraction: float, feed_velocity_m_s: float, purge_velocity_m_s: float,
+                                     feed_time_s: float, purge_time_s: float) -> dict:
+    """Equilibrium theory of the four-step cycle with pressurisation by product for linear, Langmuir or extended-Langmuir
+    isotherms (isotherms = [heavy, light] isotherm dicts; instantaneous uptake, plug flow, isothermal, uniform pressure).
+
+    Feed step at C_H = P_H/(R T) into a bed of pure light gas B: the heavy front is a shock whose jump conditions
+        A:      w (eps C_H y_F + rho_b q_A,F) = u_F C_H y_F
+        total:  w rho_b (q_A,F + q_B,F - q_B(0, C_H)) = C_H (u_F - u_out)
+    give the breakthrough time t_bt = L / w and the velocity u_out of the pure product (q_*,F at the feed mixture). The
+    shock is admissible (Oleinik/Liu) when w(y_F -> 0) <= w(y_F -> y) for every 0 < y < y_F, with
+        w(y_F -> y) = C u_F dy / (eps C dy + rho_b (dq_A - y dQ)),   d(.) = (.)(y_F) - (.)(y),  Q = q_A + q_B.
+    Purge at C_L with pure B: the slowest characteristic is c_A -> 0, speed u_P / (eps + rho_b dq_A/dc_A|0), so a purge
+    of t_P >= L (eps + rho_b dq_A/dc_A|0) / u_P leaves the bed clean whatever the blowdown left (sufficient bound; for a
+    favourable isotherm the desorption wave is a simple wave and never overtakes it). Per unit cross-section and cycle
+        gross product  u_out C_H t_F            pressurisation  L [eps (C_H - C_L) + rho_b (q_B(0, C_H) - q_B(0, C_L))]
+        purge          u_P C_L t_P              recovery R = (gross - pressurisation - purge) / (u_F C_H t_F (1 - y_F))
+    with a pure product, valid for t_F <= t_bt, t_P >= the bound and an admissible shock; for linear isotherms it reduces
+    exactly to `psa_equilibrium_recovery`."""
+    eps, rho_b, L = bed_void_fraction, bulk_density_kg_m3, bed_length_m
+    if len(isotherms) != 2:
+        raise ValueError("isotherms debe tener dos isotermas: [gas pesado, gas ligero].")
+    for i, s in enumerate(isotherms):
+        if (s or {}).get("model") not in ("linear", "langmuir"):
+            raise ValueError(f"isotherms[{i}]: la teoría de equilibrio no lineal solo está derivada para isotermas lineales o de "
+                             f"Langmuir (recibido {(s or {}).get('model')!r}).")
+    iso = _parse_isotherms([{"isotherm": s} for s in isotherms], "isotherms")
+    RT = R_GAS * T_K
+    CH, CL = high_pressure_Pa / RT, low_pressure_Pa / RT
+    yF, uF, uP = heavy_feed_mole_fraction, feed_velocity_m_s, purge_velocity_m_s
+
+    def q(cA, cB) -> np.ndarray:
+        cA, cB = np.atleast_1d(np.asarray(cA, float)), np.atleast_1d(np.asarray(cB, float))
+        return iso["qstar"](np.vstack([cA, cB]))
+
+    qF = q(CH * yF, CH * (1.0 - yF))[:, 0]
+    qBH, qBL = float(q(0.0, CH)[1, 0]), float(q(0.0, CL)[1, 0])
+    w = uF * CH * yF / (eps * CH * yF + rho_b * qF[0])
+    t_bt = L / w
+    u_out = uF - w * rho_b * (qF[0] + qF[1] - qBH) / CH
+    y = np.linspace(0.0, yF, 401)[1:-1]
+    qy = q(CH * y, CH * (1.0 - y))
+    dy, dqA, dQ = yF - y, qF[0] - qy[0], (qF[0] + qF[1]) - (qy[0] + qy[1])
+    den = eps * CH * dy + rho_b * (dqA - y * dQ)
+    shock_ok = bool(np.all(den > 0.0) and np.all(CH * uF * dy / den >= w * (1.0 - 1e-9)))
+    dc = 1e-9 * CH * yF
+    slope0 = float(q(dc, CL)[0, 0]) / dc                  # dq_A/dc_A at c_A -> 0 in pure B at C_L
+    t_pb = L * (eps + rho_b * slope0) / uP if uP > 0 else None
+    n_feed = uF * CH * feed_time_s
+    n_gross = u_out * CH * feed_time_s
+    n_pr = L * (eps * (CH - CL) + rho_b * (qBH - qBL))
+    n_pu = uP * CL * purge_time_s
+    f = feed_time_s / t_bt
+    g = purge_time_s / t_pb if t_pb else 0.0
+    ok = shock_ok and u_out > 0 and f <= 1.0 + 1e-12 and g >= 1.0 - 1e-12
+    out = {"beta_heavy_at_origin": eps / (eps + rho_b * slope0), "heavy_loading_at_feed_mol_kg": float(qF[0]),
+           "light_loading_at_feed_mol_kg": float(qF[1]), "feed_shock_velocity_m_s": w, "feed_time_to_breakthrough_s": t_bt,
+           "feed_shock_admissible": shock_ok, "product_velocity_during_feed_m_s": u_out,
+           "product_to_feed_molar_ratio_during_feed_step": u_out / uF, "purge_time_bound_to_clean_bed_s": t_pb,
+           "this_cycle_feed_time_over_breakthrough": f, "this_cycle_purge_time_over_bound": g,
+           "per_cycle_mol_m2": {"feed": n_feed, "gross_product_light": n_gross, "pressurization_gas_light": n_pr,
+                                "purge_gas_light": n_pu},
+           "light_recovery_this_cycle": float((n_gross - n_pr - n_pu) / (n_feed * (1.0 - yF))) if ok else None,
+           "note": ("forma cerrada para presurización con producto: vale con alimentación hasta la ruptura o menos, purga mayor "
+                    "o igual que la cota de limpieza y frente de alimentación de choque; el producto es puro")}
+    if not ok:
+        why = [] if shock_ok else ["el frente de alimentación no es un choque admisible"]
+        why += [] if f <= 1.0 + 1e-12 else ["la alimentación pasa del tiempo de ruptura"]
+        why += [] if g >= 1.0 - 1e-12 else ["la purga es menor que la cota de limpieza del lecho"]
+        why += [] if u_out > 0 else ["no sale producto durante la alimentación"]
+        out["light_recovery_this_cycle_note"] = "fuera del dominio de la forma cerrada: " + "; ".join(why)
+    return out
+
+
 def _psa_cycle_run(p: dict, N: int, max_cycles: int, css_tol: float) -> dict:
     L, eps, rho_b, T = p["L"], p["eps"], p["rho_b"], p["T"]
     PH, PL = p["PH"], p["PL"]
@@ -771,11 +848,32 @@ def psa_skarstrom(bed_length_m: float | None = None, bed_void_fraction: float | 
             validation = "NO VALIDADO: el producto pedido no es el gas menos adsorbido"
             warnings.append(f"{product_component} no es el gas menos adsorbido según las constantes de Henry dadas: el producto del "
                             "extremo de salida no se enriquece en él.")
+    elif all(m in ("linear", "langmuir") for m in iso["models"]):
+        th = psa_equilibrium_theory_nonlinear(L, eps, rho_b, T, [comps[order[0]]["isotherm"], comps[order[1]]["isotherm"]], PH,
+                                              PL, float(z[order[0]]), uF, uP, t_f, t_pu)
+        r_et = th["light_recovery_this_cycle"] if pressurization_with == "product" else None
+        if pressurization_with != "product":
+            th["light_recovery_this_cycle"] = None
+            th["light_recovery_this_cycle_note"] = "la forma cerrada solo vale con presurización con producto"
+        if r_et is not None:
+            ev["equilibrium_theory_recovery_abs_diff"] = abs(perf["recovery"] - r_et)
+            ev["equilibrium_theory_note"] = ("informativo: la teoría de equilibrio supone transferencia instantánea y sin "
+                                             "dispersión; con LDF finito la diferencia no anula la verificación numérica")
+            validation = ("comparable con la teoría de equilibrio para isotermas de Langmuir (choque de alimentación y purga "
+                          "por encima de la cota de limpieza); ver equilibrium_theory y "
+                          "evidence.equilibrium_theory_recovery_abs_diff")
+        else:
+            validation = ("NO VALIDADO: con isotermas no lineales la forma cerrada de la teoría de equilibrio solo vale con "
+                          "presurización con producto, alimentación hasta la ruptura o menos, purga por encima de la cota de "
+                          "limpieza y frente de alimentación de choque; este ciclo cae fuera (ver equilibrium_theory)")
+            warnings.append("Ciclo PSA con isotermas no lineales fuera del dominio comparado con la teoría de equilibrio: solo se "
+                            "certifican balance, estado cíclico estacionario y malla; úsalo para tendencias, no para diseño.")
+        out["equilibrium_theory"] = th
     else:
-        validation = ("NO VALIDADO: con isotermas no lineales no hay solución conocida con la que comparar; solo se certifican "
+        validation = ("NO VALIDADO: con isoterma de Freundlich no hay solución conocida con la que comparar; solo se certifican "
                       "el cierre de balance, el estado cíclico estacionario y la independencia de malla")
-        warnings.append("Ciclo PSA con isotermas no lineales: NO VALIDADO contra una solución de referencia; úsalo para tendencias, "
-                        "no para diseño.")
+        warnings.append("Ciclo PSA con isoterma de Freundlich: NO VALIDADO contra una solución de referencia; úsalo para "
+                        "tendencias, no para diseño.")
     if perf["purity"] < float(z[prod]):
         warnings.append("La pureza del producto es menor que la de la alimentación: el ciclo no separa en estas condiciones.")
     assumptions = ["Un solo lecho, isotérmico, sin caída de presión axial; gas ideal; mezcla binaria en la que ambos gases pueden "

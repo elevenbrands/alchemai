@@ -18,6 +18,13 @@ Choice of method for a temperature-dependent property (the only decision taken h
   3. the best-ranked method of any basis whose range contains T (an estimate, flagged); otherwise
   4. the library's default method extrapolated (flagged).
 
+Transport properties (viscosity, thermal conductivity, surface tension; block L4): measured on 2026-11-15 against NIST
+WebBook in 19 fluids (tests/test_transport_properties.py), CoolProp's dedicated reference correlation of a fluid replaces
+thermo's value only where it matched NIST within 1 % (several of CoolProp's correlations are older than REFPROP's and
+deviate: n-pentane viscosity up to 45 %, ammonia 13 %); elsewhere thermo's value is kept, CoolProp's correlation is
+attached as `reference_check` and disagreements are flagged. With P_Pa in the gas phase the dense-gas values come from
+the reference correlation (dilute + residual + critical terms) when one exists.
+
 Evidence: thermodynamic cross-checks between independent pieces of the library's data for this compound, not a check of
 the user's data: Psat(Tb) against 1 atm, the acentric factor against its definition, and (if T is given) ΔHvap against
 the Clapeyron equation with the saturated volumes."""
@@ -27,7 +34,8 @@ import difflib
 import math
 import re
 import unicodedata
-from functools import lru_cache
+from contextlib import contextmanager
+from functools import lru_cache, wraps
 
 R_GAS = 8.314462618            # J/(mol K), CODATA 2018
 P_ATM = 101325.0               # Pa
@@ -39,6 +47,13 @@ SAT_MARGIN = 1e-3              # the saturated vapour volume is evaluated at Psa
 CLAPEYRON_MAX_TR = 0.95        # above this reduced temperature the Clapeyron check is ill-conditioned (Vg - Vl -> 0)
 PSAT_TC_TOL = 0.03             # |Psat(Tc)/Pc - 1|: the vapour-pressure correlation must end at the tabulated critical point
 SPREAD_WARN = 0.05             # relative spread among data-based methods that triggers a warning
+# transport properties (block L4, tests/test_transport_properties.py)
+NIST_AGREE_TOL = 0.01          # a CoolProp transport correlation replaces thermo's value only if it matched NIST within this
+TRANSPORT_CHECK_TOL = 0.02     # |thermo value / CoolProp reference correlation - 1| above which the value is flagged
+METHOD_BAND_FLAG = 0.05        # p90 of a thermo method's measured deviation above which its values are flagged
+NEAR_CRITICAL_TR = 0.95        # above this T/Tc the liquid transport properties of independent sources diverge (measured)
+DILUTE_RHO_MOL_M3 = 1e-6       # molar density at which CoolProp is evaluated for the dilute-gas (zero-density) limit
+DENSE_GAS_RHO_R = 0.02         # ρ/ρc above which a dilute-gas transport value is warned (N2 at ρ/ρc 0.18: -2 to -5 %)
 # library methods that are data but NOT the quantity reported here (excluded from the spread among data methods)
 _OTHER_QUANTITY = {("Cp_ideal_gas_J_molK", "VDI_TABULAR"): "Cp del vapor saturado real, no del gas ideal"}
 
@@ -401,12 +416,266 @@ def _gas_volume(vg, T: float, P: float) -> dict:
     return {"value": None, "method": None, "note": "thermo no tiene método de volumen de gas para este compuesto"}
 
 
+# ---- transport properties: reference correlations through CoolProp ---------------------------------------------------
+# max |CoolProp 8.0.0 / NIST WebBook - 1| measured on 2026-11-15 (tests/test_transport_properties.py, WebBook tables read
+# that day) over the saturated liquid (6 T from near the triple point to T/Tc ≈ 0.99), the gas at 1 kPa and the gas at
+# 5-10 MPa. Tuple: (viscosity, thermal conductivity); None = CoolProp has no correlation.
+_CP_VS_NIST = {
+    "109-66-0": (0.45, 0.16), "7664-41-7": (0.13, 0.14), "74-82-8": (0.038, 0.0075), "108-88-3": (0.00011, 0.002),
+    "7727-37-9": (0.00026, 0.00022), "124-38-9": (0.00019, 0.00018), "74-98-6": (0.019, 0.0025),
+    "67-56-1": (0.0001, 0.0001), "7783-06-4": (0.092, None), "110-54-3": (0.00013, 0.00091),
+    "811-97-2": (0.00013, 0.00091), "1333-74-0": (0.0001, 0.00073), "7440-37-1": (0.00024, 0.00022),
+    "74-84-0": (0.033, 0.015), "7782-44-7": (0.0003, 0.0001), "71-43-2": (0.0025, 0.0014), "106-97-8": (0.053, 0.0012),
+    "142-82-5": (0.053, 0.0063), "7732-18-5": (0.0001, 0.0001),
+}
+# same for the surface tension (CoolProp: Mulero et al. 2012/2014): (T/Tc ≤ 0.95, T/Tc > 0.95)
+_CP_SIGMA_VS_NIST = {
+    "109-66-0": (0.00011, 0.00075), "7664-41-7": (0.0056, 0.068), "74-82-8": (0.00025, 0.0013),
+    "108-88-3": (0.00013, 0.00086), "7727-37-9": (0.00025, 0.0024), "124-38-9": (0.0001, 0.002),
+    "74-98-6": (0.00013, 0.00013), "67-56-1": (0.00014, 0.00051), "7783-06-4": (0.00014, 0.0014),
+    "110-54-3": (0.00015, 0.0015), "811-97-2": (0.00012, 0.0011), "1333-74-0": (0.00016, 0.00025),
+    "7440-37-1": (0.00023, 0.0022), "74-84-0": (0.00014, 0.0012), "7782-44-7": (0.00036, 0.0028),
+    "71-43-2": (0.0001, 0.0005), "106-97-8": (0.0001, 0.0017), "142-82-5": (0.0022, 0.026), "7732-18-5": (0.011, 0.028),
+}
+# CAS keys of both tables (values rounded up to two significant figures):
+# 109-66-0 n-Pentane, 7664-41-7 Ammonia, 74-82-8 Methane, 108-88-3 Toluene, 7727-37-9 Nitrogen, 124-38-9 CarbonDioxide,
+# 74-98-6 Propane, 67-56-1 Methanol, 7783-06-4 HydrogenSulfide, 110-54-3 n-Hexane, 811-97-2 R134a, 1333-74-0 Hydrogen,
+# 7440-37-1 Argon, 74-84-0 Ethane, 7782-44-7 Oxygen, 71-43-2 Benzene, 106-97-8 n-Butane, 142-82-5 n-Heptane,
+# 7732-18-5 Water
+# thermo methods kept in preference to CoolProp for one property (they are the ones NIST WebBook uses)
+_THERMO_PREFERRED = {"sigma_N_m": {"IAPWS_SIGMA"}}
+# measured |thermo method / reference correlation - 1| (p90, max, n points) on 2026-11-15: references = the CoolProp
+# correlations that matched NIST WebBook within 1 % (mu: 11 fluids, k: 15, sigma: 18 at T/Tc ≤ 0.95); saturated liquid
+# at 5 T from the triple point to 0.92 of the way to Tc, dilute gas at up to 6 T between 0.6·Tc and the EOS Tmax. thermo's
+# own COOLPROP gas method is the gas at 1 atm or saturated vapour, not the dilute limit, hence its larger band.
+_METHOD_BAND = {
+    "k_gas_W_mK": {"BAHADORI_G": (0.933, 49.9, 68), "CHUNG": (0.0835, 0.259, 82), "COOLPROP": (0.0166, 0.0924, 45),
+        "DIPPR_9B": (0.111, 0.231, 82), "DIPPR_PERRY_8E": (0.038, 0.115, 64), "ELI_HANLEY": (0.159, 0.344, 82),
+        "EUCKEN": (0.233, 0.283, 82), "EUCKEN_MOD": (0.145, 0.402, 82), "GHARAGHEIZI_G": (0.525, 7.49, 82),
+        "REFPROP_FIT": (0.0139, 0.0779, 82), "VDI_PPDS": (0.0626, 0.482, 78), "VDI_TABULAR": (0.399, 0.894, 27)},
+    "k_liquid_W_mK": {"BAHADORI_L": (1.05, 2.57, 68), "COOLPROP": (0.00026, 0.000779, 75),
+        "DIPPR_PERRY_8E": (0.0519, 0.182, 53), "GHARAGHEIZI_L": (0.404, 0.807, 52), "LAKSHMI_PRASAD": (2.76, 9.86, 51),
+        "NICOLA": (0.527, 2.56, 75), "NICOLA_ORIGINAL": (0.704, 2.15, 75), "REFPROP_FIT": (0.00134, 0.00609, 57),
+        "SATO_RIEDEL": (0.627, 8.5, 75), "SHEFFY_JOHNSON": (2.74, 8.67, 75), "VDI_PPDS": (0.0764, 0.274, 65),
+        "VDI_TABULAR": (0.145, 0.319, 42)},
+    "mu_gas_Pa_s": {"COOLPROP": (0.00599, 0.0263, 59), "DIPPR_PERRY_8E": (0.0315, 0.0715, 52),
+        "GHARAGHEIZI": (0.217, 0.4, 58), "LUCAS_GAS": (0.0353, 0.0736, 54), "REFPROP_FIT": (0.00593, 0.0126, 59),
+        "STIEL_THODOS": (0.21, 0.372, 59), "VDI_PPDS": (0.0779, 1.35, 49), "VDI_TABULAR": (0.238, 0.555, 19),
+        "YOON_THODOS": (0.221, 0.355, 59)},
+    "mu_liquid_Pa_s": {"COOLPROP": (0.000962, 0.00631, 55), "DIPPR_PERRY_8E": (0.0794, 0.483, 42),
+        "DUTT_PRASAD": (0.0152, 0.0413, 6), "JOBACK": (0.781, 115, 22), "LETSOU_STIEL": (0.575, 0.995, 55),
+        "PRZEDZIECKI_SRIDHAR": (63.1, 653, 42), "REFPROP_FIT": (0.00143, 0.00631, 55), "VDI_PPDS": (0.129, 1.02, 45),
+        "VDI_TABULAR": (0.119, 0.352, 27), "VISWANATH_NATARAJAN_2": (5.29e+04, 6.76e+04, 4),
+        "VISWANATH_NATARAJAN_3": (0.0369, 0.0414, 4)},
+    "sigma_N_m": {"Aleem": (0.944, 0.985, 30), "BROCK_BIRD": (0.18, 1.22, 81), "JASPER": (0.0225, 0.0749, 12),
+        "MIQUEU": (0.153, 1.42, 81), "PITZER_SIGMA": (0.219, 1.31, 81), "REFPROP": (0, 0, 74),
+        "REFPROP_FIT": (9.19e-05, 0.00415, 81), "SASTRI_RAO": (0.197, 1.17, 81), "SOMAYAJULU": (0.0737, 0.208, 63),
+        "SOMAYAJULU2": (0.0497, 0.208, 63), "VDI_PPDS": (0.0914, 0.237, 73), "VDI_TABULAR": (0.0678, 0.215, 51),
+        "ZUO_STENBY": (0.139, 1.17, 81)},
+}
+_TRANSPORT_KEYS = {"mu_liquid_Pa_s": ("mu", "liquid"), "mu_gas_Pa_s": ("mu", "gas"), "k_liquid_W_mK": ("k", "liquid"),
+                   "k_gas_W_mK": ("k", "gas"), "sigma_N_m": ("sigma", "liquid")}
+
+
+@lru_cache(maxsize=128)
+def _coolprop_fluid(cas: str) -> dict | None:
+    """CoolProp fluid for a CAS number and the kind of transport correlation it carries: 'reference' (a dedicated
+    correlation published for that fluid and fitted to its data) or 'ECS' / 'Chung' / 'rhosr-CSS' (corresponding states,
+    never used here) or 'none'."""
+    try:
+        import json
+        import CoolProp
+        import CoolProp.CoolProp as CP
+        name = CP.get_fluid_param_string(cas, "name")
+        j = json.loads(CP.get_fluid_param_string(name, "JSON"))
+        j = j[0] if isinstance(j, list) else j
+        tc, tmax, pmax = CP.PropsSI("Tcrit", name), CP.PropsSI("Tmax", name), CP.PropsSI("pmax", name)
+        tmin = max(CP.PropsSI("Tmin", name), CP.PropsSI("T_triple", name))
+    except Exception:  # noqa: BLE001 — not a CoolProp fluid
+        return None
+    transport = j.get("TRANSPORT") or {}
+    kinds = {}
+    for short, key in (("mu", "viscosity"), ("k", "conductivity")):
+        x = transport.get(key)
+        if isinstance(x, dict) and x and not x.get("type"):
+            kinds[short] = ("reference", x.get("BibTeX") or x.get("hardcoded"))
+        elif isinstance(x, (dict, list)) and x:
+            first = x[0] if isinstance(x, list) else x
+            kinds[short] = (str(first.get("type")), first.get("BibTeX"))
+        else:
+            kinds[short] = ("none", None)
+    st = (j.get("ANCILLARIES") or {}).get("surface_tension") or {}
+    kinds["sigma"] = ("reference", st.get("BibTeX") or "Mulero") if st else ("none", None)
+    return {"name": name, "cas": CP.get_fluid_param_string(name, "CAS"), "kinds": kinds, "Tc": tc, "Tmin": tmin,
+            "Tmax": tmax, "pmax": pmax,
+            "version": CoolProp.__version__}
+
+
+def _coolprop_value(fl: dict, what: str, state: str, T: float, P: float | None = None) -> float | None:
+    """CoolProp transport value: state 'liquid' = saturated liquid, 'dilute' = zero-density gas, 'gas' = gas at T, P."""
+    import CoolProp.CoolProp as CP
+    try:
+        st = CP.AbstractState("HEOS", fl["name"])
+        if state == "liquid":
+            st.update(CP.QT_INPUTS, 0.0, T)
+        elif state == "dilute":
+            st.update(CP.DmolarT_INPUTS, DILUTE_RHO_MOL_M3, T)
+        else:
+            st.update(CP.PT_INPUTS, P, T)
+            if st.phase() in (CP.iphase_liquid, CP.iphase_twophase):
+                return None
+        v = st.viscosity() if what == "mu" else st.conductivity() if what == "k" else st.surface_tension()
+    except Exception:  # noqa: BLE001 — outside the correlation or the EOS
+        return None
+    return float(v) if math.isfinite(v) and v > 0 else None
+
+
+def _nist_band(fl: dict, what: str, T: float) -> float | None:
+    if what == "sigma":
+        b = _CP_SIGMA_VS_NIST.get(fl["cas"])
+        return None if b is None else b[0 if T <= NEAR_CRITICAL_TR * fl["Tc"] else 1]
+    b = _CP_VS_NIST.get(fl["cas"])
+    return None if b is None else b[0 if what == "mu" else 1]
+
+
+def _add_flag(d: dict, text: str) -> None:
+    d["flag"] = f"{d['flag']}; {text}" if d.get("flag") else text
+
+
+def _transport(key: str, p: dict, cas: str, T: float, tc: float | None, sigma_obj=None) -> dict:
+    """Saturated-liquid / dilute-gas transport value: CoolProp's reference correlation when it matched NIST WebBook
+    (measured), else thermo's value cross-checked against that correlation; plus the measured band of thermo's method."""
+    what, phase = _TRANSPORT_KEYS[key]
+    out = dict(p)
+    band = _METHOD_BAND.get(key, {}).get(p.get("method"))
+    if p.get("value") is not None and band:
+        out["measured_band_rel"] = {"p90": band[0], "max": band[1], "n_points": band[2]}
+        if band[0] > METHOD_BAND_FLAG:
+            _add_flag(out, f"en la validación contra correlaciones de referencia este método ({p['method']}) se apartó más "
+                           f"de un {100 * band[0]:.0f} % en el 10 % peor de {band[2]} puntos (máx. {100 * band[1]:.0f} %)")
+    fl = _coolprop_fluid(cas)
+    kind, bib = fl["kinds"][what] if fl else ("none", None)
+    if kind != "reference":
+        out["reference_correlation"] = None
+        if p.get("value") is not None:
+            out["note"] = (out.get("note") or "") + ("; CoolProp no tiene correlación de referencia para este compuesto"
+                                                    if kind == "none" else
+                                                    f"; CoolProp solo tiene un modelo de estados correspondientes ({kind})")
+    else:
+        inside = fl["Tmin"] <= T < fl["Tc"] if phase == "liquid" else fl["Tmin"] <= T <= fl["Tmax"]
+        ref = _coolprop_value(fl, what, "liquid" if phase == "liquid" else "dilute", T) if inside else None
+        nist = _nist_band(fl, what, T)
+        # sigma: Mulero's correlation matched NIST in 18 of 19 fluids (water uses IAPWS), so it is used for every fluid
+        use = ref is not None and p.get("method") not in _THERMO_PREFERRED.get(key, ()) and (
+            what == "sigma" or (nist is not None and nist <= NIST_AGREE_TOL))
+        state_txt = "líquido saturado" if phase == "liquid" else "límite de gas diluido"
+        nist_txt = (f"; contra NIST WebBook se apartó como máximo un {100 * nist:.2g} % (medido)" if nist is not None
+                    else "; no contrastada con NIST WebBook en esta herramienta")
+        if use:
+            lim = [float(fl["Tmin"]), float(fl["Tc"] if phase == "liquid" else fl["Tmax"])]
+            data_lim = None
+            if what == "sigma" and sigma_obj is not None and "REFPROP" in dict(sigma_obj.T_limits):
+                data_lim = [float(x) for x in dict(sigma_obj.T_limits)["REFPROP"]]
+            new = {"value": ref, "method": "COOLPROP_REFERENCE", "basis": "data", "estimated": False, "T_range_K": lim,
+                   "in_range": True, "extrapolated": False, "reference_correlation": bib, "nist_webbook_max_dev_rel": nist,
+                   "note": f"correlación de referencia {bib} ({state_txt}) evaluada con CoolProp {fl['version']}" + nist_txt,
+                   "thermo_value": p.get("value"), "thermo_method": p.get("method"),
+                   "thermo_vs_reference_rel": p["value"] / ref - 1.0 if p.get("value") else None}
+            for k in ("n_data_methods", "data_methods_spread_rel", "data_methods_median", "data_methods_farthest"):
+                if k in p:
+                    new[k] = p[k]
+            if "data_methods_median" in p:
+                new["value_vs_data_median_rel"] = ref / p["data_methods_median"] - 1.0
+            if "alternatives" in p:
+                new["alternatives"] = list(p["alternatives"])
+                if p.get("value") is not None:
+                    new["alternatives"].insert(0, {"method": p["method"], "value": p["value"], "basis": p.get("basis")})
+            if data_lim and not data_lim[0] <= T <= data_lim[1]:
+                new["data_range_K"] = data_lim
+                _add_flag(new, f"T fuera del intervalo de datos de la correlación de Mulero ({data_lim[0]:.1f}-"
+                               f"{data_lim[1]:.1f} K): se extrapola hacia σ(Tc) = 0, como hace REFPROP")
+            out = new
+        elif ref is not None and p.get("value") is not None:
+            dev = p["value"] / ref - 1.0
+            out["reference_check"] = {"method": "COOLPROP_REFERENCE", "correlation": bib, "value": ref, "deviation_rel": dev,
+                                      "nist_webbook_max_dev_rel": nist,
+                                      "note": f"correlación de referencia ({state_txt}) evaluada con CoolProp" + nist_txt}
+            if abs(dev) > TRANSPORT_CHECK_TOL:
+                why = (f"esa correlación de CoolProp se apartó de NIST WebBook hasta un {100 * nist:.0f} % para este "
+                       "fluido, así que la diferencia no indica que el valor dado sea el malo"
+                       if nist is not None and nist > NIST_AGREE_TOL else
+                       "ninguna de las dos se contrastó con NIST WebBook aquí: tomar la diferencia como incertidumbre")
+                _add_flag(out, f"difiere un {100 * dev:+.1f} % de la correlación de referencia {bib} (CoolProp); {why}")
+    if (phase == "liquid" and tc and T > NEAR_CRITICAL_TR * tc and out.get("value") is not None):
+        _add_flag(out, f"cerca del punto crítico (T/Tc = {T / tc:.3f}): las fuentes independientes discrepan hasta un 15 % "
+                       "(medido en la validación)")
+    return out
+
+
+def _gas_transport_at_P(what: str, cas: str, T: float, P: float, dilute: float | None) -> dict:
+    """Gas viscosity / conductivity at T, P (dense gas) with CoolProp's reference correlation (dilute + residual +
+    critical terms); none is computed without one."""
+    fl = _coolprop_fluid(cas)
+    kind, bib = fl["kinds"][what] if fl else ("none", None)
+    if kind != "reference":
+        return {"value": None, "method": None, "in_range": False,
+                "note": "sin correlación de referencia en CoolProp para este compuesto: no hay corrección de presión "
+                        "validada; el valor disponible es el del gas diluido"}
+    if not (fl["Tmin"] <= T <= fl["Tmax"] and P <= fl["pmax"]):
+        return {"value": None, "method": "COOLPROP_REFERENCE", "in_range": False,
+                "note": f"T, P fuera del intervalo de la ecuación de estado de CoolProp ({fl['Tmin']:.1f}-"
+                        f"{fl['Tmax']:.1f} K, "
+                        f"hasta {fl['pmax']:.4g} Pa)"}
+    v = _coolprop_value(fl, what, "gas", T, P)
+    if v is None:
+        return {"value": None, "method": "COOLPROP_REFERENCE", "in_range": False,
+                "note": "CoolProp ubica este estado como líquido o bifásico (su presión de vapor difiere de la de thermo) o "
+                        "la correlación no converge"}
+    nist = _nist_band(fl, what, T)
+    out = {"value": v, "method": "COOLPROP_REFERENCE", "basis": "data", "estimated": False,
+           "T_range_K": [float(fl["Tmin"]), float(fl["Tmax"])], "in_range": True, "extrapolated": False, "P_Pa": P,
+           "reference_correlation": bib, "nist_webbook_max_dev_rel": nist, "dilute_value": dilute,
+           "pressure_effect_rel": v / dilute - 1.0 if dilute else None,
+           "note": f"correlación de referencia {bib} a T y P (términos diluido, residual y crítico) vía CoolProp "
+                   f"{fl['version']}"}
+    if nist is None:
+        out["flag"] = "correlación de referencia de CoolProp no contrastada con NIST WebBook en esta herramienta"
+    elif nist > NIST_AGREE_TOL:
+        out["flag"] = (f"contra NIST WebBook esta correlación de CoolProp se apartó hasta un {100 * nist:.0f} % para este "
+                       "fluido")
+    return out
+
+
+@contextmanager
+def _thermo_quiet():
+    """thermosteam (BioSTEAM, used by the costing engines) flips thermo's global RAISE_PROPERTY_CALCULATION_ERROR to True,
+    which makes thermo raise for a property with no method (e.g. the sublimation enthalpy of R134a). This module expects
+    thermo's default (None for a missing method, reported as such), so the flag is pinned to False here and restored."""
+    from thermo.utils.mixture_property import MixtureProperty
+    from thermo.utils.t_dependent_property import TDependentProperty
+    saved = (TDependentProperty.RAISE_PROPERTY_CALCULATION_ERROR, MixtureProperty.RAISE_PROPERTY_CALCULATION_ERROR)
+    TDependentProperty.RAISE_PROPERTY_CALCULATION_ERROR = MixtureProperty.RAISE_PROPERTY_CALCULATION_ERROR = False
+    try:
+        yield
+    finally:
+        TDependentProperty.RAISE_PROPERTY_CALCULATION_ERROR, MixtureProperty.RAISE_PROPERTY_CALCULATION_ERROR = saved
+
+
+def _thermo_defaults(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        with _thermo_quiet():
+            return func(*args, **kwargs)
+    return inner
+
+
 @lru_cache(maxsize=64)
 def _package(cas: str):
     from thermo import ChemicalConstantsPackage
     return ChemicalConstantsPackage.from_IDs([cas])
 
 
+@_thermo_defaults
 def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | None = None,
                         alternatives: bool = False) -> dict:
     """Identity, constants and (if T_K is given) temperature-dependent properties of one pure compound, each with the
@@ -435,6 +704,14 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
         "basis = 'data' significa valor medido, compilación evaluada o correlación ajustada a datos o a una ecuación de "
         "estado de referencia; no es una incertidumbre: la dispersión entre fuentes está en data_sources_spread / "
         "data_methods_spread_rel.",
+        "Viscosidad, conductividad y tensión superficial: si CoolProp tiene una correlación de referencia propia del "
+        "compuesto (no de estados correspondientes) y esa correlación coincidió con NIST WebBook dentro del 1 % en la "
+        "validación (tests/test_transport_properties.py), se usa ella (method COOLPROP_REFERENCE, reference_correlation); "
+        "si no, se da el valor de thermo y, cuando existe, la correlación de CoolProp como reference_check. La tensión "
+        "superficial usa la correlación de Mulero y otros vía CoolProp en todo compuesto que la tenga (coincidió con NIST "
+        "en 18 de 19 fluidos; en los no contrastados, como etanol o acetona, se usa igual), salvo en el agua (IAPWS). El "
+        "intervalo de T de CoolProp es el de su ecuación de estado; CoolProp no publica el intervalo de validez de cada "
+        "correlación de transporte.",
     ]
     by = _identified_by(compound, meta)
     identity = {"query": compound, "name": meta.common_name, "iupac_name": meta.iupac_name, "CAS": cas,
@@ -490,7 +767,11 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
         "Efecto de la presión sobre las propiedades del líquido (densidad, viscosidad, Cp, conductividad): se dan las del "
         "líquido saturado o a baja presión.",
         "Propiedades del sólido y presión de sublimación.",
-        "Viscosidad y conductividad del gas a alta presión: se dan las del gas diluido.",
+        "Viscosidad y conductividad del gas a alta presión para compuestos sin correlación de referencia en CoolProp (p. "
+        "ej. acetona): solo se da la del gas diluido (mu_gas_Pa_s, k_gas_W_mK); con P_Pa y correlación de referencia se "
+        "dan además mu_gas_at_P_Pa_s y k_gas_at_P_W_mK.",
+        "Incertidumbre propia de cada correlación de referencia (la que declaran sus autores): solo se informa la "
+        "desviación medida frente a NIST WebBook.",
         "Incertidumbre de cada dato: la librería no la trae; solo se informa la dispersión entre fuentes.",
         "Mezclas: esta herramienta es de compuesto puro (para mezclas, independent_flash).",
     ]
@@ -510,6 +791,9 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
             "k_gas_W_mK": _tdep(corr.ThermalConductivityGases[0], T, alternatives, None, "k_gas_W_mK"),
             "sigma_N_m": _tdep(corr.SurfaceTensions[0], T, alternatives, no_liq, "sigma_N_m"),
         }
+        for key, (_, phase) in _TRANSPORT_KEYS.items():
+            if not (above_tc and phase == "liquid"):
+                props[key] = _transport(key, props[key], cas, T, tc, corr.SurfaceTensions[0])
         mw = identity["molar_mass_kg_mol"]
         vl = props["V_liquid_m3_mol"]
         rho_l = dict(vl)
@@ -549,6 +833,23 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
                         rho_g["flag"] = vg["flag"] = ("VALOR NO FIABLE: estado supercrítico sin ecuación de estado de "
                                                       "referencia")
                 props["rho_gas_kg_m3"] = rho_g
+                if state["phase"] != "saturated":
+                    for key, what, dil in (("mu_gas_at_P_Pa_s", "mu", "mu_gas_Pa_s"),
+                                           ("k_gas_at_P_W_mK", "k", "k_gas_W_mK")):
+                        g = _gas_transport_at_P(what, cas, T, P, props[dil].get("value"))
+                        props[key] = g
+                        eff = g.get("pressure_effect_rel")
+                        vc = constants["Vc_m3_mol"]["value"]
+                        rho_r = vc / vg["value"] if vc and vg.get("value") else None
+                        if eff is not None and abs(eff) > TRANSPORT_CHECK_TOL:
+                            warnings.append(f"{dil} es la del gas diluido; a P = {P:.4g} Pa la correlación de referencia da "
+                                            f"{key} = {g['value']:.4g} ({100 * eff:+.1f} %): usa {key}.")
+                        elif g.get("value") is None and (rho_r is None or rho_r > DENSE_GAS_RHO_R):
+                            dens = f"ρ/ρc = {rho_r:.3f}" if rho_r is not None else "sin Vc no se puede estimar la densidad"
+                            warnings.append(f"{key}: no disponible ({g['note']}). {dens}: {dil} (gas diluido) puede no "
+                                            "valer a esta presión; en la validación (19 fluidos a 5-10 MPa) el valor "
+                                            "diluido quedó por debajo del de NIST hasta un 80 %, más cuanto más denso es "
+                                            "el gas.")
             else:
                 props["rho_gas_kg_m3"] = {"value": None, "method": None,
                                           "note": f"a T y P el compuesto es {state['phase']}: "
@@ -560,6 +861,8 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
                 continue
             if p.get("flag"):
                 warnings.append(f"{key}: {p['flag']} (método {p['method']}).")
+            if p.get("reference_correlation"):
+                continue        # reference correlation checked against NIST: the spread of thermo's tables is informative
             if abs(p.get("value_vs_data_median_rel", 0.0)) > SPREAD_WARN and p.get("n_data_methods", 0) >= 3:
                 warnings.append(f"{key}: el valor elegido ({p['method']}) se aparta un "
                                 f"{100 * p['value_vs_data_median_rel']:+.1f} % de la mediana de los {p['n_data_methods']} "
@@ -601,6 +904,21 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
                             "extrapolación, o el vapor se asocia (ácidos carboxílicos, HF) y el virial no lo describe; en "
                             "ese último caso el ΔHvap dado es el de vaporización al vapor real, no el ΔvapH° estándar al "
                             "gas ideal monómero.")
+    if T_K is not None:
+        diffs = []
+        for key in _TRANSPORT_KEYS:
+            p = out["properties_at_T"].get(key) or {}
+            d = p.get("thermo_vs_reference_rel")
+            d = (p.get("reference_check") or {}).get("deviation_rel") if d is None else d
+            if d is not None:
+                diffs.append((abs(d), key))
+        if diffs:
+            worst = max(diffs)
+            checks["transport_thermo_vs_reference_max_rel"] = {
+                "value": worst[0], "tolerance": TRANSPORT_CHECK_TOL, "ok": worst[0] <= TRANSPORT_CHECK_TOL,
+                "counted_for_verified": False, "property": worst[1],
+                "what": "mayor |thermo / correlación de referencia de CoolProp − 1| entre las propiedades de transporte",
+                "note": "informativo: dos fuentes de referencia que discrepan no indican cuál es la buena (ver flags)"}
     counted = {k: c for k, c in checks.items() if c.get("counted_for_verified", True)}
     if not counted:
         evidence["reasons"].append("No hay comprobaciones cruzadas posibles: faltan Tb, constantes críticas o una presión "
@@ -619,6 +937,8 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
         method=(f"Consulta de chemicals {chemicals.__version__} (constantes) y thermo {thermo.__version__} (propiedades "
                 "dependientes de T). Método por propiedad: el predeterminado de thermo si T está en su intervalo; si no, el "
                 "mejor clasificado basado en datos que cubra T; si no, el mejor clasificado de cualquier tipo (estimación, "
-                "marcada); si no, el predeterminado extrapolado (marcado)."),
+                "marcada); si no, el predeterminado extrapolado (marcado). Transporte: correlación de referencia de "
+                "CoolProp (AbstractState HEOS: líquido saturado, gas a 1e-6 mol/m3 o gas a T y P) donde coincidió con "
+                "NIST."),
         evidence=evidence)
     return out

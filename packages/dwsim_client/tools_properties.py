@@ -16,14 +16,17 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
 
     compound: nombre (inglés o español común), número CAS, fórmula o SMILES. Si no se reconoce, error con nombres parecidos.
     T_K: temperatura para las propiedades dependientes de T (opcional; sin ella solo salen identidad y constantes).
-    P_Pa: presión absoluta (opcional, exige T_K): solo decide la fase estable frente a la presión de vapor y da la densidad
-      del gas a T y P; las propiedades del líquido son las de saturación o baja presión.
+    P_Pa: presión absoluta (opcional, exige T_K): decide la fase estable frente a la presión de vapor y da la densidad del
+      gas a T y P y, si el compuesto tiene correlación de referencia de transporte, mu_gas_at_P_Pa_s y k_gas_at_P_W_mK (gas
+      denso); las propiedades del líquido son las de saturación o baja presión, y mu_gas_Pa_s / k_gas_W_mK las del gas
+      diluido.
     alternatives: True para listar además el valor de cada otro método de la librería válido a esa T.
 
     Devuelve identity, constants {Tc_K, Pc_Pa, Vc_m3_mol, Zc, acentric_factor, Tb_K, Tm_K, Tt_K, Pt_Pa, Hfus_J_mol,
     Hvap_Tb_J_mol, Hf_gas_J_mol, Hf_liquid_J_mol, Hf_solid_J_mol, S0_gas_J_molK, Gf_gas_J_mol, dipole_moment_debye}, state
     {phase} y properties_at_T {Psat_Pa, Hvap_J_mol, Cp_liquid_J_molK, Cp_ideal_gas_J_molK, V_liquid_m3_mol,
-    rho_liquid_kg_m3, rho_gas_kg_m3, mu_liquid_Pa_s, mu_gas_Pa_s, k_liquid_W_mK, k_gas_W_mK, sigma_N_m}. CADA valor es un
+    rho_liquid_kg_m3, rho_gas_kg_m3, mu_liquid_Pa_s, mu_gas_Pa_s, k_liquid_W_mK, k_gas_W_mK, sigma_N_m y, con P_Pa en gas,
+    mu_gas_at_P_Pa_s, k_gas_at_P_W_mK}. CADA valor es un
     diccionario con value, method (nombre del método o fuente en chemicals/thermo: HEOS, CRC, DIPPR_PERRY_8E, JOBACK...),
     basis ('data' = medido, compilación evaluada o correlación ajustada a datos; 'compilation' = compilación que no
     distingue medido de estimado; 'derived'; 'estimate' = contribución de grupos o estados correspondientes), estimated,
@@ -31,7 +34,15 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
     un valor con flag nunca debe citarse como experimental. data_methods_spread_rel indica cuánto difieren entre sí las
     fuentes basadas en datos. evidence.verified certifica que los datos de la librería para el compuesto son coherentes
     entre sí (Psat en Tb = 1 atm, Psat en Tc = Pc, ω frente a su definición, ΔHvap frente a Clapeyron), no cada valor
-    contra una medición. Validación: NIST Chemistry WebBook e IAPWS-95 (tests/test_properties.py)."""
+    contra una medición. Viscosidad, conductividad y tensión superficial: method COOLPROP_REFERENCE = correlación de
+    referencia propia del compuesto (reference_correlation, p. ej. Avgeri-JPCRD-2015-Toluene) que coincidió con NIST
+    WebBook dentro del 1 % (N2, O2, Ar, H2, CO2, agua, metanol, benceno, tolueno, n-hexano, R134a; conductividad también
+    metano, propano, n-butano, n-heptano; tensión superficial de Mulero en todos salvo el agua, que usa IAPWS); en los
+    demás se da el valor de thermo con reference_check (la correlación de CoolProp y su desviación) y measured_band_rel
+    (banda medida del método); flag si discrepan más de un 2 %, cerca del punto crítico (T/Tc > 0.95) o si el método tiene
+    banda ancha. Validación: NIST Chemistry WebBook e IAPWS-95 (tests/test_properties.py) y NIST WebBook en 19 fluidos
+    para transporte (tests/test_transport_properties.py: ≤ 0.6 % con correlación de referencia, ≤ 2.3 % con thermo
+    fuera de la zona crítica)."""
     return PU.compound_properties(compound, T_K, P_Pa, alternatives)
 
 

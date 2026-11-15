@@ -26,7 +26,8 @@ _SCHEMA = """
         · "gas_vessel": volume_m3, gas {model 'ideal', molar_mass_kg_mol, heat_capacity_ratio} o {model 'coolprop',
           fluid}, thermal 'isothermal'|'adiabatic'|'heat_transfer' (UA_W_K, ambient_temperature_K), initial
           {pressure_Pa, temperature_K}.
-        · "flash_drum" (necesita components): mismos datos que dynamic_flash_drum salvo feed y liquid_outlet (temperature_K,
+        · "flash_drum" (necesita components; isotérmico: energy_balance solo en dynamic_flash_drum): mismos datos que
+          dynamic_flash_drum salvo feed y liquid_outlet (temperature_K,
           volume_m3, area_m2, liquid_molar_density_mol_m3, liquid_density_kg_m3, equilibrium, vapour_outlet, initial);
           el líquido entra y sale por corrientes (c = x·ρ_molar); su presión la leen las válvulas y bombas conectadas.
           Variables '<id>.pressure_Pa', '.liquid_level_m', '.x.<c>', '.y.<c>', '.vapour_flow_mol_s'; parámetros
@@ -39,7 +40,16 @@ _SCHEMA = """
           '.boilup_mol_s', '.distillate_mol_s', '.bottoms_mol_s', '.feed_mol_s', '.feed_mole_fraction'; variables
           '<id>.distillate_x', '.bottoms_x', '.condenser_holdup_mol', '.reboiler_holdup_mol' y, por etapa, '<id>.x.<i>',
           '<id>.holdup_mol.<i>'. Configuración LV: lazos de nivel con D y B; DV: con L y B; lazos de composición PI
-          sobre L y V (controllers). Sin balance de energía ni dinámica de presión.
+          sobre L y V (controllers). Sin energy_balance: flujos molares constantes. Con energy_balance {pressure_Pa
+          (una cifra o una por etapa, constante), reference_temperature_K, light y heavy: {antoine {A, B, C}
+          (log10(P_sat/Pa) = A − B/(T/K + C)), cp_liquid_J_molK, cp_vapour_J_molK, heat_of_vaporization_J_mol (a la
+          T de referencia)}}: balance de energía en cada etapa (Raoult, líquido saturado, el vapor resulta de las
+          energías, sin flujos molares constantes); entonces NO se dan relative_volatility ni boilup_mol_s sino
+          reboiler_duty_W (parámetro '<id>.reboiler_duty_W'), y la alimentación lleva liquid_fraction (0–1, saturada) o
+          temperature_K (líquido; parámetro '<id>.feed_temperature_K'). Variables extra: '<id>.temperature_K.<i>',
+          '.vapour_flow_mol_s.<i>', '.top_temperature_K', '.bottom_temperature_K', '.condenser_duty_W' (resulta: el
+          condensador total devuelve líquido saturado), '.reboiler_vapour_mol_s', '.top_vapour_mol_s'; balance
+          column_energy_J en evidence. Binaria; sin dinámica de presión.
       streams: [{id, from, to, flow{type,…}}] (sin from = alimentación; sin to = descarga). Leyes de líquido:
         'fixed' {volumetric_flow_m3_s}; 'linear_resistance' {resistance_s_m2} (q = h/R); 'gravity_orifice'
         {discharge_coefficient, area_m2} (Torricelli); 'valve' {Kv_m3_h o Cv_gpm_psi, opening 0–1, characteristic
@@ -117,26 +127,36 @@ def dynamic_step_test(flowsheet: dict, input: str, step_size: float, output: str
 
 def dynamic_flash_drum(flash_drum: dict, t_end_s: float, events: list[dict] | None = None,
                        start_from_steady_state: bool = False, n_points: int = 201) -> dict:
-    """Tambor flash dinámico ISOTÉRMICO (un calentador/enfriador mantiene T): retención de líquido y de vapor en
-    equilibrio en cada instante, presión fijada por el inventario de vapor y la salida de vapor, nivel por el líquido y
-    la salida de líquido. Responde «¿cómo responden presión, nivel y composiciones a un cambio de alimentación o de
-    apertura?» y comprueba que el estado final es el flash de Rachford-Rice de la alimentación.
+    """Tambor flash dinámico, isotérmico (un calentador/enfriador mantiene T) o con balance de energía (flash adiabático
+    o con calentador: T es un estado). Retención de líquido y de vapor en equilibrio en cada instante, presión fijada
+    por el inventario de vapor y la salida de vapor, nivel por el líquido y la salida de líquido. Responde «¿cómo
+    responden presión, nivel, temperatura y composiciones a un cambio de alimentación, de apertura o de calor?» y
+    comprueba que el estado final es el flash de Rachford-Rice (y, con energía, el flash P-H) de la alimentación.
 
-    flash_drum (SI; nada físico tiene valor por defecto): components (≥ 2), temperature_K, volume_m3 (volumen total),
+    flash_drum (SI; nada físico tiene valor por defecto): components (≥ 2), temperature_K (solo isotérmico),
+      volume_m3 (volumen total),
       area_m2 (sección, nivel = volumen de líquido/área), liquid_molar_density_mol_m3, liquid_density_kg_m3 (si la
       salida de líquido es válvula), equilibrium = {model: 'k_values', K: {c: K}} (K constantes a la T y P de diseño) o
-      {model: 'relative_volatility', alpha: {c: α}, reference_vapour_pressure_Pa} (Raoult: K = α·P_ref/P),
+      {model: 'relative_volatility', alpha: {c: α}, reference_vapour_pressure_Pa} (Raoult: K = α·P_ref/P) o
+      {model: 'antoine', antoine: {c: {A, B, C}}} (Raoult con log10(P_sat/Pa) = A − B/(T/K + C)),
       feed = {molar_flow_mol_s, mole_fractions {c: z}}, vapour_outlet = {type 'valve', coefficient_mol_s_Pa05 (V = C·
       f(x)·√(P − P_abajo)), opening 0–1, characteristic, rangeability si es isoporcentual, downstream_pressure_Pa} o
       {type 'fixed', molar_flow_mol_s}; liquid_outlet = {type 'valve', Kv_m3_h, opening, characteristic,
       downstream_pressure_Pa} o {type 'fixed', molar_flow_mol_s}; initial = {liquid_level_m, mole_fractions del
       contenido total (bifásico)}.
+      Modo con energía (opcional; exige model 'antoine'): energy_balance = {heat_duty_W (0 = adiabático),
+      reference_temperature_K, properties {c: {cp_liquid_J_molK, cp_vapour_J_molK, heat_of_vaporization_J_mol (a la
+      T de referencia)}}}; feed lleva además temperature_K y phase ('liquid' o 'vapour'); initial lleva
+      temperature_K y no se da temperature_K global. Entalpías de solución ideal con cp constantes; U = Σn·h − P·V.
     events: [{time_s, target, value}] con target 'feed.molar_flow_mol_s', 'feed.mole_fractions' (value = {c: z}),
-      'vapour.opening', 'liquid.opening', 'vapour.downstream_pressure_Pa', 'liquid.downstream_pressure_Pa' o
-      '<lado>.molar_flow_mol_s' si es fijo. start_from_steady_state: Newton antes de t = 0.
+      'vapour.opening', 'liquid.opening', 'vapour.downstream_pressure_Pa', 'liquid.downstream_pressure_Pa',
+      '<lado>.molar_flow_mol_s' si es fijo y, con energía, 'heat_duty_W' y 'feed.temperature_K'.
+      start_from_steady_state: Newton antes de t = 0.
     Devuelve time_s, series (pressure_Pa, liquid_level_m, holdup_vapour_fraction, vapour/liquid/feed_flow_mol_s, x.c,
-    y.c), metrics, final_state, at_steady_state, rachford_rice_check (flash de la alimentación a la presión final frente
-    a los productos) y evidence (balances por componente, tolerancia 100 veces menor, eventos exactos; reasons si no).
+    y.c y, con energía, temperature_K, heat_duty_W), metrics, final_state, at_steady_state, rachford_rice_check (flash
+    de la alimentación a la presión final frente a los productos), ph_flash_check (con energía: flash P-H de la
+    alimentación + Q) y evidence (balances por componente y de energía, residuo algebraico de la energía, tolerancia
+    100 veces menor, eventos exactos; reasons si no).
     Si el tambor se queda sin líquido o se llena, la integración se detiene y se informa."""
     return FD.simulate_flash_drum(flash_drum, t_end_s, events=events, start_from_steady_state=start_from_steady_state,
                                   n_points=n_points)

@@ -1,6 +1,7 @@
 """Agent tools for advanced process control (bloque advcontrol): linear MPC with a PID baseline on the user's model
 (`packages.control.mpc`), nonlinear MPC on a user ODE model given as data (`packages.control.nmpc`, pyomo + ipopt), both
-in the repo environment, and a reinforcement-learning experiment on pc-gym
+in the repo environment, and reinforcement learning on pc-gym (an experiment, plus an empirical per-policy verification
+with a safety shield when one is declared)
 (`packages.control.rl_runner`, which runs the RL stack in the separate environment `~/tools/alchemai-rl/.venv`)."""
 from __future__ import annotations
 
@@ -137,12 +138,15 @@ def rl_control_experiment(environment: str | None = None, scenario: str | None =
                           eval_episodes: int = 10, hyperparameters: dict | None = None, oracle: bool = True,
                           oracle_horizon: int | None = None, pid_baseline: list[dict] | None = None,
                           check_reproducibility: bool = True, output_dir: str | None = None,
-                          timeout_s: int = RL.DEFAULT_TIMEOUT_S) -> dict:
-    """EXPERIMENTO de aprendizaje por refuerzo (no un controlador verificado): entrena un agente de stable-baselines3
-    (PPO, SAC, DDPG o TD3) en un entorno de pc-gym (Bloor et al. 2024), lo evalúa con la política determinista en
-    episodios retenidos y lo compara con una política aleatoria, con el oráculo NMPC de pc-gym (modelo perfecto) y, si lo
-    das, con tu PID. Corre en un entorno de Python aparte (~/tools/alchemai-rl/.venv) con límite de tiempo; si no existe,
-    devuelve available = false y los comandos para crearlo.
+                          timeout_s: int = RL.DEFAULT_TIMEOUT_S, shield: dict | None = None,
+                          verification: dict | None = None) -> dict:
+    """Aprendizaje por refuerzo con escudo de seguridad y verificación por política: entrena un agente de
+    stable-baselines3 (PPO, SAC, DDPG o TD3) en un entorno de pc-gym (Bloor et al. 2024), lo evalúa con la política
+    determinista en episodios retenidos y lo compara con una política aleatoria, con el oráculo NMPC de pc-gym (modelo
+    perfecto) y, si lo das, con tu PID. Sin shield es un EXPERIMENTO. Con shield, además verifica cada política entrenada
+    sin y con escudo sobre el conjunto de casos que declares y da un dictamen con regla explícita; esa verificación es
+    EMPÍRICA (casos y semillas probados), no una garantía formal. Corre en un entorno de Python aparte
+    (~/tools/alchemai-rl/.venv) con límite de tiempo; si no existe, devuelve available = false y los comandos para crearlo.
 
     - environment: modelo de pc-gym ('cstr', 'first_order_system', 'four_tank', 'multistage_extraction',
       'distillation_column', 'heat_exchanger', 'crystallization', ...), o scenario = 'bloor2024_cstr' (configuración
@@ -160,6 +164,20 @@ def rl_control_experiment(environment: str | None = None, scenario: str | None =
     - timeout_s: el proceso se mata (grupo completo) si lo excede. Medido aquí (CSTR): PPO con 50 000 pasos ~30 s por
       semilla; SAC ~5 s por cada 1000 pasos (unas 8 veces más lento); la comprobación de reproducibilidad entrena la
       primera semilla dos veces.
+    - shield (opcional; necesita env_params.constraints, que son las restricciones de estado que protege):
+      {fallback: 'pid' (tu pid_baseline) o 'nmpc' (NMPC de pc-gym con el modelo y tus restricciones como cotas duras),
+      input_rate_max: [cambio máximo por paso de cada acción, unidades físicas; null = sin límite], initial_input:
+      [acción aplicada antes del primer paso] (obligatoria si das input_rate_max), horizon: pasos de predicción (1 por
+      defecto), constraint_margin: {estado: margen ≥ 0 con el que el escudo endurece la restricción}}. Cada acción se
+      recorta a a_space y al ritmo de cambio; si la predicción del modelo desde el estado medido viola una restricción,
+      se sustituye por la del respaldo y, si esa también la viola, por el vértice de la caja de acciones admisibles con
+      menor violación predicha; se cuentan todas las intervenciones. Con inercia o límite de ritmo un horizonte de 1 paso
+      puede llegar tarde (medido en el CSTR con T ≥ 326 K y 1 K/paso: horizon 1 dejó violaciones, horizon 5 ninguna).
+    - verification (opcional, requiere shield): {initial_states: [x0, ...], disturbances: [{perturbación: N valores o
+      escalar}, ...] con disturbance_bounds {perturbación: [mín, máx]}, episodes_per_case (por defecto eval_episodes),
+      cost_tolerance_pct: cuánto más cara que el NMPC aceptas, en %}. Casos = estados iniciales × escenarios (por defecto
+      solo el nominal, y se avisa); semillas de ruido fijas y compartidas por todos los controladores. Sin
+      cost_tolerance_pct no hay dictamen de coste.
 
     Devuelve: eval_return (media y dispersión ENTRE semillas), per_seed (retornos, curva de aprendizaje, violaciones,
     ruta de la política guardada .zip y su hash), random_policy, oracle (retorno, violaciones), gap_to_oracle (absoluto y
@@ -167,11 +185,16 @@ def rl_control_experiment(environment: str | None = None, scenario: str | None =
     model_step_check (un paso del CSTR frente a una integración independiente de sus EDO publicadas), versions,
     warnings (siempre: sin garantía de estabilidad), assumptions, not_included, method y evidence (verified = SOLO
     reproducible con la misma semilla y protocolo de evaluación seguido). Retorno = suma de la recompensa del entorno
-    (−Σ(x − consigna)²); mayor es mejor."""
+    (−Σ(x − consigna)²); mayor es mejor. Con shield, verification: scope (alcance empírico), rule (criterio del
+    dictamen), verdicts por política ('apta para prueba piloto con escudo' solo con cero violaciones con escudo y coste
+    dentro de cost_tolerance_pct del NMPC en cada caso), y por política: unshielded y shielded (coste, pasos y episodios
+    con violación, máxima violación, intervenciones: proyecciones a límites y ritmo, violaciones predichas, sustituciones
+    por el respaldo y por vértice de recuperación, no resueltas, fallos del respaldo), per_case (coste frente al NMPC y
+    al PID en %), worst_case y la traza del primer episodio; cases (coste del NMPC y del PID por caso)."""
     kw = dict(environment=environment, scenario=scenario, env_params=env_params, algorithm=algorithm,
               total_timesteps=total_timesteps, seeds=seeds, eval_episodes=eval_episodes, hyperparameters=hyperparameters,
               oracle=oracle, oracle_horizon=oracle_horizon, check_reproducibility=check_reproducibility,
-              output_dir=output_dir, pid_baseline=pid_baseline)
+              output_dir=output_dir, pid_baseline=pid_baseline, shield=shield, verification=verification)
     if not RL.rl_available():
         job, _ = RL.build_job(**kw)              # missing user data is still reported first (ValueError)
         msg = RL.missing_environment_message()

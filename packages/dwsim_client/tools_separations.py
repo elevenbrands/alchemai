@@ -147,10 +147,13 @@ def psa_cycle(bed_length_m: float, bed_void_fraction: float, bulk_density_kg_m3:
     pressurization_with: 'feed' o 'product'. bed_diameter_m (opcional) da caudales por lecho.
 
     Devuelve product_purity_mole_fraction, product_recovery, productivity_mol_kg_s, purge_to_feed ratios, per_cycle_mol_m2
-    (alimentación, producto bruto y neto, purga, escapes), perfil del lecho, validation_status y, con isotermas lineales, la
-    teoría de equilibrio (Knaebel-Hill / Shendalman-Mitchell re-derivada): tiempos de ruptura y de purga completa y la
-    recuperación de este ciclo en forma cerrada. evidence: residuo del estado cíclico, cierre de balance del ciclo, malla.
-    Validado solo con isotermas lineales contra la teoría de equilibrio; con isotermas no lineales queda NO VALIDADO."""
+    (alimentación, producto bruto y neto, purga, escapes), perfil del lecho, validation_status y, con isotermas lineales o de
+    Langmuir, la teoría de equilibrio (Knaebel-Hill / Shendalman-Mitchell re-derivada; para Langmuir, choque de la
+    alimentación y característica más lenta de la purga): tiempo de ruptura, purga de limpieza y la recuperación de este ciclo
+    en forma cerrada. evidence: residuo del estado cíclico, cierre de balance del ciclo, malla.
+    Validado contra la teoría de equilibrio con isotermas lineales y con Langmuir / Langmuir extendido (presurización con
+    producto, alimentación hasta la ruptura o menos, purga por encima de la cota de limpieza; no contra un ciclo publicado).
+    Fuera de ese dominio, con presurización con alimentación o con Freundlich queda NO VALIDADO."""
     return _clean(AD.psa_skarstrom(bed_length_m, bed_void_fraction, bulk_density_kg_m3, T_K, components, product_component,
                                    high_pressure_Pa, low_pressure_Pa, feed_velocity_m_s, purge_velocity_m_s,
                                    pressurization_time_s, feed_time_s, blowdown_time_s, purge_time_s, pressurization_with,

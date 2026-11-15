@@ -45,6 +45,8 @@ from packages.agent.wrappers_separations import AGENT_WRAPPERS as _W_SEPARATIONS
 from packages.agent.wrappers_dynamic import AGENT_WRAPPERS as _W_DYNAMIC  # noqa: E402  (bloque M24)
 from packages.agent.wrappers_dynamic_flowsheet import AGENT_WRAPPERS as _W_DYNAMIC_FLOWSHEET  # noqa: E402  (bloque M24)
 from packages.agent.wrappers_advanced_control import AGENT_WRAPPERS as _W_ADVANCED_CONTROL  # noqa: E402  (bloque M24)
+from packages.agent.wrappers_particles import AGENT_WRAPPERS as _W_PARTICLES  # noqa: E402  (bloque M25)
+from packages.agent.wrappers_momentum import AGENT_WRAPPERS as _W_MOMENTUM  # noqa: E402  (bloque M25)
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -327,14 +329,25 @@ Hard rules:
    warn when binary parameters are zero by absence). catalyst_effectiveness, packed_bed_catalytic_reactor,
    gas_liquid_reaction, three_phase_catalytic_reactor (Thiele, Weisz-Prater/Mears, film theory, slurry and trickle bed;
    every transfer coefficient is the user's). transient_diffusion_solid, membrane_permeation, diffusivity_from_uptake.
-   gas_permeation_module, reverse_osmosis, adsorption_fixed_bed, psa_cycle (PSA with a non-linear isotherm is NOT
-   validated: say so). crystallizer_yield, crystal_size_distribution, dryer_batch, dryer_continuous. Dynamics:
+   gas_permeation_module, reverse_osmosis, adsorption_fixed_bed, psa_cycle (Langmuir validated only against equilibrium
+   theory inside its domain; outside it, feed pressurisation or Freundlich: NOT validated, say so). crystallizer_yield, crystal_size_distribution, dryer_batch, dryer_continuous. Dynamics:
    dynamic_flowsheet_run / dynamic_flowsheet_steady_state / dynamic_step_test / dynamic_flash_drum (own engine; volumes,
    valve coefficients, pump curves, kinetics and controller settings are the user's) and dwsim_dynamic_run (DWSIM's own
    dynamic mode: tanks, liquid valves, PID). Advanced control: mpc_design_and_simulate, nmpc_design_and_simulate (local
-   optimum only), rl_control_experiment (an RL policy is an experiment, never a verified controller: say it has no
-   stability guarantee). Never invent a property, kinetic constant, transfer coefficient, isotherm or model parameter
+   optimum only), rl_control_experiment (without shield an RL policy is an experiment; with shield +
+   verification it gets an EMPIRICAL verdict over the tested set only, with the pc-gym model as plant: never call it
+   a formal stability guarantee). Never invent a property, kinetic constant, transfer coefficient, isotherm or model parameter
    to make one of these tools run: ask for it.
+30. Momentum transfer beyond Newtonian single-phase pipes (bloque M25): non_newtonian_pipe_flow (power law, Bingham,
+   Herschel-Bulkley; laminar exact, turbulent by correlation, Darby for Bingham runs low and Herschel-Bulkley turbulent
+   is an estimate: say so), particle_settling (drag curve, terminal and hindered settling, thickener area),
+   fluidization (Ergun/Wen-Yu minimum fluidization, terminal velocity, bed expansion), cyclone_performance (Lapple
+   cut size and grade efficiency over the user's size distribution; Shepherd-Lapple ΔP not validated),
+   adiabatic_gas_pipe (Fanno, with the isothermal result beside it), two_phase_pipe_inclined (Beggs-Brill with inclination; DWSIM's pipe segment has
+   two known Beggs-Brill errors on inclined lines, so prefer this tool there), water_hammer (Joukowsky, wave speed,
+   method of characteristics, cavitation) and pump_selection (operating point, specific speed, affinity laws, NPSH;
+   efficiency only from the user's curve unless the user accepts the flagged Corripio estimate). Rheology, particle
+   size, sphericity, densities, pipe elasticity, closure law and pump curves are user data: ASK, never invent.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1448,7 +1461,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
                fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet,
-               *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL]
+               *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL, *_W_PARTICLES, *_W_MOMENTUM]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

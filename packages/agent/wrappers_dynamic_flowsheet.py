@@ -16,7 +16,8 @@ def dynamic_flowsheet_run(flowsheet: dict[str, object], t_end_s: float, events: 
     """First-principles dynamic simulation (independent of DWSIM) of a flowsheet given as JSON: tanks (gravity, valve
     Cv/Kv, pump curve, overflow, fill from empty), mixing/heated/jacketed tanks, CSTR with Arrhenius kinetics and energy
     balance, lumped exchangers, gas vessels (pressurization, choked blowdown), isothermal flash drums connected by
-    streams, binary distillation columns (Skogestad model; LV/DV level and composition loops), sensor lag/dead time, PID.
+    streams, binary distillation columns (Skogestad model, or energy_balance with Antoine and reboiler duty;
+    LV/DV level and composition loops), sensor lag/dead time, PID.
     flowsheet = {components, liquid, units, streams, heat_links, blocks, controllers}, SI. events = [{time_s, target
     parameter, value, ramp_s}]; limits = [{variable, max, min}]. No physical input is defaulted. Returns series,
     settling/peaks, incidents, limit violations, final state and evidence (balances, tolerance refinement); report
@@ -48,8 +49,8 @@ def dynamic_step_test(flowsheet: dict[str, object], input: str, step_size: float
 @beta_tool
 def dynamic_flash_drum(flash_drum: dict[str, object], t_end_s: float, events: list[dict[str, object]] | None = None,
                        start_from_steady_state: bool = False, n_points: int = 201) -> str:
-    """Isothermal dynamic flash drum: liquid and vapour holdup in equilibrium (constant K-values or constant relative
-    volatility with Raoult), pressure from a vapour valve, level from a liquid valve, SI. Events step feed flow or
+    """Dynamic flash drum, isothermal or with energy_balance {heat_duty_W (0 = adiabatic), properties} and the 'antoine'
+    model: liquid and vapour holdup in equilibrium (constant K, constant alpha or Antoine with Raoult), pressure from a vapour valve, level from a liquid valve, SI. Events step feed flow or
     composition, valve openings or back-pressures. No physical input is defaulted. Returns pressure, level, flows and
     compositions, the Rachford-Rice check of the products against the feed flash, and evidence (component balances,
     tolerance refinement); report evidence.verified and its reasons."""

@@ -320,7 +320,9 @@ def gas_line(P1_Pa: float, T_K: float, MW: float, Z: float, k: float, viscosity_
            "evidence": {"P2_momentum_ode_Pa": None if choked else P2_ode, "ode_match": match, "verified": match,
                         "reasons": reasons},
            "notes": ("Isotérmico es lo correcto para líneas largas sin aislar; para tramos cortos y rápidos "
-                     "(Ma > 0.3) el adiabático (Fanno) da un poco menos de flujo. El estrangulamiento isotérmico ocurre "
+                     "(Ma > 0.3) calcula el adiabático con adiabatic_gas_pipe (Fanno): con el mismo estado estático "
+                     "de entrada da un poco más de flujo (el gas se enfría), así que el isotérmico es la cifra "
+                     "conservadora. El estrangulamiento isotérmico ocurre "
                      "cuando la velocidad de salida llega a √(ZRT/M), Ma = 1/√k.")}
     if choked:
         out["warning"] = (f"P2 pedida está bajo la presión de estrangulamiento {P_crit:.4g} Pa: el flujo reportado es el "

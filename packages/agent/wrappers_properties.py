@@ -14,7 +14,8 @@ def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | N
                         alternatives: bool = False) -> str:
     """Pure-compound lookup without a flowsheet (chemicals/thermo databases): CAS, formula, MW, Tc, Pc, Vc, omega, Tb, Tm,
     triple point, ΔfH°, ΔfG°, S°, heat of fusion and, if T_K is given, Psat, ΔHvap, liquid and ideal-gas Cp, density,
-    viscosity, thermal conductivity and surface tension (P_Pa only sets the phase and the gas density). compound = name
+    viscosity, thermal conductivity and surface tension (transport from CoolProp's reference correlation where it matches NIST, else thermo
+    with its measured band; with P_Pa a dense gas also gets mu_gas_at_P_Pa_s and k_gas_at_P_W_mK). compound = name
     (English or common Spanish), CAS, formula or SMILES. Every value carries method (data source or estimator), basis
     ('data', 'compilation', 'derived', 'estimate'), the method's T range, in_range/extrapolated and a flag when it is
     NOT measured data: never quote a flagged value as experimental. evidence.verified = the library's data for the

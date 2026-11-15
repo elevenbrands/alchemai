@@ -85,15 +85,18 @@ def rl_control_experiment(environment: str | None = None, scenario: str | None =
                           hyperparameters: dict[str, object] | None = None, oracle: bool = True,
                           oracle_horizon: int | None = None, pid_baseline: list[dict[str, object]] | None = None,
                           check_reproducibility: bool = True, output_dir: str | None = None,
-                          timeout_s: int = 1800) -> str:
-    """EXPERIMENT, not a verified controller: train a stable-baselines3 agent (PPO/SAC/DDPG/TD3) on a pc-gym environment
+                          timeout_s: int = 1800, shield: dict[str, object] | None = None,
+                          verification: dict[str, object] | None = None) -> str:
+    """Train a stable-baselines3 agent (PPO/SAC/DDPG/TD3) on a pc-gym environment
     (or scenario='bloor2024_cstr'), evaluate it on held-out episodes and compare with a random policy, pc-gym's NMPC
     oracle and the user's PID (pid_baseline). total_timesteps and seeds are required. Runs in a separate Python env with
     a timeout; if absent returns available=false and the commands to create it. Returns mean/spread over seeds, gap to
-    oracle, violations, learning curves, policy paths; evidence.verified = reproducible and protocol followed only."""
+    oracle, violations, learning curves, policy paths. Without shield it is an EXPERIMENT. shield {fallback 'pid'|'nmpc', input_rate_max, initial_input,
+    horizon} projects actions and swaps in the fallback when env_params.constraints would be violated; verification
+    {initial_states, disturbances, cost_tolerance_pct} gives a per-policy EMPIRICAL verdict over that set only."""
     return json.dumps(TAC.rl_control_experiment(
         environment, scenario, env_params, algorithm, total_timesteps, seeds, eval_episodes, hyperparameters, oracle,
-        oracle_horizon, pid_baseline, check_reproducibility, output_dir, timeout_s), default=float, ensure_ascii=False)
+        oracle_horizon, pid_baseline, check_reproducibility, output_dir, timeout_s, shield, verification), default=float, ensure_ascii=False)
 
 
 AGENT_WRAPPERS = [mpc_design_and_simulate, nmpc_design_and_simulate, rl_control_experiment]

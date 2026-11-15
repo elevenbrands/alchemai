@@ -73,8 +73,8 @@ def psa_cycle(bed_length_m: float, bed_void_fraction: float, bulk_density_kg_m3:
     """Four-step Skarstrom PSA (pressurisation with 'feed' or 'product', feed, countercurrent blowdown, purge with product)
     of a binary gas on one isothermal bed with LDF, run to cyclic steady state. components: two gases {name,
     feed_mole_fraction, k_ldf_1_s, isotherm}; product_component = the weakly adsorbed gas. Returns purity, recovery,
-    productivity, per-cycle flows, validation_status, and for linear isotherms the equilibrium-theory comparison. Validated
-    only for linear isotherms; trend tool, not industrial design."""
+    productivity, per-cycle flows, validation_status, and the equilibrium-theory comparison (linear and Langmuir, product
+    pressurisation, feed up to breakthrough, purge above the cleaning bound). Outside that: NOT validated."""
     return json.dumps(TSE.psa_cycle(bed_length_m, bed_void_fraction, bulk_density_kg_m3, T_K, components, product_component,
                                     high_pressure_Pa, low_pressure_Pa, feed_velocity_m_s, purge_velocity_m_s,
                                     pressurization_time_s, feed_time_s, blowdown_time_s, purge_time_s, pressurization_with,

@@ -36,6 +36,11 @@ Validation (bloque M18b, 2026-11-14; numbers and sources in tests/test_fired_hea
     Cengel example 7-7 (in-line, +0.2 %); the gas radiation between tubes is 10 % above Kern's example 19.4 with his beam
     length; the convection section of Nelson's (1941) example 68 comes out with +5 % in the overall coefficient and +2 % in
     the heat given up by the gas.
+  * Radiant section, bloque L3 (2026-11-15; tests/test_fired_heater_cases.py): the box heater of the Esteem Projects fired
+    heater tutorial (published gas, 843 lb/h, 9.5e6 Btu/h at ~1600 °F) gives -1.4 % duty and +10 to +13 K; the vertical
+    cylindrical heater of the Heat Transfer Consult API 560 data sheets gives a bridgewall 5 K under its Lobo-Evans ~867 °C.
+  * Studded tubes (bloque L3): the stud correlation printed by the same Esteem tutorial, coded as printed. No worked example
+    with printed numbers was found: NOT validated, only its bare-tube limit and identities are checked.
 
 Every operating input (firing, geometry, tube emissivity, wall temperature or inside coefficient, convective coefficient in
 the firebox, setting loss, allowable flux) is the caller's; nothing typical is assumed."""
@@ -158,7 +163,11 @@ RADIANT_VALIDATION = (
     "correlación independiente de Leckner 1972 (-12 % a +18 % en 70 puntos, 800-2000 K y 0.03-3 atm·m; 1-2 % en el punto del "
     "ejemplo); las cartas de Kern quedan 23-27 % arriba de ambas a trayectoria larga. Banda a esperar: carga radiante ±5 %, "
     "pared divisoria ±35 K, en hogares de caja de una fila con llama no luminosa. El análisis del combustible de los "
-    "ejemplos no está publicado y se dedujo de sus propios datos.")
+    "ejemplos de Kern no está publicado y se dedujo de sus propios datos. Dos hogares más (bloque L3, 2026-11-15): hogar de "
+    "caja del tutorial de Esteem Projects (gas de composición publicada, 843 lb/h, 9.5e6 Btu/h a ~1600 °F): carga -1.4 % y "
+    "pared divisoria +10 a +13 K; calentador cilíndrico vertical con hoja de datos API 560 completa de Heat Transfer Consult "
+    "(metano, 26.26 MW liberados): pared divisoria -5 K frente a su cálculo Lobo-Evans (~867 °C), con el coeficiente "
+    "convectivo del hogar de la regla de ese tutorial (3 Btu/h ft² °F) y la temperatura media de pared estimada de su hoja.")
 CONVECTION_VALIDATION = (
     "Validado por partes. Coeficiente de convección del banco: Incropera ej. 7.7 (tresbolillo, transcripción FOSSEE) +0.7 % con "
     "las propiedades del libro y +1.9 % con las de Cantera; Çengel ej. 7-7 (en línea) +0.2 %; Grimison y ESDU 73031 a "
@@ -235,8 +244,25 @@ FINNED_VALIDATION = (
     "sección completa con propiedades de Cantera y radiación WSGG: carga +2.9 %, U +3.6 %, gas de salida -2 K. EN TRESBOLILLO "
     "no hay ejemplo resuelto con las constantes revisadas: contra el de Esteem Projects (aleta segmentada, versión anterior de "
     "ESCOA) h_c -7 %. Límite de tubo liso (aleta -> 0) frente a Žukauskas: tresbolillo -9 % a +18 %; en línea -25 % a -58 % "
-    "(ESCOA no se extrapola a tubo liso: con aletas muy bajas usa tube_type='bare'). Sin tubos con pernos. Banda a esperar: "
-    "h_c y U ±5 % en línea, ±10 % en tresbolillo; carga de la sección ±5 %.")
+    "(ESCOA no se extrapola a tubo liso: con aletas muy bajas usa tube_type='bare'). Los números de Ganapathy se transcribieron "
+    "de una copia cuya autorización no se pudo verificar y no se halló una fuente abierta legítima de esos ejemplos: pendiente "
+    "cotejarlos con un ejemplar con licencia. Banda a esperar: h_c y U ±5 % en línea, ±10 % en tresbolillo; carga de la "
+    "sección ±5 %.")
+STUD_KEYS = ("stud_length_m", "stud_diameter_m", "studs_per_plane", "stud_planes_per_m", "stud_conductivity_W_mK")
+STUD_SOURCE = ("Esteem Projects, «Free Fired Heater Design Tutorial - Convection Section Design», sección «Convection Transfer, "
+               "Stud Tubes» (fórmulas y su guion de cálculo, leídos 2026-11-15: "
+               "https://www.esteemprojects.com/library/Fired-Heater-Design/page4_3.htm); la fuente no cita de dónde viene la "
+               "correlación")
+STUDDED_VALIDATION = (
+    "NO validado contra un ejemplo resuelto: no se encontró ninguno abierto con números impresos para tubos con pernos. Lo "
+    "comprobado: las fórmulas del tutorial de Esteem Projects reproducidas tal cual (unidades inglesas en la prueba, SI aquí), "
+    "su límite sin pernos (h_e -> h_t, coeficiente de tubo liso de la misma fuente, que según ella ya incluye la radiación del "
+    "gas) frente al tubo liso de este módulo: h_t = convección de Žukauskas -1 %, pero 31 % bajo convección + radiación WSGG "
+    "(carga -16 % en un banco de prueba con gas a ~1540 °F), así que la radiación «incluida» no aparece y la carga con pernos "
+    "puede quedar subestimada; además cierre del balance y monotonía con el número, largo y conductividad de los pernos. Trata "
+    "la carga con incertidumbre no medida; para diseño, cotéjala con el fabricante.")
+STUD_BTU_H_FT2_F = 5.678263            # W/(m2 K) per Btu/(h ft2 °F)
+STUD_LB_H_FT2 = 0.45359237 / 3600.0 / 0.09290304   # kg/(m2 s) per lb/(h ft2)
 
 
 def finned_tube_geometry(diameter_m: float, fin_type: str, fin_height_m: float, fin_thickness_m: float, fins_per_m: float,
@@ -321,6 +347,56 @@ def finned_bank_beam_length(transverse_pitch_m: float, longitudinal_pitch_m: flo
     """Ganapathy (2015) eq. E.15: L = (d + 2h) (S_T S_L / (d + 2h)^2 - 0.85), m."""
     D = diameter_m + 2 * fin_height_m
     return D * (transverse_pitch_m * longitudinal_pitch_m / D ** 2 - 0.85)
+
+
+def studded_tube_geometry(diameter_m: float, stud_length_m: float, stud_diameter_m: float, studs_per_plane: float,
+                          stud_planes_per_m: float) -> dict:
+    """Areas of one metre of studded tube, as the Esteem Projects stud script computes them [STUD_SOURCE].
+
+    Stud area A_fo = (pi D_s L_s + pi D_s^2/4) n_s n_p (side + tip), exposed tube area A_po = pi d - (pi D_s^2/4) n_s n_p,
+    obstruction width for the free flow area d + L_s D_s n_p (the script's od + lf tf pf / 12)."""
+    d, Ls, Ds, ns, npl = diameter_m, stud_length_m, stud_diameter_m, studs_per_plane, stud_planes_per_m
+    if min(d, Ls, Ds, ns, npl) <= 0:
+        raise ValueError("pernos: diámetro de tubo, largo y diámetro del perno, pernos por plano y planos por metro positivos")
+    foot = math.pi * Ds ** 2 / 4 * ns * npl
+    if foot >= math.pi * d:
+        raise ValueError("pernos: las bases de los pernos cubren todo el tubo (revisa pernos por plano y planos por metro)")
+    if ns * Ds >= math.pi * d or npl * Ds >= 1.0:
+        raise ValueError("pernos: no caben (pernos por plano × diámetro del perno >= perímetro, o planos × diámetro >= 1 m)")
+    A_fo = (math.pi * Ds * Ls + math.pi * Ds ** 2 / 4) * ns * npl
+    A_po = math.pi * d - foot
+    return {"obstruction_m": d + Ls * Ds * npl, "stud_area_m2_per_m": A_fo, "tube_area_m2_per_m": A_po,
+            "total_area_m2_per_m": A_fo + A_po, "area_ratio_to_bare": (A_fo + A_po) / (math.pi * d)}
+
+
+def stud_coefficients(mass_velocity_kg_m2s: float, gas_T_K: float, diameter_m: float, stud_length_m: float,
+                      stud_diameter_m: float, stud_conductivity_W_mK: float, outside_fouling_m2K_W: float, geometry: dict,
+                      arrangement: str, longitudinal_pitch_m: float) -> dict:
+    """Effective outside coefficient of a studded tube, W/(m2 K), with the Esteem Projects stud correlation [STUD_SOURCE].
+
+    In its units (G_n lb/(h ft2) in the free area, T_b mean gas °F, d inches): base tube h_t = 0.717 d^-0.333 (G_n/1000)^0.67
+    (T_b + 460)^0.3, stud h_s = 0.936 (G_n/1000)^0.67 (T_b + 460)^0.3, both Btu/(h ft2 °F) and with the gas radiation «built
+    into the equations»; h_so = 1/(1/h_s + R_fo); stud efficiency E = 1/((e^X + e^-X)/1.950), X = L_s (2 h_so/(k_s D_s))^0.5;
+    h_e = (h_so E A_fo + h_t A_po)/A_o, times (d/P_l)^0.333 for an in-line bank. Coded as printed: the outside fouling is
+    applied to the studs only. E is a fit of the pin fin with adiabatic tip, tanh(mL)/(mL) with m = (4 h/(k D_s))^0.5 (mL =
+    X sqrt 2): within ±2.4 % for X <= 1.2, -9.5 % at X = 1.5 and -26 % at X = 2 (measured in tests/test_fired_heater_cases.py)."""
+    if arrangement not in ("staggered", "inline"):
+        raise ValueError("arrangement: 'staggered' o 'inline'")
+    if mass_velocity_kg_m2s <= 0 or gas_T_K <= 0 or stud_conductivity_W_mK is None or stud_conductivity_W_mK <= 0:
+        raise ValueError("stud_coefficients: velocidad másica, temperatura y conductividad del perno positivas")
+    Gn = mass_velocity_kg_m2s / STUD_LB_H_FT2
+    TR = (gas_T_K - 273.15) * 1.8 + 32.0 + 460.0
+    common = (Gn / 1000.0) ** 0.67 * TR ** 0.3
+    h_t = 0.717 / (diameter_m / 0.0254) ** 0.333 * common * STUD_BTU_H_FT2_F
+    h_s = 0.936 * common * STUD_BTU_H_FT2_F
+    h_so = 1.0 / (1.0 / h_s + float(outside_fouling_m2K_W))
+    X = stud_length_m * math.sqrt(2.0 * h_so / (stud_conductivity_W_mK * stud_diameter_m))
+    E = 1.950 / (math.exp(X) + math.exp(-X))
+    g = geometry
+    h_e = (h_so * E * g["stud_area_m2_per_m"] + h_t * g["tube_area_m2_per_m"]) / g["total_area_m2_per_m"]
+    inline_factor = (diameter_m / longitudinal_pitch_m) ** 0.333 if arrangement == "inline" else 1.0
+    return {"h_t": h_t, "h_s": h_s, "h_so": h_so, "X": X, "E": E, "h_e": h_e * inline_factor, "inline_factor": inline_factor,
+            "Gn_lb_h_ft2": Gn, "Tb_R": TR}
 
 
 PROCESS_KEYS = ("bulk_T_K", "inside_coefficient_W_m2K", "tube_inside_diameter_m", "wall_conductivity_W_mK",
@@ -495,7 +571,8 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
     """Convection bank, row by row, flue gas in cross flow and the process fluid counter-current overall.
 
     bank.tube_type: 'bare' (default; Žukauskas) or 'solid_fin' / 'serrated_fin' (revised ESCOA, Ganapathy 2015 app. E: fin
-    efficiency, h_o = h_c + h_radiation, U on the total outside area with the outside fouling after the fin effectiveness)."""
+    efficiency, h_o = h_c + h_radiation, U on the total outside area with the outside fouling after the fin effectiveness) or
+    'studded' (Esteem Projects stud correlation, gas radiation inside the correlation; see `stud_coefficients`)."""
     c = CB.solve_combustion(fuel, air, pressure_Pa, excess_air_fraction, flue_O2, flue_CO_dry_mole_fraction)
     if fuel_flow_kg_s is None or fuel_flow_kg_s <= 0 or gas_inlet_T_K is None:
         raise ValueError("da fuel_flow_kg_s y gas_inlet_T_K (temperatura del gas que entra al banco; la da fired_heater_radiant)")
@@ -512,11 +589,18 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
     if not (0 < Di < Do < St) or Sl <= 0 or n_t < 1 or n_r < 1:
         raise ValueError("bank: se necesita Di < Do < paso transversal, paso longitudinal > 0 y al menos un tubo y una fila")
     tube_type = b.get("tube_type") or "bare"
-    if tube_type not in ("bare",) + FIN_TYPES:
-        raise ValueError("bank.tube_type: 'bare', 'solid_fin' o 'serrated_fin' (tubos con pernos no están implementados)")
-    finned = tube_type in FIN_TYPES
+    if tube_type not in ("bare", "studded") + FIN_TYPES:
+        raise ValueError("bank.tube_type: 'bare', 'solid_fin', 'serrated_fin' o 'studded' (tubos con pernos)")
+    finned, studded = tube_type in FIN_TYPES, tube_type == "studded"
     width = b.get("duct_width_m") or n_t * St
-    if finned:
+    if studded:
+        _need(b, STUD_KEYS, "bank (tubos con pernos)")
+        geo = studded_tube_geometry(Do, b["stud_length_m"], b["stud_diameter_m"], b["studs_per_plane"], b["stud_planes_per_m"])
+        if Do + 2 * b["stud_length_m"] >= St:
+            raise ValueError("bank: el diámetro exterior de los pernos (d + 2 L_perno) no cabe en el paso transversal")
+        gap = width - n_t * geo["obstruction_m"]                 # free area of the Esteem stud script
+        area_ratio, beam_default = geo["area_ratio_to_bare"], bank_beam_length(St, Sl, Do)
+    elif finned:
         _need(b, FIN_KEYS + (("fin_segment_width_m",) if tube_type == "serrated_fin" else ()), "bank (tubos aletados)")
         hf, bf, kf = b["fin_height_m"], b["fin_thickness_m"], b["fin_conductivity_W_mK"]
         geo = finned_tube_geometry(Do, tube_type, hf, bf, b["fins_per_m"], b.get("fin_segment_width_m"))
@@ -555,14 +639,19 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
             Tw = min(max(Tp + Q / A_row * R_in, Tp), Tg)
             Re = G_max * Do / pr["mu"]
             eg = None
-            if gas_radiation and Tg - Tw > 1e-6:
+            if gas_radiation and not studded and Tg - Tw > 1e-6:
                 e = gas_emissivity(Tg, p_w, p_c, beam, pressure_Pa)
                 eg = e["emissivity"]
                 if not e["in_fitted_range"]:
                     flags.add("Emisividad del gas fuera del intervalo del ajuste WSGG (600-2400 K, 0.001-10 atm·m, 1 atm) en "
                               "alguna fila: la parte radiante de esas filas es una extrapolación.")
             out = {"Q": Q, "Tg_out": Tg_out, "Tp_cold": Tp_cold, "Tw": Tw, "Re": Re, "eg": eg, "Tg": Tg, "Tp": Tp}
-            if not finned:
+            if studded:
+                sc = stud_coefficients(G_max, Tg, Do, b["stud_length_m"], b["stud_diameter_m"], b["stud_conductivity_W_mK"],
+                                       b["outside_fouling_m2K_W"], geo, b["arrangement"], Sl)
+                U = 1.0 / (1.0 / sc["h_e"] + R_in)                 # outside fouling is inside h_so (source)
+                out.update(h_c=sc["h_e"], h_r=0.0, U=U, stud=sc, E=sc["E"], zk={"notes": []})
+            elif not finned:
                 zk = zukauskas_bank_nusselt(Re, pr["Pr"], _gas_properties(c, Tw, pressure_Pa)["Pr"], n_r, St, Sl,
                                             b["arrangement"])
                 h_c = zk["Nu"] * pr["k"] / Do
@@ -645,8 +734,32 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
                "U_W_m2K": r["U"], "Reynolds": r["Re"], "gas_emissivity": r["eg"]}
         if finned:
             row.update(fin_efficiency=r["E"], fin_effectiveness=r["eta"], mean_fin_T_K=r["Tf"], fin_tip_T_K=r["Ttip"])
+        if studded:
+            row.update(stud_efficiency=r["E"], h_base_tube_W_m2K=r["stud"]["h_t"], h_stud_W_m2K=r["stud"]["h_so"])
         table.append(row)
-    if finned:
+    if studded:
+        warnings.append("Tubos con pernos: correlación del tutorial de Esteem Projects sin ejemplo resuelto publicado que la "
+                        "valide; la fuente no da su intervalo de validez. Carga con incertidumbre no medida.")
+        X_max = max(r["stud"]["X"] for r in rows)
+        if X_max > 1.2:
+            warnings.append(f"Pernos con X = {X_max:.2f} > 1.2: la eficiencia de perno de la fuente queda por debajo de la "
+                            "solución de aleta de pin (-9.5 % a X = 1.5, -26 % a X = 2); pernos largos o de baja conductividad.")
+        if not gas_radiation:
+            warnings.append("gas_radiation=False no tiene efecto con tubos con pernos: la radiación del gas va dentro de la "
+                            "correlación empírica y no se puede separar.")
+        surface = ("Tubos con pernos. Coeficiente exterior efectivo de la correlación de Esteem Projects (h_t del tubo base, h_s "
+                   "del perno, ambos con la radiación del gas incluida, en función de la velocidad másica en el área libre y la "
+                   "temperatura media del gas de la fila), eficiencia de perno E = 1.95/(e^X + e^-X), X = L_s (2 h_so/(k_s "
+                   "D_s))^0.5, h_e = (h_so E A_perno + h_t A_tubo)/A_total y factor (d/P_l)^0.333 en línea; todo tal como lo "
+                   "imprime la fuente (en unidades inglesas, convertido aquí a SI).")
+        fin_note = ("Ensuciamiento exterior aplicado solo a los pernos (h_so = 1/(1/h_s + R_fo)), como en la fuente; U referido "
+                    "al área exterior total: 1/U = 1/h_e + resistencias interiores × A_total/A_lisa. La E de la fuente ajusta "
+                    "la aleta de pin con punta adiabática tanh(mL)/mL (±2.4 % hasta X = 1.2; -9.5 % a X = 1.5, -26 % a X = 2).")
+        beam_note, corr, name = None, STUD_SOURCE, "banco de tubos con pernos fila por fila"
+        validation = STUDDED_VALIDATION
+        not_inc = ["temperatura de la punta de los pernos (la fuente no da su relación)",
+                   "mezcla de tubos lisos, aletados y con pernos en un mismo banco (un tipo por llamada; encadena llamadas)"]
+    elif finned:
         surface = (f"Tubos con aleta {'sólida' if tube_type == 'solid_fin' else 'segmentada'}. Convección exterior: "
                    "ESCOA revisada (Ganapathy 2015, ap. E, Tabla E.2) con el arreglo declarado, velocidad másica en el área "
                    "libre entre obstrucciones (d + 2 n b h), propiedades del gas a la temperatura media de la fila y "
@@ -658,18 +771,21 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
         beam_note = "Ganapathy ec. E.15 para tubos aletados"
         corr, name = ESCOA_SOURCE, "banco de tubos aletados fila por fila"
         validation = FINNED_VALIDATION
-        not_inc = ["tubos con pernos (studs): sin ejemplo resuelto leído, no implementados"]
+        not_inc = ["mezcla de tubos lisos, aletados y con pernos en un mismo banco (un tipo por llamada; encadena llamadas)"]
     else:
         surface = ("Tubos lisos. Convección exterior: Žukauskas 1972, ecs. (39)-(44), con el arreglo declarado, la velocidad en "
                    "el área mínima de paso y la corrección por número de filas del banco entero aplicada a todas las filas.")
         fin_note, beam_note, corr, name = None, "3.6 V/A del espacio entre tubos", ZUKAUSKAS_SOURCE, "banco de tubos lisos fila por fila"
         validation = CONVECTION_VALIDATION
-        not_inc = ["tubos aletados (usa bank.tube_type='solid_fin' o 'serrated_fin') o con pernos"]
+        not_inc = ["tubos aletados o con pernos (usa bank.tube_type='solid_fin', 'serrated_fin' o 'studded')"]
     method = {"name": name, "module": "packages/energy/fired_heater.py", "property_data": CB.SOURCE,
               "convection_correlation": corr, "tube_type": tube_type}
     if finned:
         method.update(escoa_factors=rows[0]["escoa"], fin_area_m2_per_m=geo["fin_area_m2_per_m"],
                       total_area_m2_per_m=geo["total_area_m2_per_m"])
+    elif studded:
+        method.update(stud_factors_first_row={k: rows[0]["stud"][k] for k in ("h_t", "h_s", "h_so", "X", "E", "h_e")},
+                      stud_area_m2_per_m=geo["stud_area_m2_per_m"], total_area_m2_per_m=geo["total_area_m2_per_m"])
     else:
         method.update(equations_used=sorted({r["zk"]["equation"] for r in rows}), row_factor=rows[0]["zk"]["row_factor"])
     return {
@@ -678,13 +794,15 @@ def convection_section(fuel: dict, air: dict, pressure_Pa: float, fuel_flow_kg_s
         "max_tube_wall_T_K": max(r["Tw"] for r in rows), "outside_area_m2": n_r * A_row,
         "bare_tube_area_m2": n_r * n_t * math.pi * Do * L, "mass_velocity_kg_m2s": G_max,
         "max_fin_tip_T_K": max(r["Ttip"] for r in rows) if finned else None,
-        "mean_beam_length_m": beam, "flue_gas_kg_s": m_gas, "rows": table,
+        "mean_beam_length_m": None if studded else beam, "flue_gas_kg_s": m_gas, "rows": table,
         "evidence": {"energy_balance_error": closure, "verified_internal": closed, "verified": closed and not fin_iter_failed,
                      "reasons": reasons, "validated_against_literature": validation},
         "warnings": warnings,
         "assumptions": list(c.assumptions) + [surface] + ([fin_note] if fin_note else []) + [
-            "Propiedades de transporte del gas: Cantera, datos de GRI-Mech 3.0, promedio de mezcla (SO2 contado como CO2).",
-            "Radiación del gas entre tubos" + (": gas gris WSGG con longitud de haz "
+            "Propiedades de transporte del gas: Cantera, datos de GRI-Mech 3.0, promedio de mezcla (SO2 contado como CO2)"
+            + (" (con pernos solo para el Reynolds informado: la correlación no las usa)." if studded else "."),
+            "Radiación del gas entre tubos" + (": incluida en la correlación empírica de pernos (no WSGG)." if studded else
+                                               ": gas gris WSGG con longitud de haz "
                                                + ("dada por el usuario (bank.mean_beam_length_m)" if b.get("mean_beam_length_m")
                                                   else beam_note)
                                                + " y recinto todo sumidero." if gas_radiation

@@ -378,6 +378,9 @@ class Model:
         from packages.dynamics import flash_drum as FD
         if self.nc < 2:
             raise ValueError(f"el tambor flash '{uid}' necesita 'components' (≥ 2) en el flowsheet")
+        if u.get("energy_balance") is not None:
+            raise ValueError(f"'{uid}': el balance de energía del tambor flash solo está disponible en dynamic_flash_drum "
+                             "(tambor independiente); dentro del flowsheet el tambor es isotérmico (quite 'energy_balance')")
         dr = FD.Drum(u, components=self.comp)
         fl = _Obj(id=uid, kind="liquid", is_flash=True, drum=dr, ports=[], rho=dr.rho, area=dr.area, iV=-1, iE=-1,
                   hidden=False, kT=None, kP=f"{uid}.pressure_Pa", V=0.0, T=dr.T, c=np.zeros(self.nc), wet=True,
@@ -916,6 +919,8 @@ class Model:
         names += [f"{p}.{c}" for c in self.comp for p in ("n_in", "n_out", "n_gen")]
         names += ["e_in", "e_out", "e_heat", "e_rxn", "m_in", "m_out", "eg_in", "eg_out", "eg_heat"]
         names += ["col_in", "col_in_light", "col_out", "col_out_light"]
+        if any(c.energy for c in self.columns):           # only then, so that other flowsheets keep their state vector
+            names += ["col_e_in", "col_e_out"]
         self.qi = {}
         for n in names:
             self.qi[n] = len(self._y0)
@@ -941,6 +946,9 @@ class Model:
             sc[qi[n]] = ms
         for n in ("eg_in", "eg_out", "eg_heat"):
             sc[qi[n]] = egs
+        if "col_e_in" in qi:
+            ces = max(c.escale for c in self.columns if c.energy)
+            sc[qi["col_e_in"]] = sc[qi["col_e_out"]] = ces
 
     # ----------------------------------------------------------------------------------------------------- schedule
     def set_schedule(self, events: list[dict] | None, t_end: float) -> list[dict]:
@@ -1050,6 +1058,9 @@ class Model:
             col.M = y[col.iM:col.iM + col.NT]
             with np.errstate(divide="ignore", invalid="ignore"):
                 col.x = y[col.iN:col.iN + col.NT] / col.M
+            if col.energy:
+                from packages.dynamics import column as COL
+                COL.refresh_temperatures(col)
         for fl in self.flashes:
             fl.eq = eq = self._flash_state(fl, y)          # FlashOutOfRange (a ValueError) outside two phases
             P[fl.kP] = eq["P"]
@@ -1292,6 +1303,9 @@ class Model:
                 dq[qi["col_in_light"]] += fl_
                 dq[qi["col_out"]] += po
                 dq[qi["col_out_light"]] += pl
+                if col.energy:
+                    dq[qi["col_e_in"]] += col.e_in
+                    dq[qi["col_e_out"]] += col.e_out
         # --- gas
         for s in self.streams:
             if not s.gas:
@@ -1713,6 +1727,15 @@ def _balances(m: Model, y0: np.ndarray, y1: np.ndarray) -> dict:
                                           [q["col_in"], q["col_out"], tot(y0) * 1e-9])
         out["column_light_mol"] = closure(lig(y1) - lig(y0), q["col_in_light"] - q["col_out_light"],
                                           [q["col_in_light"], q["col_out_light"], lig(y0) * 1e-9])
+        ec = [c for c in m.columns if c.energy]
+        if ec:
+            from packages.dynamics import column as COL
+            hh = lambda y: sum(COL.holdup_enthalpy(c, y) for c in ec)                  # noqa: E731
+            h0, h1 = hh(y0), hh(y1)
+            b = closure(h1 - h0, q["col_e_in"] - q["col_e_out"], [q["col_e_in"], q["col_e_out"], abs(h0) * 1e-9])
+            b.update(feed_enthalpy_plus_reboiler_duty=q["col_e_in"], products_enthalpy_plus_condenser_duty=q["col_e_out"],
+                     units="J (entalpía del líquido retenido, ΣM·h, no es un estado: cierre no trivial)")
+            out["column_energy_J"] = b
     if liquid or m.flashes:
         vol = lambda y: sum((y[h.iV] if h.iV >= 0 else h.Vc) for h in liquid)       # noqa: E731
         out["liquid_volume_m3"] = closure(vol(y1) - vol(y0), q["vol_in"] - q["vol_out"] - q["vol_spill"],
@@ -1931,8 +1954,10 @@ def _base_assumptions(m: Model) -> list[str]:
 
 
 def _not_included() -> list[str]:
-    return ["tambor flash y columna sin balance de energía (isotérmico / flujos molares constantes); columnas "
-            "multicomponente, con platos de eficiencia < 1 o con hidráulica de vertedero de Francis",
+    return ["balance de energía del tambor flash dentro del flowsheet (aquí es isotérmico; dynamic_flash_drum sí lo "
+            "tiene); columna: balance de energía solo con energy_balance (si no, flujos molares constantes), sin "
+            "dinámica de presión; columnas multicomponente, con platos de eficiencia < 1 o con hidráulica de vertedero "
+            "de Francis",
             "alimentación y productos de la columna conectados por corrientes (son parámetros de la columna)",
             "propiedades variables con temperatura o composición en el líquido (ρ, cp constantes)",
             "geometrías de tanque distintas de sección constante; capacidad térmica de paredes",

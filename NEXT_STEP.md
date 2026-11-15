@@ -1,9 +1,19 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-14 (M24: las 53 capacidades del mapa en ✅, 106 tools; diagnóstico de vapor todo en uno; sin validar con plantas)
+Actualizado: 2026-11-15 (M25: límites de M24 atacados y momento completo, 114 tools; diagnóstico de vapor todo en uno; sin validar con plantas)
 
 ## Dónde estamos
 **Decisión del owner (2026-11-14): el primer cliente son las plantas con vapor.** Definición del cliente, el problema, la oferta (diagnóstico de vapor) y las hipótesis sin validar en `docs/CLIENTE_Y_PRODUCTO.md`. Motivo: DWSIM ya trae su propio asistente de IA, así que «IA que arma simulaciones» no es lo nuevo; lo que se vende es el estudio comprobado. 0 conversaciones con plantas hasta hoy.
+
+**M25 (2026-11-15): límites de M24 y transferencia de momento, 114 tools.** Pedido del owner: «arranca y termina límites y después momento». Hecho y verificado (detalle en APP.md y en las filas del mapa):
+- PSA con Langmuir validado contra teoría de equilibrio (sin ciclo publicado: artículos de pago).
+- Balance de energía en el flash y la columna dinámicos; quedan fuera la columna multicomponente, la energía del flash dentro del flowsheet y el modo dinámico de DWSIM.
+- Hornos contra cuatro hogares; tubos con espárragos sin validar; Ganapathy sigue sin fuente legítima.
+- Transporte de propiedades contra NIST (19 fluidos); líquido cerca del punto crítico hasta 50 % (marcado).
+- RL con escudo y veredicto empírico por política; no es garantía formal.
+- Momento: 8 tools nuevas (no newtonianos, sedimentación, fluidización, ciclones, Fanno, dos fases inclinado, golpe de ariete, bombas). Bingham turbulento (Darby) −24 % contra un punto medido y ΔP del ciclón en conflicto: declarados.
+- Errores de DWSIM en Beggs-Brill inclinado: reportarlos a DWSIM es contacto externo (OK del owner).
+- Suite completa (2026-11-15): 1230 passed, 22 skipped. Se corrigió una dependencia de orden: thermosteam (BioSTEAM) deja `RAISE_PROPERTY_CALCULATION_ERROR = True` global en thermo; `compound_properties` lo fija mientras calcula y lo restaura.
 
 **M24 (2026-11-14): las 53 capacidades del mapa en ✅, 106 tools.** Pedido del owner: «termina las 53 hoy». Se hicieron en paralelo con agentes (primero con Fable, que se quedó sin cupo a medias; se terminaron con Opus desde lo que ya estaba en disco) y cada bloque lo verifiqué: corrí sus pruebas y una comprobación propia a mano (η de una esfera a φ = 3, serie de Crank, MSMPR, permeado en mezcla completa, IAPWS, Fenske). Detalle por fila en `docs/MAPA_MOTORES.md` y validaciones en BENCHMARK (filas M24).
 - Límites que siguen y que cada herramienta declara: PSA con isoterma no lineal sin validar; hornos con un solo horno radiante de referencia y sin tubos con espárragos; flash y columna dinámicos sin balance de energía; transporte de propiedades de puros (salvo agua) sin validar; MPC no lineal solo con óptimo local; una política de RL es un experimento.
