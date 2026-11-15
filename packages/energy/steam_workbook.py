@@ -550,7 +550,46 @@ def read_workbook(path: str) -> dict:
                    "water": water or None, "fuel_cost": fuel_cost, "water_cost": water_cost,
                    "electricity_cost": electricity_cost, "operation": operation or None, "measures": measures or None,
                    "distribution": distribution or None})
-    return {"inputs": inputs, "plant_label": s.text("plant_label"), "notes": notes}
+    return {"inputs": inputs, "plant_label": s.text("plant_label"), "notes": notes, "missing_essentials": _essentials(s)}
+
+
+def _essentials(s: _Sheet) -> list[str]:
+    """Rows without which the engine refuses, named as the plant sees them (cell and label). The engine stays the judge."""
+    need: list[str] = []
+
+    def row(key: str) -> None:
+        if not s.has(key):
+            need.append(s.where(key))
+
+    def either(a: str, b: str, text: str) -> None:
+        if not s.has(a) and not s.has(b):
+            need.append(f"{s.where(a)} o {s.where(b)}: {text}")
+
+    row("currency")
+    either("altitude", "p_atm", "la altitud o la presión atmosférica")
+    row("fuel_name")
+    row("fuel_T")
+    either("fuel_price", "fuel_bill_amount", "el precio del combustible o el importe del recibo")
+    if s.has("fuel_bill_amount") and not any(s.has(k) for k in ("fuel_bill_energy", "fuel_bill_volume", "fuel_bill_mass")):
+        need.append(f"{s.where('fuel_bill_energy')}: la energía, el volumen o la masa que factura el recibo")
+    either("water_price", "water_bill_amount", "el precio del agua o el importe del recibo")
+    for key in ("steam_pressure", "blowdown"):
+        row(key)
+    either("o2", "excess_air", "el oxígeno en chimenea o el exceso de aire")
+    for key in ("stack_T", "air_T", "air_RH"):
+        row(key)
+    if not s.has("setting_loss") and s.raw.get("setting_loss_unknown", (None,))[0] != YES:
+        need.append(f"{s.where('setting_loss')}: la pérdida por paredes, o marcar Sí en «No la conozco»")
+    row("fw_mode")
+    mode = s.raw.get("fw_mode", (None,))[0]
+    if mode is not None and HEATING.get(mode) != "mixing_only":
+        row("fw_T")
+    for key in ("makeup_T", "cond_return"):
+        row(key)
+    back = s.raw.get("cond_return", (None,))[0]
+    if isinstance(back, (int, float)) and back > 0 and HEATING.get(mode) != "not_charged":
+        row("cond_T")
+    return need
 
 
 def _read_distribution(wb, p_atm, problems: list[str]) -> dict:

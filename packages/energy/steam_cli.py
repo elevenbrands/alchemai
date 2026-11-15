@@ -51,8 +51,9 @@ def run_workbook(workbook: str, out_dir: str, notice: str | None = None, pdf: bo
     inputs = dict(read["inputs"])
     if today:
         inputs["today"] = today
-    if "currency" not in inputs:
-        raise ValueError(f"{SW.SHEET_DATA}: elige la moneda de los importes (sección 1).")
+    if read["missing_essentials"]:
+        raise ValueError("A la hoja le faltan datos indispensables (sin ellos no hay diagnóstico; no se suponen):\n- "
+                         + "\n- ".join(read["missing_essentials"]))
     report = SR.steam_diagnostic_report(inputs=inputs, plant_label=read["plant_label"], notice=notice)
     os.makedirs(out_dir, exist_ok=True)
     paths = {k: os.path.join(out_dir, name) for k, name in (("html", "reporte.html"), ("markdown", "reporte.md"),

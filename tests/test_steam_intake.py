@@ -186,9 +186,18 @@ def test_workbook_lists_every_capture_error_with_its_cell(tmp_path):
 def test_empty_template_is_refused_by_the_engine_not_by_the_reader(tmp_path):
     book = SW.build_template(str(tmp_path / "vacia.xlsx"))
     read = SW.read_workbook(book)                                                          # empty cells are not capture errors
-    assert read["inputs"] == {}
-    with pytest.raises(ValueError, match="elige la moneda"):
+    assert read["inputs"] == {} and len(read["missing_essentials"]) == 16
+    with pytest.raises(ValueError) as e:
         SC.run_workbook(book, str(tmp_path / "out"))
+    msg = str(e.value)                                                                     # named as the plant sees them
+    for needle in ("datos indispensables", "«Moneda de todos los importes»", "«Temperatura de los gases en la chimenea»",
+                   "o marcar Sí en «No la conozco»", "Datos!B"):
+        assert needle in msg, needle
+    assert SW.read_workbook(_example(tmp_path))["missing_essentials"] == []
+    # the feed-water temperature is not asked of a tank without heater, nor the condensate temperature with no return
+    lean = SW.read_workbook(_example(tmp_path, fw_T=None, cond_T=None, cond_return=(0, "%"),
+                                     fw_mode=("Tanque sin calentador (solo mezcla de condensado y agua de repuesto)", None)))
+    assert lean["missing_essentials"] == []
 
 
 # ------------------------------------------------------------------------------------------------- one command, HTML

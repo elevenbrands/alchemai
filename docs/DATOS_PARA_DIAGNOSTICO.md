@@ -64,6 +64,12 @@ Curva de carga a lo largo del año, purga de fondo, fugas y trampas de vapor, ai
 
 Unidades: la herramienta recibe SI (K, Pa absolutos, kg/s, fracciones). La planta puede dar °C, kg/cm² manométricos, t/h y porcentajes; la conversión la hace quien captura, y el reporte devuelve °C, bar y kg/cm², t y porcentajes.
 
+## Cómo se capturan
+
+La planta no usa los nombres de la columna «Parámetro»: llena la hoja `ejemplos/plantilla_diagnostico_vapor.xlsx` en sus
+unidades y el reporte sale con `./vapor diagnostico` (guía en `docs/GUIA_DIAGNOSTICO_VAPOR.md`). La hoja incluye además el
+recorrido de la distribución (fugas, trampas falladas y tubería sin aislar), que es opcional.
+
 ## Cuando la planta no tiene el dato (decisiones del 2026-11-14)
 
 El diagnóstico nunca supone en silencio. Estas son las únicas salidas, y todas quedan marcadas en el reporte como supuestos:
