@@ -284,7 +284,7 @@ def build_template(path: str, example: dict | None = None) -> str:
                 if unit is not None:
                     wd.cell(row=row, column=COL_UNIT, value=unit)
             row += 1
-    for letter, width in (("A", 74), ("B", 22), ("C", 26), ("D", 90)):
+    for letter, width in (("A", 74), ("B", 22), ("C", 36), ("D", 90)):
         wd.column_dimensions[letter].width = width
     wd.column_dimensions["E"].hidden = True
     wd.freeze_panes = "B2"
@@ -313,6 +313,18 @@ def build_template(path: str, example: dict | None = None) -> str:
             for cidx, value in enumerate(values, start=1):
                 wt.cell(row=r, column=cidx, value=value)
         wt.freeze_panes = "A2"
+    # printing: a plant may fill the sheet by hand. Landscape, every column on one page width, header row repeated
+    from openpyxl.worksheet.properties import PageSetupProperties
+    for sheet in wb.worksheets:
+        sheet.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
+        sheet.page_setup.orientation = "landscape"
+        sheet.page_setup.fitToWidth, sheet.page_setup.fitToHeight = 1, 0
+        sheet.page_margins.left = sheet.page_margins.right = 0.4
+        sheet.page_margins.top = sheet.page_margins.bottom = 0.5
+        if sheet.title != SHEET_HELP:
+            sheet.print_title_rows = "1:1"
+    for r in range(1, len(INSTRUCTIONS) + 1):
+        ws.cell(row=r, column=1).alignment = Alignment(wrap_text=True, vertical="top")
     wb.active = wb.index(wd)
     wb.save(path)
     _fix_font_order(path)

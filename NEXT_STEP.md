@@ -19,11 +19,13 @@ Actualizado: 2026-11-14 (M1-M21: diagnóstico de vapor todo en uno, 80 tools; de
 
 - **M23 (2026-11-14): caso real de punta a punta y salidas para lo que la planta no tiene.** La caldera real de la tesina de la UNAM se capturó en la hoja de Excel y se corrió con `./vapor caso-real` (`ejemplos/caso_real_unam_2021/`): 81.57 % por pérdidas contra 80.95 % por entradas y salidas con los medidores de la propia planta (+0.62 puntos). Nuevo: pérdida por paredes de calderas de tubos de humo desde la tabla del fabricante (Cleaver-Brooks CB-7767), diagnóstico sin precio del agua y sin humedad del aire (avisado), y lectura de unidades y opciones escritas a mano, para que la hoja no dependa de las listas desplegables. Todo en MOCKS `SALIDAS-SIN-DATO-M23`.
 
+- **M23c (2026-11-14): impresión y paquete piloto.** Al imprimir, la hoja se partía en 17 páginas con las columnas separadas; ahora sale en 5, horizontal, con todas las columnas juntas y el encabezado repetido. Carpeta `piloto/` con lo que se manda a una planta (plantilla, ejemplo de reporte de la caldera real, mensaje para copiar y pegar) y qué hacer cuando regresa la hoja. Nada se envió.
+
 No cubierto (sigue abierto):
 1. **Ninguna planta piloto propia.** Hay dos calderas reales medidas por terceros; ninguna llenó la plantilla ni recibió el reporte. La plantilla, el reporte y todos los supuestos son hipótesis hasta el primer piloto. Es lo único que falta para saber si esto sirve.
 2. Una caldera por hoja y un punto de operación promedio: sin curva de carga ni varias calderas.
 3. Válvulas y bridas sin aislar no se calculan. La tabla de tubería del DOE Tip Sheet #2 corresponde al método anterior a 2002 (con la ecuación de Heilman sale dentro de 5 %); el motor usa el método vigente y se valida contra 3E Plus y ASHRAE.
-9. La hoja no se abrió en la pantalla de Microsoft Excel (no hubo permiso para controlarlo). Sí pasó el validador del Open XML SDK de Microsoft con 0 errores (Office 2010, 2019 y 365), se abre y se vuelve a guardar en LibreOffice sin cambios, y acepta unidades escritas a mano.
+9. La hoja no se abrió en la pantalla de Microsoft Excel: la instalación de Excel de este Mac está corrupta y se cierra al arrancar (firma inválida, frameworks de otra arquitectura); no es un problema de la hoja ni de permisos. Reinstalar Office es decisión del owner. Sí pasó el validador del Open XML SDK de Microsoft con 0 errores (Office 2010, 2019 y 365), se abre y se vuelve a guardar en LibreOffice sin cambios, y acepta unidades escritas a mano.
 10. Pérdida por paredes de tubos de humo: tabla de un fabricante, respaldada en orden de magnitud por la guía de afinación publicada por la EPA (menos de 0.5 % a carga moderada). Las dos describen calderas en buen estado.
 4. Combustibles líquidos y gas LP: solo con análisis o composición de la planta; los objetivos publicados no aplican.
 5. Inversiones y costos de reparación: nunca se estiman.
