@@ -20,6 +20,7 @@ from datetime import date
 from packages.costing import utilities as U
 from packages.energy import combustion as CB
 from packages.energy import fuel_reference as FR
+from packages.energy import steam_audit as SA
 
 TOOL_COMB = "combustion_efficiency (M18, método de pérdidas, entalpías NASA)"
 TOOL_COST = "utility_costs (M17, balance de la isla de vapor con IAPWS-95)"
@@ -601,7 +602,8 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
                             boiler: dict | None = None, water: dict | None = None, fuel_cost: dict | None = None,
                             water_cost: dict | None = None, electricity_cost: dict | None = None,
                             operation: dict | None = None, measures: dict | None = None, reference: str | None = None,
-                            exchange_rates: dict | None = None, today: str | None = None) -> dict:
+                            exchange_rates: dict | None = None, today: str | None = None,
+                            distribution: dict | None = None) -> dict:
     """Steam diagnostic of one boiler; see the module docstring and tools_steam.steam_system_diagnostic."""
     if not currency or not isinstance(currency, str):
         raise ValueError("currency: di en qué moneda quieres el diagnóstico (por ejemplo 'MXN' o 'USD').")
@@ -610,7 +612,7 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     inputs = copy.deepcopy({"currency": currency, "fuel": fuel, "combustion": combustion, "boiler": boiler, "water": water,
                             "fuel_cost": fuel_cost, "water_cost": water_cost, "electricity_cost": electricity_cost,
                             "operation": operation, "measures": measures, "reference": reference,
-                            "exchange_rates": exchange_rates, "today": day})
+                            "exchange_rates": exchange_rates, "today": day, "distribution": distribution})
     combustion, boiler, water = dict(combustion or {}), dict(boiler or {}), dict(water or {})
     operation, measures = dict(operation or {}), dict(measures or {})
     _known(combustion, COMBUSTION_KEYS, "combustion")
@@ -1048,6 +1050,22 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
         combined = {"measures": [evaluated[0]["id"]], "status": "not_applicable",
                     "reason": "solo se evaluó una medida: el caso combinado es esa misma medida"}
 
+    # ---- distribution losses (leaks, failed traps, bare pipe), valued with the baseline steam
+    dist = None
+    if distribution:
+        after = combined["result"]["steam"]["cost_per_tonne"] if combined and combined.get("result") else None
+        dist = SA.distribution_losses(
+            distribution, spec0["site_pressure_Pa"], currency, hours, base["steam"]["cost_per_tonne"],
+            base["steam"]["breakdown_per_GJ_delivered"]["fuel"], base["emissions"]["co2_kg_per_tonne_steam"],
+            base["steam"]["heat_delivered_GJ_per_tonne"], delivered_t_y, after)
+        warnings.extend(w for w in dist["warnings"] if w not in warnings)
+    else:
+        missing.append({"item": "el recorrido de la distribución: fugas de vapor, trampas falladas y tramos de tubería sin "
+                                "aislar (cuántos, diámetro del orificio o del tubo, longitud y presión)",
+                        "parameter": "distribution",
+                        "prevents": "valorar lo que se pierde entre la caldera y el proceso; este estudio cubre solo la casa de "
+                                    "calderas"})
+
     # ---- other missing or optional data
     if boiler.get("auxiliary_power_kWh_per_tonne") is None:
         missing.append({"item": "el consumo eléctrico de ventiladores y bombas de la caldera (kWh por tonelada de vapor) y el "
@@ -1360,7 +1378,7 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
                    "boiler_makeup_water_per_m3": sources["boiler_makeup_water_per_m3"]["value"],
                    "electricity_per_kWh": base_case["costs"]["electricity"]["per_kWh"] if "electricity" in base_case["costs"] else None},
         "baseline": base, "setting_loss": setting_loss, "fuel_resolution": fuel_resolution, "assumed_values": assumed_values,
-        "data_review": data_review, "measures": results, "combined": combined,
+        "data_review": data_review, "measures": results, "combined": combined, "distribution": dist,
         "provenance": {"plant_data": plant, "prices": price_prov, "published_references": published, "calculated": calculated},
         "missing_data": missing, "evidence": evidence, "warnings": warnings, "assumptions": assumptions,
         "not_included": not_included, "inputs": inputs,

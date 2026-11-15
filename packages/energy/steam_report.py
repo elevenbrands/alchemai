@@ -298,7 +298,8 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
         for m in order:
             s = m["savings"]
             change = "; ".join(_change(c) for c in m["changed"])
-            pay = f"{m['simple_payback_years']:.1f} años" if m["simple_payback_years"] is not None else (m["payback_note"] or "no calculado")
+            pay = (f"{m['simple_payback_years']:.1f} años" if m["simple_payback_years"] is not None
+                   else "sin cotización" if m["investment"] is None else (m["payback_note"] or "no calculado"))
             inv = f"{_n(m['investment'])} {cur}" if m["investment"] is not None else "no dada"
             if has_annual:
                 cap = s["annual"].get("max_investment_for_payback")
@@ -316,7 +317,8 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
                      "CO2 evitado (t)" if has_annual else "CO2 evitado (kg)", f"Ahorro ({cur})",
                      "% del costo del vapor", "Inversión", "Retorno simple", "Inversión máxima para recuperar en 2 años"], rows)
         L += ["La última columna no es una cotización: es dos veces el ahorro anual, es decir, lo más que se puede pagar por la "
-              "medida para recuperarlo en dos años. Sirve para saber si vale la pena pedir la cotización.", ""]
+              "medida para recuperarlo en dos años. Sirve para saber si vale la pena pedir la cotización. El retorno simple "
+              "solo se calcula con la inversión que cotice el proveedor: nunca se estima.", ""]
         for m in order:
             r = m["result"]
             L.append(f"**{m['label']}.** Eficiencia de la caldera {_pct(base['boiler']['efficiency'])} → {_pct(r['boiler']['efficiency'])}; "
@@ -376,6 +378,50 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
         L += ["No aplica: no se evaluó ninguna medida.", ""]
 
     # ---------------------------------------------------------------------------------------------- not evaluated
+    dist = d.get("distribution")
+    if dist:
+        L += ["## Pérdidas en la distribución (fugas, trampas y tubería sin aislar)", "",
+              "Salen del recorrido de la planta: los conteos, diámetros y longitudes son datos de la planta. Cada pérdida se "
+              f"valora con el vapor de la línea base ({_n(dist['valuation']['cost_per_tonne_steam'], 1)} {cur} por tonelada).", ""]
+        yearly = dist["hours_per_year"] is not None
+        rows = []
+        for key, label in (("leaks", "Fuga de vapor"), ("failed_traps", "Trampa fallada abierta")):
+            for it in (dist[key] or {}).get("items", []):
+                rows.append([f"{label}: {it['description']}", f"{it['count']:.0f} × orificio de {it['orifice_diameter_m'] * 1e3:.1f} mm a "
+                             f"{it['steam_pressure_Pa'] / 1e5:.1f} bar abs", f"{_n(it['steam_kg_h'], 1)} kg/h de vapor",
+                             _n(it["cost_per_year"]) if yearly else "sin horas", _n(it["co2_tonne_per_year"], 1) if yearly else "—"])
+        for it in (dist["bare_pipes"] or {}).get("items", []):
+            rows.append([f"Tubería sin aislar: {it['description']}", f"{it['length_m']:.0f} m de {it['outer_diameter_m'] * 1e3:.0f} mm "
+                         f"de diámetro exterior a {_C(it['surface_T_K'])}", f"{_n(it['heat_loss_W'] / 1e3, 1)} kW de calor "
+                         f"({_n(it['heat_loss_W_per_m'])} W por metro)", _n(it["cost_per_year"]) if yearly else "sin horas",
+                         _n(it["co2_tonne_per_year"], 1) if yearly else "—"])
+        L += _table(["Pérdida", "Qué es", "Cuánto se pierde", f"Costo al año ({cur})", "CO2 al año (t)"], rows)
+        tot = dist["total"]
+        if yearly:
+            cap = tot["max_investment_for_payback"]
+            L += [f"**En total estas pérdidas cuestan {_n(tot['cost_per_year'])} {cur} al año** y emiten "
+                  f"{_n(tot['co2_tonne_per_year'], 1)} toneladas de CO2."
+                  + (f" Equivalen a {_pct(tot['share_of_delivered_steam'])} del vapor que entrega la caldera."
+                     if tot["share_of_delivered_steam"] is not None else "")
+                  + (f" Repararlas todas se paga en dos años si cuesta menos de {_n(cap['2'])} {cur}." if cap else ""), ""]
+        ins = [it for it in (dist["bare_pipes"] or {}).get("items", []) if it.get("insulation")]
+        if ins:
+            L += ["Con el aislamiento propuesto:", ""]
+            L += _table(["Tramo", "Aislamiento", "Pérdida hoy → aislado", f"Ahorro al año ({cur})"],
+                        [[it["description"], f"{it['insulation']['thickness_m'] * 1e3:.0f} mm; la cubierta queda a "
+                          f"{_C(it['insulation']['jacket_T_K'])}", f"{_n(it['heat_loss_W'] / 1e3, 1)} → "
+                          f"{_n(it['insulation']['heat_loss_W'] / 1e3, 2)} kW ({_pct(it['insulation']['saving_fraction'], 0)} menos)",
+                          _n(it["insulation"]["saving_cost_per_year"]) if yearly else "sin horas"] for it in ins])
+        pending = [it for it in (dist["bare_pipes"] or {}).get("items", []) if it.get("insulation_note")]
+        if pending:
+            L += ["Tramos sin aislamiento propuesto (se reporta solo lo que pierden hoy): "
+                  + ", ".join(it["description"] for it in pending) + ".", ""]
+        L += [dist["valuation"]["note"], "", "Constantes del modelo que no se le piden a la planta:", ""]
+        L += [f"- {c['what'].capitalize()}: {c['value']:.2f}" + (f". {c['source']}." if c["source"] else " (dado por el usuario).")
+              for c in dist["model_constants"].values()] + [""]
+        L += ["Supuestos de esta sección:", ""] + [f"- {a}" for a in dist["assumptions"][len(dist["model_constants"]):]] + [""]
+        L += ["No incluye: " + "; ".join(dist["not_included"]) + ".", ""]
+
     L += ["## 5. Lo que no se evaluó y por qué", ""]
     if skipped:
         for m in skipped:

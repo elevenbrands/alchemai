@@ -1,0 +1,7 @@
+#!/bin/zsh
+# Diagnóstico de vapor, todo en uno. Uso:
+#   ./vapor plantilla datos_planta.xlsx          escribe la hoja vacía que llena la planta
+#   ./vapor diagnostico datos_planta.xlsx        lee la hoja llena y escribe reporte.html, reporte.pdf, reporte.md
+#   ./vapor ejemplo carpeta/                     hoja llena con una planta INVENTADA y su reporte
+ROOT="${0:A:h}"
+PYTHONPATH="$ROOT" exec uv run --project "$ROOT" python -m packages.energy.steam_cli "$@"

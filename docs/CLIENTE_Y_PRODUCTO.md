@@ -53,6 +53,14 @@ El nombre del diagnóstico y su precio después del piloto son decisión del own
 | Reporte para el cliente | `steam_diagnostic_report` (M19) | hecho: Markdown en español armado sin modelo de lenguaje; ejemplo ilustrativo en `notebooks/32_diagnostico_de_vapor_reporte.md` |
 | Lista de datos que se piden a la planta | `docs/DATOS_PARA_DIAGNOSTICO.md` | hecha desde las entradas reales del motor; sin validar con plantas |
 | Planta que no conoce la pérdida por paredes de su caldera | `combustion.setting_loss_unknown` (M19b) | hecho: usa 1.0 % (PCS) de la guía ORNL/TM-2001/263 del DOE, marcado como supuesto y con su sensibilidad; sin validar con calderas reales |
+| Planta que no tiene el análisis de su gas natural | `fuel.type = natural_gas_unknown` (M20) | hecho: composición ajustada al poder calorífico del recibo; contra seis gases de referencia, eficiencia a menos de 0.15 puntos |
+| Planta sin objetivo de exceso de aire o de chimenea | `use_published_target` (M20) | hecho: objetivos del DOE (10 % de exceso de aire; 121 °C), solo gas natural, marcados como publicados |
+| Emisiones de CO2 y CO2 evitado por medida | `baseline.emissions` (M20) | hecho: balance de carbono; con gas sin análisis sale hasta 3 % bajo |
+| Revisión de datos sospechosos | `data_review` (M20) | hecho: señala, no corrige; umbrales propios sin fuente |
+| Tope de inversión por medida | `max_investment_for_payback` (M20) | hecho: 1, 2 y 3 veces el ahorro anual; no es una cotización |
+| Fugas de vapor, trampas falladas y tubería sin aislar | `distribution` (M20) | hecho: fugas y trampas validadas contra tablas del DOE (±4 %); tubería desnuda sin validar contra el DOE (−5 a +8 %) |
+| Captura de datos para la planta | `ejemplos/plantilla_diagnostico_vapor.xlsx` (M21) | hecha: hoja de Excel en unidades de planta; ninguna planta la ha llenado |
+| De la hoja al reporte entregable, un solo paso | `./vapor diagnostico archivo.xlsx` (M21) | hecho: HTML autocontenido con indicadores y gráficas, PDF, Markdown y JSON; ejemplo en `ejemplos/diagnostico_vapor/` |
 | Diagnóstico con datos de una planta real | — | no existe: 0 plantas |
 
 ## Qué es nuevo y qué no

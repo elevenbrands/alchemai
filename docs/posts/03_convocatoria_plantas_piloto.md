@@ -51,3 +51,8 @@ Notas para el owner:
   proveedores de calderas y de tratamiento de agua (visitan plantas y les sirve llevar un diagnóstico); cámaras y
   clústeres industriales de tu ciudad. Ninguna se ha intentado.
 - Qué se le pide exactamente a la planta: `docs/DATOS_PARA_DIAGNOSTICO.md`.
+- A la planta que conteste se le manda la hoja `ejemplos/plantilla_diagnostico_vapor.xlsx`; con la hoja llena, el reporte
+  sale con `./vapor diagnostico` (guía en `docs/GUIA_DIAGNOSTICO_VAPOR.md`). Un ejemplo del reporte, con planta inventada,
+  está en `ejemplos/diagnostico_vapor/reporte.pdf`: sirve como muestra para enseñar qué recibe la planta.
+- El diagnóstico ya cubre también fugas, trampas falladas, tubería sin aislar y CO2. El texto del post no lo dice; si se
+  quiere mencionar, agregar una línea en «Qué recibe la planta».

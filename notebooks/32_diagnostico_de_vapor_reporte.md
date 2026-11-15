@@ -30,6 +30,7 @@ Producir vapor le cuesta hoy a la planta **11,700,777 MXN al año** (354.6 MXN p
 | Agua de repuesto al año | 21,326 m³ | calculado |
 | Electricidad de la caldera al año | 164,985 kWh | calculado |
 | **Costo anual del vapor** | **11,700,777 MXN** (combustible 10,466,307; agua 810,398; electricidad 424,071) | calculado |
+| Emisiones directas de CO2 de la caldera | 5,563 toneladas al año; 168.6 kg por tonelada de vapor | calculado |
 
 Se dieron la producción de vapor y el consumo de combustible: las cifras anuales usan la producción de vapor y el otro dato sirve de comparación (ver «Comprobaciones»).
 
@@ -56,12 +57,14 @@ El vapor y la purga suman la eficiencia de la caldera (78.6 %). El punto de roc�
 
 Ordenadas de mayor a menor ahorro. Cada una se calculó repitiendo el estudio completo con un solo cambio: el objetivo que dio la planta. Ahorros al año; la demanda de vapor del proceso es la misma en todos los casos.
 
-| Medida | Qué cambia | Combustible ahorrado (GJ PCS) | Agua ahorrada (m³) | Ahorro (MXN) | % del costo del vapor | Inversión | Retorno simple |
-|---|---|---|---|---|---|---|---|
-| Bajar la temperatura de chimenea (economizador o precalentador de aire) | temperatura de chimenea: 230 °C → 150 °C | 5,487 | 0 | **521,290** | 4.5 % | 2,800,000 MXN | 5.4 años |
-| Bajar el exceso de aire (afinar la combustión) | oxígeno en chimenea (base seca): 6.5 % → 3.0 %; exceso de aire: 40.3 % → 15.0 %; temperatura de chimenea: 230 °C → 220 °C | 2,828 | 0 | **268,694** | 2.3 % | 400,000 MXN | 1.5 años |
-| Recuperar el calor de la purga | calor de la purga: se tira → tanque de flasheo a 1.20 bar absolutos más intercambiador que deja la purga a 40 °C | 2,337 | 482 | **240,284** | 2.1 % | no dada | no calculado: falta la inversión (cotización del proveedor). No se estima. |
-| Bajar la purga | purga, del agua de alimentación: 8.0 % → 5.0 % | 1,030 | 1,247 | **145,187** | 1.2 % | 250,000 MXN | 1.7 años |
+| Medida | Qué cambia | Combustible ahorrado (GJ PCS) | Agua ahorrada (m³) | CO2 evitado (t) | Ahorro (MXN) | % del costo del vapor | Inversión | Retorno simple | Inversión máxima para recuperar en 2 años |
+|---|---|---|---|---|---|---|---|---|---|
+| Bajar la temperatura de chimenea (economizador o precalentador de aire) | temperatura de chimenea: 230 °C → 150 °C | 5,487 | 0 | 277 | **521,290** | 4.5 % | 2,800,000 MXN | 5.4 años | 1,042,579 MXN |
+| Bajar el exceso de aire (afinar la combustión) | oxígeno en chimenea (base seca): 6.5 % → 3.0 %; exceso de aire: 40.3 % → 15.0 %; temperatura de chimenea: 230 °C → 220 °C | 2,828 | 0 | 143 | **268,694** | 2.3 % | 400,000 MXN | 1.5 años | 537,388 MXN |
+| Recuperar el calor de la purga | calor de la purga: se tira → tanque de flasheo a 1.20 bar absolutos más intercambiador que deja la purga a 40 °C | 2,337 | 482 | 118 | **240,284** | 2.1 % | no dada | sin cotización | 480,567 MXN |
+| Bajar la purga | purga, del agua de alimentación: 8.0 % → 5.0 % | 1,030 | 1,247 | 52 | **145,187** | 1.2 % | 250,000 MXN | 1.7 años | 290,374 MXN |
+
+La última columna no es una cotización: es dos veces el ahorro anual, es decir, lo más que se puede pagar por la medida para recuperarlo en dos años. Sirve para saber si vale la pena pedir la cotización. El retorno simple solo se calcula con la inversión que cotice el proveedor: nunca se estima.
 
 **Bajar la temperatura de chimenea (economizador o precalentador de aire).** Eficiencia de la caldera 78.6 % → 82.7 %; costo del vapor 354.6 → 338.8 MXN por tonelada.
 - La chimenea quedaría 96 °C por encima del punto de rocío del agua (54 °C).
@@ -91,6 +94,8 @@ El caso combinado da 78 % de la suma. Los ahorros no se suman: cada medida deja 
 
 Con todas las medidas la eficiencia de la caldera pasaría de 78.6 % a 83.7 % y el vapor costaría 326.9 MXN por tonelada en lugar de 354.6. Retorno simple del conjunto: no calculado: falta la inversión de al menos una medida o las cifras anuales.
 
+Con todas las medidas se dejarían de emitir 454 toneladas de CO2 al año. Para recuperar la inversión en dos años, el conjunto no debería costar más de 1,824,942 MXN (en tres años, 2,737,413 MXN).
+
 - La temperatura de chimenea del caso combinado es la menor de los objetivos dados.
 
 ## 5. Lo que no se evaluó y por qué
@@ -100,6 +105,7 @@ Con todas las medidas la eficiencia de la caldera pasaría de 78.6 % a 83.7 % y 
 Datos que faltaron y qué impide cada uno:
 
 - la inversión de «Recuperar el calor de la purga» (cotización del proveedor, en MXN): impide el retorno simple de «Recuperar el calor de la purga».
+- el recorrido de la distribución: fugas de vapor, trampas falladas y tramos de tubería sin aislar (cuántos, diámetro del orificio o del tubo, longitud y presión): impide valorar lo que se pierde entre la caldera y el proceso; este estudio cubre solo la casa de calderas.
 - el monóxido de carbono (CO) medido en la chimenea: impide contar la pérdida por combustión incompleta: se tomó combustión completa.
 
 ## 6. De dónde sale cada número

@@ -283,6 +283,7 @@
     "steam_from_fuel_over_steam_measured": 1.0438256322073092,
     "meaning": "Eficiencia por entradas y salidas (calor al vapor medido ÷ combustible medido) contra la del método de pérdidas. Una diferencia grande indica un medidor descalibrado, una purga distinta de la declarada, combustible que se usa en otro equipo o vapor que no se mide."
    },
+   "carbon_balance_error": 1.1102230246251565e-16,
    "verified": true,
    "reasons": []
   }
@@ -314,6 +315,7 @@
    "la presión del tanque de flasheo y/o la temperatura a la que saldría la purga del intercambiador. Las da el proveedor del equipo → impide evaluar la medida «Recuperar el calor de la purga»",
    "el porcentaje del vapor que se podría regresar como condensado después de las obras. Sale de un levantamiento de la red de condensado → impide evaluar la medida «Regresar más condensado»",
    "la inversión de «Bajar la purga» (cotización del proveedor, en MXN) → impide el retorno simple de «Bajar la purga»",
+   "el recorrido de la distribución: fugas de vapor, trampas falladas y tramos de tubería sin aislar (cuántos, diámetro del orificio o del tubo, longitud y presión) → impide valorar lo que se pierde entre la caldera y el proceso; este estudio cubre solo la casa de calderas",
    "el monóxido de carbono (CO) medido en la chimenea → impide contar la pérdida por combustión incompleta: se tomó combustión completa"
   ],
   "chimenea bajo el punto de rocío del agua": {
@@ -550,6 +552,11 @@
     "prevents": "el retorno simple de «Recuperar el calor de la purga»"
    },
    {
+    "item": "el recorrido de la distribución: fugas de vapor, trampas falladas y tramos de tubería sin aislar (cuántos, diámetro del orificio o del tubo, longitud y presión)",
+    "parameter": "distribution",
+    "prevents": "valorar lo que se pierde entre la caldera y el proceso; este estudio cubre solo la casa de calderas"
+   },
+   {
     "item": "el monóxido de carbono (CO) medido en la chimenea",
     "parameter": "combustion.flue_CO_dry_mole_fraction",
     "prevents": "contar la pérdida por combustión incompleta: se tomó combustión completa"
@@ -623,6 +630,7 @@
     "sum_per_tonne": 35.62306383394258,
     "holds": true
    },
+   "carbon_balance_error": 1.1102230246251565e-16,
    "verified": true,
    "reasons": []
   },
@@ -640,7 +648,7 @@
     "8. Comprobaciones",
     "Glosario"
    ],
-   "caracteres": 22601,
+   "caracteres": 23572,
    "marca_la_referencia": true,
    "verified": true
   }

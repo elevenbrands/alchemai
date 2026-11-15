@@ -516,7 +516,7 @@ def test_report_is_deterministic_and_carries_only_engine_numbers(full):
     assert pos == sorted(pos)
     for m in full["measures"]:
         assert f"**{m['savings']['annual']['cost']['total']:,.0f}**" in table
-    assert "0.6 años" in table and "no calculado: falta la inversión" in table
+    assert "0.6 años" in table and "sin cotización" in table
     assert "dato de la planta" in md and "calculado" in md and "combustion_efficiency (M18" in md and "utility_costs (M17" in md
     assert "nan" not in md.lower().replace("financiamiento", "").replace("manométricos", "") and "None" not in md
     client = md[:md.index("## 7.")]                                               # no parameter paths in the client sections
@@ -558,10 +558,10 @@ def test_tools_are_registered_with_spanish_descriptions():
     from packages.agent import agent as AG
     from packages.dwsim_client import tools as T
     names = [f.__name__ for f in T.TOOLS]
-    assert {"steam_system_diagnostic", "steam_diagnostic_report"} <= set(names) and len(T.TOOLS) == 78 and len(set(names)) == 78
+    assert {"steam_system_diagnostic", "steam_diagnostic_report"} <= set(names) and len(T.TOOLS) == 80 and len(set(names)) == 80
     for name in ("steam_system_diagnostic", "steam_diagnostic_report"):
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
-    assert len(AG.AGENT_TOOLS) == 78
+    assert len(AG.AGENT_TOOLS) == 80
     doc = TS.steam_system_diagnostic.__doc__
     assert "Ningún dato de la planta, precio, objetivo ni inversión se supone" in doc and "punto de rocío ácido NO se modela" in doc
     assert "no evaluada: falta el dato" in doc and "Tip Sheets #3, #4, #8, #9 y #10" in doc

@@ -11,7 +11,8 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
                             boiler: dict | None = None, water: dict | None = None, fuel_cost: dict | None = None,
                             water_cost: dict | None = None, electricity_cost: dict | None = None,
                             operation: dict | None = None, measures: dict | None = None, reference: str | None = None,
-                            exchange_rates: dict | None = None, today: str | None = None) -> dict:
+                            exchange_rates: dict | None = None, today: str | None = None,
+                            distribution: dict | None = None) -> dict:
     """Diagnóstico de vapor de una caldera, de punta a punta en una sola llamada: cuánto cuesta hoy el vapor, qué eficiencia
     tiene la caldera y dónde se pierde la energía, cuánto ahorra cada medida y todas juntas, y de dónde sale cada número.
     Encadena combustion_efficiency (M18) y utility_costs (M17) sin repetir su física: la línea base es una corrida de cada
@@ -58,6 +59,13 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
       increase_condensate_return {target_condensate_return_fraction; opcionales condensate_T_K_after, feedwater_T_K_after}.
       Cada una acepta investment (en currency): solo con ella se calcula el retorno simple; la inversión nunca se estima.
     exchange_rates, today: como en utility_costs.
+    distribution (opcional, del recorrido de la planta): {leaks [{count, orifice_diameter_m, steam_pressure_Pa,
+      back_pressure_Pa?, description?}], failed_traps [igual; trampas falladas ABIERTAS], bare_pipes [{outer_diameter_m,
+      length_m, steam_pressure_Pa, insulation_thickness_m? + insulation_conductivity_W_m_K?, description?}], ambient_T_K y
+      wind_speed_m_s (obligatorios con bare_pipes; 0 de viento bajo techo)}. Devuelve en `distribution` el vapor y el calor
+      perdidos por renglón y en total, valorados con el costo y el CO2 del vapor de la línea base. Las cuatro constantes
+      del modelo (coeficientes de descarga 0.60 y 0.72, emisividades 0.70 y 0.90) no se piden a la planta: van con su
+      fuente en `model_constants` y se pueden cambiar por nombre. El costo de reparar o aislar nunca se estima.
 
     Devuelve baseline (boiler: eficiencia y pérdidas; steam: costo por tonelada y por GJ con desglose; annual: combustible,
     agua, electricidad y costo al año), measures (ahorro de energía y dinero, nueva eficiencia y costo, retorno o por qué no),
@@ -68,7 +76,7 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
     Steam Tip Sheets #3, #4, #8, #9 y #10 del DOE y una prueba de caldera de MEASUR (BENCHMARK.md, M19). Para el documento
     que lee el cliente pasa el resultado a steam_diagnostic_report."""
     return SD.steam_system_diagnostic(currency, fuel, combustion, boiler, water, fuel_cost, water_cost, electricity_cost,
-                                      operation, measures, reference, exchange_rates, today)
+                                      operation, measures, reference, exchange_rates, today, distribution)
 
 
 def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None = None, plant_label: str | None = None,
@@ -91,4 +99,31 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     return SR.steam_diagnostic_report(diagnostic, inputs, plant_label, notice)
 
 
-STEAM_TOOLS = [steam_system_diagnostic, steam_diagnostic_report]
+def steam_workbook_template(path: str) -> dict:
+    """Escribe la hoja de Excel que llena la planta para el diagnóstico de vapor: etiquetas en español, una lista de unidades
+    por fila (°C, kg/cm² manométricos, t/h, CC, GJ, m³, pesos...) y una ayuda por dato. Hojas: Instrucciones, Datos, «Fugas y
+    trampas» y «Tubería sin aislar» (las dos últimas opcionales). path: dónde guardarla (.xlsx). Lo que la planta no sepa se
+    deja vacío; la composición del gas natural y la pérdida por paredes tienen salida marcada como supuesto."""
+    from packages.energy import steam_workbook as SW
+
+    return {"path": SW.build_template(path), "sheets": [SW.SHEET_HELP, SW.SHEET_DATA, SW.SHEET_LEAKS, SW.SHEET_PIPES],
+            "fields": len(SW.FIELDS), "next": "cuando la planta la regrese llena, llama a steam_diagnostic_from_workbook"}
+
+
+def steam_diagnostic_from_workbook(workbook_path: str, output_dir: str, notice: str | None = None) -> dict:
+    """Todo en uno: de la hoja de Excel llena por la planta al reporte entregable. Lee la hoja (convierte unidades y pasa las
+    presiones manométricas a absolutas con la altitud), corre steam_system_diagnostic y escribe en output_dir: reporte.html
+    (una sola página autocontenida con indicadores y gráficas), reporte.pdf (si hay Chrome instalado), reporte.md y
+    resultado.json. No pasa ningún número por el agente.
+
+    Si la hoja tiene errores de captura (unidad fuera de lista, texto donde va un número, filas contradictorias) se niega y
+    los lista todos con su celda. Si faltan datos, el motor se niega con la lista completa o entrega lo que sí se puede y
+    dice qué impide cada faltante. notice: aviso en negritas arriba del reporte (por ejemplo, caso ilustrativo).
+    Devuelve las rutas de los archivos, los números de cabecera, los valores supuestos, los datos por confirmar, las medidas
+    no evaluadas, lo que faltó y `verified`."""
+    from packages.energy import steam_cli as SC
+
+    return SC.run_workbook(workbook_path, output_dir, notice=notice)
+
+
+STEAM_TOOLS = [steam_system_diagnostic, steam_diagnostic_report, steam_workbook_template, steam_diagnostic_from_workbook]

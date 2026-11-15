@@ -310,6 +310,8 @@ Hard rules:
    water dew point is not evaluated, and the
    ACID dew point is not modelled: say it. For the document the client reads call steam_diagnostic_report with the
    same inputs and show its markdown unchanged: never retype or round its numbers and never add figures of your own.
+   When the plant's data come as the Excel workbook (or the user wants a file to send to a plant): steam_workbook_template
+   writes the empty workbook and steam_diagnostic_from_workbook turns the filled one into the HTML/PDF report in ONE call.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1102,7 +1104,8 @@ def steam_system_diagnostic(currency: str, fuel: dict[str, object] | None = None
                             fuel_cost: dict[str, object] | None = None, water_cost: dict[str, object] | None = None,
                             electricity_cost: dict[str, object] | None = None, operation: dict[str, object] | None = None,
                             measures: dict[str, object] | None = None, reference: str | None = None,
-                            exchange_rates: dict[str, float] | None = None) -> str:
+                            exchange_rates: dict[str, float] | None = None,
+                            distribution: dict[str, object] | None = None) -> str:
     """Steam diagnostic of one boiler in ONE call: chains combustion_efficiency and utility_costs (baseline) and re-runs
     them with one change per savings measure and with all changes at once. Nothing is assumed.
     fuel: as combustion_efficiency. combustion: {site_pressure_Pa, air {T_K, relative_humidity|humidity_ratio_kg_kg},
@@ -1121,9 +1124,16 @@ def steam_system_diagnostic(currency: str, fuel: dict[str, object] | None = None
     reduce_stack_temperature {target_stack_T_K, device?}, reduce_blowdown {target_blowdown_fraction},
     recover_blowdown_heat {flash_pressure_Pa and/or drain_T_K}, increase_condensate_return
     {target_condensate_return_fraction, condensate_T_K_after?, feedwater_T_K_after?}; each takes investment.
-    Returns baseline, measures, combined, provenance, missing_data, evidence, warnings, assumptions, not_included."""
+    reduce_excess_air and reduce_stack_temperature also take use_published_target=true (natural gas only, flagged).
+    distribution (optional, from a plant walk-through): {leaks [{count, orifice_diameter_m, steam_pressure_Pa,
+    back_pressure_Pa?}], failed_traps [same], bare_pipes [{outer_diameter_m, length_m, steam_pressure_Pa,
+    insulation_thickness_m? + insulation_conductivity_W_m_K?}], ambient_T_K, wind_speed_m_s}: steam and heat lost,
+    priced with the baseline steam. Never estimate counts, orifice sizes or repair costs.
+    Returns baseline, measures, combined, distribution, data_review, assumed_values, provenance, missing_data, evidence,
+    warnings, assumptions, not_included."""
     return json.dumps(TST.steam_system_diagnostic(currency, fuel, combustion, boiler, water, fuel_cost, water_cost,
-                                                  electricity_cost, operation, measures, reference, exchange_rates),
+                                                  electricity_cost, operation, measures, reference, exchange_rates,
+                                                  distribution=distribution),
                       default=float, ensure_ascii=False)
 
 
@@ -1137,6 +1147,24 @@ def steam_diagnostic_report(inputs: dict[str, object], plant_label: str | None =
     out = TST.steam_diagnostic_report(None, inputs, plant_label, notice)
     out.pop("diagnostic", None)
     return json.dumps(out, default=float, ensure_ascii=False)
+
+
+@beta_tool
+def steam_workbook_template(path: str) -> str:
+    """Write the Excel workbook a plant fills for the steam diagnostic (Spanish labels, a unit picker per row: °C,
+    kg/cm2 gauge, t/h, boiler horsepower, GJ, m3, pesos). path: where to save it (.xlsx). Returns the path and sheets."""
+    return json.dumps(TST.steam_workbook_template(path), default=float, ensure_ascii=False)
+
+
+@beta_tool
+def steam_diagnostic_from_workbook(workbook_path: str, output_dir: str, notice: str | None = None) -> str:
+    """All in one: from the workbook the plant filled to the deliverable. Reads it (unit conversion, gauge to absolute
+    pressure from the altitude), runs the steam diagnostic and writes reporte.html (self-contained, with tiles and
+    charts), reporte.pdf (if Chrome is installed), reporte.md and resultado.json into output_dir. Capture errors are
+    all listed with their cell. Returns file paths, headline numbers, assumed values, data to confirm, measures not
+    evaluated, missing data and verified. Report those lists to the user; never restate numbers not in the result."""
+    return json.dumps(TST.steam_diagnostic_from_workbook(workbook_path, output_dir, notice), default=float,
+                      ensure_ascii=False)
 
 
 @beta_tool
@@ -1392,7 +1420,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                heat_exchanger_area, tube_film_coefficient, tubular_reactor_field, nonisothermal_tubular_reactor, vessel_residence_time_cfd, stirred_tank_cfd, adiabatic_flame, kinetic_reactor_network, relief_valve_sizing,
                control_valve_sizing, fittings_resistance, compressible_gas_line, two_phase_pressure_drop, shell_side_kern,
                shell_side_bell_delaware, nucleate_boiling, film_condensation, pinch_analysis, pinch_from_flowsheet, equipment_cost, costing_options, cost_unit, flowsheet_cost, bare_module_factors, capital_investment, cash_flow_analysis, utility_costs, list_utility_price_references, combustion_efficiency, fired_heater_radiant, fired_heater_convection, optimize_design, optimize_design_multi, eo_column_optimize, optimize_design_surrogate, optimize_design_bayesian, suggest_experiments, absorption_stages,
-               steam_system_diagnostic, steam_diagnostic_report,
+               steam_system_diagnostic, steam_diagnostic_report, steam_workbook_template, steam_diagnostic_from_workbook,
                packed_column_height, diffusivity_estimate, packing_catalog,
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
