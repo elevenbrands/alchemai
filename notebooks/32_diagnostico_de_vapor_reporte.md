@@ -16,7 +16,7 @@ Producir vapor le cuesta hoy a la planta **11,700,777 MXN al año** (354.6 MXN p
 |---|---|---|
 | Presión de operación | 9.00 bar absolutos (8.2 kg/cm² manométricos); el vapor sale a 175 °C | dato de la planta |
 | Agua de alimentación que entra a la caldera | 95 °C | dato de la planta |
-| Oxígeno en la chimenea (base seca) y exceso de aire | 6.5 % de O2; 40 % de aire de más | calculado / dato de la planta |
+| Oxígeno en la chimenea (base seca) y exceso de aire | 6.5 % de O2; 40 % de aire de más | dato de la planta / calculado |
 | Temperatura de chimenea | 230 °C | dato de la planta |
 | Eficiencia de la caldera (base PCS) | **78.6 %** | calculado |
 | Combustible por tonelada de vapor (base PCS) | 3.339 GJ | calculado |
@@ -34,6 +34,8 @@ Producir vapor le cuesta hoy a la planta **11,700,777 MXN al año** (354.6 MXN p
 
 Se dieron la producción de vapor y el consumo de combustible: las cifras anuales usan la producción de vapor y el otro dato sirve de comparación (ver «Comprobaciones»).
 
+«Por tonelada» siempre es por tonelada de vapor entregado al proceso. La caldera genera algo más, porque una parte del vapor se usa para calentar el agua de alimentación.
+
 Precios usados: combustible 95.00 MXN/GJ (PCS); agua 38.00 MXN/m³; electricidad 2.570 MXN/kWh.
 
 ## 2. A dónde se va la energía del combustible
@@ -45,10 +47,10 @@ De cada 100 unidades de energía del combustible (base PCS):
 | Se va al vapor que sale de la caldera | 77.6 | es lo que se aprovecha |
 | Se va con la purga | 1.0 | agua caliente que se tira para controlar las sales |
 | Chimenea: gases secos calientes | 8.6 | el aire que sobra y los gases salen calientes y se llevan calor |
+| Chimenea: vapor de agua que se forma al quemar (calor latente) | 9.7 | el hidrógeno del combustible se vuelve vapor y ese vapor no se condensa en la caldera |
 | Chimenea: ese mismo vapor de agua, por salir caliente | 1.6 | calor sensible del vapor formado |
 | Chimenea: humedad del aire | 0.2 | agua que trae el aire de combustión |
 | Paredes de la caldera (radiación y convección) | 1.5 | calor que pierde la envolvente al cuarto de calderas |
-| Chimenea: vapor de agua que se forma al quemar (calor latente) | 9.7 | el hidrógeno del combustible se vuelve vapor y ese vapor no se condensa en la caldera |
 | Calor que ya trae el aire sobre 25 °C | -0.2 | entra con el aire o el combustible; se resta de las pérdidas |
 
 El vapor y la purga suman la eficiencia de la caldera (78.6 %). El punto de rocío del agua en los gases es 54 °C: la chimenea no debe bajar de ahí.
@@ -118,6 +120,7 @@ Datos de la planta:
 |---|---|
 | Combustible | CH4 92.00 %, C2H6 5.00 %, C3H8 1.00 %, N2 1.50 %, CO2 0.50 % |
 | Presión atmosférica del sitio | 0.950 bar absolutos |
+| Temperatura del combustible en el quemador | 25.0 °C |
 | Temperatura del aire de combustión | 30.0 °C |
 | Humedad relativa del aire | 50.00 % |
 | Oxígeno en chimenea (base seca) | 6.50 % |
@@ -131,7 +134,7 @@ Datos de la planta:
 | Retorno de condensado (del vapor) | 45.00 % |
 | Temperatura del agua de alimentación | 95.0 °C |
 | Temperatura del condensado | 85.0 °C |
-| Electricidad de ventiladores y bombas | 5 kWh por tonelada de vapor |
+| Electricidad de ventiladores y bombas | 5 kWh por tonelada de vapor entregado |
 | Horas de operación al año | 6,000 h al año |
 | Producción de vapor de la caldera | 6.00 t/h |
 | Consumo de combustible al año | 115,000 GJ al año (PCS) |
@@ -176,15 +179,15 @@ Supuestos del cálculo:
 
 - El combustible se valora al precio medio de los recibos (importe ÷ energía). Si el recibo trae cargos fijos, cada GJ ahorrado vale menos que ese promedio.
 - Cargo por demanda repartido en la energía: demanda facturable = carga media en operación ÷ factor de carga, 12 facturas al año, energía = carga media × horas de operación.
-- Precio del combustible en base HHV: las eficiencias de caldera y horno deben estar en esa misma base (con LHV la eficiencia es numéricamente mayor que con HHV).
+- Precio del combustible en base PCS: las eficiencias de caldera y horno deben estar en esa misma base (con PCI la eficiencia es numéricamente mayor que con PCS).
 - Cada nivel se calcula como generado directamente a su presión en una caldera, sin cogeneración ni turbinas de contrapresión (con cogeneración el vapor de baja cuesta menos).
 - Calor entregado al proceso = entalpía del vapor − líquido saturado a la misma presión (no se acredita el subenfriamiento del condensado ni el vapor de flasheo).
 - Agua y vapor: IAPWS-95 (CoolProp). Las corrientes líquidas se evalúan en la línea de saturación a su temperatura; el trabajo de la bomba de alimentación no se cobra aparte.
-- Desaireador de contacto directo sin venteo: el agua de alimentación se calienta de la mezcla condensado + repuesto a feedwater_T_K con vapor tomado de la propia caldera.
+- Desaireador de contacto directo sin venteo: el agua de alimentación se calienta de la mezcla condensado + repuesto a la temperatura de alimentación con vapor tomado de la propia caldera.
 - Química supuesta: C → CO2 (o el CO medido), H → H2O, S → SO2, N del combustible → N2 (sin NOx), ceniza inerte, sin carbono sin quemar ni hollín.
-- Aire seco: O2 0.2100, N2 0.7800, Ar 0.0100 (composición de air.yaml de Cantera; da air.dry_air_mole_fractions para otra).
-- Referencia de entalpía 298.15 K con el agua como vapor; gas ideal. Polinomios NASA Glenn de 9 coeficientes distribuidos con Cantera 3.2.0 (nasa_gas.yaml; agua líquida de nasa_condensed.yaml).
-- Recuperación de calor de purga: flasheo adiabático a flash_pressure_Pa con el vapor de flasheo enviado íntegro al desaireador; el líquido cede calor al agua de repuesto en un intercambiador sin pérdidas y sale a drain_T_K. Sin pérdidas de calor en el tanque ni en las tuberías.
+- Aire seco: O2 0.2100, N2 0.7800, Ar 0.0100 (composición de air.yaml de Cantera).
+- Referencia de entalpía 298.15 K con el agua como vapor; gas ideal. Polinomios NASA Glenn de 9 coeficientes distribuidos con Cantera 3.2.0.
+- Recuperación de calor de purga: flasheo adiabático a la presión del tanque de flasheo con el vapor de flasheo enviado íntegro al desaireador; el líquido cede calor al agua de repuesto en un intercambiador sin pérdidas y sale a la temperatura de drenaje dada. Sin pérdidas de calor en el tanque ni en las tuberías.
 - En la línea base la purga se descarga como líquido saturado a la presión de la caldera, sin recuperar su calor.
 - La demanda de vapor del proceso (vapor entregado) se mantiene igual en todas las medidas; lo que cambia es el combustible, el agua y la electricidad para producirlo.
 - La pérdida por paredes se mantiene como la misma fracción del poder calorífico en todos los casos. En realidad es casi constante en kW, así que al bajar el combustible la fracción sube un poco: el ahorro queda ligeramente sobrestimado.
@@ -201,13 +204,13 @@ No está incluido en estas cifras:
 - combustión: vapor de atomización y sopladores de hollín
 - combustión: punto de rocío ácido
 - combustión: calderas de condensación (chimenea bajo el punto de rocío)
-- combustión: purga de caldera (va en utility_costs como blowdown_fraction)
+- combustión: purga de caldera (se cuenta en el balance de vapor)
 - Inversión de las medidas: nunca se estima; el retorno solo se calcula con la cifra de la planta
 - Variación de la carga a lo largo del año, arranques y paros, y eficiencia a carga parcial
-- Fugas de vapor, trampas de vapor y aislamiento de tuberías
+- Fugas de vapor, trampas de vapor y aislamiento de tuberías (no se dio el recorrido de la distribución)
 - Química del agua: la purga mínima y la calidad del condensado no se comprueban
 - Punto de rocío ácido y corrosión de la zona fría
-- Emisiones (CO2, NOx) y su costo
+- Emisiones distintas del CO2 directo de la caldera (NOx, metano) y el costo de emitir
 - Impuestos, financiamiento y mantenimiento de los equipos nuevos
 
 Avisos del cálculo:
@@ -224,7 +227,7 @@ Avisos del cálculo:
 - Combustible anual por dos rutas (lado del agua y lado de la combustión): diferencia 0.0e+00.
 - El caso combinado no ahorra más que la suma de las medidas: se cumple.
 - Se dieron producción de vapor y consumo de combustible: la eficiencia por entradas y salidas es 75.3 % y la del método de pérdidas 78.6 % (diferencia -3.3 puntos). Eficiencia por entradas y salidas (calor al vapor medido ÷ combustible medido) contra la del método de pérdidas. Una diferencia grande indica un medidor descalibrado, una purga distinta de la declarada, combustible que se usa en otro equipo o vapor que no se mide.
-- verified = los balances de masa y energía de los dos motores cierran en todos los casos y las rutas independientes coinciden. NO significa que los datos de la planta sean correctos.
+- «Comprobado» significa que los balances de masa y energía de los dos motores cierran en todos los casos y las rutas independientes coinciden. NO significa que los datos de la planta sean correctos.
 
 ## Glosario
 

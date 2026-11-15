@@ -78,6 +78,26 @@ def _plant_value(p: dict) -> str:
     return f"{v:,.0f} {unit}" if abs(v) >= 1000 else f"{v:g} {unit}"
 
 
+# internal names that reach engine texts -> what a plant manager reads
+PLAIN_NAMES = [
+    ("a feedwater_T_K", "a la temperatura de alimentación"), ("a flash_pressure_Pa", "a la presión del tanque de flasheo"),
+    ("sale a drain_T_K", "sale a la temperatura de drenaje dada"),
+    (" (va en utility_costs como blowdown_fraction)", " (se cuenta en el balance de vapor)"),
+    ("; da air.dry_air_mole_fractions para otra", ""), (" (nasa_gas.yaml; agua líquida de nasa_condensed.yaml)", ""),
+    ("water.feedwater_heating='not_charged': calentar", "Se eligió no cobrar el calentamiento del agua: calentar"),
+    ("hasta feedwater_T_K", "hasta la temperatura de alimentación"),
+    ("feedwater_heating='mixing_only': la", "Tanque sin calentador: la"),
+    ("el balance del desaireador de utility_costs", "el balance del desaireador"),
+]
+
+
+def _plain(text: str) -> str:
+    """Engine sentence -> client sentence: heating-value acronyms in Spanish and no internal parameter names."""
+    for old, new in PLAIN_NAMES:
+        text = text.replace(old, new)
+    return _es(text)
+
+
 def _es(text: str) -> str:
     """HHV/LHV → the Spanish abbreviations the glossary explains."""
     return text.replace("HHV", "PCS").replace("LHV", "PCI")
@@ -115,7 +135,8 @@ def _headline(d: dict) -> dict:
 
 
 def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None = None, plant_label: str | None = None,
-                            notice: str | None = None) -> dict:
+                            notice: str | None = None, capture_flags: list[str] | None = None,
+                            captured_data: list[list] | None = None) -> dict:
     """Markdown report (Spanish) of a steam diagnostic; see the module docstring and tools_steam.steam_diagnostic_report."""
     if (diagnostic is None) == (inputs is None):
         raise ValueError("Da inputs (los mismos argumentos de steam_system_diagnostic) o diagnostic (su resultado completo); "
@@ -147,7 +168,8 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     loss_assumed = bool(loss.get("assumed"))
     gas = d.get("fuel_resolution") or {}
     gas_assumed = bool(gas.get("assumed"))
-    flags = (d.get("data_review") or {}).get("flags", [])
+    flags = list((d.get("data_review") or {}).get("flags", []))
+    flags += [{"id": "capture", "message": x.removeprefix("REVISAR DATO: ")} for x in (capture_flags or [])]
     em = base["emissions"]
     L: list[str] = []
     numbers: dict = {}
@@ -234,7 +256,8 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
             ["Agua de alimentación que entra a la caldera", _C(steam["feedwater_T_K"]),
              SD.CALC if d["inputs"]["water"]["feedwater_heating"] == "mixing_only" else SD.PLANT],
             ["Oxígeno en la chimenea (base seca) y exceso de aire",
-             f"{_pct(boiler['flue_O2_dry_mole_fraction'])} de O2; {_pct(boiler['excess_air_fraction'], 0)} de aire de más", SD.CALC + " / " + SD.PLANT],
+             f"{_pct(boiler['flue_O2_dry_mole_fraction'])} de O2; {_pct(boiler['excess_air_fraction'], 0)} de aire de más",
+             (SD.PLANT + " / " + SD.CALC) if (d["inputs"].get("combustion") or {}).get("flue_O2") else (SD.CALC + " / " + SD.PLANT)],
             ["Temperatura de chimenea", _C(boiler["stack_T_K"]), SD.PLANT],
             [f"Eficiencia de la caldera (base {bes})", f"**{_pct(boiler['efficiency'])}**", SD.CALC],
             [f"Combustible por tonelada de vapor (base {bes})", f"{_n(steam['fuel_GJ_per_tonne'], 3)} GJ", SD.CALC],
@@ -267,6 +290,14 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     L += _table(["Concepto", "Valor", "Origen"], rows)
     if base.get("derived_note"):
         L += [base["derived_note"], ""]
+    if base.get("load_fraction") is not None:
+        L += [f"La caldera trabaja en promedio a {_pct(base['load_fraction'], 0)} de su capacidad nominal.", ""]
+    if (base.get("site_pressure") or {}).get("from_altitude_m") is not None:
+        sp = base["site_pressure"]
+        L += [f"La presión atmosférica del sitio ({_n(sp['Pa'] / 1e3, 1)} kPa) se calculó de la altitud "
+              f"({_n(sp['from_altitude_m'])} m); con ella se pasaron a absolutas las presiones de manómetro.", ""]
+    L += ["«Por tonelada» siempre es por tonelada de vapor entregado al proceso. La caldera genera algo más, porque una parte "
+          "del vapor se usa para calentar el agua de alimentación.", ""]
     L += [f"Precios usados: combustible {_n(d['prices']['fuel_per_GJ'], 2)} {cur}/GJ ({bes}); agua "
           f"{_n(d['prices']['boiler_makeup_water_per_m3'], 2)} {cur}/m³"
           + (f"; electricidad {_n(d['prices']['electricity_per_kWh'], 3)} {cur}/kWh" if d["prices"]["electricity_per_kWh"] is not None else "")
@@ -277,7 +308,8 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
           f"De cada 100 unidades de energía del combustible (base {bes}):", ""]
     rows = [["Se va al vapor que sale de la caldera", _n(100 * boiler["useful_steam_heat_fraction_of_fuel"], 1), "es lo que se aprovecha"],
             ["Se va con la purga", _n(100 * boiler["blowdown_heat_fraction_of_fuel"], 1), "agua caliente que se tira para controlar las sales"]]
-    for k, v in boiler["losses_fraction_of_heating_value"].items():
+    losses = boiler["losses_fraction_of_heating_value"]
+    for k, v in [(k, losses[k]) for k in LOSS_ES if k in losses]:
         if abs(v) > 5e-5:
             note = " **Valor supuesto de una publicación, no medido en la planta**" if k == "setting" and loss_assumed else ""
             rows.append([LOSS_ES[k][0], _n(100 * v, 1), LOSS_ES[k][1] + ("." + note if note else "")])
@@ -339,7 +371,7 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
                     bits.append(f"el resto calienta el agua de repuesto hasta {_C(rec['makeup_T_after_exchanger_K'])} y se va al "
                                 f"drenaje a {_C(rec['drain_T_K'])}")
                 L.append("- " + "; ".join(bits) + ".")
-            L += [f"- {n}" for n in m["notes"]]
+            L += [f"- {_plain(n)}" for n in m["notes"]]
             L.append("")
     else:
         L += ["No se evaluó ninguna medida: ver la sección siguiente.", ""]
@@ -380,7 +412,7 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     # ---------------------------------------------------------------------------------------------- not evaluated
     dist = d.get("distribution")
     if dist:
-        L += ["## Pérdidas en la distribución (fugas, trampas y tubería sin aislar)", "",
+        L += ["## 4b. Pérdidas en la distribución (fugas, trampas y tubería sin aislar)", "",
               "Salen del recorrido de la planta: los conteos, diámetros y longitudes son datos de la planta. Cada pérdida se "
               f"valora con el vapor de la línea base ({_n(dist['valuation']['cost_per_tonne_steam'], 1)} {cur} por tonelada).", ""]
         yearly = dist["hours_per_year"] is not None
@@ -417,7 +449,7 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
             L += ["Tramos sin aislamiento propuesto (se reporta solo lo que pierden hoy): "
                   + ", ".join(it["description"] for it in pending) + ".", ""]
         L += [dist["valuation"]["note"], "", "Constantes del modelo que no se le piden a la planta:", ""]
-        L += [f"- {c['what'].capitalize()}: {c['value']:.2f}" + (f". {c['source']}." if c["source"] else " (dado por el usuario).")
+        L += [f"- {c['what'].capitalize()}: {c['value']:.2f}" + (f". Fuente: {c['source']}." if c["source"] else " (dado por el usuario).")
               for c in dist["model_constants"].values()] + [""]
         L += ["Supuestos de esta sección:", ""] + [f"- {a}" for a in dist["assumptions"][len(dist["model_constants"]):]] + [""]
         L += ["No incluye: " + "; ".join(dist["not_included"]) + ".", ""]
@@ -425,7 +457,7 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     L += ["## 5. Lo que no se evaluó y por qué", ""]
     if skipped:
         for m in skipped:
-            L.append(f"- **{m['label']}**: {m['reason']}." + (f" Hace falta: {m['needs']}." if m["needs"] else ""))
+            L.append(f"- **{m['label']}**: {_plain(m['reason'])}." + (f" Hace falta: {m['needs']}." if m["needs"] else ""))
         L.append("")
     other = [x for x in d["missing_data"] if not x["prevents"].startswith("evaluar la medida")]
     if other:
@@ -458,10 +490,10 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
     L += ["## 7. Supuestos y límites", "",
           "Esta sección es técnica: está escrita para quien revise el cálculo y conserva los nombres de los parámetros.", "",
           "Supuestos del cálculo:", ""]
-    L += [f"- {a}" for a in d["assumptions"]] + ["", "No está incluido en estas cifras:", ""]
-    L += [f"- {a}" for a in d["not_included"]] + [""]
+    L += [f"- {_plain(a)}" for a in d["assumptions"]] + ["", "No está incluido en estas cifras:", ""]
+    L += [f"- {_plain(a)}" for a in d["not_included"]] + [""]
     if d["warnings"]:
-        L += ["Avisos del cálculo:", ""] + [f"- {w}" for w in d["warnings"]] + [""]
+        L += ["Avisos del cálculo:", ""] + [f"- {_plain(w)}" for w in d["warnings"]] + [""]
 
     # -------------------------------------------------------------------------------------------------- evidence
     ev = d["evidence"]
@@ -486,7 +518,11 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
         L.append(f"- Temperatura del agua de alimentación calculada por mezcla: {_C(x['feedwater_T_K_calculated'])}"
                  + (f"; medida: {_C(x['feedwater_T_K_measured'])} (diferencia {x['measured_minus_calculated_K']:+.1f} °C). {x['meaning']}"
                     if x["feedwater_T_K_measured"] is not None else "."))
-    L += [f"- {ev['meaning']}", ""]
+    L += ["- " + ev["meaning"].replace("verified = ", "«Comprobado» significa que "), ""]
+    if captured_data:
+        L += ["## 9. Datos tal como los capturó la planta", "",
+              "Copia de la hoja de datos, en las unidades en que se escribió. El resto del reporte usa unidades métricas.", ""]
+        L += _table(["Dato", "Valor", "Unidad"], [[str(a), str(b), str(c)] for a, b, c in captured_data])
 
     L += ["## Glosario", ""] + [f"- **{k}**: {v}" for k, v in GLOSSARY] + [""]
     md = "\n".join(L)
@@ -494,5 +530,5 @@ def steam_diagnostic_report(diagnostic: dict | None = None, inputs: dict | None 
             "sections": [x[3:] for x in L if x.startswith("## ")], "integrity": integrity,
             "evaluated_measures": [m["id"] for m in evaluated], "not_evaluated_measures": [m["id"] for m in skipped],
             "uses_published_reference_price": bool(refs), "uses_assumed_setting_loss": loss_assumed, "uses_assumed_fuel_composition": gas_assumed,
-            "data_flags": len(flags), "verified": ev["verified"], "diagnostic": d}
+            "data_flags": len(flags), "capture_flags": list(capture_flags or []), "verified": ev["verified"], "diagnostic": d}
 

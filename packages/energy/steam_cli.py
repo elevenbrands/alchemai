@@ -28,7 +28,7 @@ EXAMPLE = {
     "fuel_bill_amount": (1_425_000, None), "fuel_bill_period": ("octubre 2026", None), "fuel_bill_energy": (9_500, "GJ"),
     "fuel_bill_basis": ("Superior (PCS)", None), "fuel_bill_volume": (248_000, "m³"), "fuel_bill_vol_T": (20, "°C"),
     "fuel_bill_vol_P": (1.0, "kg/cm² abs."), "water_price": (45, None), "elec_price": (2.4, None),
-    "aux_power": (6, "kWh por tonelada de vapor"),
+    "aux_power": (6, "kWh por tonelada de vapor generado"),
     "steam_pressure": (8, "kg/cm² man."), "superheat": (0, "°C"), "blowdown": (8, "%"),
     "rated_capacity": (600, "CC (caballos caldera)"),
     "o2": (7, "%"), "o2_basis": ("Seca", None), "stack_T": (220, "°C"), "air_T": (25, "°C"), "air_RH": (50, "%"),
@@ -54,14 +54,16 @@ def run_workbook(workbook: str, out_dir: str, notice: str | None = None, pdf: bo
     if read["missing_essentials"]:
         raise ValueError("A la hoja le faltan datos indispensables (sin ellos no hay diagnóstico; no se suponen):\n- "
                          + "\n- ".join(read["missing_essentials"]))
-    report = SR.steam_diagnostic_report(inputs=inputs, plant_label=read["plant_label"], notice=notice)
+    capture = [n for n in read["notes"] if n.startswith("REVISAR DATO")]
+    report = SR.steam_diagnostic_report(inputs=inputs, plant_label=read["plant_label"], notice=notice, capture_flags=capture,
+                                        captured_data=read["as_entered"])
     os.makedirs(out_dir, exist_ok=True)
     paths = {k: os.path.join(out_dir, name) for k, name in (("html", "reporte.html"), ("markdown", "reporte.md"),
                                                              ("json", "resultado.json"), ("pdf", "reporte.pdf"))}
     with open(paths["markdown"], "w", encoding="utf-8") as fh:
         fh.write(report["markdown"])
     with open(paths["html"], "w", encoding="utf-8") as fh:
-        fh.write(SH.steam_report_html(report, read["plant_label"], read["notes"]))
+        fh.write(SH.steam_report_html(report, read["plant_label"]))
     with open(paths["json"], "w", encoding="utf-8") as fh:
         json.dump({"intake_notes": read["notes"], "diagnostic": report["diagnostic"]}, fh, ensure_ascii=False, indent=1,
                   default=float)
@@ -71,7 +73,7 @@ def run_workbook(workbook: str, out_dir: str, notice: str | None = None, pdf: bo
     d = report["diagnostic"]
     return {"files": paths, "pdf": pdf_result, "headline": report["headline"], "currency": d["currency"],
             "verified": report["verified"], "assumed_values": [v["item"] for v in d["assumed_values"]],
-            "data_flags": [f["message"] for f in d["data_review"]["flags"]],
+            "data_flags": [f["message"] for f in d["data_review"]["flags"]] + [n.removeprefix("REVISAR DATO: ") for n in capture],
             "not_evaluated": [m["label"] for m in d["measures"] if m["status"] != "evaluated"],
             "missing_data": [m["item"] for m in d["missing_data"]], "intake_notes": read["notes"]}
 

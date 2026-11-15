@@ -88,6 +88,10 @@ def test_distribution_never_guesses_plant_data():
     # a pipe diameter typed as the orifice diameter is flagged, not corrected
     huge = run(leaks=[{"count": 6, "orifice_diameter_m": 0.05, "steam_pressure_Pa": 9e5}])
     assert any(w.startswith("REVISAR DATO") and "orificio" in w for w in huge["warnings"])
+    assert sum("orificio" in w for w in huge["warnings"]) == 1                             # said once, and in the data review
+    assert [f["id"] for f in huge["data_review"]["flags"]] == ["distribution_share"]
+    # the engine's note about totals does not apply: each insulated stretch has its own saving
+    assert not any("None" in w for w in base["warnings"] + base["distribution"]["warnings"])
     # without hours: physical figures only
     kw = copy.deepcopy(PLANT)
     kw["operation"] = {}
@@ -98,7 +102,7 @@ def test_distribution_never_guesses_plant_data():
 def test_report_has_the_distribution_section(audited):
     rep = TS.steam_diagnostic_report(inputs={**copy.deepcopy(PLANT), "distribution": copy.deepcopy(DIST)})
     md = rep["markdown"]
-    assert md.index("## 4.") < md.index("## Pérdidas en la distribución") < md.index("## 5.")
+    assert md.index("## 4.") < md.index("## 4b. Pérdidas en la distribución") < md.index("## 5.")
     for needle in ("Fuga de vapor", "Trampa fallada abierta: línea 2", "Tubería sin aislar", "Con el aislamiento propuesto",
                    "Constantes del modelo que no se le piden a la planta", "DOE/GO-102012-3401"):
         assert needle in md, needle
@@ -115,8 +119,10 @@ def test_workbook_round_trip_converts_plant_units(tmp_path):
     read = SW.read_workbook(_example(tmp_path))
     x = read["inputs"]
     p_atm = SW.standard_atmosphere_Pa(540.0)
-    assert 9.4e4 < p_atm < 9.6e4 and x["combustion"]["site_pressure_Pa"] == pytest.approx(p_atm)
-    assert any("atmósfera estándar" in n for n in read["notes"]) and read["plant_label"].startswith("Planta de ejemplo")
+    assert 9.4e4 < p_atm < 9.6e4 and x["combustion"]["site_altitude_m"] == 540.0 and "site_pressure_Pa" not in x["combustion"]
+    assert read["notes"] == [] and read["plant_label"].startswith("Planta de ejemplo")
+    assert ["Presión de operación", 8, "kg/cm² man."] in read["as_entered"]
+    assert x["boiler"]["auxiliary_power_kWh_per_tonne_generated"] == 6.0
     assert x["boiler"]["steam_pressure_Pa"] == pytest.approx(8 * SW.KGF_CM2 + p_atm)          # gauge -> absolute
     assert x["boiler"]["rated_steam_capacity_kg_s"] == pytest.approx(600 * 15.65 / 3600.0)    # boiler horsepower
     assert x["combustion"]["stack_T_K"] == pytest.approx(493.15) and x["combustion"]["flue_O2"] == {"mole_fraction": 0.07, "basis": "dry"}
@@ -135,6 +141,16 @@ def test_workbook_round_trip_converts_plant_units(tmp_path):
     assert len(SW.FIELDS) == sum(len(fs) for _, fs in SW.SECTIONS) == 88
     out = TS.steam_system_diagnostic(**x)
     assert out["evidence"]["verified"] is True and out["distribution"]["evidence"]["verified"] is True
+    # the atmosphere computed from the altitude is labelled as calculated, never as a plant datum
+    assert out["baseline"]["site_pressure"] == {"Pa": pytest.approx(p_atm), "from_altitude_m": 540.0}
+    assert not any("Presión atmosférica" in p["item"] for p in out["provenance"]["plant_data"])
+    assert any(p["item"] == "Altitud del sitio" for p in out["provenance"]["plant_data"])
+    assert any("Presión atmosférica" in c["figure"] and "atmósfera estándar" in c["tool"] for c in out["provenance"]["calculated"])
+    # the plant's electricity figure is per tonne GENERATED; the engine carries it per tonne delivered
+    g = out["baseline"]["steam"]["mass_per_kg_delivered"]["generated"]
+    assert g > 1.0 and out["baseline"]["steam"]["power_kWh_per_tonne"] == pytest.approx(6.0 * g)
+    assert out["baseline"]["annual"]["electricity_kWh"] == pytest.approx(6.0 * out["baseline"]["annual"]["steam_generated_tonne"])
+    assert out["baseline"]["load_fraction"] == pytest.approx((6000 / 3600) / (600 * 15.65 / 3600))
     assert {v["id"] for v in out["assumed_values"]} == {"fuel_composition", "setting_loss", "target_reduce_excess_air",
                                                        "target_reduce_stack_temperature"}
 
@@ -157,6 +173,7 @@ def test_workbook_other_units_give_the_same_inputs(tmp_path):
                                   setting_loss_unknown=None))
     assert c["inputs"]["fuel"]["composition"] == pytest.approx({"CH4": 0.95, "C2H6": 0.03, "N2": 0.02})
     assert c["inputs"]["combustion"]["site_pressure_Pa"] == pytest.approx(95000.0) and c["notes"] == []
+    assert "site_altitude_m" not in c["inputs"]["combustion"]
     assert c["inputs"]["combustion"]["setting_loss_fraction"] == pytest.approx(0.015)
 
 
@@ -181,6 +198,22 @@ def test_workbook_lists_every_capture_error_with_its_cell(tmp_path):
         wb = Workbook()
         wb.save(str(tmp_path / "otro.xlsx"))
         SW.read_workbook(str(tmp_path / "otro.xlsx"))
+
+
+def test_typical_capture_slips_are_flagged_not_fixed(tmp_path):
+    # a percentage typed as a fraction: the number is used as typed, and the note says what to check
+    slip = _example(tmp_path, blowdown=(0.08, "%"), m3_blowdown_target=None)
+    read = SW.read_workbook(slip)
+    assert read["inputs"]["boiler"]["blowdown_fraction"] == pytest.approx(0.0008)
+    assert any(n.startswith("REVISAR DATO") and "8 %" in n and "Purga" in n for n in read["notes"])
+    done = SC.run_workbook(slip, str(tmp_path / "slip"), pdf=False)                       # Markdown, HTML and tile agree
+    md, page = open(done["files"]["markdown"]).read(), open(done["files"]["html"]).read()
+    assert len(done["data_flags"]) == 1 and "Esa fila va en porcentaje" in md and "Esa fila va en porcentaje" in page
+    assert "1 dato(s) por confirmar" in page and "ningún dato por confirmar" not in page
+    assert not any(n.startswith("REVISAR DATO") for n in SW.read_workbook(_example(tmp_path))["notes"])
+    # a stack temperature in °F typed with the °C unit
+    hot = TS.steam_system_diagnostic(**SW.read_workbook(_example(tmp_path, stack_T=(428, "°C"), m2_published=None))["inputs"])
+    assert "stack_far_above_saturation" in [f["id"] for f in hot["data_review"]["flags"]]
 
 
 def test_empty_template_is_refused_by_the_engine_not_by_the_reader(tmp_path):
@@ -218,7 +251,14 @@ def test_one_command_writes_the_deliverable(tmp_path, capsys):
     assert f"{d['baseline']['annual']['cost']['total']:,.0f} MXN" in page
     assert f"{100 * d['baseline']['boiler']['efficiency']:.1f} %" in page
     assert f"{d['distribution']['total']['cost_per_year']:,.0f} MXN" in page
-    assert "Notas de la captura de datos" in page and "atmósfera estándar" in page
+    assert "se calculó de la altitud" in page and "se calculó de la altitud" in md
+    assert "## 9. Datos tal como los capturó la planta" in md and "| Presión de operación | 8 | kg/cm² man. |" in md
+    assert "«Por tonelada» siempre es por tonelada de vapor entregado" in md
+    # no internal parameter name reaches the client outside the provenance appendix (section 6)
+    import re
+    client = md[:md.index("## 6.")] + md[md.index("## 7."):]
+    leaked = sorted(set(re.findall(r"[a-z]+_[A-Za-z_]+", client)) - {"steam_survey_guide", "boiler_efficiency"})
+    assert leaked == [], leaked
     assert page.count("<table>") == sum(line.startswith("|---") for line in md.splitlines()) > 8   # every table became HTML
     assert "**" not in page.replace("<strong>", "") and "|---" not in page
     # the PDF is optional: with a Chrome it exists, without one the HTML is still the deliverable

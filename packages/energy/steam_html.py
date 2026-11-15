@@ -30,9 +30,9 @@ header.top{border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:
 header.top .brand{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
 h1{font-size:26px;margin:4px 0 0}h2{font-size:19px;margin:30px 0 8px;padding-top:8px;border-top:1px solid var(--grid)}
 p{margin:8px 0}ul{margin:8px 0;padding-left:20px}li{margin:3px 0}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0 6px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0 6px}
 .tile{background:var(--surface);border:1px solid var(--grid);border-radius:8px;padding:10px 12px}
-.tile .v{font-size:22px;font-weight:650;line-height:1.2}.tile .l{font-size:12px;color:var(--ink2)}
+.tile .v{font-size:20px;font-weight:650;line-height:1.25;white-space:nowrap}.tile .l{font-size:12px;color:var(--ink2)}
 .tile .s{font-size:12px;color:var(--muted)}
 blockquote{margin:12px 0;padding:10px 14px;background:var(--note);border-left:4px solid var(--note-edge);border-radius:4px}
 blockquote p{margin:0}
@@ -44,7 +44,7 @@ svg{display:block;width:100%;height:auto}svg text{font:12.5px -apple-system,"Seg
 .bar{fill:var(--series)}.cat{fill:var(--ink2)}.val{fill:var(--ink)}.axis{stroke:var(--grid);stroke-width:1}
 footer{margin-top:28px;font-size:12px;color:var(--muted);border-top:1px solid var(--grid);padding-top:8px}
 @media print{:root{--surface:#fff;--page:#fff;--ink:#0b0b0b;--ink2:#52514e;--grid:#d5d4cd;--series:#2a78d6;--note:#fff6dc}
-body{font-size:11.5px}main{max-width:none;padding:0}h2{break-after:avoid}tr,figure,blockquote,.tile{break-inside:avoid}
+body{font-size:11.5px}main{max-width:none;padding:0}.tiles{grid-template-columns:repeat(3,1fr);margin-right:2px}figure{margin-right:2px}.tile .v{font-size:17px}h2{break-after:avoid}tr,figure,blockquote,.tile{break-inside:avoid}
 table{font-size:10.5px;width:99.6%}.scroll{overflow:visible}@page{size:Letter;margin:14mm}}
 """
 
@@ -103,7 +103,7 @@ def bar_chart(rows: list[tuple[str, float, str]], title: str, subtitle: str) -> 
     rows = [r for r in rows if r[1] is not None and r[1] > 0]
     if not rows:
         return ""
-    label_w, value_w, width, bar_h, gap = 400, 130, 960, 16, 12
+    label_w, value_w, width, bar_h, gap = 450, 110, 960, 16, 12
     plot_w = width - label_w - value_w
     top = max(v for _, v, _ in rows)
     height = len(rows) * (bar_h + gap) + gap
@@ -114,7 +114,7 @@ def bar_chart(rows: list[tuple[str, float, str]], title: str, subtitle: str) -> 
         w = max(2.0, plot_w * value / top)
         r = min(4.0, w / 2)
         tip = html.escape(f"{cat}: {label}")
-        parts.append(f'<text class="cat" x="{label_w - 8}" y="{y + bar_h - 3.5}" text-anchor="end">{html.escape(_clip(cat, 62))}</text>')
+        parts.append(f'<text class="cat" x="{label_w - 8}" y="{y + bar_h - 3.5}" text-anchor="end">{html.escape(_clip(cat, 74))}</text>')
         parts.append(f'<path class="bar" d="M{label_w},{y} h{w - r:.1f} a{r},{r} 0 0 1 {r},{r} v{bar_h - 2 * r:.1f} '
                      f'a{r},{r} 0 0 1 -{r},{r} h-{w - r:.1f} z"><title>{tip}</title></path>')
         parts.append(f'<text class="val" x="{label_w + w + 8:.1f}" y="{y + bar_h - 3.5}">{html.escape(label)}</text>')
@@ -136,7 +136,8 @@ def _charts(d: dict) -> dict:
     energy += [(SR.LOSS_ES[k][0], v) for k, v in boiler["losses_fraction_of_heating_value"].items() if abs(v) > 5e-5]
     energy = [energy[0]] + sorted(energy[1:], key=lambda x: -x[1])
     out = {"2.": bar_chart([(c, 100 * v, f"{100 * v:.1f}") for c, v in energy],
-                           "A dónde se va la energía del combustible", f"Unidades de cada 100 de energía del combustible (base {basis})")}
+                           "A dónde se va la energía del combustible", f"Unidades de cada 100 de energía del combustible (base {basis}). Sin el pequeño crédito del calor que ya traen "
+                           "el aire y el combustible, por eso pueden sumar un poco más de 100")}
     ev = [m for m in d["measures"] if m["status"] == "evaluated"]
     if ev:
         annual = ev[0]["savings"]["annual"] is not None
@@ -149,12 +150,12 @@ def _charts(d: dict) -> dict:
     if dist and dist["hours_per_year"] is not None:
         rows = [(label, (dist[key] or {}).get("cost_per_year")) for key, label in
                 (("leaks", "Fugas de vapor"), ("failed_traps", "Trampas falladas abiertas"), ("bare_pipes", "Tubería sin aislar"))]
-        out["Pérdidas"] = bar_chart(sorted(((c, v, f"{v:,.0f}") for c, v in rows if v), key=lambda x: -x[1]),
+        out["4b."] = bar_chart(sorted(((c, v, f"{v:,.0f}") for c, v in rows if v), key=lambda x: -x[1]),
                                     "Lo que cuestan las pérdidas en la distribución", f"{cur} al año, con el vapor de la línea base")
     return out
 
 
-def _tiles(d: dict) -> str:
+def _tiles(d: dict, flags: int) -> str:
     cur, base = d["currency"], d["baseline"]
     steam, annual, em = base["steam"], base["annual"], base["emissions"]
     tiles = []
@@ -178,7 +179,6 @@ def _tiles(d: dict) -> str:
     if em["co2_tonne_per_year"] is not None:
         tiles.append((f"{em['co2_tonne_per_year']:,.0f} t", "CO2 directo al año", f"{em['co2_kg_per_tonne_steam']:,.0f} kg por tonelada de vapor"))
     assumed = len(d.get("assumed_values") or [])
-    flags = len((d.get("data_review") or {}).get("flags", []))
     tiles.append((f"{assumed}", "Valores supuestos", f"{flags} dato(s) por confirmar" if flags else "ningún dato por confirmar"))
     return '<div class="tiles">' + "".join(
         f'<div class="tile"><div class="l">{html.escape(l)}</div><div class="v">{html.escape(v)}</div>'
@@ -186,7 +186,7 @@ def _tiles(d: dict) -> str:
 
 
 # ----------------------------------------------------------------------------------------------------------- page
-def steam_report_html(report: dict, plant_label: str | None = None, intake_notes: list[str] | None = None) -> str:
+def steam_report_html(report: dict, plant_label: str | None = None) -> str:
     """`report`: the dict `steam_diagnostic_report` returns. Returns the complete HTML document as a string."""
     d = report["diagnostic"]
     charts = _charts(d)
@@ -195,14 +195,11 @@ def steam_report_html(report: dict, plant_label: str | None = None, intake_notes
         if title:
             body.append(f"<h2>{_inline(title)}</h2>")
         if title == "Resumen":
-            block = _tiles(d) + block
+            block = _tiles(d, report["data_flags"]) + block
         for key, svg in charts.items():
             if title.startswith(key):
                 block = svg + block
         body.append(block)
-    if intake_notes:
-        body.append("<h2>Notas de la captura de datos</h2><ul>" + "".join(f"<li>{_inline(n)}</li>" for n in intake_notes)
-                    + "</ul>")
     name = f"Diagnóstico de vapor{' — ' + plant_label if plant_label else ''}"
     return ("<!doctype html>\n<html lang=\"es\"><head><meta charset=\"utf-8\">"
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"

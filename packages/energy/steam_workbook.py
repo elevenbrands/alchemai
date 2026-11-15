@@ -112,7 +112,7 @@ SECTIONS: list[tuple[str, list[Field]]] = [
         Field("elec_bill_amount", "Electricidad: importe del recibo", "money"),
         _n("elec_bill_energy", "   energía facturada", {"kWh": 1.0}),
         Field("elec_bill_period", "   periodo del recibo", "text"),
-        _n("aux_power", "Electricidad de ventiladores y bombas de la caldera", {"kWh por tonelada de vapor": 1.0},
+        _n("aux_power", "Electricidad de ventiladores y bombas de la caldera", {"kWh por tonelada de vapor generado": 1.0},
            "Opcional. Sin este dato el costo del vapor no incluye electricidad."),
     ]),
     ("4. La caldera", [
@@ -361,9 +361,9 @@ class _Sheet:
 
 
 def standard_atmosphere_Pa(altitude_m: float) -> float:
-    from fluids.atmosphere import ATMOSPHERE_1976
+    from packages.energy.steam_diagnostic import standard_atmosphere_Pa as engine
 
-    return float(ATMOSPHERE_1976(altitude_m).P)
+    return engine(altitude_m)
 
 
 def _table_rows(ws, n_cols: int) -> list[tuple[int, list]]:
@@ -392,10 +392,9 @@ def read_workbook(path: str) -> dict:
 
     # ---- site pressure
     p_atm, alt = s.number("p_atm"), s.number("altitude")
-    if p_atm is None and alt is not None:
-        p_atm = standard_atmosphere_Pa(alt)
-        notes.append(f"La presión atmosférica del sitio ({p_atm / 1e3:.1f} kPa) se calculó de la altitud ({alt:.0f} m) con la "
-                     "atmósfera estándar de 1976; no es una lectura de barómetro.")
+    from_altitude = p_atm is None and alt is not None
+    if from_altitude:
+        p_atm = standard_atmosphere_Pa(alt)                                      # the engine recomputes and labels it
 
     def absolute(key: str):
         v = s.number(key)
@@ -428,7 +427,6 @@ def read_workbook(path: str) -> dict:
         if s.has("hv_value"):
             fuel["heating_value"] = {"value_J_m3": s.number("hv_value"), "basis": s.choice("hv_basis", BASIS),
                                      "volume_reference": {"T_K": s.number("hv_T"), "P_Pa": s.number("hv_P")}}
-        notes.append("La planta no dio el análisis del gas natural: la composición se resolvió como supuesto (ver el reporte).")
     elif fuel_name is not None:
         P.append(f"Sección 2: para «{fuel_name}» hace falta la composición (gases) o el análisis elemental con el poder "
                  "calorífico (líquidos y sólidos). Solo el gas natural puede ajustarse al poder calorífico del recibo.")
@@ -471,9 +469,10 @@ def read_workbook(path: str) -> dict:
         return {k: v for k, v in d.items() if v is not None}
 
     boiler = keep({"steam_pressure_Pa": absolute("steam_pressure"), "superheat_K": s.number("superheat"),
-                   "blowdown_fraction": s.number("blowdown"), "auxiliary_power_kWh_per_tonne": s.number("aux_power"),
+                   "blowdown_fraction": s.number("blowdown"), "auxiliary_power_kWh_per_tonne_generated": s.number("aux_power"),
                    "rated_steam_capacity_kg_s": s.number("rated_capacity")})
-    combustion = keep({"site_pressure_Pa": p_atm, "stack_T_K": s.number("stack_T"),
+    combustion = keep({"site_altitude_m": alt if from_altitude else None, "site_pressure_Pa": None if from_altitude else p_atm,
+                       "stack_T_K": s.number("stack_T"),
                        "excess_air_fraction": s.number("excess_air"), "flue_CO_dry_mole_fraction": s.number("co"),
                        "setting_loss_fraction": s.number("setting_loss"),
                        "setting_loss_basis": s.choice("setting_loss_basis", BASIS) if s.has("setting_loss") else None})
@@ -550,7 +549,10 @@ def read_workbook(path: str) -> dict:
                    "water": water or None, "fuel_cost": fuel_cost, "water_cost": water_cost,
                    "electricity_cost": electricity_cost, "operation": operation or None, "measures": measures or None,
                    "distribution": distribution or None})
-    return {"inputs": inputs, "plant_label": s.text("plant_label"), "notes": notes, "missing_essentials": _essentials(s)}
+    as_entered = [[FIELDS[k].label.strip(), v if not isinstance(v, float) else f"{v:g}", u or ""]
+                  for k, (v, u, _) in s.raw.items() if v is not None and k != "plant_label"]
+    return {"inputs": inputs, "plant_label": s.text("plant_label"), "notes": _suspects(s) + notes,
+            "missing_essentials": _essentials(s), "as_entered": as_entered}
 
 
 def _essentials(s: _Sheet) -> list[str]:
@@ -590,6 +592,21 @@ def _essentials(s: _Sheet) -> list[str]:
     if isinstance(back, (int, float)) and back > 0 and HEATING.get(mode) != "not_charged":
         row("cond_T")
     return need
+
+
+# percentages a plant sometimes types as a fraction (0.04 for 4 %): below 1 % they are flagged, never changed
+FRACTION_SUSPECTS = ("blowdown", "o2", "air_RH", "cond_return", "excess_air", "m1_o2_target", "m3_blowdown_target",
+                     "m5_return_target", "comp_CH4")
+
+
+def _suspects(s: _Sheet) -> list[str]:
+    out = []
+    for key in FRACTION_SUSPECTS:
+        value = s.raw.get(key, (None,))[0]
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and 0 < value < 1:
+            out.append(f"REVISAR DATO: {s.where(key)} dice {value:g} %. Esa fila va en porcentaje: si quisiste decir "
+                       f"{100 * value:g} %, corrige la celda y vuelve a correr.")
+    return out
 
 
 def _read_distribution(wb, p_atm, problems: list[str]) -> dict:

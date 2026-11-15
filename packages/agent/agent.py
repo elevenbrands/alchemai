@@ -1108,7 +1108,7 @@ def steam_system_diagnostic(currency: str, fuel: dict[str, object] | None = None
                             distribution: dict[str, object] | None = None) -> str:
     """Steam diagnostic of one boiler in ONE call: chains combustion_efficiency and utility_costs (baseline) and re-runs
     them with one change per savings measure and with all changes at once. Nothing is assumed.
-    fuel: as combustion_efficiency. combustion: {site_pressure_Pa, air {T_K, relative_humidity|humidity_ratio_kg_kg},
+    fuel: as combustion_efficiency. combustion: {site_pressure_Pa OR site_altitude_m, air {T_K, relative_humidity|humidity_ratio_kg_kg},
     flue_O2 {mole_fraction, basis} OR excess_air_fraction, stack_T_K, setting_loss_fraction + setting_loss_basis OR
     setting_loss_unknown=true (only when the plant says it does not know it: a published value is used and flagged as an
     assumption), flue_CO_dry_mole_fraction?}. boiler: {steam_pressure_Pa (absolute), blowdown_fraction, superheat_K?,

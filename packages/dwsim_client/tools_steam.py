@@ -25,13 +25,16 @@ def steam_system_diagnostic(currency: str, fuel: dict | None = None, combustion:
       energy_GJ + volume_m3 en fuel_cost.bill) se ajusta una mezcla metano + etano (o metano + nitrógeno) que lo da
       exactamente; sin él se usa un gas de referencia (por defecto 'GULF-COAST', leído de CoolProp). Siempre marcado como
       SUPUESTO, con su sensibilidad en `fuel_resolution`.
-    combustion: {site_pressure_Pa (atmosférica del sitio), air {T_K, relative_humidity o humidity_ratio_kg_kg}, flue_O2
+    combustion: {site_pressure_Pa (atmosférica del sitio) O site_altitude_m (altitud: la presión se calcula con la atmósfera
+      estándar y queda marcada como calculada), air {T_K, relative_humidity o humidity_ratio_kg_kg}, flue_O2
       {mole_fraction, basis 'dry'|'wet'} O excess_air_fraction, stack_T_K, setting_loss_fraction + setting_loss_basis
       ('HHV'|'LHV'; pérdida por paredes) O setting_loss_unknown=true SOLO si la planta declara que no la conoce: entonces
       se usa 1.0 % (PCS) de ORNL/TM-2001/263 sec. 4.2.5, marcado como SUPUESTO en avisos, procedencia y reporte, con su
       sensibilidad en `setting_loss`; sin ninguno de los dos la tool se niega; opcional flue_CO_dry_mole_fraction}.
     boiler: {steam_pressure_Pa (ABSOLUTA), blowdown_fraction (purga, fracción de la alimentación); opcionales superheat_K,
-      auxiliary_power_kWh_per_tonne (ventiladores y bombas; sin él la electricidad no se cobra) y rated_steam_capacity_kg_s
+      auxiliary_power_kWh_per_tonne (ventiladores y bombas, por tonelada ENTREGADA al proceso; o
+      auxiliary_power_kWh_per_tonne_generated, por tonelada GENERADA; sin ninguno la electricidad no se cobra) y
+      rated_steam_capacity_kg_s
       (capacidad de placa: con ella y la producción se conoce la carga; escala la pérdida por paredes publicada)}.
     El resultado trae además: `baseline.emissions` (CO2 directo, del balance de carbono) y el CO2 evitado por medida;
     `max_investment_for_payback` (1, 2 y 3 veces el ahorro anual: tope de inversión, no una cotización); `data_review`

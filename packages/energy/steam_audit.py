@@ -172,15 +172,15 @@ def distribution_losses(distribution: dict, site_pressure_Pa: float, currency: s
         warnings.append(f"REVISAR DATO: las fugas, trampas y tubería sin aislar listadas suman {100 * share:.0f} % del vapor "
                         "que entrega la caldera. Es mucho: revisa los diámetros de orificio (se pide el del orificio, no el "
                         "de la tubería) y las cantidades.")
-    for p in parts:
-        warnings.extend(w for w in p["engine_warnings"] if w not in warnings)
+    for p in parts:                                   # per-segment savings are reported here, so the engine's note on totals is moot
+        warnings.extend(w for w in p["engine_warnings"] if w not in warnings and "solo algunos tramos traen datos" not in w)
     used = [n for n in MODEL_CONSTANTS if (n == "leak_discharge_coefficient" and leaks)
             or (n == "trap_discharge_coefficient" and traps) or (n == "surface_emissivity" and pipes)
             or (n == "jacket_emissivity" and out_pipes and out_pipes["insulation_saving_W"] is not None)]
     for n in used:
         c = constants[n]
         assumptions.append(f"{c['what'].capitalize()}: {c['value']:.2f}"
-                           + (f" ({c['source']})." if c["source"] else " (dado por el usuario)."))
+                           + (f". Fuente: {c['source']}." if c["source"] else " (dado por el usuario)."))
     assumptions += [
         "El vapor de fugas y trampas falladas se valora al costo de una tonelada de vapor de la línea base (combustible, agua y "
         "electricidad), como vapor que sale del sistema. Si una trampa descarga a un retorno de condensado cerrado, el agua no "
