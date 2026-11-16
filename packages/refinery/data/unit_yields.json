@@ -19,6 +19,42 @@
   },
   "sulfur_recovery_pct": {"light_gases": 38.4, "gasoline": 5.3, "lco": 17.7, "hco": 13.4, "coke": 25.3}
  },
+ "fcc_vs_conversion": {
+  "source": "P. K. Niccum (KBR), «Diesel Creation in the FCC Centered Refinery», presentado en el FCCU Seminar, Galveston, 2013, Tabla 3 «FCC Pilot Plant Data — Impact of Changing Operating Severity» (planta piloto de KBR; misma carga y mismo catalizador, tres severidades)",
+  "url": "https://refiningcommunity.com/wp-content/uploads/2017/07/Diesel-Creation-in-the-FCC-Centered-Refinery-Niccum-KBR-FCCU-Galveston-2013.pdf",
+  "date_read": "2026-11-16",
+  "feed": {"api": 22.5, "t50_F": 851, "aniline_point_F": 176, "sulfur_wt": 0.55, "ccr_wt": 0.89, "ecat_mat": 67, "reo_wt": 0.6},
+  "cuts_F": {"gasoline": "C5-430", "lco": "430-680", "slurry": "680+"},
+  "conversion_definition": "conversión % peso = 100 − LCO − aceite decantado (slurry), ambos % peso de la carga",
+  "conversion_wt_pct": [58.98, 66.47, 76.33],
+  "case_labels": ["baja", "media", "alta"],
+  "riser_T_F": [940, 979, 1020],
+  "cat_to_oil": [6.6, 6.7, 11.4],
+  "wt_pct": {
+   "dry_gas": [1.23, 2.08, 3.50],
+   "c3_lpg": [2.97, 4.26, 7.27],
+   "c4_lpg": [5.98, 7.88, 11.57],
+   "gasoline": [43.21, 46.98, 46.00],
+   "lco": [27.42, 24.47, 16.01],
+   "slurry": [13.60, 9.06, 7.66],
+   "coke": [5.59, 5.27, 7.99]
+  },
+  "c3_olefinicity_wt_pct": [83.8, 83.8, 85.7],
+  "c4_olefinicity_wt_pct": [66.7, 68.5, 67.0],
+  "api": {"gasoline": [56.6, 57.2, 55.9], "lco": [22.2, 17.0, 11.3], "slurry": [6.0, -0.8, -7.4]},
+  "lco_hydrogen_wt_pct": [10.7, 9.9, 8.8],
+  "interpolation": "lineal por tramos entre los tres casos publicados (reproduce la tabla exactamente, conserva la suma 100 % y la identidad de conversión, no inventa curvatura); fuera de 58.98-76.33 % peso no se extrapola",
+  "isobutane_fraction_of_c4_paraffins_wt": {"value": 0.7326, "basis": "3.48/(3.48+1.27) % peso del ejemplo de Jechura (bloque fcc); Niccum no separa iC4/nC4"},
+  "sulfur_split": "reparto de recuperación de azufre del ejemplo de Jechura (bloque fcc): Niccum no publica azufre de productos"
+ },
+ "lco_fate": {
+  "source": "G. C. Laredo et al. (Instituto Mexicano del Petróleo), «Estudio de la composición química del aceite cíclico ligero proveniente de crudos mexicanos», Rev. Soc. Quím. Méx. 46(2) 115-119 (2002)",
+  "url": "https://www.scielo.org.mx/pdf/rsqm/v46n2/v46n2a7.pdf",
+  "date_read": "2026-11-16",
+  "statement": "El ACL «usualmente era empleado como componente de la carga a hidrotratamiento para la producción de diesel»; su empleo para diésel en México «se vea restringido» y la preparación del diésel depende «mayormente del procesamiento de gasóleo ligero primario». ACL de Tula, Madero, Salina Cruz, Cadereyta, Salamanca y Minatitlán: 2.14-3.52 % peso de azufre, índice de cetano 25-30.",
+  "support": "Niccum (KBR, 2013): las especificaciones modernas obligan a mejorar el LCO por hidrotratamiento o hidrodesintegración para usarlo en diésel.",
+  "rule": "El LCO entra a diésel sólo después del destilado primario y sólo dentro de la capacidad de hidrodesulfuración: la capacidad PROPIA publicada de la HDS de diésel cuando existe (Dos Bocas, 68 Mbd), si no la capacidad total de hidrodesulfuración que dejan libre las demás cargas; el exceso va a combustóleo (diluente / cutter stock)."
+ },
  "reformer": {
   "source": "J. Jechura, «Gasoline Upgrading: Reforming, Isomerization, & Alkylation», CBEN 409, Colorado School of Mines, lámina 13 «Reformer Yield Example», actualizada 3-jul-2019",
   "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_09_Gasoline_Upgrading.pdf",

@@ -17,10 +17,10 @@ def refinery_model(refinery: str = "tula", crude_slate: dict[str, float] | None 
     cadereyta, madero, minatitlan, salamanca, salina_cruz, dos_bocas. period '2026-01/2026-09' (default), '2026-01/2026-06',
     '2025', '2024'. crude_slate {maya|istmo|olmeca: bpd}; utilization = CDU fraction or {unit: max fraction} (e.g.
     {'coker': 0.25}); prices overrides (USD/bbl, coque/azufre USD/t, gas_seco/energia USD/GJ); unit_overrides
-    {capacity_mbd, kerosene_to_jet_fraction, asphalt_bpd}. Returns process_model (for the diagram), product_slate, unit_table,
+    {capacity_mbd, kerosene_to_jet_fraction, asphalt_bpd, butanes_to_gas_plants_fraction, fcc_conversion_wt_pct 58.98-76.33, cutter_fraction}. Returns process_model (for the diagram), product_slate, unit_table,
     balances, energy, emissions, economics (gross/net margin USD/bbl, annual USD, sourced prices), published_comparison.
-    mode 'as_operated' (default) solves coker utilization, kerosene-to-jet and butanes-out fractions to reproduce published
-    fuel oil, jet and LPG (CALIBRATED, in calibrated_parameters); 'nameplate' runs every unit at published capacity."""
+    mode 'as_operated' (default) solves coker utilization or cutter share (fuel oil), kerosene-to-jet, FCC conversion
+    (diesel, if identifiable) and butanes-out (LPG), all CALIBRATED; 'nameplate' runs units at published capacity."""
     return json.dumps(TR.refinery_model(refinery, crude_slate, utilization, prices, unit_overrides, year, period, today,
                                         mode),
                       default=float, ensure_ascii=False)

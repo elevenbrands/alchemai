@@ -9,8 +9,11 @@ specific consumptions, CO2, and the operating margin at published prices.
 
 This is how refinery PLANNERS model a refinery (unit yields + linear balances, the structure of a refinery LP), NOT a
 rigorous simulation: no reactor kinetics, no column internals, no blending of octane/cetane, no optimisation. Every yield
-vector is a published example at ONE set of conditions (FCC at 72 vol% conversion, reformer at RON 98, coker scaled by the
-Conradson carbon of its feed) and is applied as is: that is the main simplification and it is stated in every result.
+vector is a published example at ONE set of conditions (reformer at RON 98, coker scaled by the Conradson carbon of its
+feed) and is applied as is, EXCEPT the FCC, whose yields are a function of conversion (piecewise-linear in the three
+severities of the KBR pilot-plant table, Niccum 2013; conversion calibrated to diesel only when identifiable, else the
+table's central case). FCC light cycle oil reaches diesel only after straight-run distillate and within the published
+hydrodesulfurization capacity; the rest goes to fuel oil (IMP, Laredo et al. 2002).
 
 Balances (per unit, exact by construction and checked):
     mass:   sum(products) = feed (+ H2 consumed in hydrotreating)
@@ -35,7 +38,8 @@ T60F_K = 288.7055556
 DEFAULT_PERIOD = "2026-01/2026-09"
 CUTS = ("naphtha", "kerosene", "lgo", "hgo", "vr")
 FLAG = "VALOR DE REFERENCIA PUBLICADO, NO TU COTIZACIÓN"
-OVERRIDE_KEYS = ("capacity_mbd", "kerosene_to_jet_fraction", "asphalt_bpd", "butanes_to_gas_plants_fraction")
+OVERRIDE_KEYS = ("capacity_mbd", "kerosene_to_jet_fraction", "asphalt_bpd", "butanes_to_gas_plants_fraction",
+                 "fcc_conversion_wt_pct", "cutter_fraction")
 MODES = ("as_operated", "nameplate")
 UNIT_KEYS = ("cdu", "vdu", "coker", "visbreaker", "fcc", "reformer", "alkylation_isomerization", "hds_total")
 PRICE_KEYS = {"maya": "USD/bbl", "istmo": "USD/bbl", "olmeca": "USD/bbl", "gasolina": "USD/bbl", "turbosina": "USD/bbl",
@@ -49,13 +53,18 @@ METHOD = ("Modelo de PLANEACIÓN de refinería (rendimientos por unidad + balanc
           "hidrodesulfuración de turbosina, diésel y gasolina catalítica a la NOM-016-CRE-2016 → pools de productos. "
           "Vectores "
           "de rendimiento FIJOS de ejemplos resueltos publicados (Jechura, Colorado School of Mines, con correlaciones "
-          "de Gary "
-          "et al.); capacidades de la eBDI de Pemex; energía con intensidades del DOE (2015); balances de masa, "
+          "de Gary et al.) salvo el FCC, con rendimientos contra conversión de una tabla publicada de planta piloto "
+          "(Niccum, KBR 2013) y LCO a diésel limitado por la capacidad de hidrodesulfuración; capacidades de la eBDI de Pemex; energía con intensidades del DOE (2015); balances de masa, "
           "volumen, azufre e "
           "hidrógeno cerrados por unidad y verificados. Python puro, sin simulador.")
 NOT_INCLUDED = [
     "Cinética de reactores, diseño de columnas y efecto de las condiciones de operación: cada unidad usa UN vector de "
-    "rendimiento publicado a una condición fija (FCC a 72 % vol de conversión, reformadora a RON 98).",
+    "rendimiento publicado a una condición fija (reformadora a RON 98); el FCC usa rendimientos contra conversión de "
+    "UNA tabla de planta piloto (una carga de 22.5 °API y 0.55 % S, un catalizador), no la carga ni el catalizador de "
+    "Pemex.",
+    "Diluente (cutter) del combustóleo: no se calcula por viscosidad (no hay viscosidad abierta del residuo de vacío ni "
+    "receta publicada); es una fracción del destilado intermedio (cutter_fraction), calibrada al combustóleo sólo donde "
+    "éste no identifica ya la coquizadora; donde sí, queda en 0 (no identificable).",
     "Optimización (programación lineal) de la carga, de los cortes y del destino de las corrientes: el ruteo es fijo.",
     "Calidad de mezclas: octano, cetano, presión de vapor, viscosidad del combustóleo y diluentes.",
     "Isomerización (su capacidad está sumada a la de alquilación en la eBDI y no hay reparto publicado), H-Oil, planta de "
@@ -298,8 +307,78 @@ def crude_unit(slate: dict) -> tuple[dict, dict]:
     return cuts, checks
 
 
-def fcc_unit(feed: dict) -> dict:
-    """Fixed FCC yield vector (wt% on feed) of the published example; sulfur by its published recovery split."""
+def fcc_conversion_bounds() -> tuple[float, float]:
+    x = _load("unit_yields.json")["fcc_vs_conversion"]["conversion_wt_pct"]
+    return float(x[0]), float(x[-1])
+
+
+def _pwl(x: float, xs: list, ys: list) -> float:
+    """Piecewise-linear interpolation through the published points (no extrapolation: caller checks the range)."""
+    for i in range(len(xs) - 1):
+        if x <= xs[i + 1] or i == len(xs) - 2:
+            t = (x - xs[i]) / (xs[i + 1] - xs[i])
+            return ys[i] + t * (ys[i + 1] - ys[i])
+    return ys[-1]
+
+
+def fcc_yields_wt(conversion_wt_pct: float) -> dict:
+    """FCC yields (wt% of feed) and product gravities at a conversion, piecewise-linear in the published KBR table.
+
+    conversion = 100 - LCO - slurry (wt%). Returns the seven published lumps, olefinicities and API gravities."""
+    y = _load("unit_yields.json")["fcc_vs_conversion"]
+    xs = y["conversion_wt_pct"]
+    lo, hi = xs[0], xs[-1]
+    x = float(conversion_wt_pct)
+    if not lo - 1e-9 <= x <= hi + 1e-9:
+        raise ValueError(f"Conversión del FCC = {x} % peso fuera del intervalo publicado {lo}-{hi} % peso (Niccum/KBR 2013): "
+                         f"el modelo no extrapola la tabla.")
+    wt = {k: _pwl(x, xs, v) for k, v in y["wt_pct"].items()}
+    return {"wt_pct": wt, "api": {k: _pwl(x, xs, v) for k, v in y["api"].items()},
+            "c3_olefinicity": _pwl(x, xs, y["c3_olefinicity_wt_pct"]) / 100.0,
+            "c4_olefinicity": _pwl(x, xs, y["c4_olefinicity_wt_pct"]) / 100.0, "conversion_wt_pct": x}
+
+
+def fcc_unit(feed: dict, conversion_wt_pct: float) -> dict:
+    """FCC yields as a function of conversion (KBR pilot-plant table, piecewise linear); C3/C4 split by the published
+    olefinicity, iC4/nC4 and sulfur split by the Jechura example; LPG component densities of the Jechura table."""
+    ex = _load("unit_yields.json")["fcc"]
+    yc = _load("unit_yields.json")["fcc_vs_conversion"]
+    r = fcc_yields_wt(conversion_wt_pct)
+    wt = r["wt_pct"]
+    fi = yc["isobutane_fraction_of_c4_paraffins_wt"]["value"]
+    c3, c4 = wt["c3_lpg"], wt["c4_lpg"]
+    parts = {"light_gases": (wt["dry_gas"], None), "propane": (c3 * (1 - r["c3_olefinicity"]), ex["products"]["propane"]["sg"]),
+             "propylene": (c3 * r["c3_olefinicity"], ex["products"]["propylene"]["sg"]),
+             "isobutane": (c4 * (1 - r["c4_olefinicity"]) * fi, ex["products"]["isobutane"]["sg"]),
+             "n_butane": (c4 * (1 - r["c4_olefinicity"]) * (1 - fi), ex["products"]["n_butane"]["sg"]),
+             "butylenes": (c4 * r["c4_olefinicity"], ex["products"]["butylenes"]["sg"]),
+             "gasoline": (wt["gasoline"], sg_from_api(r["api"]["gasoline"])), "lco": (wt["lco"], sg_from_api(r["api"]["lco"])),
+             "hco": (wt["slurry"], sg_from_api(r["api"]["slurry"])), "coke": (wt["coke"], None)}
+    rec = ex["sulfur_recovery_pct"]
+    rsum = sum(rec.values())
+    # The published dry gas is taken as hydrocarbon (pilot feed 0.55 % S); the H2S of the sulfur split is an extra lump
+    # and every published lump is scaled by (1 - H2S fraction) so the unit closes on the feed.
+    s_gas = feed["s_kg_d"] * rec["light_gases"] / rsum
+    h2s = s_gas * M_H2S / M_S
+    k = 1.0 - h2s / feed["kg_d"] if feed["kg_d"] > 0 else 1.0
+    out = {}
+    for p, (w, sg) in parts.items():
+        if p == "light_gases":
+            continue
+        m = k * feed["kg_d"] * w / 100.0
+        out[p] = _flow(m / kg_per_bbl(sg) if sg else 0.0, m, feed["s_kg_d"] * rec.get(p, 0.0) / rsum)
+    out["acid_gas"] = _flow(0.0, h2s, s_gas)
+    out["dry_gas"] = _flow(0.0, k * feed["kg_d"] * parts["light_gases"][0] / 100.0, 0.0)
+    out["_h2s_scaling"] = k
+    out["_sulfur_recovery_sum_pct"] = rsum
+    out["_wt_pct"] = wt
+    out["_conversion_wt_pct"] = r["conversion_wt_pct"]
+    return out
+
+
+def fcc_example_unit(feed: dict) -> dict:
+    """Fixed FCC yield vector (wt% on feed) of the Jechura example at 72 vol% (kept as a cross-check of the
+    conversion-dependent table and of the wt->vol arithmetic); sulfur by its published recovery split."""
     y = _load("unit_yields.json")["fcc"]
     rec = y["sulfur_recovery_pct"]
     rsum = sum(rec.values())
@@ -480,6 +559,13 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
     period = _period(ref, period, year)
     caps = _capacities(ref, extra, unit_overrides, warnings, assumptions)
     util = _utilization(utilization)
+    for k, st in extra.get("unit_status", {}).items():
+        if (isinstance(utilization, dict) and k in utilization) or not period.startswith(str(st["applies_to_year"])):
+            continue
+        util[k] = float(st["utilization"])
+        caps[k]["status"] = st["status"]
+        assumptions.append(f"{k}: utilización = {st['utilization']} por estado publicado «{st['status']}» ({st['source']}, "
+                           f"{st['url']}); da utilization['{k}'] si ya opera.")
     cap_bpd = {k: caps[k]["mbd"] * 1000.0 * util[k] for k in UNIT_KEYS}
     slate, published_slate, is_published = _slate(ref, period, crude_slate, utilization, caps["cdu"]["mbd"], warnings,
                                                   assumptions)
@@ -542,13 +628,29 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
     fcc_vgo, vgo_excess = _take(vgo, cap_bpd["fcc"])
     fcc_cgo, cgo_excess = _take(cgo, cap_bpd["fcc"] - fcc_vgo["bpd"])
     fcc_feed = _mix(fcc_vgo, fcc_cgo)
-    fcc = fcc_unit(fcc_feed) if fcc_feed["kg_d"] > 0 else None
+    yc = yields["fcc_vs_conversion"]
+    if "fcc_conversion_wt_pct" in unit_overrides:
+        conv = unit_overrides["fcc_conversion_wt_pct"]
+        lo_c, hi_c = fcc_conversion_bounds()
+        if conv is None or not lo_c <= float(conv) <= hi_c:
+            raise ValueError(f"unit_overrides['fcc_conversion_wt_pct'] debe estar entre {lo_c} y {hi_c} % peso (intervalo de "
+                             f"la tabla publicada de Niccum/KBR 2013; no se extrapola).")
+        conv = float(conv)
+    else:
+        conv = yc["conversion_wt_pct"][1]
+        assumptions.append(f"Conversión del FCC = {conv} % peso = caso «media» de la tabla publicada (Niccum/KBR 2013): Pemex "
+                           f"no publica la conversión de sus FCC; en mode='as_operated' se calibra si hay un producto libre "
+                           f"que la identifique.")
+    fcc = fcc_unit(fcc_feed, conv) if fcc_feed["kg_d"] > 0 else None
     if fcc:
         unit("fcc", fcc_feed, {k: v for k, v in fcc.items() if not k.startswith("_")}, cap_bpd["fcc"],
-             feed_sulfur_wt=_s_wt(fcc_feed), feed_sg=_sg(fcc_feed))
-        if abs(_s_wt(fcc_feed) - yields["fcc"]["conditions"]["feed_sulfur_wt"]) > 0.25:
-            warnings.append(f"El reparto de azufre del FCC es el del ejemplo publicado con 0.50 % de S en la carga; la carga "
-                            f"modelada tiene {_s_wt(fcc_feed):.2f} % (se usan las mismas fracciones).")
+             feed_sulfur_wt=_s_wt(fcc_feed), feed_sg=_sg(fcc_feed), conversion_wt_pct=conv,
+             yields_wt_pct=fcc["_wt_pct"], yields_source=yc["source"], yields_url=yc["url"])
+        if abs(_s_wt(fcc_feed) - yc["feed"]["sulfur_wt"]) > 0.25 or abs((141.5 / _sg(fcc_feed) - 131.5) - yc["feed"]["api"]) > 3:
+            warnings.append(f"Rendimientos del FCC de una tabla de planta piloto con carga de {yc['feed']['api']} °API y "
+                            f"{yc['feed']['sulfur_wt']} % S; la carga modelada tiene {141.5 / _sg(fcc_feed) - 131.5:.1f} °API y "
+                            f"{_s_wt(fcc_feed):.2f} % S (se usan los mismos rendimientos; el azufre con el reparto del ejemplo de "
+                            f"Jechura).")
     if vgo_excess["bpd"] + cgo_excess["bpd"] > 0:
         warnings.append(f"Gasóleos por encima de la capacidad del FCC: {(vgo_excess['bpd'] + cgo_excess['bpd']) / 1000:.1f} Mbd "
                         f"van a combustóleo.")
@@ -587,7 +689,8 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
     # alkylation: FCC olefins with FCC + reformer isobutane
     olef = (fcc["propylene"]["kg_d"] + fcc["butylenes"]["kg_d"]) if fcc else 0.0
     ic4 = (fcc["isobutane"]["kg_d"] if fcc else 0.0) + (refm["isobutane"]["kg_d"] if refm else 0.0)
-    alk = alkylation_unit(olef, ic4, cap_bpd["alkylation_isomerization"]) if olef > 0 else None
+    alk = (alkylation_unit(olef, ic4, cap_bpd["alkylation_isomerization"])
+           if olef > 0 and cap_bpd["alkylation_isomerization"] > 0 else None)
     if alk:
         fo = alk["olefin_used_kg_d"] / olef
         alk_feed = _flow(fo * (fcc["propylene"]["bpd"] + fcc["butylenes"]["bpd"]) + alk["ic4_used_kg_d"] / kg_per_bbl(0.5629),
@@ -605,9 +708,41 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
                            "se manda a diésel: ajústalo con unit_overrides['kerosene_to_jet_fraction']).")
     kero_jet, kero_dsl = _part(cuts["kerosene"], fjet), _part(cuts["kerosene"], 1.0 - fjet)
     jet = hdt("hds_turbosina", kero_jet, specs["jet_max"], "turbosina")
-    dsl_feed = _mix(cuts["lgo"], kero_dsl, fcc["lco"] if fcc else _flow())
-    dsl = hdt("hds_diesel", dsl_feed, specs["diesel_uba_max"], "diésel")
+    # LCO fate (IMP 2002; Niccum 2013): LCO reaches diesel only after straight-run distillate and only within the
+    # hydrodesulfurization capacity (the diesel HDS's own published capacity, else the free part of hds_total); the
+    # excess goes to fuel oil as cutter stock.
+    sr_dsl = _mix(cuts["lgo"], kero_dsl)
     fgas_feed = fcc["gasoline"] if fcc else _flow()
+    lco = fcc["lco"] if fcc else _flow()
+    # Cutter stock (Pemex eBDI glossary: fuel oil = vacuum residue + other residues, «se utilizan diluyentes para ajustar
+    # las especificaciones»): a fraction of the middle-distillate pool (straight-run diesel + non-jet kerosene + LCO),
+    # taken proportionally and untreated, goes to fuel oil. Pemex does not publish the share: 0 unless given/calibrated.
+    fcut = float(unit_overrides.get("cutter_fraction", 0.0))
+    if not 0.0 <= fcut <= 1.0:
+        raise ValueError("unit_overrides['cutter_fraction'] debe estar entre 0 y 1 (fracción del destilado intermedio "
+                         "enviada a combustóleo como diluente).")
+    cutter = _mix(_part(sr_dsl, fcut), _part(lco, fcut))
+    sr_dsl, lco = _part(sr_dsl, 1.0 - fcut), _part(lco, 1.0 - fcut)
+    if fcut > 0:
+        assumptions.append(f"Diluente del combustóleo = {fcut:.3f} del destilado intermedio (diésel primario + querosina no "
+                           f"turbosina + LCO), proporcional y sin hidrotratar = {cutter['bpd'] / 1000:.1f} Mbd. Pemex documenta "
+                           f"el uso de diluyentes (glosario eBDI) pero no publica cuánto ni cuáles.")
+    if "hds_diesel" in split:
+        lco_room, lco_basis = max(split["hds_diesel"] - sr_dsl["bpd"], 0.0), "capacidad propia publicada de la HDS de diésel"
+    elif cap_bpd["hds_total"] > 0:
+        lco_room = max(cap_bpd["hds_total"] - nht_feed["bpd"] - kero_jet["bpd"] - sr_dsl["bpd"] - fgas_feed["bpd"], 0.0)
+        lco_basis = "capacidad total de hidrodesulfuración libre (no hay capacidad propia publicada de la HDS de diésel)"
+    else:
+        lco_room, lco_basis = float("inf"), "sin capacidad de hidrodesulfuración publicada: sin límite (marcado)"
+    lco_dsl, lco_fo = _take(lco, lco_room)
+    if lco_fo["bpd"] > 0:
+        warnings.append(f"LCO del FCC por encima de la capacidad de hidrodesulfuración ({lco_basis}): {lco_fo['bpd'] / 1000:.1f} "
+                        f"Mbd van a combustóleo como diluente, no a diésel.")
+    dsl_feed = _mix(sr_dsl, lco_dsl)
+    dsl = hdt("hds_diesel", dsl_feed, specs["diesel_uba_max"], "diésel")
+    units["hds_diesel"]["metrics"].update(lco_to_diesel_bpd=lco_dsl["bpd"], lco_to_fuel_oil_bpd=lco_fo["bpd"],
+                                          lco_limit_basis=lco_basis, cutter_fraction=fcut, cutter_to_fuel_oil_bpd=cutter["bpd"],
+                                          lco_in_cutter_bpd=(fcc["lco"]["bpd"] * fcut if fcc else 0.0))
     fgas = hdt("hds_gasolina_fcc", fgas_feed, specs["gasoline_avg"], "gasolina catalítica")
     hds_feed_bpd = nht_feed["bpd"] + kero_jet["bpd"] + dsl_feed["bpd"] + fgas_feed["bpd"]
     for uid in ("hds_naftas", "hds_turbosina", "hds_diesel", "hds_gasolina_fcc"):
@@ -631,7 +766,7 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
         "turbosina": jet["product"],
         "diesel": dsl["product"],
         "combustoleo": _mix(ar_bypass, vr_rest, units.get("visbreaker", {}).get("products", {}).get("fuel_oil", _flow()),
-                            fcc["hco"] if fcc else _flow(), vgo_excess, cgo_excess),
+                            fcc["hco"] if fcc else _flow(), vgo_excess, cgo_excess, lco_fo, cutter),
         "asfalto": asphalt,
         "coque": cok["coke"] if cok else _flow(),
     }
@@ -798,9 +933,13 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
     assumptions += [
         "Coquizadora: coque = (46.88/29.3) × CCR de su carga (relación del ejemplo publicado, forma de Gary-Handwerk); gas, "
         "gasolina y gasóleo de coquización en las proporciones del ejemplo; azufre con el reparto publicado del ejemplo.",
-        "FCC: vector fijo del ejemplo publicado a 72 % vol de conversión (carga 25 °API, K 12); la carga real es más "
-        "pesada y "
-        "más azufrada.",
+        "FCC: rendimientos (% peso) contra conversión, interpolación lineal entre los tres casos de la Tabla 3 de Niccum "
+        "(KBR, 2013), planta piloto con carga de 22.5 °API y 0.55 % S; propileno/butilenos por la olefinicidad publicada; "
+        "iC4/nC4 y reparto de azufre del ejemplo de Jechura; el H2S es un lote adicional y los demás se escalan para "
+        "cerrar masa. La carga real de Pemex es más pesada y más azufrada.",
+        "LCO: entra a diésel sólo después del destilado primario y dentro de la capacidad de hidrodesulfuración publicada "
+        "(propia de la HDS de diésel si existe, si no la libre de hds_total); el exceso va a combustóleo (Laredo et al., "
+        "IMP 2002: el uso de ACL en diésel en México está restringido).",
         "Reformadora: vector fijo del ejemplo publicado a RON 98 (carga 51.7 °API); el H2S del ejemplo se excluye.",
         "Hidrotratamientos: quitan azufre hasta la NOM-016-CRE-2016 (gasolina 30 mg/kg promedio, diésel 15 mg/kg, turbosina "
         "3000 mg/kg) con H2 estequiométrico; el volumen líquido se conserva (sin ganancia de volumen por hidrogenación).",
@@ -1056,7 +1195,12 @@ def _process_model(key, ref, period, caps, util, units, cuts, pools, acid, dry, 
     st("s_ligeros", "Ligeros C4-", "cdu", "esferas_glp", cuts["light_ends"], cut="C4-")
     st("s_nafta_primaria", "Nafta primaria", "cdu", "hds_naftas", cuts["naphtha"], cut="C5-351 °F")
     st("s_querosina", "Querosina", "cdu", "hds_turbosina", cuts["kerosene"], cut="351-526 °F")
-    st("s_gasoleo_ligero", "Gasóleo ligero primario", "cdu", "hds_diesel", cuts["lgo"], cut="526-651 °F")
+    fcut = units["hds_diesel"]["metrics"].get("cutter_fraction", 0.0) if "hds_diesel" in units else 0.0
+    st("s_gasoleo_ligero", "Gasóleo ligero primario", "cdu", "hds_diesel", _part(cuts["lgo"], 1.0 - fcut), cut="526-651 °F")
+    if fcut > 0:
+        kj = units["hds_turbosina"]["feed"]["bpd"] / cuts["kerosene"]["bpd"] if cuts["kerosene"]["bpd"] > 0 else 0.0
+        st("s_diluente_primario", "Destilado intermedio primario a combustóleo (diluente)", "cdu", "tanque_combustoleo",
+           _part(_mix(cuts["lgo"], _part(cuts["kerosene"], 1.0 - kj)), fcut))
     vdu_feed = units["vdu"]["feed"]
     st("s_residuo_atm", "Residuo atmosférico", "cdu", "horno_vacio", vdu_feed, cut="651+ °F")
     st("s_residuo_atm_caliente", "Residuo atmosférico caliente", "horno_vacio", "vdu", vdu_feed)
@@ -1087,7 +1231,13 @@ def _process_model(key, ref, period, caps, util, units, cuts, pools, acid, dry, 
         st("s_efluente_fcc", "Efluente del reactor FCC", "fcc", "fcc_fraccionadora",
            _mix(*[f for k, f in fp.items() if k != "coke"]))
         st("s_gasolina_fcc", "Gasolina catalítica", "fcc_fraccionadora", "hds_gasolina_fcc", fp["gasoline"])
-        st("s_aceite_ciclico_ligero", "Aceite cíclico ligero (LCO)", "fcc_fraccionadora", "hds_diesel", fp["lco"])
+        lco_fo_bpd = (units["hds_diesel"]["metrics"].get("lco_to_fuel_oil_bpd", 0.0)
+                      + units["hds_diesel"]["metrics"].get("lco_in_cutter_bpd", 0.0))
+        x_fo = lco_fo_bpd / fp["lco"]["bpd"] if fp["lco"]["bpd"] > 0 else 0.0
+        st("s_aceite_ciclico_ligero", "Aceite cíclico ligero (LCO) a hidrodesulfuración de diésel", "fcc_fraccionadora",
+           "hds_diesel", _part(fp["lco"], 1.0 - x_fo))
+        st("s_lco_combustoleo", "LCO a combustóleo (diluente y excedente de hidrodesulfuración)", "fcc_fraccionadora", "tanque_combustoleo",
+           _part(fp["lco"], x_fo))
         st("s_aceite_ciclico_pesado", "Aceite cíclico pesado (HCO)", "fcc_fraccionadora", "tanque_combustoleo", fp["hco"])
         st("s_olefinas", "Propileno, butilenos e isobutano", "fcc_fraccionadora", "alquilacion",
            _mix(fp["propylene"], fp["butylenes"], fp["isobutane"]))
@@ -1148,9 +1298,21 @@ def _process_model(key, ref, period, caps, util, units, cuts, pools, acid, dry, 
 # ---------------------------------------------------------------------------------------------- as-operated calibration
 CALIBRATION = (   # (parameter, how it is passed, product it is fitted to, published key, direction of the product with it)
     ("coker_utilization", "utilization.coker", "combustoleo", "combustoleo", -1),
+    # cutter stock share is identified by fuel oil ONLY where fuel oil is not already used by the coker utilization
+    ("cutter_fraction", "unit_overrides.cutter_fraction", "combustoleo", "combustoleo", +1),
     ("kerosene_to_jet_fraction", "unit_overrides.kerosene_to_jet_fraction", "turbosina", "turbosina", +1),
+    # FCC conversion is identified by diesel: conversion = 100 - LCO - slurry, LCO lands in diesel and is the most
+    # conversion-sensitive published product (KBR table: LCO 27.4 -> 16.0 wt%); gasoline is flat (43-47 wt%, not
+    # identifiable), fuel oil and LPG are already claimed. It is calibrated only if no earlier parameter claimed diesel.
+    ("fcc_conversion_wt_pct", "unit_overrides.fcc_conversion_wt_pct", "diesel", "diesel", -1),
     ("butanes_to_gas_plants_fraction", "unit_overrides.butanes_to_gas_plants_fraction", "glp", "gas_licuado", -1),
 )
+CAL_DEFAULT = {"coker_utilization": 1.0, "kerosene_to_jet_fraction": 1.0, "butanes_to_gas_plants_fraction": 0.0,
+               "cutter_fraction": 0.0}
+
+
+def _cal_bounds(name: str) -> tuple[float, float]:
+    return fcc_conversion_bounds() if name == "fcc_conversion_wt_pct" else (0.0, 1.0)
 CAL_TOL_REL = 1e-6
 
 
@@ -1208,7 +1370,9 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
         return first
     pub = _load("pemex_refineries.json")["refineries"][first["refinery"]]["periods"][first["period"]]["products_mbd"]
     user_util, user_ov = dict(util_dict or {}), dict(unit_overrides or {})
-    free = []
+    free, claimed, not_identified = [], set(), []
+    reserved_diesel = False
+    has_fcc = any(u["unit"] == "fcc" for u in first["unit_table"])
     for name, how, product, pkey, sign in CALIBRATION:
         where, key = how.split(".")
         given = key in (user_util if where == "utilization" else user_ov)
@@ -1219,50 +1383,103 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
             continue
         if name == "coker_utilization" and first["capacities_mbd"]["coker"]["mbd"] <= 0:
             continue
+        if name == "fcc_conversion_wt_pct" and not has_fcc:
+            continue
+        if name == "cutter_fraction" and first["capacities_mbd"]["coker"]["mbd"] > 0 and target is not None:
+            # with a coker, fuel oil is the coker's signal (calibrated, or fixed by the user in a what-if): never re-fit
+            # it with the cutter
+            not_identified.append((name, product))
+            continue
+        if name == "fcc_conversion_wt_pct" and any(f[0] == "cutter_fraction" for f in free):
+            # the cutter already moves middle distillate (and LCO) between diesel and fuel oil: diesel is kept as the
+            # independent VALIDATION of that split, so the conversion is not fitted to it
+            reserved_diesel = True
+            continue
         if target is None:
             continue
+        if product in claimed:                  # one parameter per published product, never more
+            not_identified.append((name, product))
+            continue
+        claimed.add(product)
         free.append((name, product, target * 1000.0, sign))
-    values = {name: (1.0 if name == "coker_utilization" else (1.0 if name == "kerosene_to_jet_fraction" else 0.0))
-              for name, *_ in free}
+    conv_mid = _load("unit_yields.json")["fcc_vs_conversion"]["conversion_wt_pct"][1]
 
-    def product_at(name: str, x: float, product: str) -> float:
-        return _run_core(**_kwargs_with(base, {**values, name: x}))["product_slate"][product]["bpd"]
+    def solve(free_set: list) -> tuple[dict, dict]:
+        values = {name: (conv_mid if name == "fcc_conversion_wt_pct" else CAL_DEFAULT[name]) for name, *_ in free_set}
 
-    status = {}
-    for _ in range(2):                      # Gauss-Seidel passes (the couplings are weak: coker LPG, FCC feed)
-        for name, product, target, sign in free:
-            f0, f1 = product_at(name, 0.0, product), product_at(name, 1.0, product)
-            lo_v, hi_v = min(f0, f1), max(f0, f1)
-            if target <= lo_v or target >= hi_v:
-                x = 0.0 if abs(target - f0) < abs(target - f1) else 1.0
-                hit = abs(target - (f0 if x == 0.0 else f1)) <= 1e-9 * max(target, 1.0)
-                status[name] = ("resuelto (en el límite)" if hit else
-                                "en el límite: el producto publicado no se alcanza dentro de 0-1")
-            else:
-                a, b = 0.0, 1.0
-                for _ in range(48):
-                    m = 0.5 * (a + b)
-                    fm = product_at(name, m, product)
-                    if (fm - target) * (f1 - f0) > 0:
-                        b = m
-                    else:
-                        a = m
-                x = 0.5 * (a + b)
-                status[name] = "resuelto"
-            values[name] = x
+        def product_at(name: str, x: float, product: str) -> float:
+            return _run_core(**_kwargs_with(base, {**values, name: x}))["product_slate"][product]["bpd"]
+
+        status = {}
+        for _ in range(4):                  # Gauss-Seidel passes (couplings: coker LPG and gas oil, FCC LCO to fuel oil)
+            for name, product, target, sign in free_set:
+                lo_b, hi_b = _cal_bounds(name)
+                f0, f1 = product_at(name, lo_b, product), product_at(name, hi_b, product)
+                lo_v, hi_v = min(f0, f1), max(f0, f1)
+                if target <= lo_v or target >= hi_v:
+                    x = lo_b if abs(target - f0) < abs(target - f1) else hi_b
+                    hit = abs(target - (f0 if x == lo_b else f1)) <= 1e-9 * max(target, 1.0)
+                    status[name] = ("resuelto (en el límite)" if hit else
+                                    f"en el límite: el producto publicado no se alcanza dentro de {lo_b:g}-{hi_b:g}")
+                else:
+                    a, b = lo_b, hi_b
+                    for _ in range(48):
+                        m = 0.5 * (a + b)
+                        fm = product_at(name, m, product)
+                        if (fm - target) * (f1 - f0) > 0:
+                            b = m
+                        else:
+                            a = m
+                    x = 0.5 * (a + b)
+                    status[name] = "resuelto"
+                values[name] = x
+        return values, status
+
+    values, status = solve(free)
+    # Identifiability rule for the FCC conversion: its bounds are the RANGE OF THE SOURCE TABLE, not a physical limit (a
+    # fraction of 0 or 1 is a real operating point; a conversion pinned at the table edge is not). If diesel cannot be
+    # reproduced inside the table, the diesel gap is not an FCC-conversion effect: conversion is NOT calibrated, it stays
+    # at the source's central case, diesel stays a validation product, and the other parameters are re-solved.
+    conv_unidentified = None
+    if "fcc_conversion_wt_pct" in status and not status["fcc_conversion_wt_pct"].startswith("resuelto"):
+        conv_unidentified = {"value_at_bound": values["fcc_conversion_wt_pct"], "status": status["fcc_conversion_wt_pct"]}
+        free = [f for f in free if f[0] != "fcc_conversion_wt_pct"]
+        values, status = solve(free)
     res = _run_core(**_kwargs_with(base, values))
     cal = {}
     for name, product, target, sign in free:
         model = res["product_slate"][product]["bpd"]
         cal[name] = {"value": values[name], "fitted_to": product, "published_bpd": target, "model_bpd": model,
                      "residual_rel": (model - target) / target if target else model, "status": status.get(name),
-                     "bounds": [0.0, 1.0], "flag": "CALIBRADO a la producción publicada (no es validación)"}
+                     "bounds": list(_cal_bounds(name)), "flag": "CALIBRADO a la producción publicada (no es validación)"}
         if not str(status.get(name)).startswith("resuelto"):
             res["warnings"].append(f"Calibración de {name}: {status.get(name)} ({product}: publicado {target / 1000:.2f} Mbd, "
                                    f"modelo {model / 1000:.2f} Mbd).")
     res["assumptions"].append("mode='as_operated': " + "; ".join(
         f"{n} = {c['value']:.4f} CALIBRADO para reproducir {c['fitted_to']} publicado ({c['published_bpd'] / 1000:.3f} Mbd)"
         for n, c in cal.items()) + ". Pemex no publica estos valores; son ajustes, no validación.")
+    if conv_unidentified:
+        probe = _run_core(**_kwargs_with(base, {**values, "fcc_conversion_wt_pct": conv_unidentified["value_at_bound"]}))
+        conv_unidentified.update(
+            diesel_model_bpd_at_bound=probe["product_slate"]["diesel"]["bpd"], diesel_published_bpd=pub["diesel"] * 1000.0,
+            used_value=conv_mid, text_es=(
+                f"La conversión del FCC NO se calibra: ni en el borde de la tabla publicada "
+                f"({conv_unidentified['value_at_bound']:g} % peso) el diésel modelado "
+                f"({probe['product_slate']['diesel']['bpd'] / 1000:.1f} Mbd) alcanza el publicado ({pub['diesel']:.1f} Mbd); la "
+                f"diferencia no es efecto de la conversión. Se usa el caso central publicado ({conv_mid} % peso) y el diésel "
+                f"queda como validación."))
+        res["warnings"].append(conv_unidentified["text_es"])
+    res["fcc_conversion_identification"] = conv_unidentified or (
+        {"status": "calibrada", "value": values["fcc_conversion_wt_pct"]} if "fcc_conversion_wt_pct" in values else
+        {"status": "no calibrada: el diésel ya lo ajusta otro parámetro (turbosina N/D → fracción de querosina)",
+         "used_value": conv_mid} if any(n == "fcc_conversion_wt_pct" for n, _ in not_identified) else
+        {"status": "no calibrada: el diésel se reserva como validación del diluente (cutter_fraction calibrado al "
+                   "combustóleo)", "used_value": conv_mid} if reserved_diesel else
+        {"status": "no calibrada (dato del usuario, sin FCC o sin diésel publicado)"})
+    for name, product in not_identified:
+        res["warnings"].append(f"{name} NO se calibra: su producto identificador ({product}) ya lo ajusta otro parámetro y no "
+                               f"hay otro producto publicado que lo identifique; se usa el valor por defecto (ver "
+                               f"assumptions).")
     fitted = {c["fitted_to"] for c in cal.values()}
     comp = res["published_comparison"]
     for row in comp["rows"]:

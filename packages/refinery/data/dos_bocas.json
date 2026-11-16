@@ -30,6 +30,14 @@
   "Hidrodesulfuradora de turbosina: no se encontró en las fuentes abiertas leídas (la eBDI no publica turbosina de Dos Bocas: N/D).",
   "Hidrotratadora de gasóleos HDTGO (60 Mbd, IIR): no modelada (el modelo no hidrotrata la carga al FCC)."
  ],
+ "unit_status": {
+  "alkylation_isomerization": {"utilization": 0.0, "applies_to_year": 2026,
+   "status": "alquilación e isomerización de butanos en arranque y estabilización, aún sin operación comercial",
+   "source": "Industrial Info Resources, «Pemex's Dos Bocas Refinery Moves Toward Full Operations», 5-feb-2026 («remain in the start-up and stabilization phase»)",
+   "url": "https://www.industrialinfo.com/news/article/pemexs-dos-bocas-refinery-moves-toward-full-operations--352954",
+   "date_read": "2026-11-16",
+   "note": "Último estado leído (feb-2026); no se encontró fuente abierta posterior. Sin alquilación, el propileno del FCC queda en el C3 del gas licuado y los butilenos e isobutano en la mezcla de butanos."}
+ },
  "project_status": [
   {"what": "Diseñada para procesar 340 Mbd de crudo; 17 plantas de proceso en dos trenes; ficha técnica: hasta 170 Mbd de gasolinas y 120 Mbd de diésel.",
    "source": "Expansión, «¿Por qué Dos Bocas opera al 30 % de su capacidad de producción?», 26-jun-2025",

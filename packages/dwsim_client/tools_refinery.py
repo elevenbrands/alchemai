@@ -39,13 +39,21 @@ def refinery_model(refinery: str = "tula", crude_slate: dict | None = None, util
       'combustoleo','asfalto','glp' en USD/bbl; 'coque' y 'azufre' en USD/t; 'gas_seco' y 'energia' en USD/GJ; 'costo_fijo'
       en USD/bbl; 'fx_mxn_usd' en MXN/USD.
     unit_overrides: {'capacity_mbd': {unidad: Mbd}, 'kerosene_to_jet_fraction': 0-1 (resto a diésel),
-      'butanes_to_gas_plants_fraction': 0-1, 'asphalt_bpd': b/d (por defecto la producción publicada del periodo)}.
+      'butanes_to_gas_plants_fraction': 0-1, 'asphalt_bpd': b/d (por defecto la producción publicada del periodo),
+      'fcc_conversion_wt_pct': 58.98-76.33 % peso (conversión del FCC = 100 − LCO − aceite decantado; rendimientos del FCC
+      contra conversión de la tabla de planta piloto de KBR, Niccum 2013; sin extrapolar)}. El LCO del FCC va a diésel
+      sólo dentro de la capacidad de hidrodesulfuración publicada; el exceso va a combustóleo. 'cutter_fraction': 0-1,
+      fracción del destilado intermedio (diésel primario + querosina no turbosina + LCO) enviada sin tratar a combustóleo
+      como diluente (Pemex documenta diluyentes en su combustóleo pero no publica cuánto).
     today: fecha ISO para la antigüedad de los precios.
     mode: 'as_operated' (por defecto: la refinería COMO OPERA en el periodo) o 'nameplate' (cada unidad a su capacidad
       publicada). En 'as_operated' lo que Pemex no publica pero se ve en su producción se RESUELVE para reproducirla, un
       parámetro por producto: utilización de la coquizadora → combustóleo, fracción de querosina a turbosina → turbosina,
-      fracción de butanos enviada a los complejos procesadores de gas → gas licuado (Pemex excluye la mezcla de butanos de
-      su gas licuado de refinería). Esos valores salen en calibrated_parameters marcados CALIBRADOS (no validación); la
+      fracción de destilado a combustóleo como diluente → combustóleo SÓLO donde no lo usa ya la coquizadora (ahí el diésel
+      queda como validación), fracción de butanos enviada a los complejos procesadores de gas → gas licuado (Pemex excluye la mezcla de butanos de
+      su gas licuado de refinería) y, si el diésel queda libre, conversión del FCC → diésel (sólo si se alcanza dentro de la
+      tabla publicada; si no, queda en el caso central 66.47 % peso y el diésel sigue como validación; ver
+      fcc_conversion_identification). Esos valores salen en calibrated_parameters marcados CALIBRADOS (no validación); la
       validación son los productos no ajustados (published_comparison.validation_rows: gasolinas, diésel) y el total de
       líquidos. Un valor que des tú (utilization['coker'] o unit_overrides) no se calibra.
 

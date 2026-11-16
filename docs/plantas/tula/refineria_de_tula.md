@@ -20,42 +20,42 @@ Procesa 221,583 barriles diarios de crudo.
 
 | Producto | Modelo, bbl/d | Modelo, t/h | % vol. del crudo |
 |---|---|---|---|
-| gasolina | 90,563 | 467.9 | 40.9 |
+| gasolina | 87,491 | 454.1 | 39.5 |
 | turbosina | 20,908 | 112.4 | 9.4 |
-| diesel | 58,797 | 327.1 | 26.5 |
-| combustoleo | 21,307 | 145.8 | 9.6 |
+| diesel | 59,958 | 341.0 | 27.1 |
+| combustoleo | 21,307 | 147.1 | 9.6 |
 | asfalto | 2,882 | 19.7 | 1.3 |
-| coque | — (se reporta en masa) | 58.4 | 0.0 |
+| coque | — (se reporta en masa) | 59.5 | 0.0 |
 | glp | 11,298 | 40.2 | 5.1 |
-| butanos | 5,145 | 20.1 | 2.3 |
-| gas_seco | — (se reporta en masa) | 42.9 | 0.0 |
+| butanos | 5,852 | 22.9 | 2.6 |
+| gas_seco | — (se reporta en masa) | 36.0 | 0.0 |
 
 | Producto | Tipo de comparación | Desviación |
 |---|---|---|
-| gasolina | validación | 0.8 % |
+| gasolina | validación | -2.6 % |
 | turbosina | ajustado | 0.0 % |
-| diesel | validación | 41.5 % |
-| combustoleo | ajustado | 0.0 % |
-| glp | ajustado | -0.0 % |
+| diesel | validación | 44.3 % |
+| combustoleo | ajustado | -0.0 % |
+| glp | ajustado | 0.0 % |
 | asfalto | dato de entrada | 0.0 % |
 
 **Calidad de la calibración:** Todas las calibraciones reproducen su producto publicado.
 
 Parámetros CALIBRADOS (no publicados por Pemex; ajustados para reproducir un producto publicado):
 
-- coker_utilization: 0.259 (ajustado a combustoleo)
+- coker_utilization: 0.264 (ajustado a combustoleo)
 - kerosene_to_jet_fraction: 0.536 (ajustado a turbosina)
-- butanes_to_gas_plants_fraction: 0.811 (ajustado a glp)
+- butanes_to_gas_plants_fraction: 0.842 (ajustado a glp)
 
 ## Rentabilidad (margen de operación; la refinería ya existe)
 
 | Indicador | USD/bbl |
 |---|---|
-| Margen bruto del modelo | 23.03 |
+| Margen bruto del modelo | 22.17 |
 | Margen bruto con la producción PUBLICADA (misma mezcla de crudo y precios) | 9.34 |
-| Energía | 2.30 |
+| Energía | 2.28 |
 | Costo fijo (referencia) | 4.86 |
-| Margen neto del modelo | 15.87 |
+| Margen neto del modelo | 15.02 |
 
 La cifra más defendible es el margen con la producción publicada: el modelo produce más diésel y líquidos que la refinería real (ver validación), lo que infla su margen. Diagnóstico: mismo crudo y mismos precios, pero con la producción PUBLICADA de los seis productos líquidos en lugar de la modelada (sin gas seco, coque ni azufre). La diferencia con gross_margin_usd_bbl es el efecto de los productos no ajustados (gasolinas, diésel) y del volumen de líquidos que el modelo sobrestima.
 
@@ -81,7 +81,7 @@ Precios usados (referencias publicadas, NO cotizaciones):
 
 ## Oportunidades de mejora (numeradas en el diagrama)
 
-1. **Completar el arranque de la coquizadora y operarla a su capacidad publicada** — USD 96,328,365/año (rango 48,164,182–96,328,365). Confianza media.
+1. **Completar el arranque de la coquizadora y operarla a su capacidad publicada** — USD 87,138,470/año (rango 43,569,235–87,138,470). Confianza media.
    La coquizadora opera al 26 % (valor CALIBRADO para reproducir el combustóleo publicado). A capacidad, convierte residuo de vacío (que hoy sale como combustóleo, el producto más barato) en gasolina, diésel y gas; el modelo valúa ese cambio con los mismos precios.
 
 No evaluado por falta de datos públicos:
@@ -104,6 +104,7 @@ No evaluado por falta de datos públicos:
 - Capacidad de coker = 86.0 Mbd tomada de Oil & Gas Journal, R. Brelsford, «Pemex lets contract for Tula refinery», 11-jun-2018 (planta de coquización retardada de 86,000 b/d del proyecto Aprovechamiento de Residuales) [fuente secundaria]: no está en el cuadro de capacidades de la eBDI 2025. Estado: arranque parcial.
 - Carga de crudo = proceso PUBLICADO por Pemex para el periodo 2026-01/2026-09 por tipo (maya 49.737 Mbd, istmo 96.677 Mbd, olmeca 75.169 Mbd); Correspondencia nuestra entre los tipos de crudo de la eBDI (Pesado, Ligero, Superligero) y los crudos de exportación Maya, Istmo y Olmeca; las mezclas actuales que recibe cada refinería pueden diferir de los ensayes del año 2000.
 - Asfalto = 2882 bbl/d = producción PUBLICADA del periodo 2026-01/2026-09 (dato de entrada, no predicción): se retira del residuo de vacío.
+- Conversión del FCC = 66.47 % peso = caso «media» de la tabla publicada (Niccum/KBR 2013): Pemex no publica la conversión de sus FCC; en mode='as_operated' se calibra si hay un producto libre que la identifique.
 - La capacidad publicada de «alquilación e isomerización» se asigna completa a alquilación (barriles de alquilado); no hay reparto publicado.
 - Hidrotratadoras: toda su carga se hidrotrata a especificación salvo que exista una capacidad PROPIA publicada para esa planta; lo que exceda esa capacidad pasa sin tratar a su producto, marcado fuera de especificación. Nunca se pierde producto. Sin capacidad propia, se compara la carga sumada con la capacidad total publicada (hds_total) y sólo se avisa.
 - Precio fx_mxn_usd = 18.55 MXN/USD (FIX del banco de referencia; Banco de México, indicadores de la página principal (Sistema de Información Económica); https://www.banxico.org.mx/canales/singleFix.json; periodo {'start': '2026-11-13', 'end': '2026-11-13'}) — VALOR DE REFERENCIA PUBLICADO, NO TU COTIZACIÓN.
@@ -122,19 +123,21 @@ No evaluado por falta de datos públicos:
 - CCR del residuo de vacío de istmo = 22.7 % peso, estimado suponiendo que todo el carbón Conradson del crudo (4.5 %) queda en el residuo de vacío (para Maya ese supuesto da 25.92 vs 25.8 publicado).
 - CCR del residuo de vacío de olmeca = 22.4 % peso, estimado suponiendo que todo el carbón Conradson del crudo (2.8 %) queda en el residuo de vacío (para Maya ese supuesto da 25.92 vs 25.8 publicado).
 - Coquizadora: coque = (46.88/29.3) × CCR de su carga (relación del ejemplo publicado, forma de Gary-Handwerk); gas, gasolina y gasóleo de coquización en las proporciones del ejemplo; azufre con el reparto publicado del ejemplo.
-- FCC: vector fijo del ejemplo publicado a 72 % vol de conversión (carga 25 °API, K 12); la carga real es más pesada y más azufrada.
+- FCC: rendimientos (% peso) contra conversión, interpolación lineal entre los tres casos de la Tabla 3 de Niccum (KBR, 2013), planta piloto con carga de 22.5 °API y 0.55 % S; propileno/butilenos por la olefinicidad publicada; iC4/nC4 y reparto de azufre del ejemplo de Jechura; el H2S es un lote adicional y los demás se escalan para cerrar masa. La carga real de Pemex es más pesada y más azufrada.
+- LCO: entra a diésel sólo después del destilado primario y dentro de la capacidad de hidrodesulfuración publicada (propia de la HDS de diésel si existe, si no la libre de hds_total); el exceso va a combustóleo (Laredo et al., IMP 2002: el uso de ACL en diésel en México está restringido).
 - Reformadora: vector fijo del ejemplo publicado a RON 98 (carga 51.7 °API); el H2S del ejemplo se excluye.
-- Hidrotratamientos: quitan azufre hasta la NOM-016-CRE-2016 (gasolina 30 mg/kg promedio, diésel 15 mg/kg, turbosina 3000 mg/kg) con H2 estequiométrico; el volumen líquido se conserva (sin ganancia de volumen por hidrogenación).
-- Densidad de los ligeros C4- = 0.584 (n-butano); el ensaye no la publica.
 - ⚠ Reductora de viscosidad modelada como paso a combustóleo sin cambio de rendimientos: no se abrió hoy un vector de rendimientos publicado (reduce viscosidad; su pequeña producción de gas y nafta no se ve).
-- ⚠ El reparto de azufre del FCC es el del ejemplo publicado con 0.50 % de S en la carga; la carga modelada tiene 2.40 % (se usan las mismas fracciones).
+- ⚠ Rendimientos del FCC de una tabla de planta piloto con carga de 22.5 °API y 0.55 % S; la carga modelada tiene 22.8 °API y 2.41 % S (se usan los mismos rendimientos; el azufre con el reparto del ejemplo de Jechura).
 - ⚠ Los precios internos de Pemex (MXN, ene-sep 2026) se pasan a USD con el FIX 18.5525 MXN/USD del 2026-11-13 (no es el promedio del periodo): da prices['fx_mxn_usd'] si tienes el promedio.
 - ⚠ Gas natural: no hay precio para México en el banco; se usa US (3.971 USD/GJ).
 - ⚠ Sin precio publicado para ['coque', 'azufre']: su valor NO se suma a los ingresos (margen conservador). Dalo en prices ({'coque': 'USD/t', 'azufre': 'USD/t'}).
 - ⚠ Ensaye maya: la masa sumada de los cortes difiere -0.29 % de la del crudo entero por su °API (inconsistencia de la tabla publicada); el modelo usa la suma de los cortes.
 - ⚠ Ensaye istmo: la masa sumada de los cortes difiere -0.73 % de la del crudo entero por su °API (inconsistencia de la tabla publicada); el modelo usa la suma de los cortes.
 - ⚠ Ensaye istmo: el residuo 651+ °F publicado (44.3 % vol) no es la suma de gasóleo pesado + residuo de vacío (43.3 % vol); el modelo usa los dos cortes.
-- No incluye: Cinética de reactores, diseño de columnas y efecto de las condiciones de operación: cada unidad usa UN vector de rendimiento publicado a una condición fija (FCC a 72 % vol de conversión, reformadora a RON 98).
+- ⚠ La conversión del FCC NO se calibra: ni en el borde de la tabla publicada (76.33 % peso) el diésel modelado (54.6 Mbd) alcanza el publicado (41.6 Mbd); la diferencia no es efecto de la conversión. Se usa el caso central publicado (66.47 % peso) y el diésel queda como validación.
+- ⚠ cutter_fraction NO se calibra: su producto identificador (combustoleo) ya lo ajusta otro parámetro y no hay otro producto publicado que lo identifique; se usa el valor por defecto (ver assumptions).
+- No incluye: Cinética de reactores, diseño de columnas y efecto de las condiciones de operación: cada unidad usa UN vector de rendimiento publicado a una condición fija (reformadora a RON 98); el FCC usa rendimientos contra conversión de UNA tabla de planta piloto (una carga de 22.5 °API y 0.55 % S, un catalizador), no la carga ni el catalizador de Pemex.
+- No incluye: Diluente (cutter) del combustóleo: no se calcula por viscosidad (no hay viscosidad abierta del residuo de vacío ni receta publicada); es una fracción del destilado intermedio (cutter_fraction), calibrada al combustóleo sólo donde éste no identifica ya la coquizadora; donde sí, queda en 0 (no identificable).
 - No incluye: Optimización (programación lineal) de la carga, de los cortes y del destino de las corrientes: el ruteo es fijo.
 - No incluye: Calidad de mezclas: octano, cetano, presión de vapor, viscosidad del combustóleo y diluentes.
 - No incluye: Isomerización (su capacidad está sumada a la de alquilación en la eBDI y no hay reparto publicado), H-Oil, planta de hidrógeno y recuperación real de las plantas de azufre (se reporta el azufre potencial en el gas ácido).
