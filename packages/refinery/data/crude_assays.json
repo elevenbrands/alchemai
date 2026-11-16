@@ -29,6 +29,16 @@
             "vr": {"vol_pct": 10.3, "api": 8.9, "sulfur_wt": 3.4}},
    "ar_651plus": {"vol_pct": 35.2, "api": 18.6, "sulfur_wt": 2.01}}
  },
+ "current_quality_check": {
+  "_doc": "Calidad publicada más reciente (API y azufre del crudo entero) para contrastar con el ensaye OGJ 2000. NO se encontró un ensaye TBP abierto posterior a 2000 ni una correlación abierta TBP-API para reajustar los cortes: los cortes NO se modifican; sólo se reporta la diferencia.",
+  "date_read": "2026-11-16",
+  "values": {
+   "maya": [{"api_min": 21.0, "api_max": 22.0, "sulfur_wt": 3.4, "source": "Pemex, página comercial «Maya Crude Oil» (última modificación 26-may-2026)", "url": "https://www.pemex.com/en/commercialization/products/Paginas/oil/maya-crude.aspx"},
+            {"api_min": 20.5, "api_max": 20.5, "sulfur_wt": 3.40, "source": "EIA, This Week in Petroleum, 26-ago-2015, Tabla 1 (cálculos de EIA con ensayes de Chevron, PMI y Pemex; sin fecha de la calidad)", "url": "https://www.eia.gov/petroleum/weekly/archive/2015/150826/includes/analysis_print.php"}],
+   "istmo": [{"api_min": 33.1, "api_max": 33.1, "sulfur_wt": 1.80, "source": "EIA, This Week in Petroleum, 26-ago-2015, Tabla 1", "url": "https://www.eia.gov/petroleum/weekly/archive/2015/150826/includes/analysis_print.php"}],
+   "olmeca": [{"api_min": 33.8, "api_max": 33.8, "sulfur_wt": 0.74, "source": "EIA, This Week in Petroleum, 26-ago-2015, Tabla 1 (azufre 0.73-0.75 %)", "url": "https://www.eia.gov/petroleum/weekly/archive/2015/150826/includes/analysis_print.php"}]
+  }
+ },
  "light_ends_check": {
   "_doc": "Ligeros (% vol) publicados por otra fuente abierta, para contrastar los ligeros por diferencia del ensaye de OGJ.",
   "source": "O. Sánchez Alonso, «Análisis de opciones tecnológicas para procesos de destilación combinada de crudos mexicanos», tesis de maestría, UNAM, 2012 (datos citados del mismo ensaye IMP-OGJ 2000)",

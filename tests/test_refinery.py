@@ -518,3 +518,19 @@ def test_tula_liquid_excess_not_explained_by_own_use(tula_op):
     assert d["own_use_upper_bound_liquids_mbd"] < 0.5 * d["liquids_excess_mbd"]
     assert "demasiado LÍQUIDO" in tula_op["calibration_summary"]["text_es"]
     assert "demasiado LÍQUIDO" in d["text_es"]
+
+
+def test_current_crude_quality_vs_ogj_2000_assay(tula):
+    """Newest open quality data: Pemex Maya page (26-may-2026) 21.0-22.0 °API, 3.4 % S -> the OGJ 2000 Maya assay (21.5 °API)
+    is inside the range; EIA TWIP 26-aug-2015: Isthmus 33.1 °API (assay 32.9, -0.2), Olmeca 33.8 °API (assay 38.9, +5.1,
+    warned). No open post-2000 TBP assay or TBP-API correlation was found, so cut yields are NOT changed. Sensitivity run
+    on 2026-11-16 (not in the model): replacing the Olmeca assay by the heavier Istmo assay moved Tula total liquids from
+    +9.6 % to +10.2 % and diesel from +43.7 % to +37.6 %: crude quality does not close Tula's liquid excess."""
+    chk = tula["evidence"]["assay_checks"]
+    maya = {q["source"][:5]: q for q in chk["maya"]["current_quality_published"]}
+    assert maya["Pemex"]["api_assay_minus_published"] == 0.0
+    olm = chk["olmeca"]["current_quality_published"][0]
+    assert olm["api_assay_minus_published"] == pytest.approx(5.1, abs=1e-9)
+    assert chk["istmo"]["current_quality_published"][0]["api_assay_minus_published"] == pytest.approx(-0.2, abs=1e-9)
+    assert any(w.startswith("Ensaye olmeca (OGJ 2000)") for w in tula["warnings"])
+    assert not any(w.startswith("Ensaye istmo (OGJ 2000)") for w in tula["warnings"])

@@ -305,6 +305,11 @@ def crude_unit(slate: dict) -> tuple[dict, dict]:
             "vr_ccr_wt_used": vr.get("ccr_wt", ccr_est),
             "vr_ccr_wt_estimated_all_ccr_in_vr": ccr_est,
             "vr_ccr_wt_published": vr.get("ccr_wt"),
+            "current_quality_published": [
+                {"api_min": q["api_min"], "api_max": q["api_max"], "sulfur_wt": q["sulfur_wt"], "source": q["source"],
+                 "api_assay_minus_published": (x["api"] - q["api_max"] if x["api"] > q["api_max"] else
+                                               x["api"] - q["api_min"] if x["api"] < q["api_min"] else 0.0)}
+                for q in a.get("current_quality_check", {}).get("values", {}).get(crude, [])],
         }
     return cuts, checks
 
@@ -924,6 +929,12 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
                             f"suma de gasóleo pesado + residuo de vacío ({chk['hgo_plus_vr_vol_pct']:.1f} % vol); el "
                             f"modelo usa "
                             f"los dos cortes.")
+    for c, chk in assay_checks.items():
+        off = [q for q in chk["current_quality_published"] if abs(q["api_assay_minus_published"]) > 1.0]
+        if off:
+            warnings.append(f"Ensaye {c} (OGJ 2000): su °API difiere {off[0]['api_assay_minus_published']:+.1f} del publicado más "
+                            f"reciente ({off[0]['source']}); no hay ensaye TBP abierto más reciente ni correlación abierta para "
+                            f"reajustar los cortes, que se usan sin cambio.")
     maya_est = (f"{assay_checks['maya']['vr_ccr_wt_estimated_all_ccr_in_vr']:.2f}" if "maya" in assay_checks else "n/d")
     for c, chk in assay_checks.items():
         if chk["vr_ccr_wt_published"] is None:
