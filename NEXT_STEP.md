@@ -12,7 +12,7 @@ Actualizado: 2026-11-15 (M25: límites de M24 atacados y momento completo, 114 t
 - Transporte de propiedades contra NIST (19 fluidos); líquido cerca del punto crítico hasta 50 % (marcado).
 - RL con escudo y veredicto empírico por política; no es garantía formal.
 - Momento: 8 tools nuevas (no newtonianos, sedimentación, fluidización, ciclones, Fanno, dos fases inclinado, golpe de ariete, bombas). Bingham turbulento (Darby) −24 % contra un punto medido y ΔP del ciclón en conflicto: declarados.
-- Errores de DWSIM en Beggs-Brill inclinado: reportarlos a DWSIM es contacto externo (OK del owner).
+- Errores de DWSIM en Beggs-Brill inclinado: S ya corregido en su `master`; N_LV reportado el 2026-11-15 en https://github.com/DanWBR/dwsim10/issues/140. Cuando DWSIM lo corrija y salga en una versión, actualizar DWSIM y volver a correr `tests/test_momentum.py::test_against_dwsim_pipe_segment` (sus tolerancias de subida y bajada asumen los dos errores).
 - Suite completa (2026-11-15): 1230 passed, 22 skipped. Se corrigió una dependencia de orden: thermosteam (BioSTEAM) deja `RAISE_PROPERTY_CALCULATION_ERROR = True` global en thermo; `compound_properties` lo fija mientras calcula y lo restaura.
 
 **M24 (2026-11-14): las 53 capacidades del mapa en ✅, 106 tools.** Pedido del owner: «termina las 53 hoy». Se hicieron en paralelo con agentes (primero con Fable, que se quedó sin cupo a medias; se terminaron con Opus desde lo que ya estaba en disco) y cada bloque lo verifiqué: corrí sus pruebas y una comprobación propia a mano (η de una esfera a φ = 3, serie de Crank, MSMPR, permeado en mezcla completa, IAPWS, Fenske). Detalle por fila en `docs/MAPA_MOTORES.md` y validaciones en BENCHMARK (filas M24).
