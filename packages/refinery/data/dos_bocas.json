@@ -1,0 +1,41 @@
+{
+ "_doc": "Datos de la refinería Olmeca (Dos Bocas) que NO están en el cuadro de capacidades de la eBDI (que sólo da totales por tipo de proceso). Leído el 2026-11-16. Fuentes secundarias (prensa especializada); Pemex no publica en fuentes abiertas leídas el desglose de sus 17 plantas.",
+ "refinery": "dos_bocas",
+ "name": "Refinería Olmeca (Dos Bocas, Paraíso, Tabasco)",
+ "date_read": "2026-11-16",
+ "hds_split_mbd": {
+  "hds_naftas": {"value": 55.0, "unit_name": "Naphtha HDT (HDN)",
+   "source": "Industrial Info Resources, «Mexico's Dos Bocas Refinery Resumes Work on Key Units», 23-jul-2024 (fuente secundaria)",
+   "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"},
+  "hds_diesel": {"value": 68.0, "unit_name": "Diesel Hydrotreater (HDDI), U-51000",
+   "source": "Industrial Info Resources, «Mexico's Dos Bocas Refinery Resumes Work on Key Units», 23-jul-2024 (fuente secundaria)",
+   "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"}
+ },
+ "published_unit_capacities": [
+  {"unit": "Combinada Maya (atmosférica + vacío), tren 1 (U-11000) y tren 2", "value_mbd": 170.0, "each": true,
+   "source": "Industrial Info Resources, 14-ene-2025 y 23-jul-2024", "url": "https://www.industrialinfo.com/news/article/pemexs-newly-operational-dos-bocas-refinery-expected-to-complete-planned-work-in-february--337932"},
+  {"unit": "Coquizadora retardada U-30000", "value_mbd": 105.0, "note": "la eBDI 2025 da 130 Mbd de coquización (capacidad ajustada); el modelo usa la eBDI",
+   "source": "Industrial Info Resources, 23-jul-2024", "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"},
+  {"unit": "FCC U-21000", "value_mbd": 94.0, "note": "igual a la eBDI 2025",
+   "source": "Industrial Info Resources, 23-jul-2024", "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"},
+  {"unit": "Reformadora U-71000", "value_mbd": 62.0, "note": "IIR da 62 Mbd (23-jul-2024) y 82 Mbd (14-ene-2025); la eBDI 2025 da 82; el modelo usa la eBDI",
+   "source": "Industrial Info Resources, 23-jul-2024 y 14-ene-2025", "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"},
+  {"unit": "Hidrotratadora de gasóleos (HDTGO)", "value_mbd": 60.0, "note": "no modelada: el modelo no tiene hidrotratamiento de carga a FCC",
+   "source": "Industrial Info Resources, 23-jul-2024", "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"},
+  {"unit": "Hidrotratadora de naftas (HDN)", "value_mbd": 55.0, "source": "Industrial Info Resources, 23-jul-2024", "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"},
+  {"unit": "Hidrotratadora de diésel (HDDI) U-51000", "value_mbd": 68.0, "source": "Industrial Info Resources, 23-jul-2024", "url": "https://www.industrialinfo.com/news/article/mexicos-dos-bocas-refinery-resumes-work-on-key-units--332923"}
+ ],
+ "not_in_public_capacity_table": [
+  "Capacidades de plantas de hidrógeno, azufre, aminas, alquilación, isomerización de butanos y postratamiento de gasolina catalítica: nombradas en la prensa especializada sin capacidad.",
+  "Hidrodesulfuradora de turbosina: no se encontró en las fuentes abiertas leídas (la eBDI no publica turbosina de Dos Bocas: N/D).",
+  "Hidrotratadora de gasóleos HDTGO (60 Mbd, IIR): no modelada (el modelo no hidrotrata la carga al FCC)."
+ ],
+ "project_status": [
+  {"what": "Diseñada para procesar 340 Mbd de crudo; 17 plantas de proceso en dos trenes; ficha técnica: hasta 170 Mbd de gasolinas y 120 Mbd de diésel.",
+   "source": "Expansión, «¿Por qué Dos Bocas opera al 30 % de su capacidad de producción?», 26-jun-2025",
+   "url": "https://expansion.mx/empresas/2025/06/26/por-que-dos-bocas-opera-al-30-capacidad-de-produccion"},
+  {"what": "Ambos trenes de la combinada Maya a ~160 Mbd cada uno el 29-30 de diciembre de 2025; alquilación e isomerización de butanos aún en arranque y estabilización (febrero de 2026).",
+   "source": "Industrial Info Resources, «Pemex's Dos Bocas Refinery Moves Toward Full Operations», 5-feb-2026",
+   "url": "https://www.industrialinfo.com/news/article/pemexs-dos-bocas-refinery-moves-toward-full-operations--352954"}
+ ]
+}

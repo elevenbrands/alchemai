@@ -139,6 +139,41 @@ def test_as_operated_respects_user_values_and_zero_targets():
     assert own["mode"] == "nameplate" and own["calibrated_parameters"] == {}
 
 
+def test_dos_bocas_unpublished_products_and_bounds():
+    """[BDI] Dos Bocas Jan-Sep 2026 publishes jet, fuel oil and asphalt as N/D: they are neither compared nor calibrated;
+    the kerosene split is fitted to diesel instead and hits its bound (diesel 58.0 vs 78.2 Mbd, -25.8 %), the butanes
+    split hits its bound (LPG 10.22 vs 1.61 Mbd). Validation: gasoline +11.4 %, published-liquids basis -1.8 %."""
+    r = TR.refinery_model("dos_bocas")
+    comp, cal, summ = r["published_comparison"], r["calibrated_parameters"], r["calibration_summary"]
+    roles = {x["product"]: x["role"] for x in comp["rows"]}
+    assert roles["turbosina"] == roles["combustoleo"] == roles["asfalto"] == "sin dato publicado (N/D)"
+    assert all(x["deviation_pct"] is None for x in comp["rows"] if x["published_mbd"] is None)
+    assert cal["kerosene_to_jet_fraction"]["fitted_to"] == "diesel" and cal["kerosene_to_jet_fraction"]["value"] == 0.0
+    assert set(summ["at_bound"]) == {"kerosene_to_jet_fraction", "butanes_to_gas_plants_fraction"}
+    assert not summ["all_resolved"] and "EN EL LÍMITE" in summ["text_es"]
+    dev = {x["product"]: x["deviation_pct"] for x in comp["rows"]}
+    assert dev["gasolina"] == pytest.approx(11.4, abs=0.3)
+    assert dev["diesel"] == pytest.approx(-25.8, abs=0.3)
+    assert comp["liquids_deviation_pct"] == pytest.approx(-1.8, abs=0.3)
+    hds = {u["id"]: u["params"] for u in r["process_model"]["units"] if u["id"].startswith("hds_")}
+    assert hds["hds_diesel"]["capacity_bpd"] == 68000.0 and hds["hds_naftas"]["capacity_bpd"] == 55000.0
+    assert all(p["utilization_of_capacity"] is not None for p in hds.values())
+    assert r["product_slate"]["diesel"]["sulfur_mg_kg"] == pytest.approx(15.0, rel=1e-6)
+    json.dumps(r)
+
+
+def test_hydrotreater_over_capacity_bypasses_untreated_not_lost():
+    """A hydrotreater with its own published capacity never loses product: the excess goes untreated (off-spec flag)."""
+    a = TR.refinery_model("dos_bocas", utilization={"hds_total": 0.5}, mode="nameplate")
+    b = TR.refinery_model("dos_bocas", mode="nameplate")
+    u = {x["unit"]: x for x in a["unit_table"]}["hds_naftas"]
+    assert u["bypass_untreated_bpd"] > 0
+    assert u["products_bpd"]["product"] == pytest.approx(u["feed_bpd"], rel=1e-12)
+    assert a["product_slate"]["diesel"]["bpd"] == pytest.approx(b["product_slate"]["diesel"]["bpd"], rel=1e-9)
+    assert any("FUERA DE ESPECIFICACIÓN" in w for w in a["warnings"])
+    assert a["balances"]["overall_mass_closure_rel"] < 1e-12 and a["balances"]["sulfur_closure_rel"] < 1e-12
+
+
 # --------------------------------------------------------------------------------------- CONSISTENCY (identities)
 def test_balances_close(tula):
     b = tula["balances"]

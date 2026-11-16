@@ -463,6 +463,7 @@ from packages.dwsim_client.tools_refinery import REFINERY_TOOLS  # noqa: E402  (
 from packages.dwsim_client.tools_diagram import DIAGRAM_TOOLS  # noqa: E402  (bloque M27)
 from packages.dwsim_client.tools_opportunities import OPPORTUNITIES_TOOLS  # noqa: E402  (bloque M27)
 from packages.dwsim_client.tools_dossier import DOSSIER_TOOLS  # noqa: E402  (bloque M27)
+from packages.dwsim_client.tools_power import POWER_TOOLS  # noqa: E402  (bloque M27)
 from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
@@ -480,4 +481,4 @@ TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_
          *PROPERTIES_TOOLS, *CATALYSIS_TOOLS, *SOLID_DIFFUSION_TOOLS, *SOLIDS_TOOLS, *SEPARATIONS_TOOLS, *DYNAMIC_TOOLS, *DYNAMIC_FLOWSHEET_TOOLS, *ADVANCED_CONTROL_TOOLS, *PARTICLES_TOOLS, *MOMENTUM_TOOLS,
          *REFERENCE_PRICES_TOOLS, *PLANT_ECONOMICS_TOOLS, *PLANTS_TOOLS, *LIQUID_EQUIPMENT_TOOLS, *BATCH_TOOLS,
          *SOLIDS_HANDLING_TOOLS, *UTILITIES_CAPITAL_TOOLS,
-         *DOSSIER_TOOLS, *REFINERY_TOOLS, *DIAGRAM_TOOLS, *OPPORTUNITIES_TOOLS]
+         *DOSSIER_TOOLS, *REFINERY_TOOLS, *DIAGRAM_TOOLS, *OPPORTUNITIES_TOOLS, *POWER_TOOLS]

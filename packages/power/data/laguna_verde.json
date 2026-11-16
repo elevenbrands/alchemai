@@ -1,0 +1,101 @@
+{
+  "plant": "laguna_verde",
+  "name": "Central Nucleoeléctrica Laguna Verde (CFE), Alto Lucero, Veracruz",
+  "date_read": "2026-11-16",
+  "sources": {
+    "PRIS_WNA_1": {"what": "IAEA PRIS (datos de operación) republicados por World Nuclear Association, Laguna Verde 1: tipo, modelo, capacidades y tabla anual", "url": "https://world-nuclear.org/nuclear-reactor-database/details/Laguna-Verde-1", "note": "pris.iaea.org redirige hoy a una aplicación (pris-stats.iaea.org) que no se pudo leer sin navegador; la WNA declara como fuente «Operating details - IAEA PRIS»."},
+    "PRIS_WNA_2": {"what": "IAEA PRIS republicado por WNA, Laguna Verde 2", "url": "https://world-nuclear.org/nuclear-reactor-database/details/Laguna-Verde-2"},
+    "IAEA_POSTER": {"what": "L.C. Longoria et al., póster IAEA (CN-164, 2009) «power uprate» de Laguna Verde: 1931 → 2027 MWt (SPU 105 %), solicitud EPU 2317 MWt (120 %) a presión de domo constante (CPPU)", "url": "https://www-pub.iaea.org/MTCD/Publications/PDF/P1500_CD_Web/htm/pdf/poster/2P02_L.C. Longoria.pdf"},
+    "CNSNS_TR25": {"what": "E. Araiza M., A. Núñez C., CNSNS-TR-25 (2001), resumen en OSTI/ETDEWEB: presión de domo nominal 1020 psia constante en el aumento a 2027 MWt", "url": "https://www.osti.gov/etdeweb/biblio/20320617"},
+    "IBERDROLA_ENC2010": {"what": "A. Merino Teillet et al., «Laguna Verde: a 120% extended power up-rate project developed by Iberdrola», ENC 2010 (resumen OSTI): salida bruta del generador 686.7 → 817.1 MWe por unidad; cambio de condensador principal, separadores-recalentadores de humedad (MSR) y calentadores de agua de alimentación 5 y 6; extensión de licencia de 40 a 60 años", "url": "https://www.osti.gov/etdeweb/biblio/21449482"},
+    "WNN_2013": {"what": "World Nuclear News, 21-feb-2013 «Laguna Verde uprate signed off»: 820 MWe cada unidad desde feb-2011, proyecto de 650 millones USD, aumento 20 %", "url": "https://world-nuclear-news.org/Articles/Laguna-Verde-uprate-signed-off"},
+    "RAMIREZ_LEON_2013": {"what": "H. Ramírez-León et al., «Modelación numérica de la descarga térmica de la CNLV», Rev. Int. Mét. Num. Cálc. Dis. Ing. 29(2) 114-121 (2013); datos de gasto y temperaturas proporcionados por CFE", "url": "https://www.scipedia.com/public/Ramirez-Leon_et_al_2013a"},
+    "CHAVEZ_2015": {"what": "M. Chávez-Estrada, A. Aguilar-Arévalo, «Antineutrino flux from the Laguna Verde NPP», arXiv:1508.05069 (2015): 444 ensambles combustibles por núcleo (dato del modelo DRAGON de los autores)", "url": "https://arxiv.org/pdf/1508.05069"},
+    "LICENCIAS": {"what": "Renovación de licencias: U1 del 25-jul-2020 al 24-jul-2050 (SENER, jul-2020); U2 del 11-abr-2025 al 10-abr-2055 (autorizada ago-2022) — notas de prensa", "url": "https://energiaadebate.com/renuevan-licencia-de-operacion-a-la-unidad-2-de-laguna-verde", "url_u1": "https://expansion.mx/empresas/2020/07/17/la-sener-renueva-la-licencia-de-operacion-de-reactor-en-laguna-verde", "source_tier": "secundaria (prensa que cita a CFE/SENER)"},
+    "CENACE_PND": {"what": "CENACE, servicio web público SW-PEND (precios de nodos distribuidos), MDA, SIN, zona de carga VERACRUZ, horario", "url": "https://ws01.cenace.gob.mx:8082/SWPEND/SIM/SIN/MDA/VERACRUZ/2025/01/01/2025/01/07/JSON"},
+    "NEI_2026": {"what": "NEI, «Nuclear Costs in Context», 2025 Cost Data, agosto 2026 (fuente EUCG; flota de EE. UU.)", "url": "https://www.nei.org/getContentAsset/47fa8caa-9b0d-4029-932c-07f902e82f4f/8d8ff8d6-b2ae-401b-a63c-f6b108e809d2/2024-Costs-in-Context-final.pdf"},
+    "COPAR_2012": {"what": "CFE, COPAR Generación 2012 (32.ª ed.), «Costos y parámetros de referencia para la formulación de proyectos de inversión del sector eléctrico», central Nuclear (ABWR) 1400/1351 MW NUEVA", "url": "https://ewsdata.rightsindevelopment.org/files/documents/05/IADB-ME-G1005_0SXE4Uh.pdf"},
+    "FESEN_2024": {"what": "SEMARNAT, Aviso «Factor de emisión del Sistema Eléctrico Nacional 2024», 28-feb-2025 (notificado por la CRE)", "url": "https://www.gob.mx/cms/uploads/attachment/file/981194/aviso_fesen_2024.pdf"},
+    "WNPR_2025": {"what": "World Nuclear Association, World Nuclear Performance Report 2025, «Global nuclear industry performance»: factor de capacidad promedio de 410 reactores en 2024 = 83 % (82 % en 2023); Norteamérica 90 %", "url": "https://world-nuclear.org/our-association/publications/world-nuclear-performance-report/Global-nuclear-industry-performance"},
+    "RANKINE_EXAMPLE": {"what": "nuclear-power.com, «Example of Rankine cycle – problem with solution» (ciclo ideal, vapor saturado 6 MPa, condensador 0.008 MPa)", "url": "https://www.nuclear-power.com/nuclear-engineering/thermodynamics/thermodynamic-cycles/rankine-cycle-steam-turbine-cycle/example-of-rankine-cycle-problem-with-solution"}
+  },
+  "units": {
+    "1": {"name": "Laguna Verde 1", "reactor_type": "BWR", "model": "BWR-5", "vendor": "General Electric (diseño, según IBERDROLA_ENC2010)", "thermal_MWt": 2317.0, "gross_MWe": 805.0, "net_MWe": 777.0, "design_net_MWe": 780.0, "construction_start": "1976-09-27", "first_criticality": "1988-11-08", "grid_connection": "1989-04-09", "commercial_operation": "1990-07-29", "licence_until": "2050-07-24", "source": "PRIS_WNA_1"},
+    "2": {"name": "Laguna Verde 2", "reactor_type": "BWR", "model": "BWR-5", "vendor": "General Electric (diseño, según IBERDROLA_ENC2010)", "thermal_MWt": 2317.0, "gross_MWe": 803.0, "net_MWe": 775.0, "design_net_MWe": 780.0, "construction_start": "1977-05-31", "first_criticality": "1994-09-06", "grid_connection": "1994-11-10", "commercial_operation": "1995-04-10", "licence_until": "2055-04-10", "source": "PRIS_WNA_2"}
+  },
+  "thermal_power_history_MWt": {"original": 1931.0, "spu_105pct": 2027.0, "epu_120pct": 2317.0, "source": "IAEA_POSTER"},
+  "gross_output_history_MWe": {"pre_epu_at_2027MWt": 686.7, "epu_design_at_2317MWt": 817.1, "source": "IBERDROLA_ENC2010", "wnn_after_epu_MWe": 820.0, "wnn_source": "WNN_2013"},
+  "steam": {"dome_pressure_psia": 1020.0, "dome_pressure_Pa": 7032740.0, "constant_through_uprates": true, "source": "CNSNS_TR25", "note": "1 psi = 6894.757 Pa; la presión de domo se mantuvo constante en el SPU (CNSNS-TR-25) y en el EPU (CPPU, IAEA_POSTER)."},
+  "turbine_cycle": {"has_msr": true, "highest_feedwater_heater_number": 6, "source": "IBERDROLA_ENC2010", "note": "El resumen nombra «moisture separator reheaters (MSR's)» y «feedwater heaters no. 5 and 6»: la numeración llega al menos a 6. El número total de etapas, las presiones de extracción y la temperatura final del agua de alimentación NO son públicos."},
+  "cooling": {"type": "un solo paso con agua de mar (Golfo de México)", "flow_m3_s_plant": 63.0, "flow_scope": "gasto necesario para enfriar los condensadores de la CNLV (el artículo no dice si es por unidad o total; se toma total de la central)",
+              "seasons": {"secas": {"months": "feb-may", "sea_T_C": 25.0, "discharge_T_C": 38.0}, "lluvias": {"months": "jun-sep", "sea_T_C": 28.0, "discharge_T_C": 44.0, "salinity_g_kg": 33.0, "intake_measured_mean_T_C": 30.02, "intake_rise_from_plume_K": 2.0}},
+              "data_era": "datos de CFE usados en un artículo de 2013 (viento medido en 2004): época de 2027 MWt, antes del cambio de condensador del EPU", "source": "RAMIREZ_LEON_2013"},
+  "fuel": {"assemblies_per_core": 444, "source": "CHAVEZ_2015", "note": "Enriquecimiento y duración de ciclo de la CNLV no publicados por CFE en fuente abierta encontrada; el artículo usa enriquecimientos y un ciclo de 400 días como ENTRADAS de su simulación, no como datos de planta."},
+  "pris_annual": {
+    "columns": ["electricity_supplied_GWh", "reference_unit_power_MWe", "time_online_h", "energy_availability_factor_pct", "load_factor_pct"],
+    "1": {
+      "1990": [2775.82, 640, 5370, 87.6, 86.6], "1991": [4062.09, 640, 7022, 74.4, 72.4], "1992": [3746.44, 654, 7024, 70.4, 65.2],
+      "1993": [4724.42, 654, 7851, 90.6, 82.5], "1994": [4061.96, 628, 7095, 73.8, 73.8], "1995": [4154.06, 628, 7128, 75.5, 75.5],
+      "1996": [3442.34, 655, 6628, 68.8, 59.8], "1997": [5218.80, 615, 8577, 95.9, 96.9], "1998": [4412.45, 655, 7359, 81.7, 76.9],
+      "1999": [4450.97, 682, 7466, 81.5, 75.8], "2000": [4577.65, 645, 7409, 80.3, 80.8], "2001": [4144.30, 645, 6808, 73.2, 73.4],
+      "2002": [4196.25, 680, 6876, 75.8, 70.4], "2003": [5415.44, 680, 8642, 97.6, 90.9], "2004": [4168.90, 680, 6818, 75.2, 69.8],
+      "2005": [5007.75, 680, 7884, 88.2, 84.1], "2006": [5529.73, 680, 8624, 97.6, 92.8], "2007": [5027.19, 680, 7963, 89.4, 84.4],
+      "2008": [3797.81, 650, 6169, 67.9, 66.5], "2009": [5454.49, 650, 8534, 95.0, 95.8], "2010": [1886.55, 650, 3391, 41.7, 33.1],
+      "2011": [4921.75, 650, 7598, 84.2, 86.4], "2012": [3418.65, 765, 5209, 51.5, 51.5], "2013": [5719.46, 665, 8585, 97.4, 98.2],
+      "2014": [4875.98, 665, 7461, 81.8, 83.7], "2015": [4741.77, 665, 7033, 79.9, 81.4], "2016": [5096.56, 777, 6716, 77.0, 77.4],
+      "2017": [5014.49, 777, 7454, 73.5, 73.7], "2018": [6496.56, 777, 8523, 95.2, 95.4], "2019": [5803.84, 777, 7754, 85.1, 85.3],
+      "2020": [5394.16, 777, 7629, 78.8, 79.0], "2021": [6164.50, 777, 8035, 90.4, 90.6], "2022": [5537.79, 777, 7432, 81.2, 81.4],
+      "2023": [5449.45, 777, 7349, 80.5, 80.1], "2024": [6328.76, 777, 8384, 94.0, 92.7], "2025": [4857.99, 777, 6659, 71.4, 71.4]
+    },
+    "2": {
+      "1995": [3379.40, 628, 5687, 84.5, 84.5], "1996": [3668.41, 619, 6657, 71.0, 67.5], "1997": [4805.53, 627, 7897, 88.9, 87.5],
+      "1998": [4411.90, 655, 7609, 83.0, 76.9], "1999": [5110.57, 682, 8459, 92.3, 87.3], "2000": [3339.07, 645, 5865, 56.6, 58.9],
+      "2001": [4228.06, 645, 6952, 74.7, 74.8], "2002": [5161.00, 680, 8273, 91.5, 86.6], "2003": [4604.83, 680, 7359, 82.2, 77.3],
+      "2004": [4578.18, 680, 7449, 83.0, 76.6], "2005": [5310.30, 680, 8611, 96.5, 89.2], "2006": [4870.21, 680, 8003, 90.2, 81.8],
+      "2007": [4920.19, 680, 8013, 89.9, 82.6], "2008": [5560.95, 650, 8730, 98.3, 97.4], "2009": [4653.65, 650, 7386, 81.9, 81.7],
+      "2010": [3705.88, 650, 6289, 65.4, 65.1], "2011": [4391.62, 650, 7111, 75.7, 77.1], "2012": [4993.39, 765, 6854, 73.6, 74.3],
+      "2013": [5657.68, 665, 8522, 97.8, 97.1], "2014": [4435.62, 665, 6705, 75.0, 76.2], "2015": [6442.96, 775, 8600, 95.0, 94.9],
+      "2016": [5175.73, 775, 7194, 76.0, 76.0], "2017": [5557.43, 775, 7526, 81.7, 81.9], "2018": [6703.77, 775, 8726, 98.5, 98.7],
+      "2019": [5076.89, 775, 7096, 74.7, 74.8], "2020": [5470.11, 775, 7435, 80.2, 80.4], "2021": [5441.04, 775, 7372, 80.0, 80.2],
+      "2022": [5001.67, 775, 7089, 73.6, 73.7], "2023": [6594.14, 775, 8721, 97.4, 97.1], "2024": [5649.01, 775, 7653, 83.9, 83.0],
+      "2025": [4976.76, 775, 6889, 73.3, 73.3]
+    },
+    "source": "PRIS_WNA_1 / PRIS_WNA_2"
+  },
+  "fleet_benchmark": {"global_average_capacity_factor_2024_pct": 83.0, "global_average_capacity_factor_2023_pct": 82.0, "north_america_2024_pct": 90.0, "n_reactors_2024": 410, "source": "WNPR_2025",
+                      "bwr_median": null, "bwr_median_note": "La mediana de BWR sólo aparece en una figura (Fig. 9) del WNPR 2025 sin valores en texto; la base PRIS no se pudo consultar sin navegador. Se usa el promedio mundial publicado."},
+  "market_price": {
+    "zone": "VERACRUZ", "market": "MDA (mercado del día en adelanto)", "system": "SIN", "unit": "MXN/MWh", "statistic": "promedio simple horario del PND (pz)",
+    "by_year": {
+      "2025": {"value": 972.07, "n_hours": 8592, "start": "2025-01-01", "end": "2025-12-31", "note": "faltan 168 horas (una semana) en las respuestas del servicio"},
+      "2026": {"value": 929.65, "n_hours": 7608, "start": "2026-01-01", "end": "2026-11-14", "note": "año en curso, parcial"}
+    },
+    "monthly_mxn_mwh": {"2025-01": 1002.44, "2025-02": 807.5, "2025-03": 947.37, "2025-04": 1175.98, "2025-05": 1611.78, "2025-06": 1089.03,
+                        "2025-07": 690.67, "2025-08": 955.3, "2025-09": 858.03, "2025-10": 836.6, "2025-11": 790.98, "2025-12": 858.35,
+                        "2026-01": 822.2, "2026-02": 463.55, "2026-03": 495.01, "2026-04": 502.78, "2026-05": 723.77, "2026-06": 723.84,
+                        "2026-07": 716.77, "2026-08": 984.49, "2026-09": 1740.45, "2026-10": 1741.04, "2026-11": 1674.91},
+    "source": "CENACE_PND", "source_tier": "primaria",
+    "caveat": "Precio de la zona de carga Veracruz (no el PML del nodo de la central) y de energía únicamente (sin potencia, CEL ni contratos): CFE no necesariamente vende a este precio."
+  },
+  "costs": {
+    "nei_2025_bwr_usd_mwh": {"fuel": 5.55, "capital": 8.43, "operating": 22.49, "total": 36.46, "n_plants": 20, "dollars": "USD 2025", "basis": "flota BWR de EE. UU. 2025 (EUCG)", "source": "NEI_2026"},
+    "nei_2025_quartiles_usd_mwh": {"fuel": [5.13, 5.75, 6.51], "capital": [5.46, 8.23, 12.49], "operating": [16.68, 21.64, 25.48], "note": "Q1, Q2, Q3 de toda la flota de EE. UU.", "source": "NEI_2026"},
+    "nei_2025_multi_unit_usd_mwh": {"fuel": 5.84, "capital": 8.80, "operating": 19.72, "total": 34.36, "n_plants": 37, "source": "NEI_2026"},
+    "copar_2012_abwr_new": {"fuel_levelized_usd_mwh": 5.35, "om_fixed_usd_mw_y": 92600.0, "om_variable_usd_mwh": 2.13, "om_total_usd_mwh": 13.88, "investment_usd_mwh": 72.05, "total_usd_mwh": 91.27, "dollars": "USD (COPAR 2012)", "basis": "central NUEVA ABWR 1400 MW bruta, CFE", "source": "COPAR_2012"},
+    "epu_project_cost_usd": {"value": 650.0e6, "scope": "proyecto de aumento de potencia de las dos unidades (contrato 2007, ~5 años)", "source": "WNN_2013"}
+  },
+  "emission_factor": {"value_t_mwh": 0.444, "unit": "tCO2e/MWh", "year": 2024, "published": "2025-02-28", "source": "FESEN_2024"},
+  "rankine_example": {"P_high_Pa": 6.0e6, "P_low_Pa": 8000.0, "x4": 0.694, "w_turbine_kJ_kg": 945.0, "w_pump_kJ_kg": 5.7, "q_in_kJ_kg": 2605.3, "efficiency": 0.361, "carnot": 0.426, "source": "RANKINE_EXAMPLE"},
+  "not_found": [
+    "Presión, temperatura y flujo de vapor principal en la entrada de la turbina después del EPU (sólo la presión de domo 1020 psia es pública).",
+    "Número total de calentadores de agua de alimentación, presiones de extracción y temperatura final del agua de alimentación.",
+    "Presión de cruce HP→LP y temperatura de recalentamiento de los MSR.",
+    "Presión del condensador, diferencia terminal y temperatura de diseño del agua de mar del condensador nuevo (EPU).",
+    "Eficiencias de turbina, generador y bombas; potencia de servicios propios (sólo bruta − neta de PRIS).",
+    "Enriquecimiento, quemado y duración de ciclo publicados por CFE.",
+    "Costos propios de la CNLV (combustible, O&M) en un informe anual abierto de CFE; COPAR vigente (sólo se abrió la edición 2012, para centrales nuevas).",
+    "IEA/NEA «Projected Costs of Generating Electricity 2020»: el comunicado abierto no da cifras de LTO; el informe no se abrió.",
+    "PML del nodo de la central (se usa el PND de la zona Veracruz).",
+    "Mediana del factor de capacidad de la flota BWR (PRIS no legible sin navegador)."
+  ]
+}

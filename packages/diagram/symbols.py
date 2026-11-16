@@ -26,6 +26,8 @@ EQUIPMENT_TYPES: list[str] = [
     "agitated_tank",
     # added by block D (M27): turbine / expander (DWSIM «expander», steam turbines)
     "expander",
+    # added by block N (M27): power-plant equipment (nuclear steam cycle)
+    "nuclear_reactor", "steam_turbine", "generator", "condenser", "moisture_separator_reheater",
 ]
 
 LABELS_ES: dict[str, str] = {
@@ -42,6 +44,8 @@ LABELS_ES: dict[str, str] = {
     "evaporator": "Evaporador", "crystallizer": "Cristalizador", "cyclone": "Ciclón", "membrane": "Membrana",
     "adsorber": "Adsorbedor", "flare": "Quemador elevado (flare)", "stack": "Chimenea", "generic": "Equipo genérico",
     "agitated_tank": "Tanque agitado", "expander": "Turbina / expansor",
+    "nuclear_reactor": "Reactor nuclear (vasija)", "steam_turbine": "Turbina de vapor", "generator": "Generador eléctrico",
+    "condenser": "Condensador de superficie", "moisture_separator_reheater": "Separador de humedad y recalentador (MSR)",
 }
 
 # nominal drawing box (px) of each symbol on the diagram; the view box aspect is preserved inside it
@@ -225,6 +229,31 @@ def _build() -> dict[str, tuple[float, float, list[dict]]]:
 
 
 SYMBOLS = _build()
+
+
+def _build_power() -> dict[str, tuple[float, float, list[dict]]]:
+    """Power-plant symbols (block N, M27), same conventions: reactor vessel with core and fuel, steam turbine as a
+    trapezoid widening towards the exhaust, generator as a circle with a sine wave, surface condenser as a shell with a
+    tube bundle and hotwell, moisture separator-reheater as a horizontal vessel with chevron vanes and a heating bundle."""
+    S: dict[str, tuple[float, float, list[dict]]] = {}
+    S["nuclear_reactor"] = (56, 108, [
+        _p(_capsule_v(4, 2, 48, 104, 14)), _l(4, 34, 52, 34, dash=[3, 2]), _r(12, 52, 32, 40, fill="none")]
+        + [_l(17 + 5.5 * i, 54, 17 + 5.5 * i, 90) for i in range(5)] + [
+        _p("M16,24 L22,18 L28,24 L34,18 L40,24", fill="none")])
+    S["steam_turbine"] = (64, 56, [
+        _p("M6,18 L58,2 L58,54 L6,38 Z"), _l(0, 28, 6, 28), _l(58, 28, 64, 28)])
+    S["generator"] = (46, 46, [
+        _c(23, 23, 20), _p("M9,23 C13,11 19,11 23,23 C27,35 33,35 37,23", fill="none")])
+    S["condenser"] = (104, 60, [
+        _r(2, 2, 100, 40, 8), _r(40, 42, 24, 16, 2),
+        _pl([(12, 12), (90, 12), (90, 22), (12, 22), (12, 32), (90, 32)])])
+    S["moisture_separator_reheater"] = (110, 44, [
+        _p(_capsule_h(2, 2, 106, 40, 12)), _l(14, 30, 96, 30)] + [
+        _p(f"M{18 + 12 * i},8 L{24 + 12 * i},14 L{18 + 12 * i},20", fill="none") for i in range(7)])
+    return S
+
+
+SYMBOLS.update(_build_power())
 for _t, (_vw, _vh, _) in SYMBOLS.items():
     NOMINAL_SIZE[_t] = (float(_vw), float(_vh))
 # a few symbols drawn at a size that reads better next to the others

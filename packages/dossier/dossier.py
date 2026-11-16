@@ -111,6 +111,7 @@ def _refinery_dossier(name: str, region: str, prices: dict | None, plant_data, p
                        for v in (r.get("published_comparison") or {}).get("validation_rows", [])],
         "energy_GJ_bbl": (r.get("energy") or {}).get("GJ_per_bbl"), "co2": (r.get("emissions") or {}),
         "scan_not_assessed": scan.get("not_assessed"), "evidence_verified": r["evidence"].get("verified"),
+        "calibration_summary": r.get("calibration_summary"),
     }
     return r, summary, opps
 
@@ -134,6 +135,9 @@ def _md_refinery(r: dict, s: dict, opps: list, svg_sec: str, svg_full: str) -> s
     for row in (r.get("published_comparison") or {}).get("rows", []):
         L.append(f"| {row.get('product')} | {row.get('kind') or row.get('role') or ''} | "
                  f"{_fmt(row.get('deviation_pct'), 1)} % |")
+    cs = r.get("calibration_summary") or {}
+    if cs.get("text_es"):
+        L += ["", f"**Calidad de la calibración:** {cs['text_es']}"]
     L += ["", "Parámetros CALIBRADOS (no publicados por Pemex; ajustados para reproducir un producto publicado):", ""]
     for k, v in (r.get("calibrated_parameters") or {}).items():
         L.append(f"- {k}: {v.get('value'):.3f} (ajustado a {v.get('fitted_to')})")
@@ -174,6 +178,70 @@ def _md_refinery(r: dict, s: dict, opps: list, svg_sec: str, svg_full: str) -> s
     return "\n".join(L) + "\n"
 
 
+def _power_dossier(plant: str, year, prices) -> tuple[dict, dict, list]:
+    from packages.dwsim_client import tools_power as TP
+    r = TP.power_plant_model(plant, year, None, None, prices)
+    opps = list(r.get("opportunities") or [])
+    for i, o in enumerate(sorted(opps, key=lambda o: -(o.get("value_usd_y") or 0)), 1):
+        o["rank"] = i
+    e, c = r["economics"], r["cycle"]
+    summary = {"kind": "power", "name": r["process_model"]["name"], "year": r.get("year"),
+               "net_generation_MWh": e.get("net_generation_MWh"), "price_usd_mwh": e.get("price_usd_mwh"),
+               "operating_margin_usd_mwh": e.get("operating_margin_usd_mwh"),
+               "operating_margin_usd_y": e.get("operating_margin_usd_y"),
+               "margin_after_capital_usd_y": e.get("margin_after_capital_usd_y"),
+               "gross_efficiency": c.get("gross_efficiency"), "heat_rate_kJ_kWh": c.get("heat_rate_kJ_kWh"),
+               "co2_avoided_t_y": (r.get("emissions_avoided") or {}).get("co2_avoided_t_y"),
+               "calibrated_parameters": r.get("calibrated_parameters"),
+               "validation": [x for x in (r.get("published_comparison") or {}).get("rows", [])],
+               "evidence_verified": r["evidence"].get("verified")}
+    return r, summary, opps
+
+
+def _md_power(r: dict, s: dict, opps: list, svg_sec: str, svg_full: str) -> str:
+    e, c = r["economics"], r["cycle"]
+    L = [f"# {r['process_model']['name']} — proceso, rentabilidad y oportunidades", "",
+         f"Año {r.get('year')} · generado el {date.today().isoformat()} por AlchemAI con datos públicos. Ciclo de vapor "
+         "modelado con IAPWS-95 (CoolProp); el diseño del lado turbina no es público y se calibra (ver abajo).", "",
+         f"Diagramas: [vista por secciones]({Path(svg_sec).name}) · [vista completa]({Path(svg_full).name})", "",
+         "## Qué hace la central", "",
+         "Dos reactores de agua en ebullición (BWR-5) hierven agua dentro de la vasija con el calor de la fisión; el vapor "
+         "saturado mueve la turbina de alta, pasa por los separadores de humedad y recalentadores (MSR), mueve las turbinas "
+         "de baja y el generador; el vapor se condensa con agua de mar y el condensado, precalentado con extracciones de "
+         "la turbina, regresa al reactor. Es un ciclo Rankine directo: el mismo vapor del reactor llega a la turbina.", "",
+         "| Indicador | Valor |", "|---|---|",
+         f"| Potencia térmica por unidad | {_fmt(c.get('thermal_W', 0) / 1e6)} MWt |",
+         f"| Potencia eléctrica bruta por unidad (calibrada) | {_fmt(c.get('gross_W', 0) / 1e6)} MWe |",
+         f"| Eficiencia bruta | {_fmt(100 * (c.get('gross_efficiency') or 0), 1)} % |",
+         f"| Consumo térmico unitario | {_fmt(c.get('heat_rate_kJ_kWh'))} kJ/kWh |",
+         f"| Flujo de vapor por unidad | {_fmt(c.get('steam_flow_kg_s'))} kg/s |",
+         f"| Calor al mar por unidad | {_fmt((c.get('condenser_duty_W') or 0) / 1e6)} MW |",
+         f"| Generación neta {r.get('year')} (dos unidades) | {_fmt((e.get('net_generation_MWh') or 0) / 1e6, 2)} TWh |", "",
+         "## Rentabilidad (la central ya existe: margen de operación)", "", "| Indicador | Valor |", "|---|---|",
+         f"| Precio de referencia (CENACE) | {_fmt(e.get('price_usd_mwh'), 1)} USD/MWh |",
+         f"| Combustible + operación | {_fmt((e.get('fuel_usd_mwh') or 0) + (e.get('operating_usd_mwh') or 0), 2)} USD/MWh |",
+         f"| Margen de operación | {_fmt(e.get('operating_margin_usd_mwh'), 1)} USD/MWh · {_fmt((e.get('operating_margin_usd_y') or 0) / 1e6)} MM USD/año |",
+         f"| Margen después de capital de sostenimiento | {_fmt((e.get('margin_after_capital_usd_y') or 0) / 1e6)} MM USD/año |",
+         f"| CO2 evitado (factor promedio de la red) | {_fmt((s.get('co2_avoided_t_y') or 0) / 1e6, 2)} Mt/año |", "",
+         "Costos de referencia de BWR de EE. UU. (NEI/EUCG), no los de CFE (no publicados).", "",
+         "## Validación contra lo publicado", "", "| Cantidad | Publicado | Modelo | Papel |", "|---|---|---|---|"]
+    for row in (r.get("published_comparison") or {}).get("rows", []):
+        L.append(f"| {row.get('quantity')} | {row.get('published')} {row.get('unit', '')} | {_fmt(row.get('model'), 1)} | "
+                 f"{row.get('role')} |")
+    L += ["", "Parámetros CALIBRADOS: " + json.dumps(r.get("calibrated_parameters"), ensure_ascii=False, default=float)[:600],
+          "", "## Oportunidades de mejora (numeradas en el diagrama)", ""]
+    for o in sorted(opps, key=lambda o: o.get("rank", 99)):
+        val = (f"USD {_fmt(o.get('value_usd_y'))}/año (rango {_fmt(o.get('value_low_usd_y'))}–{_fmt(o.get('value_high_usd_y'))})"
+               if o.get("value_usd_y") is not None else "sin valor anual")
+        L += [f"{o.get('rank')}. **{o['title_es']}** — {val}. Confianza {o.get('confidence')}.", f"   {o.get('explanation_es', '')}"]
+    L += ["", "## Supuestos, advertencias y lo que no incluye", ""]
+    L += [f"- {a}" for a in (r.get("assumptions") or [])[:25]]
+    L += [f"- ⚠ {w}" for w in (r.get("warnings") or [])[:15]]
+    L += [f"- No incluye: {n}" for n in (r.get("not_included") or [])[:15]]
+    L += [f"- No encontrado en fuentes abiertas: {n}" for n in (r.get("not_found") or [])[:15]]
+    return "\n".join(L) + "\n"
+
+
 def _plant_dossier(plant: dict, region: str, prices: dict | None, plant_data) -> tuple[dict, dict, list, dict]:
     from packages.costing import plant_bridge as PB
     from packages.diagram import adapters as AD
@@ -198,14 +266,15 @@ def _plant_dossier(plant: dict, region: str, prices: dict | None, plant_data) ->
 
 def process_dossier(subject: str, refinery: str | None = None, plant: dict | None = None, region: str = "MX",
                     prices: dict | None = None, plant_data=None, period: str | None = None, out_dir: str | None = None,
-                    theme: str = "light") -> dict:
+                    theme: str = "light", power_plant: str | None = None, year: int | None = None) -> dict:
     """See module docstring. Exactly one of `refinery` (e.g. "tula") or `plant` ({model: 'biodiesel'|'sugarcane_ethanol'|…,
     + that model's arguments}). Returns {summary, opportunities, report_path, diagram_sections_path, diagram_full_path,
     markdown, warnings, evidence}."""
     from packages.dwsim_client import tools_diagram as TD
-    if bool(refinery) == bool(plant):
-        raise ValueError("process_dossier: da exactamente uno: refinery='tula' (u otra de list_refineries) o plant={'model': "
-                         "'biodiesel'|'sugarcane_ethanol'|'corn_ethanol'|'cornstover_ethanol', …argumentos del modelo}.")
+    if sum(bool(x) for x in (refinery, plant, power_plant)) != 1:
+        raise ValueError("process_dossier: da exactamente uno: refinery='tula' (u otra de list_refineries), power_plant="
+                         "'laguna_verde' (list_power_plants) o plant={'model': 'biodiesel'|'sugarcane_ethanol'|'corn_ethanol'|"
+                         "'cornstover_ethanol', …argumentos del modelo}.")
     base = Path(out_dir) if out_dir else Path.home() / "Documents" / "AlchemAI" / "dossiers"
     base.mkdir(parents=True, exist_ok=True)
     slug = _slug(subject)
@@ -214,6 +283,9 @@ def process_dossier(subject: str, refinery: str | None = None, plant: dict | Non
     if refinery:
         r, summary, opps = _refinery_dossier(refinery, region, prices, plant_data, period)
         pm = r["process_model"]
+    elif power_plant:
+        r, summary, opps = _power_dossier(power_plant, year, prices)
+        pm = r["process_model"]
     else:
         r, summary, opps, extra = _plant_dossier(plant, region, prices, plant_data)
         pm = extra["pm"]
@@ -221,6 +293,8 @@ def process_dossier(subject: str, refinery: str | None = None, plant: dict | Non
     d2 = TD.process_diagram(process_model=pm, opportunities=opps, view="full", theme=theme, path=full_path)
     if refinery:
         md = _md_refinery(r, summary, opps, sec_path, full_path)
+    elif power_plant:
+        md = _md_power(r, summary, opps, sec_path, full_path)
     else:
         from packages.costing import plant as PL
         md = PL.plant_report(extra["eco"], subject)["markdown"]

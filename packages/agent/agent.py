@@ -58,6 +58,7 @@ from packages.agent.wrappers_dossier import AGENT_WRAPPERS as _W_DOSSIER  # noqa
 from packages.agent.wrappers_refinery import AGENT_WRAPPERS as _W_REFINERY  # noqa: E402  (bloque M27)
 from packages.agent.wrappers_diagram import AGENT_WRAPPERS as _W_DIAGRAM  # noqa: E402  (bloque M27)
 from packages.agent.wrappers_opportunities import AGENT_WRAPPERS as _W_OPPORTUNITIES  # noqa: E402  (bloque M27)
+from packages.agent.wrappers_power import AGENT_WRAPPERS as _W_POWER  # noqa: E402  (bloque M27)
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -384,7 +385,8 @@ Hard rules:
    plainly when a technology's prices make the plant unprofitable; do not tune anything to make it look viable.
 
 32. «Explain plant/refinery X, its profitability, diagram and opportunities» (bloque M27): call process_dossier ONCE
-   (refinery='tula' etc. — list_refineries for the others —, or plant={'model': …}) and build the answer from its
+   (refinery='tula' etc. — list_refineries for the others —, power_plant='laguna_verde' — list_power_plants —, or
+   plant={'model': …}) and build the answer from its
    summary: what each section does, the product slate and its validation against published data (say which products
    were CALIBRATED and which are real validation), the margin — lead with the margin at the PUBLISHED product slate and
    the Pemex reference when the model slate deviates —, energy and CO2, and the numbered opportunities with their value
@@ -1508,7 +1510,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL, *_W_PARTICLES, *_W_MOMENTUM,
                *_W_REFERENCE_PRICES, *_W_PLANT_ECONOMICS, *_W_PLANTS, *_W_LIQUID_EQUIPMENT, *_W_BATCH,
                *_W_SOLIDS_HANDLING, *_W_UTILITIES_CAPITAL,
-               *_W_DOSSIER, *_W_REFINERY, *_W_DIAGRAM, *_W_OPPORTUNITIES]
+               *_W_DOSSIER, *_W_REFINERY, *_W_DIAGRAM, *_W_OPPORTUNITIES, *_W_POWER]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

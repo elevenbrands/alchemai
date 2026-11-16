@@ -34,3 +34,15 @@ def test_dossier_refuses_ambiguous_subject(tmp_path):
 
 def test_slug_handles_accents():
     assert D._slug("Refinería de Tula") == "refineria_de_tula"
+
+
+def test_laguna_verde_dossier(tmp_path):
+    r = D.process_dossier("Central Laguna Verde", power_plant="laguna_verde", out_dir=str(tmp_path))
+    s = r["summary"]
+    assert r["evidence"]["verified"] and s["kind"] == "power"
+    assert 0.30 < s["gross_efficiency"] < 0.40                    # BWR range (Carnot-bounded, checked in test_power)
+    assert s["operating_margin_usd_y"] == pytest.approx(s["net_generation_MWh"] * s["operating_margin_usd_mwh"], rel=1e-9)
+    assert r["opportunities"]
+    md = open(r["report_path"], encoding="utf-8").read()
+    assert "CALIBRADOS" in md and "Validación" in md
+    ET.parse(r["diagram_full_path"])

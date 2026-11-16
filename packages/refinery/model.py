@@ -148,7 +148,7 @@ def _refinery(refinery: str) -> tuple[str, dict, dict]:
     refs = _load("pemex_refineries.json")["refineries"]
     if key not in refs:
         raise ValueError(f"refinery = {refinery!r}: no hay datos públicos cargados. Disponibles: {sorted(refs)}.")
-    extra = _load("tula.json") if key == "tula" else {}
+    extra = _load(f"{key}.json") if (DATA / f"{key}.json").exists() else {}
     return key, refs[key], extra
 
 
@@ -515,7 +515,11 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
         asph_bpd = float(unit_overrides["asphalt_bpd"])
         assumptions.append(f"Asfalto = {asph_bpd:.0f} bbl/d (dato del usuario).")
     else:
-        asph_bpd = 1000.0 * (ref["periods"][period]["products_mbd"].get("asfaltos") or 0.0)
+        asph_pub = ref["periods"][period]["products_mbd"].get("asfaltos")
+        asph_bpd = 1000.0 * (asph_pub or 0.0)
+        if asph_pub is None:
+            warnings.append("Pemex no publica asfalto de esta refinería en el periodo (N/D o '--'): se modela sin asfalto "
+                            "(supuesto marcado; da unit_overrides['asphalt_bpd'] si lo produce).")
         assumptions.append(f"Asfalto = {asph_bpd:.0f} bbl/d = producción PUBLICADA del periodo {period} (dato de entrada, no "
                            f"predicción): se retira del residuo de vacío.")
     asphalt, vr_rest = _take(vr, asph_bpd)
@@ -551,8 +555,26 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
     # naphtha hydrotreating and reforming
     cgas = cok["coker_gasoline"] if cok else _flow()
     nht_feed = _mix(cuts["naphtha"], cgas)
-    nht = hydrotreater(nht_feed, specs["gasoline_avg"])
-    unit("hds_naftas", nht_feed, {"product": nht["product"], "acid_gas": nht["acid_gas"]}, None, extra_in=nht["h2_kg_d"])
+    split = {k: v["value"] * 1000.0 * util["hds_total"] for k, v in extra.get("hds_split_mbd", {}).items()}
+
+    def hdt(uid: str, feed: dict, spec: float, product_es: str) -> dict:
+        """Hydrotreat up to the unit's published capacity; feed above it goes UNTREATED to its product (off-spec flag)."""
+        cap = split.get(uid)
+        treated, bypass = _take(feed, cap) if cap is not None else (feed, _flow())
+        r = hydrotreater(treated, spec)
+        r["product"] = _mix(r["product"], bypass)
+        r["bypass"] = bypass
+        unit(uid, feed, {"product": r["product"], "acid_gas": r["acid_gas"]}, cap, extra_in=r["h2_kg_d"],
+             bypass_untreated_bpd=bypass["bpd"], capacity_source=extra.get("hds_split_mbd", {}).get(uid, {}).get("source"),
+             capacity_basis=("capacidad propia publicada" if cap is not None else
+                                                                 "sin capacidad propia publicada: comparte hds_total"))
+        if bypass["bpd"] > 0:
+            warnings.append(f"{uid}: la carga ({feed['bpd'] / 1000:.1f} Mbd) excede su capacidad publicada "
+                            f"({cap / 1000:.1f} Mbd); {bypass['bpd'] / 1000:.1f} Mbd pasan SIN hidrotratar a {product_es}, "
+                            f"que queda FUERA DE ESPECIFICACIÓN de azufre ({1e4 * _s_wt(r['product']):.0f} mg/kg).")
+        return r
+
+    nht = hdt("hds_naftas", nht_feed, specs["gasoline_avg"], "la nafta (reformadora / gasolinas)")
     ref_feed, naphtha_surplus = _take(nht["product"], cap_bpd["reformer"])
     refm = reformer_unit(ref_feed) if ref_feed["kg_d"] > 0 else None
     if refm:
@@ -582,16 +604,23 @@ def _run_core(refinery: str = "tula", period: str | None = None, year: int | Non
         assumptions.append("Todo el corte de querosina (351-526 °F) va a turbosina (elección del modelo; en la refinería parte "
                            "se manda a diésel: ajústalo con unit_overrides['kerosene_to_jet_fraction']).")
     kero_jet, kero_dsl = _part(cuts["kerosene"], fjet), _part(cuts["kerosene"], 1.0 - fjet)
-    jet = hydrotreater(kero_jet, specs["jet_max"])
-    unit("hds_turbosina", kero_jet, {"product": jet["product"], "acid_gas": jet["acid_gas"]}, None, extra_in=jet["h2_kg_d"])
+    jet = hdt("hds_turbosina", kero_jet, specs["jet_max"], "turbosina")
     dsl_feed = _mix(cuts["lgo"], kero_dsl, fcc["lco"] if fcc else _flow())
-    dsl = hydrotreater(dsl_feed, specs["diesel_uba_max"])
-    unit("hds_diesel", dsl_feed, {"product": dsl["product"], "acid_gas": dsl["acid_gas"]}, None, extra_in=dsl["h2_kg_d"])
+    dsl = hdt("hds_diesel", dsl_feed, specs["diesel_uba_max"], "diésel")
     fgas_feed = fcc["gasoline"] if fcc else _flow()
-    fgas = hydrotreater(fgas_feed, specs["gasoline_avg"])
-    unit("hds_gasolina_fcc", fgas_feed, {"product": fgas["product"], "acid_gas": fgas["acid_gas"]}, None,
-         extra_in=fgas["h2_kg_d"])
+    fgas = hdt("hds_gasolina_fcc", fgas_feed, specs["gasoline_avg"], "gasolina catalítica")
     hds_feed_bpd = nht_feed["bpd"] + kero_jet["bpd"] + dsl_feed["bpd"] + fgas_feed["bpd"]
+    for uid in ("hds_naftas", "hds_turbosina", "hds_diesel", "hds_gasolina_fcc"):
+        units[uid]["metrics"].update(shared_capacity_key="hds_total", shared_capacity_bpd=cap_bpd["hds_total"],
+                                     shared_utilization_of_capacity=(hds_feed_bpd / cap_bpd["hds_total"]
+                                                                     if cap_bpd["hds_total"] > 0 else None))
+    if cap_bpd["hds_total"] <= 0:
+        warnings.append("No hay capacidad de hidrodesulfuración publicada: los destilados se hidrotratan a especificación "
+                        "SIN límite de capacidad (supuesto del modelo, marcado); da unit_overrides['capacity_mbd']['hds_total'].")
+    assumptions.append("Hidrotratadoras: toda su carga se hidrotrata a especificación salvo que exista una capacidad PROPIA "
+                       "publicada para esa planta; lo que exceda esa capacidad pasa sin tratar a su producto, marcado fuera de "
+                       "especificación. Nunca se pierde producto. Sin capacidad propia, se compara la carga sumada con la "
+                       "capacidad total publicada (hds_total) y sólo se avisa.")
     if hds_feed_bpd > cap_bpd["hds_total"] * (1 + 1e-9):
         warnings.append(f"La carga total a hidrodesulfuración ({hds_feed_bpd / 1000:.1f} Mbd) excede la capacidad publicada "
                         f"({cap_bpd['hds_total'] / 1000:.1f} Mbd): se trata todo y se marca.")
@@ -871,9 +900,10 @@ def _compare(ref: dict, period: str, pools: dict, is_published: bool, warnings: 
                      "deviation_pct": (100 * (model - v) / v) if v else None,
                      "note": "dato de entrada (no es predicción)" if m == "asfalto" else None})
     liq_pub = sum(pub.get(p) or 0.0 for _, p in pairs)
-    liq_mod = sum(pools[m]["bpd"] for m, _ in pairs) / 1000.0
+    liq_mod = sum(pools[m]["bpd"] for m, p in pairs if pub.get(p) is not None) / 1000.0     # same products on both sides
     out = {"period": period, "rows": rows, "liquids_published_mbd": liq_pub, "liquids_model_mbd": liq_mod,
            "liquids_deviation_pct": 100 * (liq_mod - liq_pub) / liq_pub if liq_pub else None,
+           "liquids_basis": "suma de los productos con dato publicado (los N/D se excluyen de ambos lados)",
            "not_compared": {"coque": {"published_mbd": pub.get("coque"), "model_t_d": pools["coque"]["kg_d"] / 1000,
                                       "why": "Pemex publica el coque en barriles sin densidad; el modelo da toneladas."},
                             "gas_seco": {"published_mbpce": pub.get("gas_seco_mbpce"), "model_t_d": pools["gas_seco"]["kg_d"] / 1000,
@@ -923,6 +953,21 @@ def _process_model(key, ref, period, caps, util, units, cuts, pools, acid, dry, 
             params["feed_kg_h"] = u["feed"]["kg_d"] / 24
             if u["capacity_bpd"]:
                 params["utilization_of_capacity"] = u["feed"]["bpd"] / u["capacity_bpd"]
+            m = u["metrics"]
+            if "shared_capacity_key" in m:                     # hydrotreaters
+                params["capacity_basis"] = m["capacity_basis"]
+                params["shared_capacity_bpd"] = m["shared_capacity_bpd"]
+                params["shared_utilization_of_capacity"] = m["shared_utilization_of_capacity"]
+                params["bypass_untreated_bpd"] = m["bypass_untreated_bpd"]
+                if u["capacity_bpd"] is not None:
+                    params["capacity_bpd"] = u["capacity_bpd"]
+                    params["capacity_source"] = m.get("capacity_source")
+                else:
+                    params.pop("capacity_bpd", None)
+                    params["capacity_source"] = (f"sin capacidad propia publicada; capacidad total de hidrodesulfuración: "
+                                                 f"{caps['hds_total']['source']}")
+                    params["utilization_of_capacity"] = m["shared_utilization_of_capacity"]
+                    params["utilization_basis"] = "compartida: carga de todas las hidrotratadoras / capacidad hds_total"
             metrics = {**metrics, "mass_closure_rel": u["mass_closure_rel"]}
         duty = {}
         if duty_key and u:
@@ -1143,17 +1188,23 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
                                    "corrida a capacidad (nameplate) con esa carga.")
         res["mode"] = "nameplate"
         res["calibrated_parameters"] = {}
+        res["calibration_summary"] = {"at_bound": [], "unpublished_products": [], "all_resolved": None,
+                                      "text_es": "Sin calibración (modo nameplate)."}
         return res
     first = _run_core(**base)
     if mode == "nameplate":
         first["mode"] = "nameplate"
         first["calibrated_parameters"] = {}
+        first["calibration_summary"] = {"at_bound": [], "unpublished_products": [], "all_resolved": None,
+                                      "text_es": "Sin calibración (modo nameplate)."}
         return first
     if crude_slate is not None:
         first["warnings"].append("mode='as_operated' necesita la carga PUBLICADA del periodo para calibrar contra su producción: "
                                  "con crude_slate propio no se calibra nada (corrida a capacidad).")
         first["mode"] = "nameplate"
         first["calibrated_parameters"] = {}
+        first["calibration_summary"] = {"at_bound": [], "unpublished_products": [], "all_resolved": None,
+                                      "text_es": "Sin calibración (modo nameplate)."}
         return first
     pub = _load("pemex_refineries.json")["refineries"][first["refinery"]]["periods"][first["period"]]["products_mbd"]
     user_util, user_ov = dict(util_dict or {}), dict(unit_overrides or {})
@@ -1162,6 +1213,8 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
         where, key = how.split(".")
         given = key in (user_util if where == "utilization" else user_ov)
         target = pub.get(pkey)
+        if name == "kerosene_to_jet_fraction" and target is None and pub.get("diesel") is not None:
+            product, target = "diesel", pub.get("diesel")     # jet not published (N/D): the split shows in diesel
         if given:
             continue
         if name == "coker_utilization" and first["capacities_mbd"]["coker"]["mbd"] <= 0:
@@ -1213,7 +1266,8 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
     fitted = {c["fitted_to"] for c in cal.values()}
     comp = res["published_comparison"]
     for row in comp["rows"]:
-        row["role"] = ("dato de entrada" if row["product"] == "asfalto" else
+        row["role"] = ("sin dato publicado (N/D)" if row["published_mbd"] is None else
+                       "dato de entrada" if row["product"] == "asfalto" else
                        "ajustado" if row["product"] in fitted else "validación")
     val = [r for r in comp["rows"] if r["role"] == "validación"]
     comp["validation_rows"] = val
@@ -1224,13 +1278,34 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
     if ec.get("prices"):
         pairs = (("gasolina", "gasolinas"), ("turbosina", "turbosina"), ("diesel", "diesel"), ("combustoleo", "combustoleo"),
                  ("asfalto", "asfaltos"), ("glp", "gas_licuado"))
-        if all(k in ec["prices"] for k, _ in pairs):
+        nd = [k for k, p in pairs if pub.get(p) is None and not (k == "asfalto" and res["product_slate"]["asfalto"]["bpd"] == 0)]
+        if nd:
+            ec["gross_margin_at_published_slate_usd_bbl"] = None
+            ec["gross_margin_at_published_slate_note"] = (f"No se calcula: Pemex no publica {nd} (N/D) en este periodo y "
+                                                          f"no se rellenan.")
+        elif all(k in ec["prices"] for k, _ in pairs):
             rev = sum((pub.get(p) or 0.0) * 1000.0 * ec["prices"][k]["value"] for k, p in pairs)
             ec["gross_margin_at_published_slate_usd_bbl"] = (rev - ec["crude_cost_usd_d"]) / res["crude_bpd"]
             ec["gross_margin_at_published_slate_note"] = (
                 "Diagnóstico: mismo crudo y mismos precios, pero con la producción PUBLICADA de los seis productos líquidos en "
                 "lugar de la modelada (sin gas seco, coque ni azufre). La diferencia con gross_margin_usd_bbl es el efecto de "
                 "los productos no ajustados (gasolinas, diésel) y del volumen de líquidos que el modelo sobrestima.")
+    at_bound = [n for n, c in cal.items() if not str(c["status"]).startswith("resuelto")]
+    unpublished = [r["product"] for r in comp["rows"] if r["published_mbd"] is None]
+    comp["unpublished_products"] = unpublished
+    text = []
+    if at_bound:
+        text.append("Calibración EN EL LÍMITE (el modelo no reproduce el dato publicado): " + "; ".join(
+            f"{n} = {cal[n]['value']:.2f} → {cal[n]['fitted_to']} modelo {cal[n]['model_bpd'] / 1000:.2f} vs publicado "
+            f"{cal[n]['published_bpd'] / 1000:.2f} Mbd" for n in at_bound) + ".")
+    if unpublished:
+        text.append(f"Pemex no publica (N/D) {unpublished} para este periodo: N/D no es cero; esos productos no se comparan "
+                    f"ni se calibran.")
+    if any(c["fitted_to"] == "diesel" for c in cal.values()):
+        text.append("Como la turbosina no está publicada, la fracción de querosina a turbosina se ajustó al diésel.")
+    res["calibration_summary"] = {"at_bound": at_bound, "unpublished_products": unpublished,
+                                  "all_resolved": not at_bound, "text_es": " ".join(text) or "Todas las calibraciones "
+                                  "reproducen su producto publicado."}
     res["mode"] = "as_operated"
     res["calibrated_parameters"] = cal
     return res

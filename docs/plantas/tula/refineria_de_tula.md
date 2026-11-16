@@ -39,6 +39,8 @@ Procesa 221,583 barriles diarios de crudo.
 | glp | ajustado | -0.0 % |
 | asfalto | dato de entrada | 0.0 % |
 
+**Calidad de la calibración:** Todas las calibraciones reproducen su producto publicado.
+
 Parámetros CALIBRADOS (no publicados por Pemex; ajustados para reproducir un producto publicado):
 
 - coker_utilization: 0.259 (ajustado a combustoleo)
@@ -103,6 +105,7 @@ No evaluado por falta de datos públicos:
 - Carga de crudo = proceso PUBLICADO por Pemex para el periodo 2026-01/2026-09 por tipo (maya 49.737 Mbd, istmo 96.677 Mbd, olmeca 75.169 Mbd); Correspondencia nuestra entre los tipos de crudo de la eBDI (Pesado, Ligero, Superligero) y los crudos de exportación Maya, Istmo y Olmeca; las mezclas actuales que recibe cada refinería pueden diferir de los ensayes del año 2000.
 - Asfalto = 2882 bbl/d = producción PUBLICADA del periodo 2026-01/2026-09 (dato de entrada, no predicción): se retira del residuo de vacío.
 - La capacidad publicada de «alquilación e isomerización» se asigna completa a alquilación (barriles de alquilado); no hay reparto publicado.
+- Hidrotratadoras: toda su carga se hidrotrata a especificación salvo que exista una capacidad PROPIA publicada para esa planta; lo que exceda esa capacidad pasa sin tratar a su producto, marcado fuera de especificación. Nunca se pierde producto. Sin capacidad propia, se compara la carga sumada con la capacidad total publicada (hds_total) y sólo se avisa.
 - Precio fx_mxn_usd = 18.55 MXN/USD (FIX del banco de referencia; Banco de México, indicadores de la página principal (Sistema de Información Económica); https://www.banxico.org.mx/canales/singleFix.json; periodo {'start': '2026-11-13', 'end': '2026-11-13'}) — VALOR DE REFERENCIA PUBLICADO, NO TU COTIZACIÓN.
 - Precio istmo = 83.61 USD/bbl (promedio simple de 9 meses del precio de exportación (costo de oportunidad del crudo); Pemex eBDI, «Precio promedio de exportación de petróleo crudo» (cuadro INDI09), dólares por barril; https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=INDI09; periodo {'start': '2026-01-01', 'end': '2026-09-30'}) — VALOR DE REFERENCIA PUBLICADO, NO TU COTIZACIÓN.
 - Precio maya = 78.06 USD/bbl (promedio simple de 9 meses del precio de exportación (costo de oportunidad del crudo); Pemex eBDI, «Precio promedio de exportación de petróleo crudo» (cuadro INDI09), dólares por barril; https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=INDI09; periodo {'start': '2026-01-01', 'end': '2026-09-30'}) — VALOR DE REFERENCIA PUBLICADO, NO TU COTIZACIÓN.
@@ -123,7 +126,6 @@ No evaluado por falta de datos públicos:
 - Reformadora: vector fijo del ejemplo publicado a RON 98 (carga 51.7 °API); el H2S del ejemplo se excluye.
 - Hidrotratamientos: quitan azufre hasta la NOM-016-CRE-2016 (gasolina 30 mg/kg promedio, diésel 15 mg/kg, turbosina 3000 mg/kg) con H2 estequiométrico; el volumen líquido se conserva (sin ganancia de volumen por hidrogenación).
 - Densidad de los ligeros C4- = 0.584 (n-butano); el ensaye no la publica.
-- Gas licuado = ligeros C4- del crudo + C3/C4 del FCC, reformadora y coquizadora no alquilados (todo propano-butano).
 - ⚠ Reductora de viscosidad modelada como paso a combustóleo sin cambio de rendimientos: no se abrió hoy un vector de rendimientos publicado (reduce viscosidad; su pequeña producción de gas y nafta no se ve).
 - ⚠ El reparto de azufre del FCC es el del ejemplo publicado con 0.50 % de S en la carga; la carga modelada tiene 2.40 % (se usan las mismas fracciones).
 - ⚠ Los precios internos de Pemex (MXN, ene-sep 2026) se pasan a USD con el FIX 18.5525 MXN/USD del 2026-11-13 (no es el promedio del periodo): da prices['fx_mxn_usd'] si tienes el promedio.
