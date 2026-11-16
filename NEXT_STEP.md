@@ -3,6 +3,8 @@
 Actualizado: 2026-11-16 (M26: plantas completas con precios sugeridos con fuente, 135 tools; antes M25, momento completo)
 
 ## Dónde estamos
+**Pendiente pedido por el owner (2026-11-16):** caso «Planta nuclear Laguna Verde» (Alto Lucero, Veracruz; el owner la llamó «Laguna Azul») con el mismo formato de M27: explicación, rentabilidad, diagrama con oportunidades. Va después de Tula. Ojo: requiere un modelo de ciclo de vapor de BWR (no hay motor nuclear en el repo); datos públicos de CFE/CNSNS.
+
 **M26 (2026-11-16): plantas completas, 135 tools.** «Desarrolla una planta de X» ya da proceso, balances, equipos, inversión, costo de operación, flujo de caja, precio mínimo, sensibilidad, reporte y HAZOP preliminar, sugiriendo los datos económicos desde el banco con fuente (regla 31). Casos: `notebooks/26_planta_biodiesel_higuerilla.py` y `26_planta_etanol_cana.py`. Siguiente propuesto al owner: M27 «escáner de oportunidades desde datos de planta» (variables crudas del historiador o Excel → lista de oportunidades con su valor). App Mac: certificado Developer ID creado e importado 2026-11-16; falta reempaquetar el motor con M26, firmar, notarizar y probar el DMG.
 
 **Decisión del owner (2026-11-14): el primer cliente son las plantas con vapor.** Definición del cliente, el problema, la oferta (diagnóstico de vapor) y las hipótesis sin validar en `docs/CLIENTE_Y_PRODUCTO.md`. Motivo: DWSIM ya trae su propio asistente de IA, así que «IA que arma simulaciones» no es lo nuevo; lo que se vende es el estudio comprobado. 0 conversaciones con plantas hasta hoy.
