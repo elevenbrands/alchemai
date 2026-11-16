@@ -59,3 +59,21 @@ def hazop_from_process_description(units: list[dict], streams: list[dict]) -> st
 
 
 AGENT_WRAPPERS = [plant_economics, plant_economics_update, plant_report, hazop_from_process_description]
+
+
+@beta_tool
+def plant_economics_from_model(model_result: dict[str, object], region: str = "MX", currency: str = "USD",
+                               prices: dict[str, object] | None = None, basis: dict[str, object] | None = None,
+                               capital_factors: dict[str, object] | None = None, labour: dict[str, object] | None = None,
+                               include_electricity_export: bool = False, year: int = 2023, cepci: float | None = None,
+                               sensitivity_span: float = 0.2, today: str | None = None) -> str:
+    """Regional economics of a modelled plant: pass the FULL result of biodiesel_plant or reference_biorefinery. Same output
+    as plant_economics (capital, operating cost, cash flow, NPV, IRR, minimum price, ranked assumptions to confirm) using
+    the model's physics and the region's sourced prices and tax; model prices only as flagged fallback. Also returns
+    model_comparison (paper economics vs regional). The ONLY economic route for a modelled plant; then plant_report."""
+    return json.dumps(TPE.plant_economics_from_model(model_result, region, currency, prices, basis, capital_factors, labour,
+                                                     include_electricity_export, year, cepci, sensitivity_span, today),
+                      default=float, ensure_ascii=False)
+
+
+AGENT_WRAPPERS.append(plant_economics_from_model)

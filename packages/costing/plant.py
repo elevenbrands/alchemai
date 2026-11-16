@@ -721,9 +721,18 @@ def _resolve_flows(call: dict, ctx: _Ctx) -> list[dict]:
                 if not unit_p:
                     raise ValueError(f"{where}: el precio {price!r} necesita price_unit (USD/t, MXN/kWh, USD/m3, USD/gal…).")
                 cur, pdim, pper, q = _price_unit(unit_p, where)
-                f.update(currency=cur, price_dim=pdim, price_base=pper, price_unit=f"{cur}/{q}", price_origin="user")
                 ctx.scalars[skey] = _num(price, f"{where}: price", minimum=0.0)
-                ctx.add_user(f"prices.{name}", ctx.scalars[skey], f["price_unit"])
+                src = it.get("price_source")
+                if isinstance(src, dict) and src.get("source") and src.get("url") and src.get("period"):
+                    # a SOURCED suggestion carried by the item (e.g. the published price of a plant model): an assumption,
+                    # never a user input
+                    f.update(currency=cur, price_dim=pdim, price_base=pper, price_unit=f"{cur}/{q}", price_origin="assumed")
+                    ctx.assumed.append(_record(f"prices.{name}", f"precio de {where}", ctx.scalars[skey], f["price_unit"],
+                                               src, ctx.today, str(src.get("note", "")), scalar=skey, role=role,
+                                               source_tier=src.get("source_tier", "modelo publicado")))
+                else:
+                    f.update(currency=cur, price_dim=pdim, price_base=pper, price_unit=f"{cur}/{q}", price_origin="user")
+                    ctx.add_user(f"prices.{name}", ctx.scalars[skey], f["price_unit"])
             else:
                 ref = it.get("reference_item") or name
                 r = RP.lookup(ref, ctx.region, None, None, ctx.today)
@@ -1284,6 +1293,7 @@ def merge_overrides(call: dict, overrides: dict) -> dict:
                     for it in new.get(role) or []:
                         if _norm(it.get("name", "")) in names:
                             it.pop("price", None)
+                            it.pop("price_source", None)
         elif k in ("equipment",) + ROLES:
             patch = v if isinstance(v, dict) else {str(x.get("name")): {kk: vv for kk, vv in x.items() if kk != "name"} for x in v}
             items = new.get(k) or []

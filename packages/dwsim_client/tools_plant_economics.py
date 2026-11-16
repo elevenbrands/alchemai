@@ -223,3 +223,23 @@ def hazop_from_process_description(units: list[dict], streams: list[dict]) -> di
 
 
 PLANT_ECONOMICS_TOOLS = [plant_economics, plant_economics_update, plant_report, hazop_from_process_description]
+
+
+def plant_economics_from_model(model_result: dict, region: str = "MX", currency: str = "USD", prices: dict | None = None,
+                               basis: dict | None = None, capital_factors: dict | None = None, labour: dict | None = None,
+                               include_electricity_export: bool = False, year: int = 2023, cepci: float | None = None,
+                               sensitivity_span: float = 0.2, today: str | None = None) -> dict:
+    """Economía REGIONAL de una planta modelada: pasa el resultado COMPLETO de biodiesel_plant o reference_biorefinery y
+    devuelve lo mismo que plant_economics (inversión, operación, flujo de caja, VPN, TIR, precio mínimo, sensibilidad
+    «qué confirmar primero», supuestos con fuente, faltantes), con la física del modelo (equipos, corrientes, servicios,
+    horas) y la economía de la región (ISR de México, precios del banco). Orden del precio de cada corriente: prices[name]
+    → banco de la región → precio del modelo publicado (marcado como supuesto, con el año del artículo) → faltante.
+    La exportación eléctrica de los modelos de caña/rastrojo está sobrestimada 2-3× contra el artículo: no se cuenta salvo
+    include_electricity_export=True. Devuelve además model_comparison (economía del artículo vs la regional, para explicar
+    la diferencia) y published_benchmark. Es la ÚNICA ruta económica para una planta modelada; luego plant_report."""
+    from packages.costing import plant_bridge as PB
+    return PB.plant_economics_from_model(model_result, region, currency, prices, basis, capital_factors, labour,
+                                         include_electricity_export, year, cepci, sensitivity_span, today)
+
+
+PLANT_ECONOMICS_TOOLS.append(plant_economics_from_model)

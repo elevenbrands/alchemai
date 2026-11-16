@@ -282,3 +282,28 @@ def test_wrappers_match_tools():
     from packages.agent import wrappers_plant_economics as W
     assert [f.__name__ for f in T.PLANT_ECONOMICS_TOOLS] == [w.name for w in W.AGENT_WRAPPERS]
     assert all(math.isfinite(1.0) for _ in W.AGENT_WRAPPERS)
+
+
+# ---------------------------------------------------------------- bridge: modelled plant -> regional economics (M26 fix)
+def test_bridge_biodiesel_model_uses_regional_economics_and_flags_model_prices():
+    """The biodiesel model's paper economics and the regional ones must come from ONE route: the bridge gives
+    plant_economics' result; bank prices win over the model's; model prices that remain are sourced assumptions, never
+    user inputs; the identity NPV(minimum price) = 0 holds."""
+    from packages.costing import plant_bridge as B
+    from packages.dwsim_client import tools_plants as P
+    m = P.biodiesel_plant(oil_feed_kg_h=10000.0, oil="castor", ffa_mass_fraction=0.005, water_mass_fraction=0.0005,
+                          operating_hours_y=8410.0)
+    e = B.plant_economics_from_model(m, region="MX-SIN", today="2026-11-16")
+    assert e["evidence"]["verified"] and not e["missing"]
+    assumed = {a["input"]: a for a in e["assumed_inputs"]}
+    assert assumed["prices.aceite"]["value"] == pytest.approx(1708.05)            # bank (castor oil), not the model's 0
+    assert "Huang" in assumed["prices.catalizador (metóxido de sodio en metanol)"]["source"]   # model price, flagged
+    assert not any(u.startswith("prices.") for u in (x["input"] if isinstance(x, dict) else str(x) for x in e["user_inputs"]))
+    assert abs(e["minimum_selling_price"]["npv_usd_at_minimum_price"]) < 1e-3
+    assert e["model_comparison"]["model"]["income_tax"] == pytest.approx(0.35)
+    json.dumps(e, default=float)
+    # a user price replaces the assumption and is then a user input
+    e2 = B.plant_economics_from_model(m, region="MX-SIN", prices={"aceite": {"price": 1500.0, "price_unit": "USD/t"}},
+                                      today="2026-11-16")
+    assert "prices.aceite" not in {a["input"] for a in e2["assumed_inputs"]}
+    assert e2["npv_usd"] > e["npv_usd"]

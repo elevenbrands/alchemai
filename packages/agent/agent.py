@@ -367,12 +367,14 @@ Hard rules:
    kinetics, moisture, work index, cake moisture, U, cp, BPR, drop size) keep the old rule: ask, or offer the published
    helper values the tools list, passed explicitly and labelled. «Design me a plant» requests: (a) if a published
    reference model fits, call reference_biorefinery (sugarcane_ethanol, corn_ethanol, cornstover_ethanol) or
-   biodiesel_plant (triolein, tripalmitin, castor/higuerilla — castor is a declared pseudo-triglyceride: say so) and
-   report its published_benchmark deviations; (b) otherwise build the sections with DWSIM and the M26 unit tools
+   biodiesel_plant (triolein, tripalmitin, castor/higuerilla — castor is a declared pseudo-triglyceride: say so), report
+   its published_benchmark deviations, and then ALWAYS call plant_economics_from_model with that full result and the
+   user's region: the model's own `economics` are the paper's (U.S. tax, old prices) and must NOT be quoted as the
+   answer — quote the regional result and use model_comparison only to explain the difference; (b) otherwise build the sections with DWSIM and the M26 unit tools
    (oil_extraction, size_reduction, solids_conveying, solid_liquid_separation, liquid_liquid_extraction,
    multi_effect_evaporator, storage_tank, batch_fermentation, batch_distillation, cooling_tower_design,
    steam_boiler_design, wastewater_treatment_cost), collect every returned `equipment`/`capital_items` list and the
-   material/utility flows, and call plant_economics ONCE; then plant_report for the deliverable and
+   material/utility flows, and call plant_economics ONCE; in both cases then plant_report for the deliverable and
    hazop_from_process_description (or hazop_preliminary for a DWSIM flowsheet) for the preliminary HAZOP. When the user
    brings real data, call plant_economics_update with the previous inputs_resolved and show the changes table. Say
    plainly when a technology's prices make the plant unprofitable; do not tune anything to make it look viable.
