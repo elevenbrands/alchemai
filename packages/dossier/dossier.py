@@ -94,6 +94,25 @@ def _explanation_refinery(r: dict) -> list[str]:
     return lines
 
 
+def _liquid_excess(r: dict) -> dict | None:
+    """Short volume diagnosis for the app panel: model vs published liquids as % of the crude run."""
+    d = (r.get("published_comparison") or {}).get("liquid_excess_diagnosis") or {}
+    crude = r.get("crude_bpd")
+    if not d.get("applicable") or not crude or d.get("liquids_excess_mbd") is None:
+        return None
+    pub = sum(v for k, v in (r.get("published_products_bpd") or {}).items() if v) or None
+    excess = 1000.0 * d["liquids_excess_mbd"]
+    out = {"liquids_excess_bpd": excess, "diesel_excess_bpd": 1000.0 * (d.get("diesel_excess_mbd") or 0.0),
+           "own_use_upper_bound_bpd": 1000.0 * (d.get("own_use_upper_bound_liquids_mbd") or 0.0),
+           "excess_pct_of_crude": 100.0 * excess / crude, "source": d.get("source"), "published_bpd": pub}
+    out["text_es"] = (f"El modelo hace {excess / 1000:.1f} mil bbl/d de líquidos más que lo publicado "
+                      f"({out['excess_pct_of_crude']:.1f} % del crudo), casi igual al exceso de diésel "
+                      f"({out['diesel_excess_bpd'] / 1000:.1f} mil). El autoconsumo explica a lo más "
+                      f"{out['own_use_upper_bound_bpd'] / 1000:.1f} mil; el resto no tiene dato público (mermas, "
+                      "transferencias, cortes de destilación).")
+    return out
+
+
 def _refinery_dossier(name: str, region: str, prices: dict | None, plant_data, period: str | None) -> tuple[dict, dict, list]:
     from packages.opportunities import scan as SC
     from packages.refinery import model as RM
@@ -115,6 +134,7 @@ def _refinery_dossier(name: str, region: str, prices: dict | None, plant_data, p
         "energy_GJ_bbl": (r.get("energy") or {}).get("GJ_per_bbl"), "co2": (r.get("emissions") or {}),
         "scan_not_assessed": scan.get("not_assessed"), "evidence_verified": r["evidence"].get("verified"),
         "calibration_summary": r.get("calibration_summary"),
+        "liquid_excess": _liquid_excess(r),
     }
     return r, summary, opps
 

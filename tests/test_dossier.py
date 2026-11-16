@@ -46,3 +46,10 @@ def test_laguna_verde_dossier(tmp_path):
     md = open(r["report_path"], encoding="utf-8").read()
     assert "CALIBRADOS" in md and "Validación" in md
     ET.parse(r["diagram_full_path"])
+
+
+def test_tula_summary_carries_the_liquid_volume_diagnosis(tmp_path):
+    s = D.process_dossier("Refinería de Tula", refinery="tula", out_dir=str(tmp_path))["summary"]
+    le = s["liquid_excess"]
+    assert le and le["liquids_excess_bpd"] == pytest.approx(18106, rel=0.02)
+    assert le["own_use_upper_bound_bpd"] < le["liquids_excess_bpd"] and "no tiene dato público" in le["text_es"]
