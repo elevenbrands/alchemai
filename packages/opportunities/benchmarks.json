@@ -1,0 +1,117 @@
+{
+  "version": "M27_O-2026-11-16",
+  "rule": "Cada valor fue leído en la fuente abierta indicada el día date_read (descarga + pdftotext -layout o lectura del texto legal). Ningún valor se recordó de memoria. Son referencias publicadas, no la meta de tu planta.",
+  "entries": {
+    "refining_bandwidth_2015": {
+      "what": "Intensidad energética en sitio por proceso de refinación (sin energía de carga), cuatro bandas: típica actual (CT), estado del arte (SOA), mínimo práctico (PM, límite inferior; incluye tecnologías en I+D) y mínimo termodinámico (TM).",
+      "unit": "Btu/bbl",
+      "basis": "energía en sitio (combustible + vapor + electricidad a 3,412 Btu/kWh), por barril de carga procesada; alquilación e isomerización por barril PRODUCIDO",
+      "source": "U.S. DOE Advanced Manufacturing Office (Energetics Inc.: Brueske, Kramer, Fisher), Bandwidth Study on Energy Use and Potential Energy Saving Opportunities in U.S. Petroleum Refining, Appendix A1, Table Aa (y Table 5-4 para los ahorros CT-SOA)",
+      "url": "https://www.energy.gov/sites/default/files/2015/08/f26/petroleum_refining_bandwidth_report.pdf",
+      "period": "datos de 2010 (EE. UU.); publicado 2015",
+      "date_read": "2026-11-16",
+      "processes": {
+        "alkylation": {"label_es": "Alquilación", "throughput_basis": "production", "throughput_2010_million_bbl": 365, "CT": 246700, "SOA": 219400, "PM": 154400, "TM": -58000, "soa_saving_TBtu_y_table_5_4": 10},
+        "atmospheric_crude_distillation": {"label_es": "Destilación atmosférica de crudo", "throughput_basis": "feed", "throughput_2010_million_bbl": 5540, "CT": 109100, "SOA": 94300, "PM": 56700, "TM": 34000, "soa_saving_TBtu_y_table_5_4": 82},
+        "catalytic_hydrocracking": {"label_es": "Hidrodesintegración catalítica", "throughput_basis": "feed", "throughput_2010_million_bbl": 532, "CT": 158900, "SOA": 139000, "PM": 107400, "TM": -71900, "soa_saving_TBtu_y_table_5_4": 11},
+        "catalytic_reforming": {"label_es": "Reformación catalítica", "throughput_basis": "feed", "throughput_2010_million_bbl": 1055, "CT": 263900, "SOA": 233000, "PM": 178400, "TM": 79000, "soa_saving_TBtu_y_table_5_4": 33},
+        "coking_visbreaking": {"label_es": "Coquización / reducción de viscosidad", "throughput_basis": "feed", "throughput_2010_million_bbl": 770, "CT": 147700, "SOA": 131700, "PM": 85100, "TM": 350, "soa_saving_TBtu_y_table_5_4": 12},
+        "fluid_catalytic_cracking": {"label_es": "Desintegración catalítica fluida (FCC)", "throughput_basis": "feed", "throughput_2010_million_bbl": 1827, "CT": 182800, "SOA": 158300, "PM": 132700, "TM": 40000, "soa_saving_TBtu_y_table_5_4": 45},
+        "hydrotreating": {"label_es": "Hidrotratamiento", "throughput_basis": "feed", "throughput_2010_million_bbl": 4829, "CT": 80800, "SOA": 68900, "PM": 52200, "TM": -53000, "soa_saving_TBtu_y_table_5_4": 57},
+        "isomerization": {"label_es": "Isomerización", "throughput_basis": "production", "throughput_2010_million_bbl": 203, "CT": 216000, "SOA": 192500, "PM": 122300, "TM": -5, "soa_saving_TBtu_y_table_5_4": 5},
+        "vacuum_crude_distillation": {"label_es": "Destilación al vacío", "throughput_basis": "feed", "throughput_2010_million_bbl": 2504, "CT": 89100, "SOA": 76500, "PM": 54000, "TM": 34200, "soa_saving_TBtu_y_table_5_4": 32}
+      },
+      "notes": "Promedios de EE. UU. 2010, no de una refinería: el propio estudio dice que oscilaciones de 10-15 % en la eficiencia son comunes. Table 5-4 da CT-SOA redondeado a TBtu/año."
+    },
+    "chemicals_bandwidth_2015": {
+      "what": "Intensidad energética en sitio por producto químico (sin energía de carga): CT, SOA, PM (límite inferior) y TM.",
+      "unit": "Btu/lb",
+      "basis": "energía en sitio por libra de producto, excluye la energía usada como materia prima",
+      "source": "U.S. DOE Advanced Manufacturing Office (Energetics Inc.), Bandwidth Study on Energy Use and Potential Energy Saving Opportunities in U.S. Chemical Manufacturing, Appendix A1a (Master Chemicals Table, by chemical)",
+      "url": "https://www.energy.gov/sites/default/files/2015/08/f26/chemical_bandwidth_report.pdf",
+      "period": "datos de 2010 (EE. UU.); publicado 2015",
+      "date_read": "2026-11-16",
+      "chemicals": {
+        "acetic_acid": {"label_es": "Ácido acético", "aliases": ["acetic acid", "acido acetico"], "CT": 2552, "SOA": 1978, "PM": 1204, "TM": 436},
+        "ammonia": {"label_es": "Amoniaco", "aliases": ["ammonia", "amoniaco"], "CT": 5847, "SOA": 3138, "PM": 2402, "TM": 414},
+        "benzene": {"label_es": "Benceno", "aliases": ["benzene", "benceno"], "CT": 7868, "SOA": 5288, "PM": 2812, "TM": -69},
+        "chlorine": {"label_es": "Cloro", "aliases": ["chlorine", "cloro"], "CT": 6578, "SOA": 5116, "PM": 4882, "TM": 3086},
+        "ethanol": {"label_es": "Etanol", "aliases": ["ethanol", "etanol"], "CT": 4646, "SOA": 4105, "PM": 652, "TM": -1624},
+        "ethylene": {"label_es": "Etileno", "aliases": ["ethylene", "etileno"], "CT": 7071, "SOA": 6187, "PM": 5047, "TM": 998},
+        "ethylene_oxide": {"label_es": "Óxido de etileno", "aliases": ["ethylene oxide", "oxido de etileno"], "CT": 1916, "SOA": 1419, "PM": 1163, "TM": 734},
+        "hydrogen": {"label_es": "Hidrógeno", "aliases": ["hydrogen", "hidrogeno"], "CT": 949, "SOA": 568, "PM": -1713, "TM": -4876},
+        "methanol": {"label_es": "Metanol", "aliases": ["methanol", "metanol"], "CT": 4901, "SOA": 4041, "PM": 3167, "TM": 802},
+        "propylene": {"label_es": "Propileno", "aliases": ["propylene", "propileno"], "CT": 1351, "SOA": 989, "PM": 985, "TM": 846},
+        "styrene": {"label_es": "Estireno", "aliases": ["styrene", "estireno"], "CT": 3777, "SOA": 3697, "PM": 2214, "TM": 340},
+        "urea": {"label_es": "Urea", "aliases": ["urea"], "CT": 843, "SOA": 731, "PM": 326, "TM": -289}
+      },
+      "notes": "La tabla A1b (por subsector) del mismo informe trae otros PM para propileno (249) y xilenos: aquí se usa la A1a. Hidrógeno: PM negativo (el informe acredita exportación de vapor). Solo CT y SOA entran al valor central."
+    },
+    "refinery_furnace_efficiency": {
+      "what": "Eficiencia térmica de hornos de refinería: promedio estimado 75-90 %; máximo teórico ≈ 92 % (PCS) contando pérdidas inevitables y punto de rocío.",
+      "value_low": 0.75, "value_high": 0.90, "max_theoretical_HHV": 0.92,
+      "unit": "fracción",
+      "basis": "el rango 75-90 % no dice la base; el 92 % es base PCS (HHV)",
+      "source": "Worrell, E. y Galitsky, C. (2005), Energy Efficiency Improvement and Cost Saving Opportunities for Petroleum Refineries — An ENERGY STAR Guide for Energy and Plant Managers, LBNL-56183, sec. 10 «Process Heaters» (cita a Petrick y Pellegrino, 1999)",
+      "url": "https://www.osti.gov/servlets/purl/862119",
+      "period": "febrero de 2005",
+      "date_read": "2026-11-16",
+      "notes": "El mismo texto concluye que en promedio puede lograrse ~10 % de mejora en diseño de horno y quemador."
+    },
+    "refinery_heater_excess_O2": {
+      "what": "Oxígeno en humos de hornos de proceso: limitar a 2-3 % para asegurar combustión completa.",
+      "value_low": 0.02, "value_high": 0.03,
+      "unit": "fracción molar de O2 en humos (la guía no dice si es base seca; aquí se lee como base seca)",
+      "source": "Worrell y Galitsky (2005), LBNL-56183, sec. 10.1 «Maintenance — Draft Control»",
+      "url": "https://www.osti.gov/servlets/purl/862119",
+      "period": "febrero de 2005",
+      "date_read": "2026-11-16",
+      "notes": "Caso citado: Valero Houston bajó de 3-4 % a 1 % de O2 con control en los hornos de la CDU y redujo 3-6 % la energía."
+    },
+    "boiler_excess_air": {
+      "what": "Exceso de aire adecuado para calderas de gas y combustóleo: aproximadamente 15 %.",
+      "value": 0.15,
+      "unit": "fracción de exceso de aire",
+      "source": "Worrell y Galitsky (2005), LBNL-56183, sec. 8.1 «Boilers», «Reduce Excess Air» (cita OIT 1998; Ganapathy 1994)",
+      "url": "https://www.osti.gov/servlets/purl/862119",
+      "period": "febrero de 2005",
+      "date_read": "2026-11-16"
+    },
+    "pinch_dT_min_typical": {
+      "what": "ΔTmin típico de análisis pinch por experiencia: 30-40 °C donde hay ensuciamiento o coeficientes bajos; 10-20 °C en procesos químicos y donde se usan servicios; 3-5 °C en procesos de baja temperatura con refrigeración.",
+      "fouling_or_low_h_K": [30.0, 40.0], "chemical_K": [10.0, 20.0], "refrigeration_K": [3.0, 5.0],
+      "unit": "K (diferencia de temperatura)",
+      "source": "Natural Resources Canada, CanmetENERGY, Pinch Analysis: For the Efficient Use of Energy, Water & Hydrogen (2003), cap. 3, «Selection of ΔTmin», p. 28; ejemplo de la Tabla 1 (Q_Hmin 900 kW, Q_Cmin 750 kW con ΔTmin 10 °C), p. 23-25",
+      "url": "https://natural-resources.canada.ca/sites/nrcan/files/canmetenergy/pdf/fichier.php/codectec/En/2009-052/2009-052_PM-FAC_404-DEPLOI_e.pdf",
+      "period": "2003 (ISBN 0-662-34964-4, Cat. M39-96/2003E)",
+      "date_read": "2026-11-16"
+    },
+    "pump_min_efficiency_doe": {
+      "what": "Eficiencia mínima en el punto de mejor eficiencia (BEP) de una bomba de agua limpia nueva que apenas cumple la norma federal de EE. UU. (fabricadas desde el 27-ene-2020): eta_STD[%] = -0.8500 ln(Q)^2 - 0.3800 ln(Ns) ln(Q) - 11.480 ln(Ns)^2 + 17.800 ln(Q) + 179.80 ln(Ns) - (C + 555.60), Q en gpm al BEP, Ns = n·Q^0.5/(H/S)^0.75 en unidades de EE. UU. (rpm, gpm, ft por etapa).",
+      "C_values": {"ESCC.1800": 128.47, "ESCC.3600": 130.42, "ESFM.1800": 128.85, "ESFM.3600": 130.99, "IL.1800": 129.30, "IL.3600": 133.84, "RSV.1800": 129.63, "RSV.3600": 133.20, "ST.1800": 138.78, "ST.3600": 134.85},
+      "part_load_alpha": {"0.75": 0.947, "1.00": 1.000, "1.10": 0.985},
+      "scope": "agua limpia; Q ≥ 25 gpm al BEP; carga ≤ 459 ft al BEP; temperatura de diseño 14-248 °F; motores de 2 o 4 polos (1800/3600 rpm nominales); ESCC/ESFM con Ns ≤ 5000",
+      "unit": "% (eficiencia de la bomba, sin motor)",
+      "source": "10 CFR 431, subparte Y: Appendix A, sec. II.B.1.1.1 (ecuación de eta_pump,STD y alfa de carga parcial) y § 431.465(b)(4) (tabla de valores C); eCFR, versión al 2026-11-01",
+      "url": "https://www.ecfr.gov/current/title-10/chapter-II/subchapter-D/part-431/subpart-Y",
+      "period": "norma vigente (cumplimiento desde 2020-01-27)",
+      "date_read": "2026-11-16",
+      "notes": "La ecuación de Ns es imagen en el eCFR; su forma n·Q^0.5/(H/S)^0.75 se tomó de las variables que el texto define (n_sp, Q'100%, H100%, S). Es un PISO normativo para bombas nuevas, no la mejor bomba del mercado: un ahorro contra él es conservador."
+    },
+    "fcc_max_conversion_range": {
+      "what": "Conversión máxima de FCC (punto de sobrecraqueo, conversión al máximo rendimiento de gasolina) de 19 cargas distintas: 50.4-83.4 % en peso; depende fuertemente de la calidad de la carga.",
+      "value_low": 50.4, "value_high": 83.4,
+      "unit": "% en peso",
+      "source": "Stratiev, D. (2025), Evaluation of Feedstock Characteristics … Used as Feedstocks for Fluid Catalytic Cracking: A Systematic Review, Processes 13(7), 2169, doi:10.3390/pr13072169",
+      "url": "https://mdpi-res.com/d_attachment/processes/processes-13-02169/article_deploy/processes-13-02169.pdf",
+      "period": "publicado 7 de julio de 2025",
+      "date_read": "2026-11-16",
+      "notes": "Es un rango entre cargas, no la meta de una unidad: sin la conversión máxima de TU carga (prueba MAT/ACE o licenciante) no hay brecha valorable."
+    }
+  },
+  "searched_not_used": [
+    {"what": "Reglamento (UE) 547/2012 (índice MEI de bombas de agua)", "why": "EUR-Lex y legislation.gov.uk no entregaron el texto a una descarga automática el 2026-11-16; se usó la norma de EE. UU. (eCFR)."},
+    {"what": "Precio del carbono para México", "why": "no hay un precio por tonelada de CO2 abierto y fechado en el banco; el CO2 se valora solo con el precio que dé quien llama."},
+    {"what": "Benchmarks abiertos de rendimiento de reformación (octano/rendimiento C5+) e HDS", "why": "no se abrió hoy una fuente abierta con un rango citable; esas reglas quedan como no evaluadas."}
+  ]
+}

@@ -1,0 +1,39 @@
+{
+ "_doc": "Ensayes TBP publicados de los crudos de exportación mexicanos. Valores transcritos del texto de la página (no de figuras) y verificados contra la página descargada el 2026-11-16. Los cortes de 651+ °F (residuo atmosférico) se guardan como dato pero el modelo usa gasóleo pesado (651-1000 °F) + residuo de vacío (1000+ °F). Los ligeros C4- NO vienen como rendimiento en la tabla: se calculan por diferencia a 100 % vol.",
+ "source": "L. Manríquez, A. Moreno, H. Tenorio, Herrera (Instituto Mexicano del Petróleo), «Four Mexican crude assays updated», Oil & Gas Journal, 15-may-2000 (sección Guide to World Crudes)",
+ "url": "https://www.ogj.com/home/article/17215393/guide-to-world-crudes",
+ "date_read": "2026-11-16",
+ "pemex_type_map": {"pesado": "maya", "ligero": "istmo", "superligero": "olmeca"},
+ "pemex_type_map_note": "Correspondencia nuestra entre los tipos de crudo de la eBDI (Pesado, Ligero, Superligero) y los crudos de exportación Maya, Istmo y Olmeca; las mezclas actuales que recibe cada refinería pueden diferir de los ensayes del año 2000.",
+ "cut_ranges_F": {"naphtha": "C5-351", "kerosene": "351-526", "lgo": "526-651", "hgo": "651-1000", "vr": "1000+", "ar": "651+"},
+ "crudes": {
+  "maya": {"label_es": "Maya (pesado)", "api": 21.5, "sulfur_wt": 3.4, "ccr_wt": 10.8,
+   "cuts": {"naphtha": {"vol_pct": 15.3, "api": 60.4, "sulfur_wt": 0.10},
+            "kerosene": {"vol_pct": 13.8, "api": 40.3, "sulfur_wt": 1.2},
+            "lgo": {"vol_pct": 9.4, "api": 29.7, "sulfur_wt": 2.46},
+            "hgo": {"vol_pct": 24.3, "api": 20.6, "sulfur_wt": 3.25},
+            "vr": {"vol_pct": 36.9, "api": 4.0, "sulfur_wt": 5.3, "ccr_wt": 25.8}},
+   "ar_651plus": {"vol_pct": 61.2, "api": 9.5, "sulfur_wt": 4.70, "ccr_wt": 16.2}},
+  "istmo": {"label_es": "Istmo (ligero)", "api": 32.9, "sulfur_wt": 1.4, "ccr_wt": 4.5,
+   "cuts": {"naphtha": {"vol_pct": 25.2, "api": 65.3, "sulfur_wt": 0.025},
+            "kerosene": {"vol_pct": 18.3, "api": 42.9, "sulfur_wt": 0.27},
+            "lgo": {"vol_pct": 11.9, "api": 33.4, "sulfur_wt": 1.04},
+            "hgo": {"vol_pct": 26.7, "api": 23.1, "sulfur_wt": 1.81},
+            "vr": {"vol_pct": 16.6, "api": 6.1, "sulfur_wt": 3.5}},
+   "ar_651plus": {"vol_pct": 44.3, "api": 14.6, "sulfur_wt": 2.46, "ccr_wt": 9.0}},
+  "olmeca": {"label_es": "Olmeca (superligero)", "api": 38.9, "sulfur_wt": 0.93, "ccr_wt": 2.8,
+   "cuts": {"naphtha": {"vol_pct": 29.0, "api": 66.5, "sulfur_wt": 0.017},
+            "kerosene": {"vol_pct": 19.2, "api": 43.2, "sulfur_wt": 0.13},
+            "lgo": {"vol_pct": 14.8, "api": 33.7, "sulfur_wt": 0.63},
+            "hgo": {"vol_pct": 24.9, "api": 23.6, "sulfur_wt": 1.38},
+            "vr": {"vol_pct": 10.3, "api": 8.9, "sulfur_wt": 3.4}},
+   "ar_651plus": {"vol_pct": 35.2, "api": 18.6, "sulfur_wt": 2.01}}
+ },
+ "light_ends_check": {
+  "_doc": "Ligeros (% vol) publicados por otra fuente abierta, para contrastar los ligeros por diferencia del ensaye de OGJ.",
+  "source": "O. Sánchez Alonso, «Análisis de opciones tecnológicas para procesos de destilación combinada de crudos mexicanos», tesis de maestría, UNAM, 2012 (datos citados del mismo ensaye IMP-OGJ 2000)",
+  "url": "https://ru.dgb.unam.mx/bitstream/20.500.14330/TES01000679501/3/0679501_A1.pdf",
+  "values_vol_pct": {"olmeca": 1.8, "istmo": 1.3, "maya": 0.3}
+ },
+ "light_ends_sg": {"value": 0.5840, "basis": "densidad relativa estándar del n-butano tomada de la tabla del ejemplo FCCU de J. Jechura (Colorado School of Mines, CBEN 409); el ensaye no publica la densidad de los ligeros C4-", "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_07_Catalytic_Cracking.pdf"}
+}

@@ -459,6 +459,10 @@ from packages.dwsim_client.tools_solids_handling import SOLIDS_HANDLING_TOOLS  #
 from packages.dwsim_client.tools_utilities_capital import UTILITIES_CAPITAL_TOOLS  # noqa: E402  (bloque M26)
 from packages.dwsim_client.tools_plants import PLANTS_TOOLS  # noqa: E402  (bloque M26)
 from packages.dwsim_client.tools_plant_economics import PLANT_ECONOMICS_TOOLS  # noqa: E402  (bloque M26)
+from packages.dwsim_client.tools_refinery import REFINERY_TOOLS  # noqa: E402  (bloque M27)
+from packages.dwsim_client.tools_diagram import DIAGRAM_TOOLS  # noqa: E402  (bloque M27)
+from packages.dwsim_client.tools_opportunities import OPPORTUNITIES_TOOLS  # noqa: E402  (bloque M27)
+from packages.dwsim_client.tools_dossier import DOSSIER_TOOLS  # noqa: E402  (bloque M27)
 from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
@@ -475,4 +479,5 @@ TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_
          *SWEEP_TOOLS, *TRANSPORT_TOOLS, *FLOW_TOOLS, *HEAT_TOOLS, *ENERGY_TOOLS, *COSTING_TOOLS, *ECONOMICS_TOOLS, *UTILITIES_TOOLS, *COMBUSTION_TOOLS, *STEAM_TOOLS, *OPTIMIZE_TOOLS, *MASS_TRANSFER_TOOLS, *KINETICS_TOOLS, *CONTROL_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion, fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet,
          *PROPERTIES_TOOLS, *CATALYSIS_TOOLS, *SOLID_DIFFUSION_TOOLS, *SOLIDS_TOOLS, *SEPARATIONS_TOOLS, *DYNAMIC_TOOLS, *DYNAMIC_FLOWSHEET_TOOLS, *ADVANCED_CONTROL_TOOLS, *PARTICLES_TOOLS, *MOMENTUM_TOOLS,
          *REFERENCE_PRICES_TOOLS, *PLANT_ECONOMICS_TOOLS, *PLANTS_TOOLS, *LIQUID_EQUIPMENT_TOOLS, *BATCH_TOOLS,
-         *SOLIDS_HANDLING_TOOLS, *UTILITIES_CAPITAL_TOOLS]
+         *SOLIDS_HANDLING_TOOLS, *UTILITIES_CAPITAL_TOOLS,
+         *DOSSIER_TOOLS, *REFINERY_TOOLS, *DIAGRAM_TOOLS, *OPPORTUNITIES_TOOLS]

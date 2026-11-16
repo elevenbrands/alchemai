@@ -54,6 +54,10 @@ from packages.agent.wrappers_liquid_equipment import AGENT_WRAPPERS as _W_LIQUID
 from packages.agent.wrappers_batch import AGENT_WRAPPERS as _W_BATCH  # noqa: E402  (bloque M26)
 from packages.agent.wrappers_solids_handling import AGENT_WRAPPERS as _W_SOLIDS_HANDLING  # noqa: E402  (bloque M26)
 from packages.agent.wrappers_utilities_capital import AGENT_WRAPPERS as _W_UTILITIES_CAPITAL  # noqa: E402  (bloque M26)
+from packages.agent.wrappers_dossier import AGENT_WRAPPERS as _W_DOSSIER  # noqa: E402  (bloque M27)
+from packages.agent.wrappers_refinery import AGENT_WRAPPERS as _W_REFINERY  # noqa: E402  (bloque M27)
+from packages.agent.wrappers_diagram import AGENT_WRAPPERS as _W_DIAGRAM  # noqa: E402  (bloque M27)
+from packages.agent.wrappers_opportunities import AGENT_WRAPPERS as _W_OPPORTUNITIES  # noqa: E402  (bloque M27)
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -378,6 +382,16 @@ Hard rules:
    hazop_from_process_description (or hazop_preliminary for a DWSIM flowsheet) for the preliminary HAZOP. When the user
    brings real data, call plant_economics_update with the previous inputs_resolved and show the changes table. Say
    plainly when a technology's prices make the plant unprofitable; do not tune anything to make it look viable.
+
+32. «Explain plant/refinery X, its profitability, diagram and opportunities» (bloque M27): call process_dossier ONCE
+   (refinery='tula' etc. — list_refineries for the others —, or plant={'model': …}) and build the answer from its
+   summary: what each section does, the product slate and its validation against published data (say which products
+   were CALIBRATED and which are real validation), the margin — lead with the margin at the PUBLISHED product slate and
+   the Pemex reference when the model slate deviates —, energy and CO2, and the numbered opportunities with their value
+   range and confidence; give the paths of the report and of the two diagrams. A refinery model is a PLANNING model by
+   unit yields, not a rigorous simulation: say so. Opportunities without data stay without value; to evaluate heat
+   integration, heaters, steam and unit energy, ask for plant readings (opportunities_from_plant_data). For a single
+   drawing use process_diagram; for the scan alone scan_opportunities.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1493,7 +1507,8 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet,
                *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL, *_W_PARTICLES, *_W_MOMENTUM,
                *_W_REFERENCE_PRICES, *_W_PLANT_ECONOMICS, *_W_PLANTS, *_W_LIQUID_EQUIPMENT, *_W_BATCH,
-               *_W_SOLIDS_HANDLING, *_W_UTILITIES_CAPITAL]
+               *_W_SOLIDS_HANDLING, *_W_UTILITIES_CAPITAL,
+               *_W_DOSSIER, *_W_REFINERY, *_W_DIAGRAM, *_W_OPPORTUNITIES]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

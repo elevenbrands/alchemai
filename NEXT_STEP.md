@@ -3,6 +3,8 @@
 Actualizado: 2026-11-16 (M26: plantas completas con precios sugeridos con fuente, 135 tools; antes M25, momento completo)
 
 ## Dónde estamos
+**M27 (2026-11-16): una pregunta → planta completa, 143 tools.** `process_dossier` (refinería de Tula u otras 6 de Pemex; plantas modelo) da explicación, rentabilidad, PFD con oportunidades y reporte (`docs/plantas/tula/`). Siguiente: (1) aprobación del owner de la pantalla Figma «08 Planta completa (dossier)» (nodo 12:832) y programarla en la app Mac (dibujar la escena JSON de `process_diagram` de forma nativa); (2) caso Laguna Verde (pendiente del owner); (3) bajar la desviación de diésel de Tula (+41.5 %) con rendimientos de FCC por conversión.
+
 **Pendiente pedido por el owner (2026-11-16):** caso «Planta nuclear Laguna Verde» (Alto Lucero, Veracruz; el owner la llamó «Laguna Azul») con el mismo formato de M27: explicación, rentabilidad, diagrama con oportunidades. Va después de Tula. Ojo: requiere un modelo de ciclo de vapor de BWR (no hay motor nuclear en el repo); datos públicos de CFE/CNSNS.
 
 **M26 (2026-11-16): plantas completas, 135 tools.** «Desarrolla una planta de X» ya da proceso, balances, equipos, inversión, costo de operación, flujo de caja, precio mínimo, sensibilidad, reporte y HAZOP preliminar, sugiriendo los datos económicos desde el banco con fuente (regla 31). Casos: `notebooks/26_planta_biodiesel_higuerilla.py` y `26_planta_etanol_cana.py`. Siguiente propuesto al owner: M27 «escáner de oportunidades desde datos de planta» (variables crudas del historiador o Excel → lista de oportunidades con su valor). App Mac: certificado Developer ID creado e importado 2026-11-16; falta reempaquetar el motor con M26, firmar, notarizar y probar el DMG.

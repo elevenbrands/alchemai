@@ -558,10 +558,10 @@ def test_tools_are_registered_with_spanish_descriptions():
     from packages.agent import agent as AG
     from packages.dwsim_client import tools as T
     names = [f.__name__ for f in T.TOOLS]
-    assert {"steam_system_diagnostic", "steam_diagnostic_report"} <= set(names) and len(T.TOOLS) == 136 and len(set(names)) == 136
+    assert {"steam_system_diagnostic", "steam_diagnostic_report"} <= set(names) and len(T.TOOLS) == 143 and len(set(names)) == 143
     for name in ("steam_system_diagnostic", "steam_diagnostic_report"):
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
-    assert len(AG.AGENT_TOOLS) == 136
+    assert len(AG.AGENT_TOOLS) == 143
     doc = TS.steam_system_diagnostic.__doc__
     assert "Ningún dato de la planta, precio, objetivo ni inversión se supone" in doc and "punto de rocío ácido NO se modela" in doc
     assert "no evaluada: falta el dato" in doc and "Tip Sheets #3, #4, #8, #9 y #10" in doc

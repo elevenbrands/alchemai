@@ -1,0 +1,32 @@
+{
+ "_doc": "Datos propios de la refinería Miguel Hidalgo (Tula) que NO están en el cuadro de capacidades de la eBDI. Los datos de proceso de crudo, producción y capacidades ajustadas viven en pemex_refineries.json. Leído el 2026-11-16.",
+ "refinery": "tula",
+ "name": "Refinería Miguel Hidalgo (Tula de Allende, Hidalgo)",
+ "operator": "Pemex Transformación Industrial",
+ "date_read": "2026-11-16",
+ "capacity_overrides_mbd": {
+  "coker": {
+   "value": 86.0,
+   "status": "arranque parcial",
+   "source": "Oil & Gas Journal, R. Brelsford, «Pemex lets contract for Tula refinery», 11-jun-2018 (planta de coquización retardada de 86,000 b/d del proyecto Aprovechamiento de Residuales)",
+   "url": "https://www.ogj.com/refining-processing/refining/operations/article/17232933/pemex-lets-contract-for-tula-refinery",
+   "source_tier": "secundaria",
+   "notes": "La eBDI 2025 registra '--' (sin coquizadora) para Tula. Expansión (12-may-2026) reporta, citando a Pemex, operación parcial desde junio-julio de 2025, 96.2 % de avance físico al cierre de 2025 (20-F) y unos 39 Mbd más de proceso de crudo atribuidos a la planta; Pemex prevé terminarla a finales de 2026. La producción publicada de coque de Tula sube de ~1.8 Mbd (2025 hasta julio) a ~9 Mbd desde agosto de 2025, consistente con esa operación parcial."
+  }
+ },
+ "project_status": [
+  {"what": "Proyecto Aprovechamiento de Residuales en la Refinería Miguel Hidalgo (fase I): planta de coquización; cinco plantas nuevas (hidrógeno, hidrodesulfuradoras de naftas y de diésel, isomerizadora de butanos, reformadora, alquilación y azufre) y modernización de seis plantas existentes; monto autorizado 88,900,865.5 miles de pesos (agosto de 2023).",
+   "source": "Auditoría Superior de la Federación, Informe Individual Cuenta Pública 2022, auditoría 2022-6-90T9M-22-0231-2023 (núm. 231)",
+   "url": "https://www.asf.gob.mx/Trans/Informes/IR2022b/Documentos/Auditorias/2022_0231_a.pdf"},
+  {"what": "Coquizadora: operación parcial desde junio-julio de 2025; 96.2 % de avance físico al cierre de 2025 según el 20-F de Pemex; terminación prevista a finales de 2026.",
+   "source": "Expansión, «Coquizadoras prometidas por AMLO siguen sin ver la luz», 12-may-2026",
+   "url": "https://expansion.mx/empresas/2026/05/12/coquizadoras-prometidas-amlo-siguen-sin-ver-luz-pemex"}
+ ],
+ "not_in_public_capacity_table": [
+  "Planta de hidrógeno (capacidad no publicada en la eBDI ni en las fuentes abiertas leídas).",
+  "Plantas de azufre (capacidad no publicada en las fuentes abiertas leídas).",
+  "Planta H-Oil de hidrodesintegración de residuos (citada por OGJ 2018; capacidad y estado actual no publicados en las fuentes leídas).",
+  "Reparto de la capacidad de «Alquilación e isomerización» (25.177 Mbd) entre alquilación e isomerización.",
+  "Reparto de la capacidad de hidrodesulfuración (249.35 Mbd) entre naftas, turbosina, diésel y gasolina catalítica."
+ ]
+}

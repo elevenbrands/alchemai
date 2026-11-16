@@ -544,7 +544,9 @@ def extract_results(bst, system, tea, feed, product, cost_basis: str, cepci: flo
                 "installed_cost_sum_vs_tea_relative_difference": abs(installed_bm - float(tea.installed_equipment_cost))
                 / float(tea.installed_equipment_cost) if lang is None and tea.installed_equipment_cost else None}
 
-    return {"streams": streams, "sections": section_rows,
+    from packages.diagram.adapters import biosteam_streams     # unit-to-unit topology, so the full PFD view is connected
+    internal = biosteam_streams(system)
+    return {"streams": streams, "internal_streams": internal, "sections": section_rows,
             "products": {"main_product": product.ID, "main_product_kg_h": float(product.F_mass),
                          "main_product_kg_y": product_kg_y, "feed": feed.ID, "feed_kg_h": float(feed.F_mass),
                          "product_per_feed_kg_kg": float(product.F_mass / feed.F_mass) if feed.F_mass > 0 else None,

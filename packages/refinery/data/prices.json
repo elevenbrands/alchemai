@@ -1,0 +1,63 @@
+{
+ "_doc": "Precios y referencias PUBLICADOS para proponer la economía de una refinería de Pemex cuando el usuario no da precios. Todo es suposición marcada que el usuario puede sustituir. Leídos el 2026-11-16. No se edita el banco de packages/costing (bloque M26); los que sí están allí (gas natural, tipo de cambio) se leen de él.",
+ "date_read": "2026-11-16",
+ "flag": "VALOR DE REFERENCIA PUBLICADO, NO TU COTIZACIÓN",
+ "crude": {
+  "_doc": "Precio promedio de exportación por tipo de crudo (US$/b), promedio simple de los meses publicados ene-sep 2026. Es el costo de oportunidad del crudo (lo que Pemex obtiene al exportarlo), no un precio de transferencia interno.",
+  "source": "Pemex eBDI, «Precio promedio de exportación de petróleo crudo» (cuadro INDI09), dólares por barril",
+  "url": "https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=INDI09",
+  "period": {"start": "2026-01-01", "end": "2026-09-30"},
+  "source_tier": "primaria",
+  "monthly_usd_bbl": {
+   "istmo": [57.829, 77.741, 88.739, 92.128, 94.168, 84.576, 82.930, 81.456, 92.938],
+   "maya": [55.695, 62.151, 88.770, 84.505, 86.979, 78.390, 80.122, 80.002, 85.957],
+   "olmeca": [null, 70.811, 93.900, 97.210, 85.906, 92.487, 85.492, 112.440, 104.362]
+  },
+  "notes": "Maya excluye crudo Altamira y Talam (nota a de Pemex). Olmeca de enero 2026 = N/D: el promedio usa 8 meses."
+ },
+ "products_domestic": {
+  "_doc": "Precio implícito = valor de las ventas internas / volumen de las ventas internas del Sistema Nacional de Refinación, ene-sep 2026 (suma de valores entre suma de volúmenes). Pemex anota que el valor no incluye fletes; no declara si excluye IEPS e IVA (la magnitud, cercana al precio del crudo, indica que son precios sin esos impuestos: inferencia nuestra).",
+  "source": "Pemex eBDI, «Valor de las ventas internas» (cuadro RVALORI, millones de pesos) y «Volumen de ventas internas» (cuadro RVOLVIN, metros cúbicos)",
+  "url": "https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=RVALORI",
+  "url_volume": "https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=RVOLVIN",
+  "period": {"start": "2026-01-01", "end": "2026-09-30"},
+  "source_tier": "primaria",
+  "items": {
+   "gasolina": {"value_mmxn": 424819.532, "volume_m3": 31958585.801, "row": "Gasolinas (Pemex Magna + Pemex Premium + gasaviones)"},
+   "turbosina": {"value_mmxn": 67872.588, "volume_m3": 4118869.295, "row": "Turbosina"},
+   "diesel": {"value_mmxn": 242100.309, "volume_m3": 14143601.499, "row": "Diesel (todas las calidades)"},
+   "combustoleo": {"value_mmxn": 16016.425, "volume_m3": 2538083.223, "row": "Combustóleo (pesado + intermedios)"},
+   "asfalto": {"value_mmxn": 5919.244, "volume_m3": 625623.058, "row": "Asfaltos"},
+   "coque": {"value_mmxn": 2384.313, "volume_m3": 2073433.001, "row": "Coque (Pemex lo mide en volumen; no publica su densidad)"}
+  }
+ },
+ "lpg": {
+  "item": "gas licuado (propano Mont Belvieu como referencia)",
+  "monthly_usd_gal": [0.622, 0.614, 0.727, 0.766, 0.830, 0.755, 0.703, 0.688, 0.848],
+  "period": {"start": "2026-01-01", "end": "2026-09-30"},
+  "source": "U.S. EIA, Mont Belvieu, TX Propane Spot Price FOB, mensual (serie EER_EPLLPA_PF4_Y44MB_DPG)",
+  "url": "https://www.eia.gov/dnav/pet/hist_xls/EER_EPLLPA_PF4_Y44MB_DPGm.xls",
+  "source_tier": "primaria",
+  "notes": "Precio spot de propano en la Costa del Golfo de EE. UU.: el gas licuado de la refinería es mezcla propano-butano; no hay precio interno de Pemex en el cuadro de ventas del SNR."
+ },
+ "fixed_cost_benchmark": {
+  "item": "gastos de operación de refinación sin depreciación (Valero, región Costa del Golfo de EE. UU.)",
+  "value": 4.86, "unit": "USD/bbl", "period": {"start": "2026-07-01", "end": "2026-09-30"},
+  "consolidated_value": 5.03,
+  "source": "Valero Energy Corp., Form 8-K, Exhibit 99.01, resultados del tercer trimestre de 2026, tabla de la región U.S. Gulf Coast (operating expenses excluding depreciation and amortization per barrel of throughput)",
+  "url": "https://www.sec.gov/Archives/edgar/data/0001035002/000162828026066795/a9302026exh9901earningsrel.htm",
+  "source_tier": "primaria",
+  "notes": "Referencia de un operador estadounidense grande; la tabla no declara si incluye el gas natural (energía). Pemex no publica su costo operativo por barril por refinería en las fuentes leídas."
+ },
+ "benchmarks": {
+  "pemex_variable_refining_margin_2025": {"value": 12.0, "unit": "USD/bbl", "scope": "Sistema Nacional de Refinación, promedio anual 2025",
+   "source": "Pemex, Comunicado No. 9, 12-feb-2026 (publicado en BMV)", "url": "https://www.bmv.com.mx/docs-pub/eventemi/eventemi_1533128_1.pdf"},
+  "pemex_refining_co2_target_2026": {"value": 38.7, "unit": "t CO2e por mil barriles procesados", "scope": "meta 2026 del indicador de emisiones del Sistema de Refinación",
+   "source": "Pemex, Comunicado No. 17, 5-mar-2026 (publicado en BMV)", "url": "https://www.bmv.com.mx/docs-pub/eventemi/eventemi_1539497_1.pdf"}
+ },
+ "not_found": [
+  {"item": "azufre", "why": "No se abrió hoy un precio publicado y fechado de azufre aplicable a México; no se valora."},
+  {"item": "densidad del coque de Pemex", "why": "Pemex publica coque en barriles y m3 sin densidad; sin ella no se convierte la masa modelada de coque a volumen para valorarla al precio por m3."},
+  {"item": "costo operativo de Pemex por barril por refinería", "why": "No está en la eBDI ni en los comunicados leídos; se usa la referencia de Valero marcada."}
+ ]
+}

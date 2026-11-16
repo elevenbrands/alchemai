@@ -1,0 +1,926 @@
+{
+ "_doc": "Datos PUBLICADOS por Pemex en su Base de Datos Institucional (eBDI), leídos el 2026-11-16. Nada se rellenó: N/D o '--' de la fuente quedan como null. Los promedios de periodos de 2026 son ponderados por días de los meses publicados (el método reproduce el acumulado oficial ene-sep 2026 de Tula, 221.583 Mbd).",
+ "date_read": "2026-11-16",
+ "sources": {
+  "capacity": {
+   "title": "Pemex eBDI, Anuario Estadístico, «Capacidad ajustada de proceso por refinería» (cuadro AEPSTRI5A), año 2025, miles de barriles diarios",
+   "url": "https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=AEPSTRI5A",
+   "notes": "Nota (b) de Pemex: a partir de 2024 la capacidad tiene ajustes por reconfiguración, revamps, calidad de productos e infraestructura. '--' en coquización = sin coquizadora registrada en el cuadro."
+  },
+  "crude": {
+   "title": "Pemex eBDI, «Proceso de petróleo crudo y líquidos por refinería» (cuadro RPROREF), miles de barriles diarios, mensual ene-sep 2026 y anual 2024-2025",
+   "url": "https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=RPROREF"
+  },
+  "products": {
+   "title": "Pemex eBDI, «Elaboración de productos petrolíferos por refinería» (cuadro REPETRE), miles de barriles diarios (gas seco en miles de barriles de petróleo crudo equivalente diarios), mensual ene-sep 2026 y anual 2024-2025",
+   "url": "https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=REPETRE",
+   "notes": "Gas licuado excluye la mezcla de butanos (contada en los Complejos Procesadores de Gas). 'turbosina' = renglón «Querosenos». 'combustoleo' incluye transferencias de despuntado de La Cangrejera."
+  }
+ },
+ "crude_type_names": {
+  "pesado": "Pesado (Maya)",
+  "ligero": "Ligero (Istmo)",
+  "superligero": "Superligero (Olmeca)",
+  "reconstituido": "Reconstituido",
+  "otras_corrientes": "Otras corrientes (gasolina de Madero)",
+  "liquidos": "Líquidos"
+ },
+ "refineries": {
+  "cadereyta": {
+   "name": "Refinería Ing. Héctor R. Lara Sosa (Cadereyta, Nuevo León)",
+   "capacity_mbd_2025": {
+    "cdu": 220.0,
+    "vdu": 123.9,
+    "fcc": 90.0,
+    "visbreaker": 0.0,
+    "reformer": 46.0,
+    "hds_total": 229.0,
+    "alkylation_isomerization": 23.0,
+    "coker": 50.0
+   },
+   "periods": {
+    "2026-01/2026-06": {
+     "crude_mbd": {
+      "total": 162.513,
+      "pesado": 66.938,
+      "ligero": 95.575,
+      "superligero": 0.0,
+      "otras_corrientes": 0.0,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 157.395,
+      "gas_seco_mbpce": 7.096,
+      "gas_licuado": 1.409,
+      "gasolinas": 55.034,
+      "turbosina": 0.0,
+      "diesel": 45.953,
+      "combustoleo": 34.656,
+      "asfaltos": 3.448,
+      "lubricantes": null,
+      "coque": 9.797,
+      "otros": 0.0
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2026-01/2026-09": {
+     "crude_mbd": {
+      "total": 161.306,
+      "pesado": 63.054,
+      "ligero": 98.253,
+      "superligero": 0.0,
+      "otras_corrientes": 0.0,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 157.268,
+      "gas_seco_mbpce": 7.382,
+      "gas_licuado": 1.499,
+      "gasolinas": 55.04,
+      "turbosina": 0.0,
+      "diesel": 46.968,
+      "combustoleo": 32.653,
+      "asfaltos": 3.489,
+      "lubricantes": null,
+      "coque": 10.237,
+      "otros": 0.0
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2024": {
+     "crude_mbd": {
+      "total": 142.958,
+      "pesado": 72.075,
+      "ligero": 70.883,
+      "superligero": 0.0,
+      "otras_corrientes": 0.0,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 143.203,
+      "gas_seco_mbpce": 7.334,
+      "gas_licuado": 1.807,
+      "gasolinas": 55.307,
+      "turbosina": 0.0,
+      "diesel": 40.184,
+      "combustoleo": 24.964,
+      "asfaltos": 2.354,
+      "lubricantes": null,
+      "coque": 11.252,
+      "otros": 0.0
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    },
+    "2025": {
+     "crude_mbd": {
+      "total": 146.547,
+      "pesado": 69.959,
+      "ligero": 76.589,
+      "superligero": 0.0,
+      "otras_corrientes": 0.0,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 144.109,
+      "gas_seco_mbpce": 7.356,
+      "gas_licuado": 1.147,
+      "gasolinas": 52.656,
+      "turbosina": 0.0,
+      "diesel": 42.886,
+      "combustoleo": 27.621,
+      "asfaltos": 1.933,
+      "lubricantes": null,
+      "coque": 10.51,
+      "otros": 0.0
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    }
+   }
+  },
+  "madero": {
+   "name": "Refinería Francisco I. Madero (Ciudad Madero, Tamaulipas)",
+   "capacity_mbd_2025": {
+    "cdu": 177.0,
+    "vdu": 91.3,
+    "fcc": 60.5,
+    "visbreaker": null,
+    "reformer": 30.0,
+    "hds_total": 181.7,
+    "alkylation_isomerization": 22.1,
+    "coker": 50.0
+   },
+   "periods": {
+    "2026-01/2026-06": {
+     "crude_mbd": {
+      "total": 105.735,
+      "pesado": 105.156,
+      "ligero": 0.579,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 110.472,
+      "gas_seco_mbpce": 11.231,
+      "gas_licuado": 0.0,
+      "gasolinas": 30.146,
+      "turbosina": 4.229,
+      "diesel": 29.037,
+      "combustoleo": 14.821,
+      "asfaltos": 0.0,
+      "lubricantes": null,
+      "coque": 11.833,
+      "otros": 9.177
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2026-01/2026-09": {
+     "crude_mbd": {
+      "total": 105.71,
+      "pesado": 105.326,
+      "ligero": 0.384,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 109.819,
+      "gas_seco_mbpce": 11.697,
+      "gas_licuado": 0.0,
+      "gasolinas": 29.988,
+      "turbosina": 2.804,
+      "diesel": 28.399,
+      "combustoleo": 14.627,
+      "asfaltos": 0.0,
+      "lubricantes": null,
+      "coque": 11.798,
+      "otros": 10.506
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2024": {
+     "crude_mbd": {
+      "total": 112.841,
+      "pesado": 108.667,
+      "ligero": 4.174,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 108.49,
+      "gas_seco_mbpce": 9.113,
+      "gas_licuado": 0.051,
+      "gasolinas": 28.229,
+      "turbosina": 1.941,
+      "diesel": 21.562,
+      "combustoleo": 35.072,
+      "asfaltos": 0.0,
+      "lubricantes": null,
+      "coque": 9.434,
+      "otros": 3.089
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    },
+    "2025": {
+     "crude_mbd": {
+      "total": 99.768,
+      "pesado": 99.768,
+      "ligero": 0.0,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 100.306,
+      "gas_seco_mbpce": 8.821,
+      "gas_licuado": 0.02,
+      "gasolinas": 27.91,
+      "turbosina": 4.722,
+      "diesel": 19.031,
+      "combustoleo": 8.715,
+      "asfaltos": 0.0,
+      "lubricantes": null,
+      "coque": 11.726,
+      "otros": 19.36
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    }
+   }
+  },
+  "minatitlan": {
+   "name": "Refinería Gral. Lázaro Cárdenas (Minatitlán, Veracruz)",
+   "capacity_mbd_2025": {
+    "cdu": 198.0,
+    "vdu": 129.0,
+    "fcc": 72.0,
+    "visbreaker": null,
+    "reformer": 49.0,
+    "hds_total": 213.4,
+    "alkylation_isomerization": 41.8,
+    "coker": 55.794
+   },
+   "periods": {
+    "2026-01/2026-06": {
+     "crude_mbd": {
+      "total": 98.746,
+      "pesado": 87.841,
+      "ligero": 10.905,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 116.853,
+      "gas_seco_mbpce": 8.814,
+      "gas_licuado": 0.595,
+      "gasolinas": 37.802,
+      "turbosina": 0.0,
+      "diesel": 29.443,
+      "combustoleo": 10.886,
+      "asfaltos": null,
+      "lubricantes": 0.0,
+      "coque": 11.174,
+      "otros": 18.139
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2026-01/2026-09": {
+     "crude_mbd": {
+      "total": 105.562,
+      "pesado": 88.141,
+      "ligero": 17.421,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 117.481,
+      "gas_seco_mbpce": 8.696,
+      "gas_licuado": 0.568,
+      "gasolinas": 36.823,
+      "turbosina": 0.152,
+      "diesel": 29.533,
+      "combustoleo": 13.749,
+      "asfaltos": null,
+      "lubricantes": 0.0,
+      "coque": 11.26,
+      "otros": 16.701
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2024": {
+     "crude_mbd": {
+      "total": 123.516,
+      "pesado": 98.098,
+      "ligero": 25.418,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 137.809,
+      "gas_seco_mbpce": 11.165,
+      "gas_licuado": 0.566,
+      "gasolinas": 41.05,
+      "turbosina": 0.0,
+      "diesel": 33.468,
+      "combustoleo": 33.348,
+      "asfaltos": null,
+      "lubricantes": 0.0,
+      "coque": 10.609,
+      "otros": 7.605
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    },
+    "2025": {
+     "crude_mbd": {
+      "total": 101.893,
+      "pesado": 101.893,
+      "ligero": 0.0,
+      "superligero": 0.0,
+      "reconstituido": 0.0,
+      "liquidos": null
+     },
+     "products_mbd": {
+      "total": 118.66,
+      "gas_seco_mbpce": 11.321,
+      "gas_licuado": 1.096,
+      "gasolinas": 42.776,
+      "turbosina": 0.0,
+      "diesel": 26.956,
+      "combustoleo": 14.317,
+      "asfaltos": null,
+      "lubricantes": 0.0,
+      "coque": 10.997,
+      "otros": 11.197
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    }
+   }
+  },
+  "salamanca": {
+   "name": "Refinería Ing. Antonio M. Amor (Salamanca, Guanajuato)",
+   "capacity_mbd_2025": {
+    "cdu": 225.0,
+    "vdu": 119.0,
+    "fcc": 40.0,
+    "visbreaker": null,
+    "reformer": 39.3,
+    "hds_total": 141.5,
+    "alkylation_isomerization": 14.34,
+    "coker": null
+   },
+   "periods": {
+    "2026-01/2026-06": {
+     "crude_mbd": {
+      "total": 108.484,
+      "pesado": 24.763,
+      "ligero": 57.591,
+      "superligero": 26.131,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 101.267,
+      "gas_seco_mbpce": 4.926,
+      "gas_licuado": 0.706,
+      "gasolinas": 33.912,
+      "turbosina": 6.744,
+      "diesel": 22.309,
+      "combustoleo": 25.082,
+      "asfaltos": 7.059,
+      "lubricantes": 0.045,
+      "coque": 0.473,
+      "otros": 0.011
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2026-01/2026-09": {
+     "crude_mbd": {
+      "total": 122.566,
+      "pesado": 29.891,
+      "ligero": 65.183,
+      "superligero": 27.491,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 115.781,
+      "gas_seco_mbpce": 6.187,
+      "gas_licuado": 0.921,
+      "gasolinas": 39.63,
+      "turbosina": 7.136,
+      "diesel": 25.076,
+      "combustoleo": 27.404,
+      "asfaltos": 8.659,
+      "lubricantes": 0.03,
+      "coque": 0.73,
+      "otros": 0.007
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2024": {
+     "crude_mbd": {
+      "total": 128.156,
+      "pesado": 29.437,
+      "ligero": 81.608,
+      "superligero": 17.111,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 123.039,
+      "gas_seco_mbpce": 5.753,
+      "gas_licuado": 1.353,
+      "gasolinas": 38.925,
+      "turbosina": 7.436,
+      "diesel": 24.253,
+      "combustoleo": 36.681,
+      "asfaltos": 7.889,
+      "lubricantes": 0.038,
+      "coque": 0.696,
+      "otros": 0.014
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    },
+    "2025": {
+     "crude_mbd": {
+      "total": 117.712,
+      "pesado": 26.862,
+      "ligero": 69.353,
+      "superligero": 21.497,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 113.958,
+      "gas_seco_mbpce": 6.969,
+      "gas_licuado": 1.008,
+      "gasolinas": 39.377,
+      "turbosina": 7.719,
+      "diesel": 21.5,
+      "combustoleo": 28.299,
+      "asfaltos": 8.267,
+      "lubricantes": 0.065,
+      "coque": 0.681,
+      "otros": 0.073
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    }
+   }
+  },
+  "salina_cruz": {
+   "name": "Refinería Ing. Antonio Dovalí Jaime (Salina Cruz, Oaxaca)",
+   "capacity_mbd_2025": {
+    "cdu": 275.0,
+    "vdu": 165.0,
+    "fcc": 80.0,
+    "visbreaker": 50.0,
+    "reformer": 50.0,
+    "hds_total": 215.0,
+    "alkylation_isomerization": 27.6,
+    "coker": null
+   },
+   "periods": {
+    "2026-01/2026-06": {
+     "crude_mbd": {
+      "total": 179.176,
+      "pesado": 49.387,
+      "ligero": 129.789,
+      "superligero": 0.0,
+      "reconstituido": 3.059
+     },
+     "products_mbd": {
+      "total": 187.381,
+      "gas_seco_mbpce": 17.614,
+      "gas_licuado": 0.491,
+      "gasolinas": 60.221,
+      "turbosina": 13.956,
+      "diesel": 27.177,
+      "combustoleo": 66.609,
+      "asfaltos": 0.0,
+      "lubricantes": null,
+      "coque": 1.314,
+      "otros": 0.0
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2026-01/2026-09": {
+     "crude_mbd": {
+      "total": 190.071,
+      "pesado": 50.033,
+      "ligero": 140.038,
+      "superligero": 0.0,
+      "reconstituido": 3.533
+     },
+     "products_mbd": {
+      "total": 196.451,
+      "gas_seco_mbpce": 19.041,
+      "gas_licuado": 0.528,
+      "gasolinas": 62.993,
+      "turbosina": 13.477,
+      "diesel": 27.026,
+      "combustoleo": 71.959,
+      "asfaltos": 0.0,
+      "lubricantes": null,
+      "coque": 1.427,
+      "otros": 0.0
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2024": {
+     "crude_mbd": {
+      "total": 198.741,
+      "pesado": 66.863,
+      "ligero": 131.878,
+      "superligero": 0.0,
+      "reconstituido": 3.981
+     },
+     "products_mbd": {
+      "total": 204.752,
+      "gas_seco_mbpce": 20.309,
+      "gas_licuado": 0.81,
+      "gasolinas": 63.249,
+      "turbosina": 10.2,
+      "diesel": 22.886,
+      "combustoleo": 85.886,
+      "asfaltos": 0.029,
+      "lubricantes": null,
+      "coque": 1.382,
+      "otros": 0.0
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    },
+    "2025": {
+     "crude_mbd": {
+      "total": 201.271,
+      "pesado": 61.175,
+      "ligero": 139.959,
+      "superligero": 0.0,
+      "reconstituido": 4.39
+     },
+     "products_mbd": {
+      "total": 207.157,
+      "gas_seco_mbpce": 22.844,
+      "gas_licuado": 0.396,
+      "gasolinas": 64.4,
+      "turbosina": 11.772,
+      "diesel": 26.891,
+      "combustoleo": 79.297,
+      "asfaltos": 0.0,
+      "lubricantes": null,
+      "coque": 1.557,
+      "otros": 0.0
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    }
+   }
+  },
+  "tula": {
+   "name": "Refinería Miguel Hidalgo (Tula de Allende, Hidalgo)",
+   "capacity_mbd_2025": {
+    "cdu": 315.0,
+    "vdu": 144.0,
+    "fcc": 80.0,
+    "visbreaker": 45.0,
+    "reformer": 65.0,
+    "hds_total": 249.35,
+    "alkylation_isomerization": 25.177,
+    "coker": null
+   },
+   "periods": {
+    "2026-01/2026-06": {
+     "crude_mbd": {
+      "total": 247.605,
+      "pesado": 60.001,
+      "ligero": 115.833,
+      "superligero": 71.772,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 228.08,
+      "gas_seco_mbpce": 8.773,
+      "gas_licuado": 12.59,
+      "gasolinas": 99.956,
+      "turbosina": 23.592,
+      "diesel": 46.161,
+      "combustoleo": 23.748,
+      "asfaltos": 3.836,
+      "lubricantes": null,
+      "coque": 9.425,
+      "otros": null
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2026-01/2026-09": {
+     "crude_mbd": {
+      "total": 221.583,
+      "pesado": 49.737,
+      "ligero": 96.677,
+      "superligero": 75.169,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 205.961,
+      "gas_seco_mbpce": 9.157,
+      "gas_licuado": 11.298,
+      "gasolinas": 89.831,
+      "turbosina": 20.908,
+      "diesel": 41.552,
+      "combustoleo": 21.307,
+      "asfaltos": 2.882,
+      "lubricantes": null,
+      "coque": 9.025,
+      "otros": null
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2024": {
+     "crude_mbd": {
+      "total": 175.974,
+      "pesado": 41.154,
+      "ligero": 87.455,
+      "superligero": 47.366,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 179.499,
+      "gas_seco_mbpce": 9.191,
+      "gas_licuado": 8.608,
+      "gasolinas": 60.003,
+      "turbosina": 13.948,
+      "diesel": 27.512,
+      "combustoleo": 55.463,
+      "asfaltos": 3.037,
+      "lubricantes": null,
+      "coque": 1.737,
+      "otros": null
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    },
+    "2025": {
+     "crude_mbd": {
+      "total": 212.244,
+      "pesado": 43.0,
+      "ligero": 108.905,
+      "superligero": 60.338,
+      "reconstituido": 0.0
+     },
+     "products_mbd": {
+      "total": 212.31,
+      "gas_seco_mbpce": 10.745,
+      "gas_licuado": 10.675,
+      "gasolinas": 78.516,
+      "turbosina": 18.958,
+      "diesel": 36.352,
+      "combustoleo": 49.962,
+      "asfaltos": 2.741,
+      "lubricantes": null,
+      "coque": 4.362,
+      "otros": null
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    }
+   }
+  },
+  "dos_bocas": {
+   "name": "Refinería Olmeca (Dos Bocas, Paraíso, Tabasco)",
+   "capacity_mbd_2025": {
+    "cdu": 340.0,
+    "vdu": 176.28,
+    "fcc": 94.0,
+    "visbreaker": null,
+    "reformer": 82.0,
+    "hds_total": 350.0,
+    "alkylation_isomerization": 48.1,
+    "coker": 130.0
+   },
+   "periods": {
+    "2026-01/2026-06": {
+     "crude_mbd": {
+      "total": 171.672,
+      "pesado": 171.672
+     },
+     "products_mbd": {
+      "total": 173.891,
+      "gas_seco_mbpce": 11.021,
+      "gas_licuado": 1.49,
+      "gasolinas": 64.541,
+      "turbosina": null,
+      "diesel": 70.141,
+      "combustoleo": null,
+      "asfaltos": null,
+      "lubricantes": null,
+      "coque": 26.699,
+      "otros": null
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2026-01/2026-09": {
+     "crude_mbd": {
+      "total": 190.331,
+      "pesado": 190.331
+     },
+     "products_mbd": {
+      "total": 198.362,
+      "gas_seco_mbpce": 12.457,
+      "gas_licuado": 1.609,
+      "gasolinas": 76.758,
+      "turbosina": null,
+      "diesel": 78.203,
+      "combustoleo": null,
+      "asfaltos": null,
+      "lubricantes": null,
+      "coque": 29.336,
+      "otros": null
+     },
+     "months": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09"
+     ],
+     "averaging": "promedio ponderado por días de los meses publicados"
+    },
+    "2024": {
+     "crude_mbd": {
+      "total": 23.42,
+      "pesado": 23.42
+     },
+     "products_mbd": {
+      "total": 17.216,
+      "gas_seco_mbpce": null,
+      "gas_licuado": 0.014,
+      "gasolinas": 3.089,
+      "turbosina": 0.0,
+      "diesel": 10.11,
+      "combustoleo": null,
+      "asfaltos": null,
+      "lubricantes": null,
+      "coque": 4.003,
+      "otros": null
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    },
+    "2025": {
+     "crude_mbd": {
+      "total": 134.382,
+      "pesado": 134.382
+     },
+     "products_mbd": {
+      "total": 123.505,
+      "gas_seco_mbpce": null,
+      "gas_licuado": 1.478,
+      "gasolinas": 49.983,
+      "turbosina": null,
+      "diesel": 54.187,
+      "combustoleo": null,
+      "asfaltos": null,
+      "lubricantes": null,
+      "coque": 17.856,
+      "otros": null
+     },
+     "months": "anual",
+     "averaging": "valor anual publicado"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "_doc": "Vectores de rendimiento por unidad, distribución de azufre, especificaciones e intensidades energéticas, todos de fuentes abiertas leídas el 2026-11-16. Son ejemplos resueltos publicados a UNAS condiciones (conversión, octano, CCR); el modelo los aplica como vectores fijos de planeación, no como cinética.",
+ "date_read": "2026-11-16",
+ "fcc": {
+  "source": "J. Jechura, «Catalytic Cracking», CBEN 409 Petroleum Refining Processes, Colorado School of Mines, lámina 16 «FCCU Yield Example» (correlaciones de Gary et al.), actualizada 1-jul-2019",
+  "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_07_Catalytic_Cracking.pdf",
+  "conditions": {"conversion_vol_pct": 72.0, "feed_api": 25.0, "feed_sg": 0.9042, "feed_watson_k": 12.0, "feed_sulfur_wt": 0.50, "feed_bpd": 25000},
+  "products": {
+   "light_gases": {"wt_pct": 4.93, "sg": null, "route": "fuel_gas", "label_es": "Gases ligeros C2- (incluye H2S)"},
+   "propane": {"vol_pct": 2.56, "wt_pct": 1.43, "sg": 0.5070, "route": "lpg"},
+   "propylene": {"vol_pct": 5.80, "wt_pct": 3.34, "sg": 0.5210, "route": "olefin"},
+   "isobutane": {"vol_pct": 5.59, "wt_pct": 3.48, "sg": 0.5629, "route": "isobutane"},
+   "n_butane": {"vol_pct": 1.96, "wt_pct": 1.27, "sg": 0.5840, "route": "lpg"},
+   "butylenes": {"vol_pct": 7.61, "wt_pct": 5.06, "sg": 0.6013, "route": "olefin"},
+   "gasoline": {"vol_pct": 57.05, "wt_pct": 47.15, "sg": 0.7473, "route": "gasoline"},
+   "lco": {"vol_pct": 21.20, "wt_pct": 20.60, "sg": 0.8786, "route": "diesel"},
+   "hco": {"vol_pct": 6.80, "wt_pct": 7.84, "sg": 1.0425, "route": "fuel_oil"},
+   "coke": {"wt_pct": 4.90, "sg": null, "route": "burned"}
+  },
+  "sulfur_recovery_pct": {"light_gases": 38.4, "gasoline": 5.3, "lco": 17.7, "hco": 13.4, "coke": 25.3}
+ },
+ "reformer": {
+  "source": "J. Jechura, «Gasoline Upgrading: Reforming, Isomerization, & Alkylation», CBEN 409, Colorado School of Mines, lámina 13 «Reformer Yield Example», actualizada 3-jul-2019",
+  "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_09_Gasoline_Upgrading.pdf",
+  "conditions": {"target_ron": 98.0, "feed_bpd": 30000, "feed_api": 51.7, "feed_sg": 0.7724, "feed_watson_k": 11.8, "feed_sulfur_wt": 0.1},
+  "lb_per_day": {"h2s": 8625, "h2": 252887, "c1_c2": 199660, "c3": 265569, "isobutane": 163755, "n_butane": 239488, "c5plus": 6983748},
+  "feed_lb_per_day": 8113733,
+  "vol_pct": {"c3": null, "isobutane": 2.77, "n_butane": 3.90, "c5plus": 80.88},
+  "sg": {"c3": 0.5070, "isobutane": 0.5629, "n_butane": 0.5840, "c5plus": 0.8219},
+  "notes": "El H2S del ejemplo viene del 0.1 % de azufre de su carga; en el modelo la nafta llega hidrotratada y el H2S se excluye renormalizando el resto."
+ },
+ "coker": {
+  "source": "J. Jechura, «Coking», CBEN 409, Colorado School of Mines, lámina 14 «Yield Estimation — Coker Calculations Using Gary et al. Correlations», actualizada 1-jul-2019",
+  "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_06_Coking.pdf",
+  "conditions": {"feed_bpd": 40000, "feed_sg": 1.0679, "feed_api": 1.0, "feed_ccr_wt": 29.3, "feed_sulfur_wt": 6.47},
+  "wt_pct": {"gas": 12.02, "coker_gasoline": 21.34, "coker_gas_oil": 19.76, "coke": 46.88},
+  "vol_pct": {"coker_gasoline": 30.04, "coker_gas_oil": 23.19},
+  "sg": {"coker_gasoline": 0.7587, "coker_gas_oil": 0.9100},
+  "gas_lb_per_day": {"methane": 560661, "ethene": 28611, "ethane": 325075, "propene": 88696, "propane": 245853, "butenes": 91557,
+                     "isobutane": 39519, "n_butane": 102750, "h2": 524, "co2": 5985, "h2s": 308586},
+  "sulfur_distribution_pct": {"gas": 30.0, "light_naphtha": 1.7, "heavy_naphtha": 3.3, "lcgo": 15.4, "hcgo": 19.6, "coke": 30.0},
+  "coke_over_ccr": "46.88/29.3 = 1.6000: el coque del ejemplo es exactamente 1.6 veces el CCR de la carga; el modelo escala el coque con el CCR de su carga y reparte el resto en las proporciones del ejemplo (supuesto marcado)."
+ },
+ "alkylation": {
+  "source": "J. Jechura, «Gasoline Upgrading», CBEN 409, Colorado School of Mines, lámina 52 «Phillips Alkylation Process Mass Balance» (de Gary, Handwerk & Kaiser, 5.ª ed., 2007)",
+  "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_09_Gasoline_Upgrading.pdf",
+  "mass": {"olefin_feed_propylene": 21.04, "olefin_feed_butenes": 169.10, "isobutane_in_olefin_feed": 191.81, "isobutane_in_saturated_butanes": 13.48,
+           "isobutane_out_propane": 0.34, "isobutane_out_butane": 3.13, "isobutane_out_alkylate": 0.19, "alkylate": 390.17, "acid_oils": 0.55,
+           "stream_totals": 492.24},
+  "alkylate_sg": 0.70,
+  "alkylate_ron_clear": 95.0
+ },
+ "isomerization": {"liquid_yield_wt_pct": 97, "source": "J. Jechura, «Gasoline Upgrading», CBEN 409, lámina de isomerización («Typically 97 wt% yield of fresh feed»)", "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_09_Gasoline_Upgrading.pdf", "used": false},
+ "product_sulfur_specs_mg_kg": {
+  "source": "NOM-016-CRE-2016, Especificaciones de calidad de los petrolíferos, DOF 29-ago-2016, Tablas 6 (gasolinas), 7 (diésel), 8 (turbosina) y 9 (combustóleo)",
+  "url": "https://dof.gob.mx/nota_detalle.php?codigo=5450011&fecha=29/08/2016",
+  "gasoline_avg": 30, "gasoline_max_lot": 80, "diesel_uba_max": 15, "jet_max": 3000, "fuel_oil_max_wt_pct": 4.4, "fuel_oil_max_wt_pct_corridors": 2.0
+ },
+ "energy_intensity_btu_bbl": {
+  "source": "U.S. DOE AMO, «Bandwidth Study on Energy Use and Potential Energy Saving Opportunities in U.S. Petroleum Refining», 2015, Tabla 4-2 (energía en sitio, consumo típico actual 2010)",
+  "url": "https://www.energy.gov/sites/default/files/2015/08/f26/petroleum_refining_bandwidth_report.pdf",
+  "basis": "Btu por barril de carga; alquilación e isomerización por barril de producto. Incluye combustible, vapor y electricidad en sitio.",
+  "values": {"cdu": 109100, "vdu": 89100, "fcc": 182800, "reformer": 263900, "hydrotreating": 80800, "coking_visbreaking": 147700,
+             "alkylation": 246700, "isomerization": 216000, "hydrocracking": 158900},
+  "coverage_of_sector_onsite_energy": 0.68,
+  "coverage_note": "Los nueve procesos estudiados suman 68 % del consumo de energía en sitio del sector de refinación de EE. UU. (2010)."
+ }
+}
