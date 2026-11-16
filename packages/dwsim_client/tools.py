@@ -452,6 +452,13 @@ from packages.dwsim_client.tools_dynamic_flowsheet import DYNAMIC_FLOWSHEET_TOOL
 from packages.dwsim_client.tools_advanced_control import ADVANCED_CONTROL_TOOLS  # noqa: E402  (bloque M24)
 from packages.dwsim_client.tools_particles import PARTICLES_TOOLS  # noqa: E402  (bloque M25)
 from packages.dwsim_client.tools_momentum import MOMENTUM_TOOLS  # noqa: E402  (bloque M25)
+from packages.dwsim_client.tools_reference_prices import REFERENCE_PRICES_TOOLS  # noqa: E402  (bloque M26)
+from packages.dwsim_client.tools_liquid_equipment import LIQUID_EQUIPMENT_TOOLS  # noqa: E402  (bloque M26)
+from packages.dwsim_client.tools_batch import BATCH_TOOLS  # noqa: E402  (bloque M26)
+from packages.dwsim_client.tools_solids_handling import SOLIDS_HANDLING_TOOLS  # noqa: E402  (bloque M26)
+from packages.dwsim_client.tools_utilities_capital import UTILITIES_CAPITAL_TOOLS  # noqa: E402  (bloque M26)
+from packages.dwsim_client.tools_plants import PLANTS_TOOLS  # noqa: E402  (bloque M26)
+from packages.dwsim_client.tools_plant_economics import PLANT_ECONOMICS_TOOLS  # noqa: E402  (bloque M26)
 from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
@@ -466,4 +473,6 @@ from packages.vle.tool import vle_binary_regression  # noqa: E402
 TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_stream, define_conversion_reaction,
          define_equilibrium_reaction, define_kinetic_reaction, add_unit, connect, dof_check, solve, read_stream, read_unit,
          *SWEEP_TOOLS, *TRANSPORT_TOOLS, *FLOW_TOOLS, *HEAT_TOOLS, *ENERGY_TOOLS, *COSTING_TOOLS, *ECONOMICS_TOOLS, *UTILITIES_TOOLS, *COMBUSTION_TOOLS, *STEAM_TOOLS, *OPTIMIZE_TOOLS, *MASS_TRANSFER_TOOLS, *KINETICS_TOOLS, *CONTROL_TOOLS, hazop_preliminary, export_flowsheet, hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion, fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet,
-         *PROPERTIES_TOOLS, *CATALYSIS_TOOLS, *SOLID_DIFFUSION_TOOLS, *SOLIDS_TOOLS, *SEPARATIONS_TOOLS, *DYNAMIC_TOOLS, *DYNAMIC_FLOWSHEET_TOOLS, *ADVANCED_CONTROL_TOOLS, *PARTICLES_TOOLS, *MOMENTUM_TOOLS]
+         *PROPERTIES_TOOLS, *CATALYSIS_TOOLS, *SOLID_DIFFUSION_TOOLS, *SOLIDS_TOOLS, *SEPARATIONS_TOOLS, *DYNAMIC_TOOLS, *DYNAMIC_FLOWSHEET_TOOLS, *ADVANCED_CONTROL_TOOLS, *PARTICLES_TOOLS, *MOMENTUM_TOOLS,
+         *REFERENCE_PRICES_TOOLS, *PLANT_ECONOMICS_TOOLS, *PLANTS_TOOLS, *LIQUID_EQUIPMENT_TOOLS, *BATCH_TOOLS,
+         *SOLIDS_HANDLING_TOOLS, *UTILITIES_CAPITAL_TOOLS]

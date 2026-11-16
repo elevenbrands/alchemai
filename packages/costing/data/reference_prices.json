@@ -1,0 +1,1905 @@
+{
+ "version": "2026-11-16",
+ "description": "Valores de referencia PUBLICADOS (precios de materias primas y productos, servicios, mano de obra, parámetros fiscales y financieros, base de diseño) para un primer cuadro económico de una planta en México, con EE. UU. y el mundo como respaldo. Cada valor se abrió en su URL en la fecha `date_read`. Son referencias, nunca la cotización del usuario.",
+ "fx_entry_id": "fx_fix_mxn_usd",
+ "delegated_to_utility_bank": [
+  "natural gas",
+  "electricity"
+ ],
+ "entries": [
+  {
+   "id": "castor_oil_world",
+   "item": "aceite de ricino (higuerilla)",
+   "aliases": [
+    "castor oil",
+    "aceite de ricino",
+    "aceite de higuerilla",
+    "aceite de castor"
+   ],
+   "kind": "raw_material",
+   "region": "WORLD",
+   "value": 1741.41,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "CIF Países Bajos",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "Procurement Resource, página pública de tendencia de precios (evaluación de inteligencia de mercado; la página no nombra sus fuentes primarias)",
+   "url": "https://procurementresource.com/resource-center/castor-oil-price-trends",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA: evaluación de una consultora de precios, sin metodología ni datos primarios publicados. Úsalo solo como orden de magnitud y sustitúyelo por una cotización. La misma página da India FOB 774.44 USD/t para octubre de 2026, la mitad que el resto de regiones (EE. UU. FOB 1,708.05; China CIF 1,639.22; Tailandia FOB 1,617.04): cifras incoherentes entre sí, tómalo con reserva.",
+   "low": 1617.04,
+   "high": 1741.41
+  },
+  {
+   "id": "castor_oil_us",
+   "item": "aceite de ricino (higuerilla)",
+   "aliases": [
+    "castor oil",
+    "aceite de ricino",
+    "aceite de higuerilla",
+    "aceite de castor"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 1708.05,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB EE. UU.",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "Procurement Resource, página pública de tendencia de precios (evaluación de inteligencia de mercado; la página no nombra sus fuentes primarias)",
+   "url": "https://procurementresource.com/resource-center/castor-oil-price-trends",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA: evaluación de una consultora de precios, sin metodología ni datos primarios publicados. Úsalo solo como orden de magnitud y sustitúyelo por una cotización. EE. UU. importa casi todo su aceite de ricino; «FOB EE. UU.» es la base que declara la página."
+  },
+  {
+   "id": "soybean_oil_world",
+   "item": "aceite de soya crudo desgomado",
+   "aliases": [
+    "soybean oil",
+    "aceite de soya",
+    "aceite de soja",
+    "crude soybean oil"
+   ],
+   "kind": "raw_material",
+   "region": "WORLD",
+   "value": 1546.0,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB Golfo de EE. UU. (crudo desgomado)",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "World Bank, Commodities Price Data (The Pink Sheet), edición del 3 de noviembre de 2026, promedio mensual de octubre de 2026",
+   "url": "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Pink-Sheet-November-2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Serie «Soybean oil, U.S. Soybean Oil Crude Degummed, FOB U.S. Gulf». Promedio jul-sep 2026: 1,638 USD/t; anual 2025: 1,140."
+  },
+  {
+   "id": "soybean_oil_us",
+   "item": "aceite de soya crudo",
+   "aliases": [
+    "soybean oil",
+    "aceite de soya",
+    "aceite de soja",
+    "crude soybean oil"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 1450.53,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "planta procesadora, Illinois (crudo)",
+   "period": {
+    "start": "2026-11-09",
+    "end": "2026-11-13"
+   },
+   "source": "USDA AMS, National Weekly Ag Energy Round-Up, 13 de noviembre de 2026 (Crude Soybean Oil, Illinois)",
+   "url": "https://www.ams.usda.gov/mnreports/lswagenergy.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "El reporte da un rango (62.17-69.42 ¢/lb); el valor es su punto medio (cálculo propio). Iowa: 62.67-64.92 ¢/lb.",
+   "low": 1370.61,
+   "high": 1530.45,
+   "published_value": 65.795,
+   "published_unit": "centavos USD/lb (punto medio de 62.17-69.42)",
+   "conversion": {
+    "factor": 22.046226218487757,
+    "text": "¢/lb × 0.01 ÷ 0.00045359237 t/lb"
+   }
+  },
+  {
+   "id": "palm_oil_world",
+   "item": "aceite de palma",
+   "aliases": [
+    "palm oil",
+    "aceite de palma"
+   ],
+   "kind": "raw_material",
+   "region": "WORLD",
+   "value": 1120.0,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "Malasia, crudo/RBD (serie del Pink Sheet)",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "World Bank, Commodities Price Data (The Pink Sheet), edición del 3 de noviembre de 2026, promedio mensual de octubre de 2026",
+   "url": "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Pink-Sheet-November-2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Serie «Palm oil (Malaysia)»; el Pink Sheet avisa de una serie de reemplazo desde enero de 2026."
+  },
+  {
+   "id": "used_cooking_oil_us",
+   "item": "aceite de cocina usado (grasa amarilla)",
+   "aliases": [
+    "used cooking oil",
+    "uco",
+    "aceite de cocina usado",
+    "aceite usado",
+    "yellow grease",
+    "grasa amarilla",
+    "aceite vegetal usado"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 1019.64,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB camión, Minnesota (yellow grease)",
+   "period": {
+    "start": "2026-11-09",
+    "end": "2026-11-13"
+   },
+   "source": "USDA AMS, National Animal By-Product Feedstuff Report, semana 9-13 de noviembre de 2026 (Yellow Grease)",
+   "url": "https://www.ams.usda.gov/mnreports/ams_3510.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "«Yellow grease» es la grasa amarilla de rendimiento (aceite de cocina usado ya procesado), no el aceite usado recolectado sin tratar. Rango Minnesota 42.00-50.00 ¢/lb, promedio 46.25; California Sur FOB 51.00-53.00 ¢/lb.",
+   "low": 925.94,
+   "high": 1102.31,
+   "published_value": 46.25,
+   "published_unit": "centavos USD/lb",
+   "conversion": {
+    "factor": 22.046226218487757,
+    "text": "¢/lb × 0.01 ÷ 0.00045359237 t/lb"
+   }
+  },
+  {
+   "id": "methanol_us",
+   "item": "metanol",
+   "aliases": [
+    "methanol",
+    "metanol",
+    "alcohol metílico",
+    "meoh"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 1450.0,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "precio de lista de contrato (Methanex Non-Discounted Reference Price, Norteamérica)",
+   "period": {
+    "start": "2026-11-01",
+    "end": "2026-11-30"
+   },
+   "source": "Methanex, Pricing: Current Posted Prices (publicado el 28 de octubre de 2026)",
+   "url": "https://www.methanex.com/about-methanol/pricing/",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Es un precio de LISTA sin descuento (4.36 USD/gal × 332.6 gal/t, conversión de Methanex); los contratos reales llevan descuento. Muy por encima de Asia (700 USD/t) y China (625 USD/t) en el mismo mes."
+  },
+  {
+   "id": "methanol_world",
+   "item": "metanol",
+   "aliases": [
+    "methanol",
+    "metanol",
+    "alcohol metílico",
+    "meoh"
+   ],
+   "kind": "raw_material",
+   "region": "WORLD",
+   "value": 700.0,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "precio de contrato publicado (Methanex Asian Posted Contract Price)",
+   "period": {
+    "start": "2026-11-01",
+    "end": "2026-11-30"
+   },
+   "source": "Methanex, Pricing: Current Posted Prices (publicado el 29 de octubre de 2026)",
+   "url": "https://www.methanex.com/about-methanol/pricing/",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Asia Pacífico 700 USD/t; China 625 USD/t; Europa 875 EUR/t (oct-dic 2026); Norteamérica (lista sin descuento) 1,450 USD/t.",
+   "low": 625.0,
+   "high": 1450.0
+  },
+  {
+   "id": "ethanol_fuel_us",
+   "item": "etanol combustible (anhidro desnaturalizado)",
+   "aliases": [
+    "ethanol",
+    "fuel ethanol",
+    "etanol",
+    "etanol anhidro",
+    "etanol combustible",
+    "bioetanol",
+    "anhydrous ethanol"
+   ],
+   "kind": "product",
+   "region": "US",
+   "value": 489.38,
+   "unit": "USD/m3",
+   "currency": "USD",
+   "basis": "FOB planta de etanol, Iowa (camión)",
+   "period": {
+    "start": "2026-11-09",
+    "end": "2026-11-13"
+   },
+   "source": "USDA AMS, National Weekly Ethanol Report, 13 de noviembre de 2026 (Iowa, FOB-T)",
+   "url": "https://www.ams.usda.gov/mnreports/ams_3616.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Precio por VOLUMEN (no se supone densidad). Iowa 1.80-1.89 USD/gal, promedio 1.8525; Illinois 1.86-1.90; Nebraska 1.91.",
+   "low": 475.51,
+   "high": 499.29,
+   "published_value": 1.8525,
+   "published_unit": "USD/gal",
+   "conversion": {
+    "factor": 264.1720523581484,
+    "text": "USD/gal ÷ 0.003785411784 m³/gal"
+   }
+  },
+  {
+   "id": "biodiesel_b100_us",
+   "item": "biodiésel B100",
+   "aliases": [
+    "biodiesel",
+    "biodiésel",
+    "b100",
+    "biodiesel b100",
+    "fame",
+    "b99"
+   ],
+   "kind": "product",
+   "region": "US",
+   "value": 1431.81,
+   "unit": "USD/m3",
+   "currency": "USD",
+   "basis": "precio al público en estación (B99-B100), promedio nacional",
+   "period": {
+    "start": "2026-07-01",
+    "end": "2026-07-15"
+   },
+   "source": "U.S. DOE, Alternative Fuels Data Center, Fuel Prices (Clean Cities and Communities Alternative Fuel Price Report, julio de 2026)",
+   "url": "https://afdc.energy.gov/fuels/prices.html",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Es precio AL PÚBLICO (incluye impuestos, distribución y margen), no precio de venta en planta: sobrestima el ingreso de un productor. El reporte mayorista de USDA AMS (B100 SME, Iowa/Minnesota) salió «sin cotización» la semana del 13 de noviembre de 2026. Diésel fósil en el mismo reporte: 4.86 USD/gal. Precio por volumen.",
+   "published_value": 5.42,
+   "published_unit": "USD/gal",
+   "conversion": {
+    "factor": 264.1720523581484,
+    "text": "USD/gal ÷ 0.003785411784 m³/gal"
+   }
+  },
+  {
+   "id": "glycerol_us",
+   "item": "glicerina (grado no declarado)",
+   "aliases": [
+    "glycerol",
+    "glycerin",
+    "glycerine",
+    "glicerina",
+    "glicerol"
+   ],
+   "kind": "product",
+   "region": "US",
+   "value": 1552.38,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB EE. UU.",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "Procurement Resource, página pública de tendencia de precios (evaluación de inteligencia de mercado; la página no nombra sus fuentes primarias)",
+   "url": "https://procurementresource.com/resource-center/glycerin-price-trends",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA: evaluación de una consultora de precios, sin metodología ni datos primarios publicados. Úsalo solo como orden de magnitud y sustitúyelo por una cotización. La página NO dice si es glicerina cruda (≈80 %) o refinada (USP 99.5 %); por el nivel de precio parece refinada. No sirve como precio de la glicerina cruda de una planta de biodiésel. China FOB 1,360.66; India FOB 1,486.36.",
+   "low": 1360.66,
+   "high": 1552.38
+  },
+  {
+   "id": "caustic_soda_us",
+   "item": "sosa cáustica (NaOH)",
+   "aliases": [
+    "naoh",
+    "sodium hydroxide",
+    "caustic soda",
+    "sosa",
+    "sosa cáustica",
+    "hidróxido de sodio"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 399.13,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB EE. UU.",
+   "period": {
+    "start": "2026-08-01",
+    "end": "2026-08-31"
+   },
+   "source": "Procurement Resource, página pública de tendencia de precios (evaluación de inteligencia de mercado; la página no nombra sus fuentes primarias)",
+   "url": "https://procurementresource.com/resource-center/caustic-soda-price-trends",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA: evaluación de una consultora de precios, sin metodología ni datos primarios publicados. Úsalo solo como orden de magnitud y sustitúyelo por una cotización. La página no declara la forma (lejía al 50 % o escamas) ni si el precio es por tonelada seca. Alemania FOB ≈ 355.90 (agosto de 2026); China FOB 94.31 e India CIF 220.01 (octubre de 2026): dispersión enorme."
+  },
+  {
+   "id": "sulfuric_acid_us",
+   "item": "ácido sulfúrico",
+   "aliases": [
+    "sulfuric acid",
+    "sulphuric acid",
+    "h2so4",
+    "ácido sulfúrico",
+    "acido sulfurico"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 436.35,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "CIF EE. UU.",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "Procurement Resource, página pública de tendencia de precios (evaluación de inteligencia de mercado; la página no nombra sus fuentes primarias)",
+   "url": "https://procurementresource.com/resource-center/sulphuric-acid-price-trends",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA: evaluación de una consultora de precios, sin metodología ni datos primarios publicados. Úsalo solo como orden de magnitud y sustitúyelo por una cotización. Concentración no declarada. Alemania FOB 319.14; China FOB 244.63 (octubre de 2026).",
+   "low": 244.63,
+   "high": 436.35
+  },
+  {
+   "id": "hexane_us",
+   "item": "hexano",
+   "aliases": [
+    "hexane",
+    "n-hexane",
+    "hexano",
+    "n-hexano"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 1571.0,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB EE. UU.",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "Procurement Resource, página pública de tendencia de precios (evaluación de inteligencia de mercado; la página no nombra sus fuentes primarias)",
+   "url": "https://procurementresource.com/resource-center/hexane-price-trends",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA: evaluación de una consultora de precios, sin metodología ni datos primarios publicados. Úsalo solo como orden de magnitud y sustitúyelo por una cotización. China FOB 1,347; India FOB 1,527; Alemania CIF 1,462; Corea del Sur CIF 1,390 (octubre de 2026).",
+   "low": 1347.0,
+   "high": 1571.0
+  },
+  {
+   "id": "sugar_reference_price_mx",
+   "item": "azúcar base estándar, precio de referencia para el pago de la caña",
+   "aliases": [
+    "azúcar estándar",
+    "azucar estandar",
+    "standard sugar",
+    "precio de referencia del azúcar",
+    "azúcar base estándar",
+    "sugar"
+   ],
+   "kind": "product",
+   "region": "MX",
+   "value": 14704.53,
+   "unit": "MXN/t",
+   "currency": "MXN",
+   "basis": "precio de referencia oficial (CONADESUCA, zafra 2026/2027)",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2027-09-30"
+   },
+   "source": "DOF, 30 de octubre de 2026: AVISO por el que se da a conocer el precio de referencia del azúcar base estándar para el pago de la caña de azúcar de la zafra 2026/2027 (CONADESUCA / Secretaría de Economía)",
+   "url": "https://sidof.segob.gob.mx/notas/docFuente/5802605",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Es el precio de referencia para liquidar la caña (propuesta inicial de la zafra; se ajusta al cierre por ingenio), no una cotización de venta de azúcar."
+  },
+  {
+   "id": "sugarcane_mx",
+   "item": "caña de azúcar (por tonelada de azúcar recuperable base estándar)",
+   "aliases": [
+    "sugarcane",
+    "sugar cane",
+    "caña de azúcar",
+    "caña",
+    "cana de azucar",
+    "cane"
+   ],
+   "kind": "raw_material",
+   "region": "MX",
+   "value": 8381.58,
+   "unit": "MXN/t_azucar_recuperable_base_estandar",
+   "currency": "MXN",
+   "basis": "fórmula legal: 57 % del precio de referencia del azúcar base estándar (KARBE)",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2027-09-30"
+   },
+   "source": "Ley de Desarrollo Sustentable de la Caña de Azúcar, art. 58 (texto vigente, Última Reforma DOF 14-11-2025) × precio de referencia de la zafra 2026/2027 (DOF 30-10-2026, https://sidof.segob.gob.mx/notas/docFuente/5802605)",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LDSCA.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "NO es pesos por tonelada de caña. Precio de la caña (MXN/t de caña) = este valor × KARBE del ingenio (kg de azúcar recuperable base estándar por tonelada de caña) ÷ 1000. El KARBE es un dato de TU ingenio/caña: no se supone.",
+   "published_value": 14704.53,
+   "published_unit": "MXN/t de azúcar base estándar",
+   "conversion": {
+    "factor": 0.57,
+    "text": "precio de referencia × 0.57 (art. 58 LDSCA)"
+   }
+  },
+  {
+   "id": "raw_sugar_world",
+   "item": "azúcar crudo",
+   "aliases": [
+    "raw sugar",
+    "azúcar crudo",
+    "azucar crudo",
+    "azúcar",
+    "sugar",
+    "azúcar mascabado"
+   ],
+   "kind": "product",
+   "region": "WORLD",
+   "value": 430.0,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB estibado, puertos del Caribe (precio diario ISA, crudo)",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "World Bank, Commodities Price Data (The Pink Sheet), edición del 3 de noviembre de 2026, promedio mensual de octubre de 2026",
+   "url": "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Pink-Sheet-November-2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Serie «Sugar (World), International Sugar Agreement (ISA) daily price, raw». El Pink Sheet lo imprime con dos decimales en USD/kg.",
+   "published_value": 0.43,
+   "published_unit": "USD/kg",
+   "conversion": {
+    "factor": 1000.0,
+    "text": "USD/kg × 1000"
+   }
+  },
+  {
+   "id": "raw_sugar_us",
+   "item": "azúcar crudo (mercado protegido de EE. UU.)",
+   "aliases": [
+    "raw sugar",
+    "azúcar crudo",
+    "azucar crudo",
+    "azúcar",
+    "sugar"
+   ],
+   "kind": "product",
+   "region": "US",
+   "value": 920.0,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "CIF, contrato de futuros cercano (EE. UU.)",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "World Bank, Commodities Price Data (The Pink Sheet), edición del 3 de noviembre de 2026, promedio mensual de octubre de 2026",
+   "url": "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Pink-Sheet-November-2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Serie «Sugar (U.S.), nearby futures contract, c.i.f.»: mercado con cuotas, más del doble del precio mundial.",
+   "published_value": 0.92,
+   "published_unit": "USD/kg",
+   "conversion": {
+    "factor": 1000.0,
+    "text": "USD/kg × 1000"
+   }
+  },
+  {
+   "id": "corn_yellow_world",
+   "item": "maíz amarillo no. 2",
+   "aliases": [
+    "corn",
+    "maize",
+    "yellow corn",
+    "maíz",
+    "maiz",
+    "maíz amarillo",
+    "maiz amarillo"
+   ],
+   "kind": "raw_material",
+   "region": "WORLD",
+   "value": 226.5,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB puertos del Golfo de EE. UU.",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "World Bank, Commodities Price Data (The Pink Sheet), edición del 3 de noviembre de 2026, promedio mensual de octubre de 2026",
+   "url": "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Pink-Sheet-November-2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Serie «Maize (U.S.), no. 2, yellow, f.o.b. US Gulf ports». Promedio jul-sep 2026: 225.7 USD/t."
+  },
+  {
+   "id": "corn_yellow_us",
+   "item": "maíz amarillo (precio pagado por plantas de etanol)",
+   "aliases": [
+    "corn",
+    "maize",
+    "yellow corn",
+    "maíz",
+    "maiz",
+    "maíz amarillo",
+    "maiz amarillo"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 167.32,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "entregado en planta de etanol (promedio de insumo)",
+   "period": {
+    "start": "2026-11-09",
+    "end": "2026-11-13"
+   },
+   "source": "USDA AMS, National Weekly Grain Co-Products Report, 16 de noviembre de 2026 (Average Input Price, Corn - Ethanol Plant)",
+   "url": "https://www.ams.usda.gov/mnreports/ams_3618.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Bushel de 56 lb. Exportación CIF barcaza Golfo (Luisiana), misma semana: 5.3950-5.4050 USD/bu.",
+   "published_value": 4.25,
+   "published_unit": "USD/bu (56 lb)",
+   "conversion": {
+    "factor": 39.368261104442425,
+    "text": "USD/bu ÷ 0.0254011727 t/bu"
+   }
+  },
+  {
+   "id": "sorghum_us",
+   "item": "sorgo no. 2",
+   "aliases": [
+    "sorghum",
+    "milo",
+    "sorgo",
+    "grain sorghum"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 150.29,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "entregado en elevador rural, suroeste de Kansas",
+   "period": {
+    "start": "2026-11-13",
+    "end": "2026-11-13"
+   },
+   "source": "USDA AMS, Kansas Daily Grain Bids, 13 de noviembre de 2026 (US #2 Sorghum, Southwest)",
+   "url": "https://www.ams.usda.gov/mnreports/ams_2886.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Bushel de 56 lb. Rango 3.7050-3.9050 USD/bu, promedio 3.8175. Texas Panhandle (US #1), mismo día: 3.6050-4.4550 USD/bu. El Pink Sheet del Banco Mundial ya no publica sorgo («…»).",
+   "low": 145.86,
+   "high": 153.73,
+   "published_value": 3.8175,
+   "published_unit": "USD/bu (56 lb)",
+   "conversion": {
+    "factor": 39.368261104442425,
+    "text": "USD/bu ÷ 0.0254011727 t/bu"
+   }
+  },
+  {
+   "id": "ddgs_us",
+   "item": "granos secos de destilería con solubles (DDGS, 10 % humedad)",
+   "aliases": [
+    "ddgs",
+    "ddg",
+    "distillers grains",
+    "dried distillers grains",
+    "granos secos de destilería",
+    "granos de destileria"
+   ],
+   "kind": "product",
+   "region": "US",
+   "value": 182.09,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB planta de etanol, Iowa",
+   "period": {
+    "start": "2026-11-09",
+    "end": "2026-11-13"
+   },
+   "source": "USDA AMS, National Weekly Grain Co-Products Report, 16 de noviembre de 2026 (Distillers Grain Dried 10%, Iowa)",
+   "url": "https://www.ams.usda.gov/mnreports/ams_3618.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Tonelada corta en el original. Indiana 173.38; Illinois 201.00; Kansas 225.00 USD/ton corta.",
+   "low": 182.09,
+   "high": 248.02,
+   "published_value": 165.19,
+   "published_unit": "USD/ton corta",
+   "conversion": {
+    "factor": 1.1023113109243878,
+    "text": "USD/ton corta ÷ 0.90718474 t/ton corta"
+   }
+  },
+  {
+   "id": "distillers_corn_oil_us",
+   "item": "aceite de maíz de destilería (grado no alimenticio)",
+   "aliases": [
+    "distillers corn oil",
+    "dco",
+    "aceite de maíz de destilería",
+    "corn oil",
+    "aceite de maíz"
+   ],
+   "kind": "raw_material",
+   "region": "US",
+   "value": 1442.26,
+   "unit": "USD/t",
+   "currency": "USD",
+   "basis": "FOB planta de etanol, Iowa",
+   "period": {
+    "start": "2026-11-09",
+    "end": "2026-11-13"
+   },
+   "source": "USDA AMS, National Weekly Grain Co-Products Report, 16 de noviembre de 2026 (Distillers Corn Oil, Iowa)",
+   "url": "https://www.ams.usda.gov/mnreports/ams_3618.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Materia prima habitual de biodiésel y diésel renovable en EE. UU.",
+   "published_value": 65.42,
+   "published_unit": "centavos USD/lb",
+   "conversion": {
+    "factor": 22.046226218487757,
+    "text": "¢/lb × 0.01 ÷ 0.00045359237 t/lb"
+   }
+  },
+  {
+   "id": "water_federal_rights_mx",
+   "item": "agua de proceso: derecho federal por uso de aguas nacionales (concesión propia)",
+   "aliases": [
+    "process water",
+    "industrial water",
+    "water",
+    "agua",
+    "agua de proceso",
+    "agua industrial",
+    "derechos de agua",
+    "agua conagua",
+    "raw water",
+    "agua cruda"
+   ],
+   "kind": "utility",
+   "region": "MX",
+   "value": 31.8622,
+   "unit": "MXN/m3",
+   "currency": "MXN",
+   "basis": "cuota legal, zona de disponibilidad 1, agua subterránea (la MÁS ALTA de la tabla)",
+   "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31"
+   },
+   "source": "Ley Federal de Derechos, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 07-11-2025), art. 223, apartado A",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFD.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Depende de la zona de disponibilidad (1 a 4, art. 231 LFD) de TU cuenca o acuífero y de si la fuente es superficial o subterránea: mira `table`. Se devuelve la cuota más alta (criterio conservador) y el rango en low/high. Es solo el derecho federal: no incluye bombeo, pozo, tratamiento ni distribución. Las cuotas se actualizan cada año (anexo de la Resolución Miscelánea Fiscal); el texto compilado leído no dice a qué ejercicio corresponde la actualización: verifícalo.",
+   "low": 2.7295,
+   "high": 31.8622,
+   "table": [
+    {
+     "zona": 1,
+     "superficial_MXN_m3": 23.646,
+     "subterranea_MXN_m3": 31.8622
+    },
+    {
+     "zona": 2,
+     "superficial_MXN_m3": 10.886,
+     "subterranea_MXN_m3": 12.3333
+    },
+    {
+     "zona": 3,
+     "superficial_MXN_m3": 3.5694,
+     "subterranea_MXN_m3": 4.2944
+    },
+    {
+     "zona": 4,
+     "superficial_MXN_m3": 2.7295,
+     "subterranea_MXN_m3": 3.1215
+    }
+   ]
+  },
+  {
+   "id": "water_industrial_culiacan",
+   "item": "agua potable de red, tarifa industrial (JAPAC Culiacán)",
+   "aliases": [
+    "process water",
+    "industrial water",
+    "water",
+    "agua",
+    "agua de proceso",
+    "agua industrial",
+    "agua potable",
+    "agua de red",
+    "japac",
+    "municipal water"
+   ],
+   "kind": "utility",
+   "region": "MX-SIN",
+   "value": 40.43,
+   "unit": "MXN/m3",
+   "currency": "MXN",
+   "basis": "tarifa publicada, categoría industrial, bloque de más de 1,500 m³/mes",
+   "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31"
+   },
+   "source": "Junta Municipal de Agua Potable y Alcantarillado de Culiacán (JAPAC), Tarifa de agua potable por categoría del año 2026",
+   "url": "https://japac.gob.mx/servicios/tarifas/",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Tarifa por bloques de consumo mensual (mira `table`); mínimo de 0 a 12 m³: 265.72 MXN al mes. Una planta de proceso cae en el último bloque. La tabla leída es solo de agua potable: no muestra los cargos de alcantarillado y saneamiento ni el IVA.",
+   "low": 22.37,
+   "high": 40.43,
+   "table": [
+    {
+     "rango_m3_mes": "13-25",
+     "MXN_m3": 22.37
+    },
+    {
+     "rango_m3_mes": "26-50",
+     "MXN_m3": 23.98
+    },
+    {
+     "rango_m3_mes": "51-75",
+     "MXN_m3": 25.4
+    },
+    {
+     "rango_m3_mes": "76-125",
+     "MXN_m3": 27.27
+    },
+    {
+     "rango_m3_mes": "126-175",
+     "MXN_m3": 28.88
+    },
+    {
+     "rango_m3_mes": "176-250",
+     "MXN_m3": 30.56
+    },
+    {
+     "rango_m3_mes": "251-350",
+     "MXN_m3": 32.15
+    },
+    {
+     "rango_m3_mes": "351-500",
+     "MXN_m3": 33.94
+    },
+    {
+     "rango_m3_mes": "501-750",
+     "MXN_m3": 35.53
+    },
+    {
+     "rango_m3_mes": "751-1000",
+     "MXN_m3": 37.12
+    },
+    {
+     "rango_m3_mes": "1001-1500",
+     "MXN_m3": 38.8
+    },
+    {
+     "rango_m3_mes": "1501 en adelante",
+     "MXN_m3": 40.43
+    }
+   ]
+  },
+  {
+   "id": "wastewater_discharge_mx",
+   "item": "descarga de aguas residuales a cuerpos receptores nacionales (derecho federal)",
+   "aliases": [
+    "wastewater",
+    "wastewater discharge",
+    "descarga de aguas residuales",
+    "aguas residuales",
+    "descarga",
+    "effluent"
+   ],
+   "kind": "utility",
+   "region": "MX",
+   "value": 51.34,
+   "unit": "MXN/m3",
+   "currency": "MXN",
+   "basis": "cuota legal, cuerpo receptor tipo C (la MÁS ALTA), art. 277-B fracción II",
+   "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31"
+   },
+   "source": "Ley Federal de Derechos, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 07-11-2025), art. 277-B, fracción II",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LFD.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Cuerpo receptor tipo A 23.28, tipo B 34.23, tipo C 51.34 MXN/m³ descargado. La fracción III permite cuotas menores por actividad si se acredita cantidad y calidad de la descarga, y los arts. 278 y siguientes regulan exenciones y acreditamientos (no leídos en detalle aquí). No aplica a descargas al alcantarillado municipal, que cobra el organismo operador.",
+   "low": 23.28,
+   "high": 51.34,
+   "table": [
+    {
+     "cuerpo_receptor": "A",
+     "MXN_m3": 23.28
+    },
+    {
+     "cuerpo_receptor": "B",
+     "MXN_m3": 34.23
+    },
+    {
+     "cuerpo_receptor": "C",
+     "MXN_m3": 51.34
+    }
+   ]
+  },
+  {
+   "id": "diesel_mx",
+   "item": "diésel",
+   "aliases": [
+    "diesel",
+    "diésel",
+    "gasoil",
+    "diesel fuel"
+   ],
+   "kind": "utility",
+   "region": "MX",
+   "value": 26990.0,
+   "unit": "MXN/m3",
+   "currency": "MXN",
+   "basis": "precio promedio nacional al público en estación de servicio",
+   "period": {
+    "start": "2026-10-09",
+    "end": "2026-10-09"
+   },
+   "source": "La Crónica de Hoy, 12 de octubre de 2026: «Profeco reporta precio promedio del diésel en 26.99 pesos por litro» (monitoreo de Profeco con datos al 9 de octubre de 2026)",
+   "url": "https://www.cronica.com.mx/negocios/2026/10/12/profeco-reporta-precio-promedio-del-diesel-en-2699-pesos-por-litro/",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA: nota de prensa que cita a Profeco (el boletín original no se abrió). Precio al público en estación, no precio industrial a granel. Precio por volumen.",
+   "published_value": 26.99,
+   "published_unit": "MXN/L",
+   "conversion": {
+    "factor": 1000.0,
+    "text": "MXN/L × 1000"
+   }
+  },
+  {
+   "id": "diesel_us",
+   "item": "diésel (on-highway, ultra bajo azufre)",
+   "aliases": [
+    "diesel",
+    "diésel",
+    "gasoil",
+    "diesel fuel"
+   ],
+   "kind": "utility",
+   "region": "US",
+   "value": 1618.58,
+   "unit": "USD/m3",
+   "currency": "USD",
+   "basis": "precio promedio nacional al público, con impuestos",
+   "period": {
+    "start": "2026-11-09",
+    "end": "2026-11-09"
+   },
+   "source": "U.S. EIA, Gasoline and Diesel Fuel Update: Weekly Retail Gasoline and Diesel Prices (Release Date 11/10/2026), semana del 9 de noviembre de 2026",
+   "url": "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Precio al público con impuestos. Semanas previas: 6.199 (5 oct), 6.352 (26 oct), 6.292 (2 nov) USD/gal. Precio por volumen.",
+   "published_value": 6.127,
+   "published_unit": "USD/gal",
+   "conversion": {
+    "factor": 264.1720523581484,
+    "text": "USD/gal ÷ 0.003785411784 m³/gal"
+   }
+  },
+  {
+   "id": "minimum_wage_mx",
+   "item": "salario mínimo general",
+   "aliases": [
+    "minimum wage",
+    "salario mínimo",
+    "salario minimo",
+    "salario mínimo general",
+    "smg"
+   ],
+   "kind": "labour",
+   "region": "MX",
+   "value": 315.04,
+   "unit": "MXN/day",
+   "currency": "MXN",
+   "basis": "legal (Zona del Salario Mínimo General)",
+   "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31"
+   },
+   "source": "CONASAMI, Tabla de Salarios Mínimos Generales y Profesionales por Áreas Geográficas, vigentes a partir del 1º de enero de 2026",
+   "url": "https://www.gob.mx/cms/uploads/attachment/file/1041076/Tabla_de_Salarios_M_nimos_2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Piso legal por jornada: no es el costo de un operador de planta (añade prestaciones, cuotas patronales IMSS/INFONAVIT, aguinaldo, PTU). 2025: 278.80."
+  },
+  {
+   "id": "minimum_wage_mx_border",
+   "item": "salario mínimo, Zona Libre de la Frontera Norte",
+   "aliases": [
+    "salario mínimo frontera",
+    "salario minimo frontera norte",
+    "zlfn",
+    "border minimum wage",
+    "salario mínimo zona libre"
+   ],
+   "kind": "labour",
+   "region": "MX",
+   "value": 440.87,
+   "unit": "MXN/day",
+   "currency": "MXN",
+   "basis": "legal (Zona Libre de la Frontera Norte)",
+   "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31"
+   },
+   "source": "CONASAMI, Tabla de Salarios Mínimos Generales y Profesionales por Áreas Geográficas, vigentes a partir del 1º de enero de 2026",
+   "url": "https://www.gob.mx/cms/uploads/attachment/file/1041076/Tabla_de_Salarios_M_nimos_2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Solo municipios fronterizos del norte. 2025: 419.88."
+  },
+  {
+   "id": "imss_average_wage_mx",
+   "item": "salario base de cotización promedio de los puestos afiliados al IMSS",
+   "aliases": [
+    "average wage",
+    "salario promedio",
+    "salario base de cotización",
+    "salario base de cotizacion",
+    "sbc",
+    "salario imss",
+    "salario promedio imss"
+   ],
+   "kind": "labour",
+   "region": "MX",
+   "value": 664.7,
+   "unit": "MXN/day",
+   "currency": "MXN",
+   "basis": "promedio nacional de los puestos de trabajo afiliados al IMSS, cierre de mes",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "IMSS, Boletín de prensa No. 583/2026, 9 de noviembre de 2026: «Puestos de trabajo afiliados al Instituto Mexicano del Seguro Social»",
+   "url": "https://mexico.quadratin.com.mx/www/wp-content/uploads/2026/11/Empleo-Octubre-2026.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Leído en una copia PDF del boletín oficial alojada por un medio (la página del IMSS, https://www.imss.gob.mx/node/112977, está tras un filtro anti-robots que no se evadió). Es salario base de cotización diario de TODOS los sectores, antes de cuotas patronales y prestaciones."
+  },
+  {
+   "id": "isr_corporate_mx",
+   "item": "ISR de personas morales",
+   "aliases": [
+    "isr",
+    "impuesto sobre la renta",
+    "corporate income tax",
+    "income tax",
+    "tax rate",
+    "tasa de impuesto",
+    "tasa isr"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 0.3,
+   "unit": "fraction",
+   "currency": null,
+   "basis": "legal (LISR art. 9): 30 % del resultado fiscal",
+   "period": {
+    "start": "2014-01-01",
+    "end": "2026-11-16"
+   },
+   "source": "Ley del Impuesto sobre la Renta, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 01-04-2024), art. 9",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Tasa sobre el resultado fiscal; no incluye PTU, impuestos estatales sobre nómina ni IVA."
+  },
+  {
+   "id": "ptu_mx",
+   "item": "participación de los trabajadores en las utilidades (PTU)",
+   "aliases": [
+    "ptu",
+    "profit sharing",
+    "reparto de utilidades"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 0.1,
+   "unit": "fraction",
+   "currency": null,
+   "basis": "legal: 10 % sobre la renta gravable",
+   "period": {
+    "start": "2020-09-18",
+    "end": "2026-11-16"
+   },
+   "source": "DOF, 18 de septiembre de 2020: RESOLUCIÓN del Consejo de Representantes de la Sexta Comisión Nacional para la Participación de los Trabajadores en las Utilidades de las Empresas",
+   "url": "https://sidof.segob.gob.mx/notas/docFuente/5600763",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "La resolución mantiene el 10 %. Los topes por trabajador de la reforma de subcontratación de 2021 (art. 127 LFT) no se leyeron aquí."
+  },
+  {
+   "id": "depreciation_chemical_mx",
+   "item": "depreciación fiscal de maquinaria y equipo: productos químicos, petroquímicos y farmacobiológicos",
+   "aliases": [
+    "depreciación química",
+    "depreciacion quimica",
+    "depreciation chemical"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 0.09,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "por ciento MÁXIMO anual autorizado, línea recta (LISR art. 35, fracción V)",
+   "period": {
+    "start": "2014-01-01",
+    "end": "2026-11-16"
+   },
+   "source": "Ley del Impuesto sobre la Renta, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 01-04-2024), art. 35, fracción V",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Por ciento máximo anual sobre el monto original de la inversión. Con dos o más actividades aplica el de la actividad con más ingresos (art. 35, último párrafo). La clasificación de TU planta la decide un fiscalista."
+  },
+  {
+   "id": "depreciation_sugar_oils_milling_mx",
+   "item": "depreciación fiscal de maquinaria y equipo: azúcar y sus derivados, aceites comestibles, molienda de granos, electricidad",
+   "aliases": [
+    "depreciación azúcar",
+    "depreciacion azucar",
+    "depreciación aceites",
+    "depreciation sugar"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 0.05,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "por ciento MÁXIMO anual autorizado, línea recta (LISR art. 35, fracción I)",
+   "period": {
+    "start": "2014-01-01",
+    "end": "2026-11-16"
+   },
+   "source": "Ley del Impuesto sobre la Renta, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 01-04-2024), art. 35, fracción I",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Por ciento máximo anual sobre el monto original de la inversión. Con dos o más actividades aplica el de la actividad con más ingresos (art. 35, último párrafo). La clasificación de TU planta la decide un fiscalista."
+  },
+  {
+   "id": "depreciation_food_beverages_mx",
+   "item": "depreciación fiscal de maquinaria y equipo: productos alimenticios y bebidas (excepto granos, azúcar, aceites comestibles y derivados)",
+   "aliases": [
+    "depreciación alimentos",
+    "depreciation food"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 0.08,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "por ciento MÁXIMO anual autorizado, línea recta (LISR art. 35, fracción IV)",
+   "period": {
+    "start": "2014-01-01",
+    "end": "2026-11-16"
+   },
+   "source": "Ley del Impuesto sobre la Renta, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 01-04-2024), art. 35, fracción IV",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Por ciento máximo anual sobre el monto original de la inversión. Con dos o más actividades aplica el de la actividad con más ingresos (art. 35, último párrafo). La clasificación de TU planta la decide un fiscalista."
+  },
+  {
+   "id": "depreciation_other_mx",
+   "item": "depreciación fiscal de maquinaria y equipo: otras actividades no especificadas",
+   "aliases": [
+    "depreciación otras actividades",
+    "depreciation other activities"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 0.1,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "por ciento MÁXIMO anual autorizado, línea recta (LISR art. 35, fracción XIV)",
+   "period": {
+    "start": "2014-01-01",
+    "end": "2026-11-16"
+   },
+   "source": "Ley del Impuesto sobre la Renta, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 01-04-2024), art. 35, fracción XIV",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Por ciento máximo anual sobre el monto original de la inversión. Con dos o más actividades aplica el de la actividad con más ingresos (art. 35, último párrafo). La clasificación de TU planta la decide un fiscalista."
+  },
+  {
+   "id": "depreciation_buildings_mx",
+   "item": "depreciación fiscal de construcciones",
+   "aliases": [
+    "depreciación construcciones",
+    "depreciación edificios",
+    "depreciation buildings"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 0.05,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "por ciento MÁXIMO anual autorizado, línea recta (LISR art. 34, fracción I, inciso b))",
+   "period": {
+    "start": "2014-01-01",
+    "end": "2026-11-16"
+   },
+   "source": "Ley del Impuesto sobre la Renta, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 01-04-2024), art. 34, fracción I, inciso b)",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Por ciento máximo anual sobre el monto original de la inversión. Con dos o más actividades aplica el de la actividad con más ingresos (art. 35, último párrafo). La clasificación de TU planta la decide un fiscalista."
+  },
+  {
+   "id": "depreciation_renewable_cogeneration_mx",
+   "item": "depreciación fiscal de maquinaria para energía renovable o cogeneración eficiente",
+   "aliases": [
+    "depreciación cogeneración",
+    "depreciación renovables",
+    "depreciation cogeneration"
+   ],
+   "kind": "fiscal",
+   "region": "MX",
+   "value": 1.0,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "por ciento MÁXIMO anual autorizado, línea recta (LISR art. 34, fracción XIII)",
+   "period": {
+    "start": "2014-01-01",
+    "end": "2026-11-16"
+   },
+   "source": "Ley del Impuesto sobre la Renta, texto vigente compilado por la Cámara de Diputados (Última Reforma DOF 01-04-2024), art. 34, fracción XIII",
+   "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LISR.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Por ciento máximo anual sobre el monto original de la inversión. Con dos o más actividades aplica el de la actividad con más ingresos (art. 35, último párrafo). La clasificación de TU planta la decide un fiscalista. Exige operar el equipo al menos 5 años."
+  },
+  {
+   "id": "banxico_target_rate",
+   "item": "tasa objetivo de Banco de México",
+   "aliases": [
+    "tasa objetivo",
+    "banxico",
+    "target rate",
+    "policy rate",
+    "tasa de referencia"
+   ],
+   "kind": "financial",
+   "region": "MX",
+   "value": 0.0625,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "tasa de política monetaria",
+   "period": {
+    "start": "2026-11-16",
+    "end": "2026-11-16"
+   },
+   "source": "Banco de México, indicadores de la página principal (Sistema de Información Económica)",
+   "url": "https://www.banxico.org.mx/canales/singleTasaObj.json",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Publicado como 6.25 %.",
+   "published_value": 6.25,
+   "published_unit": "% anual",
+   "conversion": {
+    "factor": 0.01,
+    "text": "% ÷ 100"
+   }
+  },
+  {
+   "id": "tiie_28",
+   "item": "TIIE a 28 días",
+   "aliases": [
+    "tiie",
+    "tiie 28",
+    "tiie28",
+    "interbank rate",
+    "tasa interbancaria"
+   ],
+   "kind": "financial",
+   "region": "MX",
+   "value": 0.065147,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "tasa de interés interbancaria de equilibrio a 28 días",
+   "period": {
+    "start": "2026-11-13",
+    "end": "2026-11-13"
+   },
+   "source": "Banco de México, indicadores de la página principal (Sistema de Información Económica)",
+   "url": "https://www.banxico.org.mx/canales/singleTIIE28.json",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Publicado como 6.5147 %. TIIE de fondeo a 1 día, misma fecha: 6.26 %.",
+   "published_value": 6.5147,
+   "published_unit": "% anual",
+   "conversion": {
+    "factor": 0.01,
+    "text": "% ÷ 100"
+   }
+  },
+  {
+   "id": "cetes_28",
+   "item": "CETES a 28 días",
+   "aliases": [
+    "cetes",
+    "cetes 28",
+    "risk-free rate mexico",
+    "tasa libre de riesgo"
+   ],
+   "kind": "financial",
+   "region": "MX",
+   "value": 0.062,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "tasa de rendimiento de la subasta primaria",
+   "period": {
+    "start": "2026-11-10",
+    "end": "2026-11-10"
+   },
+   "source": "Banco de México, indicadores de la página principal (Sistema de Información Económica)",
+   "url": "https://www.banxico.org.mx/canales/singleCetes28.json",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Publicado como 6.20 %.",
+   "published_value": 6.2,
+   "published_unit": "% anual",
+   "conversion": {
+    "factor": 0.01,
+    "text": "% ÷ 100"
+   }
+  },
+  {
+   "id": "fx_fix_mxn_usd",
+   "item": "tipo de cambio FIX",
+   "aliases": [
+    "fix",
+    "tipo de cambio",
+    "exchange rate",
+    "mxn/usd",
+    "dólar",
+    "dolar",
+    "usd mxn"
+   ],
+   "kind": "financial",
+   "region": "MX",
+   "value": 18.5525,
+   "unit": "MXN/USD",
+   "currency": null,
+   "basis": "FIX de Banco de México (pesos por dólar de EE. UU.)",
+   "period": {
+    "start": "2026-11-13",
+    "end": "2026-11-13"
+   },
+   "source": "Banco de México, indicadores de la página principal (Sistema de Información Económica)",
+   "url": "https://www.banxico.org.mx/canales/singleFix.json",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Es el tipo de cambio con el que este banco convierte MXN↔USD cuando no das exchange_rates."
+  },
+  {
+   "id": "inflation_mx",
+   "item": "inflación general anual (INPC)",
+   "aliases": [
+    "inflación",
+    "inflacion",
+    "inflation",
+    "inpc"
+   ],
+   "kind": "financial",
+   "region": "MX",
+   "value": 0.0375,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "variación anual del INPC",
+   "period": {
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+   },
+   "source": "Banco de México, indicadores de la página principal (Sistema de Información Económica)",
+   "url": "https://www.banxico.org.mx/canales/singleInflacion.json",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Publicado como 3.75 % con fecha 01-OCT-2026 (se interpreta como el dato de octubre de 2026).",
+   "published_value": 3.75,
+   "published_unit": "% anual",
+   "conversion": {
+    "factor": 0.01,
+    "text": "% ÷ 100"
+   }
+  },
+  {
+   "id": "equity_risk_premium_mx",
+   "item": "prima total de riesgo de capital para México (Damodaran)",
+   "aliases": [
+    "equity risk premium",
+    "prima de riesgo",
+    "erp",
+    "country risk premium",
+    "riesgo país",
+    "wacc",
+    "cost of equity",
+    "costo de capital"
+   ],
+   "kind": "financial",
+   "region": "MX",
+   "value": 0.0669,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "prima de riesgo de capital total = mercado maduro + prima de riesgo país (Moody's Baa2)",
+   "period": {
+    "start": "2026-01-05",
+    "end": "2026-01-05"
+   },
+   "source": "A. Damodaran (NYU Stern), Country Default Spreads and Risk Premiums, Last updated: January 5, 2026",
+   "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "NO es un WACC: es un insumo para construirlo (costo de capital = tasa libre de riesgo + beta × prima). No se encontró un WACC publicado y abierto para proyectos industriales en México. México: diferencial de impago 1.62 %, prima de riesgo país 2.46 %, prima total 6.69 %, tasa corporativa 30 %. Se actualiza una vez al año.",
+   "stale_after_days": 400,
+   "table": [
+    {
+     "concepto": "diferencial de impago ajustado",
+     "valor": 0.0162
+    },
+    {
+     "concepto": "prima de riesgo país",
+     "valor": 0.0246
+    },
+    {
+     "concepto": "prima total de riesgo de capital",
+     "valor": 0.0669
+    }
+   ],
+   "published_value": 6.69,
+   "published_unit": "%",
+   "conversion": {
+    "factor": 0.01,
+    "text": "% ÷ 100"
+   }
+  },
+  {
+   "id": "discount_rate_nrel",
+   "item": "tasa de descuento de los estudios de diseño de NREL",
+   "aliases": [
+    "discount rate",
+    "tasa de descuento",
+    "irr",
+    "tir mínima",
+    "tasa de descuento nrel"
+   ],
+   "kind": "financial",
+   "region": "WORLD",
+   "value": 0.1,
+   "unit": "fraction/y",
+   "currency": null,
+   "basis": "convención de análisis (igual a la TIR en el flujo descontado), no un dato de mercado",
+   "period": {
+    "start": "2011-05-01",
+    "end": "2011-05-31"
+   },
+   "source": "Humbird et al. (2011), Process Design and Economics for Biochemical Conversion of Lignocellulosic Biomass to Ethanol, NREL/TP-5100-47764, Tabla 33",
+   "url": "https://docs.nlr.gov/docs/fy11osti/47764.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Convención de un estudio de EE. UU. de 2011 (recomendación de Short et al. para DOE); no refleja el costo de capital en México hoy. Financiamiento del mismo estudio: 40 % capital propio, préstamo a 10 años al 8 % anual.",
+   "stale_after_days": null
+  },
+  {
+   "id": "on_stream_hours",
+   "item": "horas de operación al año",
+   "aliases": [
+    "on-stream hours",
+    "operating hours",
+    "horas de operación",
+    "horas por año",
+    "factor de servicio",
+    "on-stream factor",
+    "uptime"
+   ],
+   "kind": "design_basis",
+   "region": "WORLD",
+   "value": 8410.0,
+   "unit": "h/y",
+   "currency": null,
+   "basis": "convención de diseño NREL: 96 % de tiempo en línea",
+   "period": {
+    "start": "2011-05-01",
+    "end": "2011-05-31"
+   },
+   "source": "Humbird et al. (2011), Process Design and Economics for Biochemical Conversion of Lignocellulosic Biomass to Ethanol, NREL/TP-5100-47764, sección 2.1 («8,410 operating hours per year (96% uptime)») y Tabla 34 («On-line time 8,410 h/yr»)",
+   "url": "https://docs.nlr.gov/docs/fy11osti/47764.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "El documento dice 8,410 h/año (96 %), NO 7,880 h/año. Vale para una planta continua con materia prima almacenable todo el año; un ingenio o una planta atada a la zafra opera muchas menos horas (mira zafra_duration_mx)."
+  },
+  {
+   "id": "plant_life",
+   "item": "vida de la planta",
+   "aliases": [
+    "plant life",
+    "vida de la planta",
+    "vida útil",
+    "project life",
+    "horizonte"
+   ],
+   "kind": "design_basis",
+   "region": "WORLD",
+   "value": 30.0,
+   "unit": "y",
+   "currency": null,
+   "basis": "convención de análisis NREL",
+   "period": {
+    "start": "2011-05-01",
+    "end": "2011-05-31"
+   },
+   "source": "Humbird et al. (2011), Process Design and Economics for Biochemical Conversion of Lignocellulosic Biomass to Ethanol, NREL/TP-5100-47764, Tabla 33",
+   "url": "https://docs.nlr.gov/docs/fy11osti/47764.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Horizonte del flujo de caja descontado del estudio."
+  },
+  {
+   "id": "construction_schedule",
+   "item": "periodo de construcción y calendario de gasto del capital",
+   "aliases": [
+    "construction period",
+    "construction schedule",
+    "periodo de construcción",
+    "calendario de construcción",
+    "capital spending"
+   ],
+   "kind": "design_basis",
+   "region": "WORLD",
+   "value": 3.0,
+   "unit": "y",
+   "currency": null,
+   "basis": "convención de análisis NREL: 8 % / 60 % / 32 % del capital en los años 1, 2 y 3",
+   "period": {
+    "start": "2011-05-01",
+    "end": "2011-05-31"
+   },
+   "source": "Humbird et al. (2011), Process Design and Economics for Biochemical Conversion of Lignocellulosic Biomass to Ethanol, NREL/TP-5100-47764, Tabla 33",
+   "url": "https://docs.nlr.gov/docs/fy11osti/47764.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Fracciones del capital fijo por año en `table`.",
+   "table": [
+    {
+     "año": 1,
+     "fraccion_del_capital": 0.08
+    },
+    {
+     "año": 2,
+     "fraccion_del_capital": 0.6
+    },
+    {
+     "año": 3,
+     "fraccion_del_capital": 0.32
+    }
+   ]
+  },
+  {
+   "id": "working_capital_fraction",
+   "item": "capital de trabajo",
+   "aliases": [
+    "working capital",
+    "capital de trabajo"
+   ],
+   "kind": "design_basis",
+   "region": "WORLD",
+   "value": 0.05,
+   "unit": "fraction",
+   "currency": null,
+   "basis": "convención de análisis NREL: 5 % de la inversión de capital fijo",
+   "period": {
+    "start": "2011-05-01",
+    "end": "2011-05-31"
+   },
+   "source": "Humbird et al. (2011), Process Design and Economics for Biochemical Conversion of Lignocellulosic Biomass to Ethanol, NREL/TP-5100-47764, Tabla 33",
+   "url": "https://docs.nlr.gov/docs/fy11osti/47764.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Fracción del capital fijo (FCI)."
+  },
+  {
+   "id": "startup_time",
+   "item": "tiempo de arranque",
+   "aliases": [
+    "start-up time",
+    "startup",
+    "arranque",
+    "tiempo de arranque"
+   ],
+   "kind": "design_basis",
+   "region": "WORLD",
+   "value": 0.25,
+   "unit": "y",
+   "currency": null,
+   "basis": "convención de análisis NREL: 3 meses",
+   "period": {
+    "start": "2011-05-01",
+    "end": "2011-05-31"
+   },
+   "source": "Humbird et al. (2011), Process Design and Economics for Biochemical Conversion of Lignocellulosic Biomass to Ethanol, NREL/TP-5100-47764, Tabla 33",
+   "url": "https://docs.nlr.gov/docs/fy11osti/47764.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Durante el arranque: 50 % de los ingresos, 75 % de los costos variables y 100 % de los fijos.",
+   "table": [
+    {
+     "concepto": "ingresos durante el arranque",
+     "fraccion": 0.5
+    },
+    {
+     "concepto": "costos variables",
+     "fraccion": 0.75
+    },
+    {
+     "concepto": "costos fijos",
+     "fraccion": 1.0
+    }
+   ],
+   "published_value": 3,
+   "published_unit": "meses",
+   "conversion": {
+    "factor": 0.08333333333333333,
+    "text": "meses ÷ 12"
+   }
+  },
+  {
+   "id": "equity_fraction",
+   "item": "fracción de capital propio en el financiamiento",
+   "aliases": [
+    "equity fraction",
+    "financing",
+    "financiamiento",
+    "capital propio",
+    "apalancamiento"
+   ],
+   "kind": "design_basis",
+   "region": "WORLD",
+   "value": 0.4,
+   "unit": "fraction",
+   "currency": null,
+   "basis": "convención de análisis NREL: 40 % capital propio, préstamo a 10 años al 8 % anual",
+   "period": {
+    "start": "2011-05-01",
+    "end": "2011-05-31"
+   },
+   "source": "Humbird et al. (2011), Process Design and Economics for Biochemical Conversion of Lignocellulosic Biomass to Ethanol, NREL/TP-5100-47764, Tabla 33",
+   "url": "https://docs.nlr.gov/docs/fy11osti/47764.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Condiciones de crédito de EE. UU. en 2011, no de México hoy.",
+   "table": [
+    {
+     "concepto": "plazo del préstamo",
+     "valor": 10,
+     "unidad": "y"
+    },
+    {
+     "concepto": "tasa del préstamo",
+     "valor": 0.08,
+     "unidad": "fraction/y"
+    }
+   ]
+  },
+  {
+   "id": "zafra_duration_mx",
+   "item": "duración de la zafra nacional de caña de azúcar",
+   "aliases": [
+    "zafra",
+    "duración de la zafra",
+    "días de zafra",
+    "dias de zafra",
+    "harvest season",
+    "crushing season"
+   ],
+   "kind": "design_basis",
+   "region": "MX",
+   "value": 262.0,
+   "unit": "d/y",
+   "currency": null,
+   "basis": "del arranque del primer ingenio al cierre del último (49 ingenios), zafra 2023/2024",
+   "period": {
+    "start": "2023-11-09",
+    "end": "2024-07-27"
+   },
+   "source": "SHCP, Cuenta Pública 2024, Tomo VII, Comité Nacional para el Desarrollo Sustentable de la Caña de Azúcar (introducción)",
+   "url": "https://www.cuentapublica.hacienda.gob.mx/work/models/CP/2024/tomo/VII/MAT_Print.8AFU.01.INTRO.pdf",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Es la ventana NACIONAL (9-nov-2023 a 27-jul-2024); cada ingenio muele menos días. No se encontró el promedio de días de zafra por ingenio ni el dato de las zafras 2024/25 y 2025/26.",
+   "stale_after_days": 730
+  },
+  {
+   "id": "location_factor_mx",
+   "item": "factor de localización de México (inversión)",
+   "aliases": [
+    "location factor",
+    "factor de localización",
+    "factor de localizacion",
+    "investment site factor"
+   ],
+   "kind": "design_basis",
+   "region": "MX",
+   "value": 0.88,
+   "unit": "fraction",
+   "currency": null,
+   "basis": "relativo a Washington D.C. / noreste de EE. UU. = 1.0",
+   "period": {
+    "start": "2017-01-01",
+    "end": "2017-12-31"
+   },
+   "source": "IDAES process systems engineering framework, location_factors.json (Compass International, 2017 Worldwide Industrial, edición de muestra)",
+   "url": "https://raw.githubusercontent.com/IDAES/idaes-pse/main/idaes/core/base/location_factors.json",
+   "date_read": "2026-11-16",
+   "source_tier": "primaria",
+   "notes": "Mismo dato que usa packages.costing.annual.location_factor('Mexico'): mínimo 0.84, máximo 0.92, promedio 0.88. Costa del Golfo de EE. UU.: 0.9091. Datos de 2017.",
+   "low": 0.84,
+   "high": 0.92,
+   "stale_after_days": 1825
+  },
+  {
+   "id": "cepci_2024_06",
+   "item": "CEPCI de junio de 2024",
+   "aliases": [
+    "cepci",
+    "chemical engineering plant cost index",
+    "índice de costos de planta",
+    "cepci 2024"
+   ],
+   "kind": "design_basis",
+   "region": "WORLD",
+   "value": 798.8,
+   "unit": "index",
+   "currency": null,
+   "basis": "valor mensual (junio de 2024), no promedio anual",
+   "period": {
+    "start": "2024-06-01",
+    "end": "2024-06-30"
+   },
+   "source": "Towering Skills, Cost Indices (tabla 2011-2024 que reproduce el CEPCI de la revista Chemical Engineering)",
+   "url": "https://toweringskills.com/financial-analysis/cost-indices/",
+   "date_read": "2026-11-16",
+   "source_tier": "secundaria",
+   "notes": "FUENTE SECUNDARIA; los promedios anuales de 2024 y 2025 solo están tras la suscripción de Chemical Engineering y no se abrieron. La misma tabla da 2023 = 797.9 y 2022 = 816.0 (iguales a la tabla del repo) y 2021 = 708.8 (el repo, de IDAES, tiene 708.0).",
+   "stale_after_days": 730
+  }
+ ],
+ "not_found": [
+  {
+   "item": "semilla de higuerilla (ricino)",
+   "aliases": [
+    "castor seed",
+    "castor bean",
+    "semilla de higuerilla",
+    "semilla de ricino",
+    "higuerilla"
+   ],
+   "kind": "raw_material",
+   "searched": "2026-11-16",
+   "why": "Sin precio abierto y fechado: SIAP/SNIIM no devolvieron precio medio rural de higuerilla; NCDEX (India) solo aparece en páginas que no declaran la unidad."
+  },
+  {
+   "item": "metóxido de sodio",
+   "aliases": [
+    "sodium methoxide",
+    "sodium methylate",
+    "metóxido de sodio",
+    "metilato de sodio"
+   ],
+   "kind": "raw_material",
+   "searched": "2026-11-16",
+   "why": "La página de Procurement Resource no existe (404) y no se halló otra fuente abierta con precio fechado."
+  },
+  {
+   "item": "glicerina cruda",
+   "aliases": [
+    "crude glycerol",
+    "crude glycerin",
+    "glicerina cruda",
+    "glicerol crudo"
+   ],
+   "kind": "product",
+   "searched": "2026-11-16",
+   "why": "Solo se halló un precio de glicerina sin grado declarado (glycerol_us), que parece refinada."
+  },
+  {
+   "item": "glicerina refinada (USP)",
+   "aliases": [
+    "refined glycerol",
+    "refined glycerin",
+    "glicerina refinada",
+    "glicerina usp"
+   ],
+   "kind": "product",
+   "searched": "2026-11-16",
+   "why": "Solo se halló un precio de glicerina sin grado declarado (glycerol_us)."
+  },
+  {
+   "item": "melaza de caña",
+   "aliases": [
+    "molasses",
+    "cane molasses",
+    "melaza",
+    "melaza de caña"
+   ],
+   "kind": "product",
+   "searched": "2026-11-16",
+   "why": "No aparece en los reportes de USDA AMS abiertos hoy ni en el Pink Sheet; CONADESUCA no publica precio."
+  },
+  {
+   "item": "dióxido de carbono",
+   "aliases": [
+    "co2",
+    "carbon dioxide",
+    "dióxido de carbono",
+    "co2 líquido"
+   ],
+   "kind": "product",
+   "searched": "2026-11-16",
+   "why": "Sin fuente abierta con precio fechado."
+  },
+  {
+   "item": "caña de azúcar por tonelada de caña",
+   "aliases": [
+    "precio de la caña por tonelada",
+    "sugarcane per tonne"
+   ],
+   "kind": "raw_material",
+   "searched": "2026-11-16",
+   "why": "Solo existe la fórmula legal (sugarcane_mx): hace falta el KARBE del ingenio."
+  },
+  {
+   "item": "maíz amarillo en México",
+   "aliases": [
+    "maíz amarillo méxico",
+    "yellow corn mexico"
+   ],
+   "kind": "raw_material",
+   "searched": "2026-11-16",
+   "why": "SNIIM es un formulario interactivo y no se obtuvo un precio fechado; se usa EE. UU./mundo como respaldo."
+  },
+  {
+   "item": "sorgo en México",
+   "aliases": [
+    "sorgo méxico",
+    "sorghum mexico"
+   ],
+   "kind": "raw_material",
+   "searched": "2026-11-16",
+   "why": "Igual que el maíz: sin precio fechado de SNIIM/SIAP; respaldo EE. UU."
+  },
+  {
+   "item": "etanol, biodiésel, metanol, sosa, ácido sulfúrico y hexano en México",
+   "aliases": [
+    "precios de químicos en méxico"
+   ],
+   "kind": "raw_material",
+   "searched": "2026-11-16",
+   "why": "No se halló precio abierto para México; lookup cae a EE. UU. o al mundo y lo dice."
+  },
+  {
+   "item": "biodiésel B100 mayorista (en planta)",
+   "aliases": [
+    "biodiesel wholesale",
+    "b100 wholesale",
+    "biodiésel mayorista"
+   ],
+   "kind": "product",
+   "searched": "2026-11-16",
+   "why": "USDA AMS lo reporta «sin cotización» la semana del 13 de noviembre de 2026; solo hay precio al público (biodiesel_b100_us)."
+  },
+  {
+   "item": "gas natural en México",
+   "aliases": [
+    "gas natural méxico",
+    "ipgn"
+   ],
+   "kind": "utility",
+   "searched": "2026-11-16",
+   "why": "El índice IPGN de la CNE exige resolver un reCAPTCHA (no se evadió); ver packages/costing/data/utility_price_references.json."
+  },
+  {
+   "item": "WACC publicado para México",
+   "aliases": [
+    "wacc méxico",
+    "wacc mexico",
+    "costo promedio ponderado de capital"
+   ],
+   "kind": "financial",
+   "searched": "2026-11-16",
+   "why": "No se abrió ninguna fuente primaria con un WACC para proyectos industriales en México; hay insumos (CETES, TIIE, prima de riesgo de Damodaran). La tasa social de descuento de la SHCP (10 % según fuentes secundarias) no se abrió en fuente oficial."
+  },
+  {
+   "item": "promedio de días de zafra por ingenio y zafras 2024/25-2025/26",
+   "aliases": [
+    "días de zafra por ingenio"
+   ],
+   "kind": "design_basis",
+   "searched": "2026-11-16",
+   "why": "Solo se abrió la duración nacional de la zafra 2023/2024 (zafra_duration_mx)."
+  },
+  {
+   "item": "CEPCI anual de 2024 y 2025",
+   "aliases": [
+    "cepci 2025",
+    "cepci anual 2024"
+   ],
+   "kind": "design_basis",
+   "searched": "2026-11-16",
+   "why": "Tras la suscripción de Chemical Engineering; solo se abrió el valor mensual de junio de 2024."
+  },
+  {
+   "item": "IVA",
+   "aliases": [
+    "iva",
+    "vat",
+    "impuesto al valor agregado"
+   ],
+   "kind": "fiscal",
+   "searched": "2026-11-16",
+   "why": "No se abrió la LIVA hoy; ningún precio del banco declara incluir o excluir IVA salvo donde lo dice. Los costos se manejan sin IVA."
+  }
+ ]
+}

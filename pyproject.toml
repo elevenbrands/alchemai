@@ -5,6 +5,7 @@ description = "AlchemAI: verified AI agent for chemical process design on top of
 requires-python = ">=3.12"
 dependencies = [
     "anthropic>=2.4.0",
+    "biorefineries>=2.35.1",
     "biosteam>=2.54.0",
     "cantera>=3.2.0",
     "chemicals>=1.5.2",

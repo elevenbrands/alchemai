@@ -47,6 +47,13 @@ from packages.agent.wrappers_dynamic_flowsheet import AGENT_WRAPPERS as _W_DYNAM
 from packages.agent.wrappers_advanced_control import AGENT_WRAPPERS as _W_ADVANCED_CONTROL  # noqa: E402  (bloque M24)
 from packages.agent.wrappers_particles import AGENT_WRAPPERS as _W_PARTICLES  # noqa: E402  (bloque M25)
 from packages.agent.wrappers_momentum import AGENT_WRAPPERS as _W_MOMENTUM  # noqa: E402  (bloque M25)
+from packages.agent.wrappers_reference_prices import AGENT_WRAPPERS as _W_REFERENCE_PRICES  # noqa: E402  (bloque M26)
+from packages.agent.wrappers_plant_economics import AGENT_WRAPPERS as _W_PLANT_ECONOMICS  # noqa: E402  (bloque M26)
+from packages.agent.wrappers_plants import AGENT_WRAPPERS as _W_PLANTS  # noqa: E402  (bloque M26)
+from packages.agent.wrappers_liquid_equipment import AGENT_WRAPPERS as _W_LIQUID_EQUIPMENT  # noqa: E402  (bloque M26)
+from packages.agent.wrappers_batch import AGENT_WRAPPERS as _W_BATCH  # noqa: E402  (bloque M26)
+from packages.agent.wrappers_solids_handling import AGENT_WRAPPERS as _W_SOLIDS_HANDLING  # noqa: E402  (bloque M26)
+from packages.agent.wrappers_utilities_capital import AGENT_WRAPPERS as _W_UTILITIES_CAPITAL  # noqa: E402  (bloque M26)
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -348,6 +355,27 @@ Hard rules:
    method of characteristics, cavitation) and pump_selection (operating point, specific speed, affinity laws, NPSH;
    efficiency only from the user's curve unless the user accepts the flagged Corripio estimate). Rheology, particle
    size, sphericity, densities, pipe elasticity, closure law and pump curves are user data: ASK, never invent.
+
+31. Whole plants and suggested economics (bloque M26). ECONOMIC and DESIGN-BASIS inputs (raw-material and product
+   prices, utility prices, wages, tax, discount rate, plant life, on-stream hours, construction schedule, capital and
+   fixed-cost factors) may now be SUGGESTED without asking, but ONLY from the sourced banks (reference_prices,
+   design_basis_defaults, list_utility_price_references) or a tool that resolves them from those banks
+   (plant_economics); every suggested value is reported as an assumption with its source, period and age, the
+   «Supuestos por confirmar» list is shown, and the ranked sensitivity tells the user which ones to confirm first. A value
+   the banks do not have stays MISSING (say what it blocks); never make one up. This overrides rules 12 and 26 for
+   economic inputs only. PHYSICAL, KINETIC and COMPOSITIONAL data of the user's material (oil content, yields,
+   kinetics, moisture, work index, cake moisture, U, cp, BPR, drop size) keep the old rule: ask, or offer the published
+   helper values the tools list, passed explicitly and labelled. «Design me a plant» requests: (a) if a published
+   reference model fits, call reference_biorefinery (sugarcane_ethanol, corn_ethanol, cornstover_ethanol) or
+   biodiesel_plant (triolein, tripalmitin, castor/higuerilla — castor is a declared pseudo-triglyceride: say so) and
+   report its published_benchmark deviations; (b) otherwise build the sections with DWSIM and the M26 unit tools
+   (oil_extraction, size_reduction, solids_conveying, solid_liquid_separation, liquid_liquid_extraction,
+   multi_effect_evaporator, storage_tank, batch_fermentation, batch_distillation, cooling_tower_design,
+   steam_boiler_design, wastewater_treatment_cost), collect every returned `equipment`/`capital_items` list and the
+   material/utility flows, and call plant_economics ONCE; then plant_report for the deliverable and
+   hazop_from_process_description (or hazop_preliminary for a DWSIM flowsheet) for the preliminary HAZOP. When the user
+   brings real data, call plant_economics_update with the previous inputs_resolved and show the changes table. Say
+   plainly when a technology's prices make the plant unprofitable; do not tune anything to make it look viable.
 
 Finish with ONE fenced JSON block, nothing after it:
 ```json
@@ -1461,7 +1489,9 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                packed_column_hydraulics, fopdt_identify, pid_tuning, pid_closed_loop, hazop_preliminary, export_flowsheet,
                hazop_from_dexpi, pid_from_hazop, lopa_from_hazop, release_source_term, gas_dispersion,
                fire_radiation, explosion_overpressure, pipe_network, vle_binary_regression, close_flowsheet,
-               *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL, *_W_PARTICLES, *_W_MOMENTUM]
+               *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL, *_W_PARTICLES, *_W_MOMENTUM,
+               *_W_REFERENCE_PRICES, *_W_PLANT_ECONOMICS, *_W_PLANTS, *_W_LIQUID_EQUIPMENT, *_W_BATCH,
+               *_W_SOLIDS_HANDLING, *_W_UTILITIES_CAPITAL]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 
