@@ -48,8 +48,8 @@ def refinery_model(refinery: str = "tula", crude_slate: dict | None = None, util
     today: fecha ISO para la antigüedad de los precios.
     mode: 'as_operated' (por defecto: la refinería COMO OPERA en el periodo) o 'nameplate' (cada unidad a su capacidad
       publicada). En 'as_operated' lo que Pemex no publica pero se ve en su producción se RESUELVE para reproducirla, un
-      parámetro por producto: utilización de la coquizadora → combustóleo, fracción de querosina a turbosina → turbosina,
-      fracción de destilado a combustóleo como diluente → combustóleo SÓLO donde no lo usa ya la coquizadora (ahí el diésel
+      parámetro por producto: utilización de la coquizadora → coque publicado (barriles Pemex a toneladas con 0.129 t/bbl, factor DERIVADO de toneladas ASF 2016 / barriles eBDI 2016; si no hay coque publicado, → combustóleo), fracción de querosina a turbosina → turbosina,
+      fracción de destilado a combustóleo como diluente → combustóleo SÓLO si ningún otro parámetro lo usa (ahí el diésel
       queda como validación), fracción de butanos enviada a los complejos procesadores de gas → gas licuado (Pemex excluye la mezcla de butanos de
       su gas licuado de refinería) y, si el diésel queda libre, conversión del FCC → diésel (sólo si se alcanza dentro de la
       tabla publicada; si no, queda en el caso central 66.47 % peso y el diésel sigue como validación; ver

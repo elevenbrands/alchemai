@@ -71,7 +71,9 @@ NOT_INCLUDED = [
     "hidrógeno y recuperación real de las plantas de azufre (se reporta el azufre potencial en el gas ácido).",
     "Consumo real de hidrógeno de los hidrotratamientos: se calcula sólo el estequiométrico de la desulfuración (cota "
     "inferior).",
-    "Mermas, autoconsumos de producto, inventarios, paros y transferencias entre refinerías.",
+    "Mermas, autoconsumos de producto, inventarios, paros y transferencias entre refinerías (no hay dato abierto por "
+    "refinería; el BNE 2024 da el consumo propio de líquidos de TODO el sector energético, que se usa sólo como cota en "
+    "published_comparison.liquid_excess_diagnosis).",
     "Costo de construir la refinería (VPN): la refinería existe; la rentabilidad aquí es el margen de operación.",
 ]
 
@@ -1038,14 +1040,20 @@ def _compare(ref: dict, period: str, pools: dict, is_published: bool, warnings: 
         rows.append({"product": m, "published_mbd": v, "model_mbd": model,
                      "deviation_pct": (100 * (model - v) / v) if v else None,
                      "note": "dato de entrada (no es predicción)" if m == "asfalto" else None})
+    vc = pub.get("coque")
+    fct = coke_t_per_bbl()
+    mc = pools["coque"]["kg_d"] / 1000.0 / fct / 1000.0
+    rows.append({"product": "coque", "published_mbd": vc, "model_mbd": mc,
+                 "deviation_pct": (100 * (mc - vc) / vc) if vc else None,
+                 "model_t_d": pools["coque"]["kg_d"] / 1000.0, "published_t_d_derived": (vc * 1000.0 * fct) if vc is not None else None,
+                 "note": f"coque en barriles Pemex convertido con {fct} t/bbl, factor DERIVADO (toneladas ASF 2016 / barriles "
+                         f"eBDI 2016; intervalo 0.122-0.135); sólo coque de coquizadora"})
     liq_pub = sum(pub.get(p) or 0.0 for _, p in pairs)
     liq_mod = sum(pools[m]["bpd"] for m, p in pairs if pub.get(p) is not None) / 1000.0     # same products on both sides
     out = {"period": period, "rows": rows, "liquids_published_mbd": liq_pub, "liquids_model_mbd": liq_mod,
            "liquids_deviation_pct": 100 * (liq_mod - liq_pub) / liq_pub if liq_pub else None,
            "liquids_basis": "suma de los productos con dato publicado (los N/D se excluyen de ambos lados)",
-           "not_compared": {"coque": {"published_mbd": pub.get("coque"), "model_t_d": pools["coque"]["kg_d"] / 1000,
-                                      "why": "Pemex publica el coque en barriles sin densidad; el modelo da toneladas."},
-                            "gas_seco": {"published_mbpce": pub.get("gas_seco_mbpce"), "model_t_d": pools["gas_seco"]["kg_d"] / 1000,
+           "not_compared": {"gas_seco": {"published_mbpce": pub.get("gas_seco_mbpce"), "model_t_d": pools["gas_seco"]["kg_d"] / 1000,
                                          "why": "Pemex lo publica en barriles de crudo equivalente sin factor publicado."}},
            "comparable": is_published,
            "level": "VALIDACIÓN contra producción publicada (sin calibrar): los rendimientos no se ajustaron a estos datos."}
@@ -1311,6 +1319,54 @@ CAL_DEFAULT = {"coker_utilization": 1.0, "kerosene_to_jet_fraction": 1.0, "butan
                "cutter_fraction": 0.0}
 
 
+def coke_t_per_bbl() -> float:
+    """Tonnes per published Pemex barrel of coke, DERIVED from ASF 2016 tonnes / eBDI 2016 barrels (see unit_yields)."""
+    return float(_load("unit_yields.json")["pemex_coke_t_per_bbl"]["value"])
+
+
+def _cal_value(res: dict, product: str) -> float:
+    """Calibration observable: b/d for liquids; t/d for coke (published Mbd x 1000 x t/bbl)."""
+    if product == "coque":
+        return res["product_slate"]["coque"]["kg_h"] * 24.0 / 1000.0      # t/d
+    return res["product_slate"][product]["bpd"]
+
+
+def _liquid_excess_diagnosis(comp: dict) -> dict:
+    """Is the diesel excess a routing error or too much liquid overall, and can refinery own use explain it? Own use of
+    liquid fuels from SENER's BNE 2024 (whole energy sector, an UPPER bound for refineries), as a share of refinery output
+    by energy, applied to the published volumes (equal energy per barrel across products: approximation, declared)."""
+    rows = {r["product"]: r for r in comp["rows"]}
+    d = rows.get("diesel", {})
+    if d.get("published_mbd") is None or comp.get("liquids_published_mbd") in (None, 0):
+        return {"applicable": False}
+    bne = _load("unit_yields.json")["energy_sector_own_use_bne_2024"]
+    keys = ("glp", "gasolinas", "querosenos", "diesel", "combustoleo")
+    r_liq = sum(bne["own_use_PJ"][k] for k in keys) / sum(bne["refinery_output_PJ"][k] for k in keys)
+    r_dsl = bne["own_use_PJ"]["diesel"] / bne["refinery_output_PJ"]["diesel"]
+    d_exc = d["model_mbd"] - d["published_mbd"]
+    l_exc = comp["liquids_model_mbd"] - comp["liquids_published_mbd"]
+    ub_l = comp["liquids_published_mbd"] * r_liq / (1.0 - r_liq)
+    ub_d = d["published_mbd"] * r_dsl / (1.0 - r_dsl)
+    out = {"applicable": True, "diesel_excess_mbd": d_exc, "liquids_excess_mbd": l_exc,
+           "own_use_share_liquids_energy": r_liq, "own_use_share_diesel_energy": r_dsl,
+           "own_use_upper_bound_liquids_mbd": ub_l, "own_use_upper_bound_diesel_mbd": ub_d,
+           "source": bne["source"], "url": bne["url"], "scope": bne["scope"]}
+    if d_exc > 0.10 * d["published_mbd"] and l_exc > 0.5 * d_exc:
+        out["text_es"] = (
+            f"Diagnóstico: el exceso de diésel ({d_exc:+.1f} Mbd) va con un exceso de líquidos totales ({l_exc:+.1f} Mbd): el "
+            f"modelo hace demasiado LÍQUIDO, no sólo lo rutea mal. El autoconsumo de combustibles líquidos no lo explica: "
+            f"aun suponiendo que todo el consumo propio del sector energético (SENER, BNE 2024: "
+            f"{100 * r_liq:.1f} % de la energía de los líquidos de refinería; diésel {100 * r_dsl:.1f} %) ocurriera en "
+            f"refinerías y Pemex lo excluyera de su elaboración, explicaría a lo más {ub_l:.1f} Mbd de líquidos "
+            f"({ub_d:.1f} Mbd de diésel). La causa sigue abierta (cortes de destilación, rendimientos de conversión, "
+            f"mermas no publicadas).")
+    return out
+
+
+def _cal_unit(product: str) -> str:
+    return "kt/d (coque, factor derivado)" if product == "coque" else "Mbd"
+
+
 def _cal_bounds(name: str) -> tuple[float, float]:
     return fcc_conversion_bounds() if name == "fcc_conversion_wt_pct" else (0.0, 1.0)
 CAL_TOL_REL = 1e-6
@@ -1379,16 +1435,15 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
         target = pub.get(pkey)
         if name == "kerosene_to_jet_fraction" and target is None and pub.get("diesel") is not None:
             product, target = "diesel", pub.get("diesel")     # jet not published (N/D): the split shows in diesel
+        if name == "coker_utilization" and pub.get("coque"):
+            # published coke (barrels) -> t/d with the factor DERIVED from ASF tonnes / eBDI barrels (2016); the coke
+            # identifies the coker directly and leaves fuel oil free for the cutter
+            product, target = "coque", pub["coque"] * coke_t_per_bbl()
         if given:
             continue
         if name == "coker_utilization" and first["capacities_mbd"]["coker"]["mbd"] <= 0:
             continue
         if name == "fcc_conversion_wt_pct" and not has_fcc:
-            continue
-        if name == "cutter_fraction" and first["capacities_mbd"]["coker"]["mbd"] > 0 and target is not None:
-            # with a coker, fuel oil is the coker's signal (calibrated, or fixed by the user in a what-if): never re-fit
-            # it with the cutter
-            not_identified.append((name, product))
             continue
         if name == "fcc_conversion_wt_pct" and any(f[0] == "cutter_fraction" for f in free):
             # the cutter already moves middle distillate (and LCO) between diesel and fuel oil: diesel is kept as the
@@ -1408,7 +1463,7 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
         values = {name: (conv_mid if name == "fcc_conversion_wt_pct" else CAL_DEFAULT[name]) for name, *_ in free_set}
 
         def product_at(name: str, x: float, product: str) -> float:
-            return _run_core(**_kwargs_with(base, {**values, name: x}))["product_slate"][product]["bpd"]
+            return _cal_value(_run_core(**_kwargs_with(base, {**values, name: x})), product)
 
         status = {}
         for _ in range(4):                  # Gauss-Seidel passes (couplings: coker LPG and gas oil, FCC LCO to fuel oil)
@@ -1448,15 +1503,16 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
     res = _run_core(**_kwargs_with(base, values))
     cal = {}
     for name, product, target, sign in free:
-        model = res["product_slate"][product]["bpd"]
+        model = _cal_value(res, product)
         cal[name] = {"value": values[name], "fitted_to": product, "published_bpd": target, "model_bpd": model,
                      "residual_rel": (model - target) / target if target else model, "status": status.get(name),
-                     "bounds": list(_cal_bounds(name)), "flag": "CALIBRADO a la producción publicada (no es validación)"}
+                     "bounds": list(_cal_bounds(name)), "flag": "CALIBRADO a la producción publicada (no es validación)",
+                     "unit": "t/d (published_bpd/model_bpd son t/d para el coque)" if product == "coque" else "b/d"}
         if not str(status.get(name)).startswith("resuelto"):
-            res["warnings"].append(f"Calibración de {name}: {status.get(name)} ({product}: publicado {target / 1000:.2f} Mbd, "
-                                   f"modelo {model / 1000:.2f} Mbd).")
+            res["warnings"].append(f"Calibración de {name}: {status.get(name)} ({product}: publicado {target / 1000:.2f} {_cal_unit(product)}, "
+                                   f"modelo {model / 1000:.2f} {_cal_unit(product)}).")
     res["assumptions"].append("mode='as_operated': " + "; ".join(
-        f"{n} = {c['value']:.4f} CALIBRADO para reproducir {c['fitted_to']} publicado ({c['published_bpd'] / 1000:.3f} Mbd)"
+        f"{n} = {c['value']:.4f} CALIBRADO para reproducir {c['fitted_to']} publicado ({c['published_bpd'] / 1000:.3f} {_cal_unit(c['fitted_to'])})"
         for n, c in cal.items()) + ". Pemex no publica estos valores; son ajustes, no validación.")
     if conv_unidentified:
         probe = _run_core(**_kwargs_with(base, {**values, "fcc_conversion_wt_pct": conv_unidentified["value_at_bound"]}))
@@ -1482,7 +1538,11 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
                                f"assumptions).")
     fitted = {c["fitted_to"] for c in cal.values()}
     comp = res["published_comparison"]
+    has_coker = res["capacities_mbd"]["coker"]["mbd"] > 0
     for row in comp["rows"]:
+        if row["product"] == "coque" and not has_coker and row["published_mbd"] is not None:
+            row["role"] = "no comparable (sin coquizadora en la eBDI; el modelo no produce coque)"
+            continue
         row["role"] = ("sin dato publicado (N/D)" if row["published_mbd"] is None else
                        "dato de entrada" if row["product"] == "asfalto" else
                        "ajustado" if row["product"] in fitted else "validación")
@@ -1507,6 +1567,9 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
                 "Diagnóstico: mismo crudo y mismos precios, pero con la producción PUBLICADA de los seis productos líquidos en "
                 "lugar de la modelada (sin gas seco, coque ni azufre). La diferencia con gross_margin_usd_bbl es el efecto de "
                 "los productos no ajustados (gasolinas, diésel) y del volumen de líquidos que el modelo sobrestima.")
+    comp["liquid_excess_diagnosis"] = _liquid_excess_diagnosis(comp)
+    if comp["liquid_excess_diagnosis"].get("text_es"):
+        res["warnings"].append(comp["liquid_excess_diagnosis"]["text_es"])
     at_bound = [n for n, c in cal.items() if not str(c["status"]).startswith("resuelto")]
     unpublished = [r["product"] for r in comp["rows"] if r["published_mbd"] is None]
     comp["unpublished_products"] = unpublished
@@ -1514,10 +1577,12 @@ def run_model(refinery: str = "tula", period: str | None = None, year: int | Non
     if at_bound:
         text.append("Calibración EN EL LÍMITE (el modelo no reproduce el dato publicado): " + "; ".join(
             f"{n} = {cal[n]['value']:.2f} → {cal[n]['fitted_to']} modelo {cal[n]['model_bpd'] / 1000:.2f} vs publicado "
-            f"{cal[n]['published_bpd'] / 1000:.2f} Mbd" for n in at_bound) + ".")
+            f"{cal[n]['published_bpd'] / 1000:.2f} {_cal_unit(cal[n]['fitted_to'])}" for n in at_bound) + ".")
     if unpublished:
         text.append(f"Pemex no publica (N/D) {unpublished} para este periodo: N/D no es cero; esos productos no se comparan "
                     f"ni se calibran.")
+    if comp["liquid_excess_diagnosis"].get("text_es"):
+        text.append(comp["liquid_excess_diagnosis"]["text_es"])
     if any(c["fitted_to"] == "diesel" for c in cal.values()):
         text.append("Como la turbosina no está publicada, la fracción de querosina a turbosina se ajustó al diésel.")
     res["calibration_summary"] = {"at_bound": at_bound, "unpublished_products": unpublished,

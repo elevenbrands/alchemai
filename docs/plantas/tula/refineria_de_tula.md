@@ -20,42 +20,44 @@ Procesa 221,583 barriles diarios de crudo.
 
 | Producto | Modelo, bbl/d | Modelo, t/h | % vol. del crudo |
 |---|---|---|---|
-| gasolina | 87,491 | 454.1 | 39.5 |
+| gasolina | 85,666 | 444.6 | 38.7 |
 | turbosina | 20,908 | 112.4 | 9.4 |
-| diesel | 59,958 | 341.0 | 27.1 |
-| combustoleo | 21,307 | 147.1 | 9.6 |
+| diesel | 59,710 | 339.5 | 26.9 |
+| combustoleo | 25,420 | 175.1 | 11.5 |
 | asfalto | 2,882 | 19.7 | 1.3 |
-| coque | — (se reporta en masa) | 59.5 | 0.0 |
-| glp | 11,298 | 40.2 | 5.1 |
-| butanos | 5,852 | 22.9 | 2.6 |
-| gas_seco | — (se reporta en masa) | 36.0 | 0.0 |
+| coque | — (se reporta en masa) | 48.5 | 0.0 |
+| glp | 11,298 | 40.4 | 5.1 |
+| butanos | 5,233 | 20.5 | 2.4 |
+| gas_seco | — (se reporta en masa) | 33.2 | 0.0 |
 
 | Producto | Tipo de comparación | Desviación |
 |---|---|---|
-| gasolina | validación | -2.6 % |
+| gasolina | validación | -4.6 % |
 | turbosina | ajustado | 0.0 % |
-| diesel | validación | 44.3 % |
-| combustoleo | ajustado | -0.0 % |
+| diesel | validación | 43.7 % |
+| combustoleo | ajustado | 19.3 % |
 | glp | ajustado | 0.0 % |
 | asfalto | dato de entrada | 0.0 % |
+| coque | ajustado | -0.0 % |
 
-**Calidad de la calibración:** Todas las calibraciones reproducen su producto publicado.
+**Calidad de la calibración:** Calibración EN EL LÍMITE (el modelo no reproduce el dato publicado): cutter_fraction = 0.00 → combustoleo modelo 25.42 vs publicado 21.31 Mbd. Diagnóstico: el exceso de diésel (+18.2 Mbd) va con un exceso de líquidos totales (+18.1 Mbd): el modelo hace demasiado LÍQUIDO, no sólo lo rutea mal. El autoconsumo de combustibles líquidos no lo explica: aun suponiendo que todo el consumo propio del sector energético (SENER, BNE 2024: 2.9 % de la energía de los líquidos de refinería; diésel 7.0 %) ocurriera en refinerías y Pemex lo excluyera de su elaboración, explicaría a lo más 5.6 Mbd de líquidos (3.1 Mbd de diésel). La causa sigue abierta (cortes de destilación, rendimientos de conversión, mermas no publicadas).
 
 Parámetros CALIBRADOS (no publicados por Pemex; ajustados para reproducir un producto publicado):
 
-- coker_utilization: 0.264 (ajustado a combustoleo)
+- coker_utilization: 0.215 (ajustado a coque)
+- cutter_fraction: 0.000 (ajustado a combustoleo)
 - kerosene_to_jet_fraction: 0.536 (ajustado a turbosina)
-- butanes_to_gas_plants_fraction: 0.842 (ajustado a glp)
+- butanes_to_gas_plants_fraction: 0.782 (ajustado a glp)
 
 ## Rentabilidad (margen de operación; la refinería ya existe)
 
 | Indicador | USD/bbl |
 |---|---|
-| Margen bruto del modelo | 22.17 |
+| Margen bruto del modelo | 21.92 |
 | Margen bruto con la producción PUBLICADA (misma mezcla de crudo y precios) | 9.34 |
-| Energía | 2.28 |
+| Energía | 2.26 |
 | Costo fijo (referencia) | 4.86 |
-| Margen neto del modelo | 15.02 |
+| Margen neto del modelo | 14.80 |
 
 La cifra más defendible es el margen con la producción publicada: el modelo produce más diésel y líquidos que la refinería real (ver validación), lo que infla su margen. Diagnóstico: mismo crudo y mismos precios, pero con la producción PUBLICADA de los seis productos líquidos en lugar de la modelada (sin gas seco, coque ni azufre). La diferencia con gross_margin_usd_bbl es el efecto de los productos no ajustados (gasolinas, diésel) y del volumen de líquidos que el modelo sobrestima.
 
@@ -81,8 +83,8 @@ Precios usados (referencias publicadas, NO cotizaciones):
 
 ## Oportunidades de mejora (numeradas en el diagrama)
 
-1. **Completar el arranque de la coquizadora y operarla a su capacidad publicada** — USD 87,138,470/año (rango 43,569,235–87,138,470). Confianza media.
-   La coquizadora opera al 26 % (valor CALIBRADO para reproducir el combustóleo publicado). A capacidad, convierte residuo de vacío (que hoy sale como combustóleo, el producto más barato) en gasolina, diésel y gas; el modelo valúa ese cambio con los mismos precios.
+1. **Completar el arranque de la coquizadora y operarla a su capacidad publicada** — USD 105,518,412/año (rango 52,759,206–105,518,412). Confianza media.
+   La coquizadora opera al 22 % (valor CALIBRADO para reproducir el coque publicado). A capacidad, convierte residuo de vacío (que hoy sale como combustóleo, el producto más barato) en gasolina, diésel y gas; el modelo valúa ese cambio con los mismos precios.
 
 No evaluado por falta de datos públicos:
 
@@ -127,20 +129,20 @@ No evaluado por falta de datos públicos:
 - LCO: entra a diésel sólo después del destilado primario y dentro de la capacidad de hidrodesulfuración publicada (propia de la HDS de diésel si existe, si no la libre de hds_total); el exceso va a combustóleo (Laredo et al., IMP 2002: el uso de ACL en diésel en México está restringido).
 - Reformadora: vector fijo del ejemplo publicado a RON 98 (carga 51.7 °API); el H2S del ejemplo se excluye.
 - ⚠ Reductora de viscosidad modelada como paso a combustóleo sin cambio de rendimientos: no se abrió hoy un vector de rendimientos publicado (reduce viscosidad; su pequeña producción de gas y nafta no se ve).
-- ⚠ Rendimientos del FCC de una tabla de planta piloto con carga de 22.5 °API y 0.55 % S; la carga modelada tiene 22.8 °API y 2.41 % S (se usan los mismos rendimientos; el azufre con el reparto del ejemplo de Jechura).
+- ⚠ Rendimientos del FCC de una tabla de planta piloto con carga de 22.5 °API y 0.55 % S; la carga modelada tiene 22.8 °API y 2.33 % S (se usan los mismos rendimientos; el azufre con el reparto del ejemplo de Jechura).
 - ⚠ Los precios internos de Pemex (MXN, ene-sep 2026) se pasan a USD con el FIX 18.5525 MXN/USD del 2026-11-13 (no es el promedio del periodo): da prices['fx_mxn_usd'] si tienes el promedio.
 - ⚠ Gas natural: no hay precio para México en el banco; se usa US (3.971 USD/GJ).
 - ⚠ Sin precio publicado para ['coque', 'azufre']: su valor NO se suma a los ingresos (margen conservador). Dalo en prices ({'coque': 'USD/t', 'azufre': 'USD/t'}).
 - ⚠ Ensaye maya: la masa sumada de los cortes difiere -0.29 % de la del crudo entero por su °API (inconsistencia de la tabla publicada); el modelo usa la suma de los cortes.
 - ⚠ Ensaye istmo: la masa sumada de los cortes difiere -0.73 % de la del crudo entero por su °API (inconsistencia de la tabla publicada); el modelo usa la suma de los cortes.
 - ⚠ Ensaye istmo: el residuo 651+ °F publicado (44.3 % vol) no es la suma de gasóleo pesado + residuo de vacío (43.3 % vol); el modelo usa los dos cortes.
-- ⚠ La conversión del FCC NO se calibra: ni en el borde de la tabla publicada (76.33 % peso) el diésel modelado (54.6 Mbd) alcanza el publicado (41.6 Mbd); la diferencia no es efecto de la conversión. Se usa el caso central publicado (66.47 % peso) y el diésel queda como validación.
-- ⚠ cutter_fraction NO se calibra: su producto identificador (combustoleo) ya lo ajusta otro parámetro y no hay otro producto publicado que lo identifique; se usa el valor por defecto (ver assumptions).
+- ⚠ Calibración de cutter_fraction: en el límite: el producto publicado no se alcanza dentro de 0-1 (combustoleo: publicado 21.31 Mbd, modelo 25.42 Mbd).
+- ⚠ Diagnóstico: el exceso de diésel (+18.2 Mbd) va con un exceso de líquidos totales (+18.1 Mbd): el modelo hace demasiado LÍQUIDO, no sólo lo rutea mal. El autoconsumo de combustibles líquidos no lo explica: aun suponiendo que todo el consumo propio del sector energético (SENER, BNE 2024: 2.9 % de la energía de los líquidos de refinería; diésel 7.0 %) ocurriera en refinerías y Pemex lo excluyera de su elaboración, explicaría a lo más 5.6 Mbd de líquidos (3.1 Mbd de diésel). La causa sigue abierta (cortes de destilación, rendimientos de conversión, mermas no publicadas).
 - No incluye: Cinética de reactores, diseño de columnas y efecto de las condiciones de operación: cada unidad usa UN vector de rendimiento publicado a una condición fija (reformadora a RON 98); el FCC usa rendimientos contra conversión de UNA tabla de planta piloto (una carga de 22.5 °API y 0.55 % S, un catalizador), no la carga ni el catalizador de Pemex.
 - No incluye: Diluente (cutter) del combustóleo: no se calcula por viscosidad (no hay viscosidad abierta del residuo de vacío ni receta publicada); es una fracción del destilado intermedio (cutter_fraction), calibrada al combustóleo sólo donde éste no identifica ya la coquizadora; donde sí, queda en 0 (no identificable).
 - No incluye: Optimización (programación lineal) de la carga, de los cortes y del destino de las corrientes: el ruteo es fijo.
 - No incluye: Calidad de mezclas: octano, cetano, presión de vapor, viscosidad del combustóleo y diluentes.
 - No incluye: Isomerización (su capacidad está sumada a la de alquilación en la eBDI y no hay reparto publicado), H-Oil, planta de hidrógeno y recuperación real de las plantas de azufre (se reporta el azufre potencial en el gas ácido).
 - No incluye: Consumo real de hidrógeno de los hidrotratamientos: se calcula sólo el estequiométrico de la desulfuración (cota inferior).
-- No incluye: Mermas, autoconsumos de producto, inventarios, paros y transferencias entre refinerías.
+- No incluye: Mermas, autoconsumos de producto, inventarios, paros y transferencias entre refinerías (no hay dato abierto por refinería; el BNE 2024 da el consumo propio de líquidos de TODO el sector energético, que se usa sólo como cota en published_comparison.liquid_excess_diagnosis).
 - No incluye: Costo de construir la refinería (VPN): la refinería existe; la rentabilidad aquí es el margen de operación.

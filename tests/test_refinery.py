@@ -18,6 +18,10 @@ Sources (date read 2026-11-16):
   [GLO]  Pemex eBDI «Términos usados en la Industria Petrolera» (2006), entry «Combustóleo»: vacuum residue blended with
          other residues, «se utilizan diluyentes para ajustar las especificaciones», 475-550 SSF at 50 °C
          https://ebdi.pemex.com/bdi/docs/Diccio_marzo2006-4_en.pdf
+  [ASF]  ASF Cuenta Pública 2016, auditoría 0474 «Contratos para la comercialización de coque», real coke production 2016
+         (t) https://www.asf.gob.mx/Trans/Informes/IR2016ii/Documentos/Auditorias/2016_0474_a.pdf ; eBDI REPETRE annual 2016
+  [BNE]  SENER, Balance Nacional de Energía 2024, Table 6.3 (own use of the energy sector and refinery output, PJ)
+         https://odondebuenr.com.mx/wp-content/uploads/2026/04/Balance-Nacional-de-Energia-2024.pdf
   [IIR]  Industrial Info Resources, Dos Bocas, 5-feb-2026 (alkylation / butane isomerization still in start-up)
          https://www.industrialinfo.com/news/article/pemexs-dos-bocas-refinery-moves-toward-full-operations--352954
 """
@@ -137,21 +141,22 @@ def test_lco_limited_by_hds_capacity_excess_to_fuel_oil():
 
 
 def test_fcc_conversion_calibration_flags_and_bounds():
-    """Madero: conversion is identified by diesel inside the table (69.60 wt%, CALIBRATED, diesel no longer validation);
-    Tula: not identifiable (at the 76.33 edge the diesel gap remains) -> central case 66.47, warned. Never more fitted
-    parameters than published (non-input) products."""
-    m = TR.refinery_model("madero", today="2026-11-16")
+    """Madero with the cutter fixed by the user (so diesel is free): conversion is identified by diesel inside the table
+    (68.82 wt%, CALIBRATED, diesel no longer validation); Tula with the cutter fixed: not identifiable (at the 76.33 edge
+    the diesel gap remains) -> central case 66.47, warned. Never more fitted parameters than published products."""
+    m = TR.refinery_model("madero", today="2026-11-16", unit_overrides={"cutter_fraction": 0.0})
     c = m["calibrated_parameters"]["fcc_conversion_wt_pct"]
-    assert c["value"] == pytest.approx(69.60, abs=0.02) and c["status"] == "resuelto" and c["bounds"] == [58.98, 76.33]
+    assert c["value"] == pytest.approx(68.82, abs=0.02) and c["status"] == "resuelto" and c["bounds"] == [58.98, 76.33]
     assert abs(c["residual_rel"]) < 1e-6 and "CALIBRADO" in c["flag"]
     roles = {r["product"]: r["role"] for r in m["published_comparison"]["rows"]}
     assert roles["diesel"] == "ajustado" and roles["gasolina"] == "validación"
-    for r in (m, TR.refinery_model("tula", today="2026-11-16")):
+    t = TR.refinery_model("tula", today="2026-11-16", unit_overrides={"cutter_fraction": 0.0})
+    for r in (m, t, TR.refinery_model("tula", today="2026-11-16")):
         n_pub = len([x for x in r["published_comparison"]["rows"] if x["role"] not in ("dato de entrada",
                                                                                        "sin dato publicado (N/D)")])
         assert len(r["calibrated_parameters"]) <= n_pub
-    t = TR.refinery_model("tula", today="2026-11-16")
     assert any("La conversión del FCC NO se calibra" in w for w in t["warnings"])
+    assert t["fcc_conversion_identification"]["used_value"] == 66.47
     u = TR.refinery_model("tula", today="2026-11-16", unit_overrides={"fcc_conversion_wt_pct": 70.0})
     assert "fcc_conversion_wt_pct" not in u["calibrated_parameters"]
     assert {x["unit"]: x for x in u["unit_table"]}["fcc"]["conversion_wt_pct"] == 70.0
@@ -174,10 +179,11 @@ def test_cutter_fraction_conserves_and_moves_distillate_to_fuel_oil():
 
 
 def test_cutter_calibrated_only_where_fuel_oil_is_free_diesel_is_validation():
-    """[BDI][GLO] Salina Cruz and Salamanca (no coker): cutter_fraction CALIBRATED to fuel oil (0.509, 0.248) and diesel is
-    the independent validation: Salina Cruz diesel +92.5 % -> -5.5 %, Salamanca +44.4 % -> +8.5 % (measured). Where the
-    coker already uses fuel oil (Tula) the cutter is not identifiable and stays 0, warned."""
-    for ref, x, d in (("salina_cruz", 0.509, -5.51), ("salamanca", 0.2481, 8.54)):
+    """[BDI][GLO][ASF] cutter_fraction CALIBRATED to fuel oil wherever fuel oil is free: no coker (Salina Cruz 0.509,
+    Salamanca 0.248) or coker identified by published coke (Cadereyta 0.243). Diesel is the independent validation:
+    Salina Cruz +92.5 % -> -5.5 %, Salamanca +44.4 % -> +8.5 %, Cadereyta +15.9 % -> -11.0 % (measured). At Tula the
+    model already over-makes fuel oil with no cutter: cutter at its bound 0, flagged."""
+    for ref, x, d in (("salina_cruz", 0.509, -5.51), ("salamanca", 0.2481, 8.54), ("cadereyta", 0.2432, -11.01)):
         r = TR.refinery_model(ref, today="2026-11-16")
         c = r["calibrated_parameters"]["cutter_fraction"]
         assert c["value"] == pytest.approx(x, abs=0.002) and c["status"] == "resuelto" and abs(c["residual_rel"]) < 1e-6
@@ -188,8 +194,31 @@ def test_cutter_calibrated_only_where_fuel_oil_is_free_diesel_is_validation():
         assert "fcc_conversion_wt_pct" not in r["calibrated_parameters"]
         assert r["fcc_conversion_identification"]["status"].startswith("no calibrada: el diésel se reserva")
     t = TR.refinery_model("tula", today="2026-11-16")
-    assert "cutter_fraction" not in t["calibrated_parameters"]
-    assert any(w.startswith("cutter_fraction NO se calibra") for w in t["warnings"])
+    c = t["calibrated_parameters"]["cutter_fraction"]
+    assert c["value"] == 0.0 and c["status"].startswith("en el límite") and "cutter_fraction" in t["calibration_summary"]["at_bound"]
+
+
+def test_coke_factor_derivation_and_coker_identified_by_coke():
+    """[ASF][BDI] t/bbl of Pemex coke DERIVED from 2016 real production (ASF: Cadereyta 560,179.0 t, Madero 601,400.7 t,
+    Minatitlán 770,747.5 t) over eBDI 2016 coke (12.556, 12.198, 16.148 Mbd), 366 days: 0.1219 / 0.1347 / 0.1304, pooled
+    0.12908 t/bbl. The coker is fitted to published coke where coke is published and a coker exists; at Salamanca and
+    Salina Cruz (coke published, no coker in the eBDI) coke is reported as not comparable."""
+    y = M._load("unit_yields.json")["pemex_coke_t_per_bbl"]
+    d = y["derivation"]
+    per = {k: d["tonnes_2016"][k] / d["days_2016"] / (1000 * d["mbd_2016"][k]) for k in d["tonnes_2016"]}
+    for k, v in per.items():
+        assert v == pytest.approx(d["t_per_bbl"][k], abs=5e-5), k
+    pooled = sum(d["tonnes_2016"].values()) / d["days_2016"] / (1000 * sum(d["mbd_2016"].values()))
+    assert pooled == pytest.approx(y["value"], abs=5e-5) and min(per.values()) >= y["range"][0] - 1e-5
+    for ref, util in (("tula", 0.2152), ("cadereyta", 0.409), ("madero", 0.445), ("minatitlan", 0.385), ("dos_bocas", 0.4254)):
+        r = TR.refinery_model(ref, today="2026-11-16")
+        c = r["calibrated_parameters"]["coker_utilization"]
+        assert c["fitted_to"] == "coque" and c["value"] == pytest.approx(util, abs=0.003) and c["unit"].startswith("t/d"), ref
+        row = {q["product"]: q for q in r["published_comparison"]["rows"]}["coque"]
+        assert row["model_t_d"] == pytest.approx(row["published_t_d_derived"], rel=1e-6)
+    s = TR.refinery_model("salamanca", today="2026-11-16")
+    row = {q["product"]: q for q in s["published_comparison"]["rows"]}["coque"]
+    assert row["role"].startswith("no comparable")
 
 
 def test_coker_example_volumes_and_h2s():
@@ -246,36 +275,38 @@ def test_published_production_tula_jan_sep_2026(tula):
 
 
 def test_as_operated_calibration_and_validation(tula_op):
-    """AS-OPERATED: three CALIBRATED parameters (one per product, within 0..1) reproduce fuel oil, jet and LPG; the FCC
-    conversion is NOT identifiable by diesel (even at the table edge 76.33 wt% the model makes 54.6 vs 41.6 Mbd), so it
-    stays at the KBR central case and diesel stays validation [BDI Jan-Sep 2026]: gasoline -2.6 %, diesel +44.3 %, total
-    liquids +8.6 % (measured, not tuned; with the fixed Jechura vector it was +0.8 / +41.5 / +9.6: diesel got WORSE by
-    2.8 points because the KBR central case makes more LCO, 24.5 vs 20.6 wt%)."""
+    """AS-OPERATED Tula: the coker is now identified by published COKE (9.025 Mbd x 0.12908 t/bbl, factor derived from ASF
+    2016 tonnes / eBDI 2016 barrels) -> 0.215 (was 0.264 from fuel oil); fuel oil is then free for the cutter, but even
+    with NO cutter the model makes 19.3 % more fuel oil than published, so cutter_fraction sits at its bound 0 (flagged):
+    the cutter does not explain Tula's diesel. Validation [BDI Jan-Sep 2026]: gasoline -4.6 %, diesel +43.7 %, liquids
+    +9.6 % (measured; previous rounds: diesel +41.5 fixed Jechura FCC, +44.3 KBR FCC)."""
     cal = tula_op["calibrated_parameters"]
-    assert set(cal) == {"coker_utilization", "kerosene_to_jet_fraction", "butanes_to_gas_plants_fraction"}
+    assert set(cal) == {"coker_utilization", "cutter_fraction", "kerosene_to_jet_fraction", "butanes_to_gas_plants_fraction"}
     for name, c in cal.items():
-        assert 0.0 <= c["value"] <= 1.0 and c["status"].startswith("resuelto"), name
-        assert abs(c["residual_rel"]) < 1e-6, name
-        assert "CALIBRADO" in c["flag"]
-    assert cal["coker_utilization"]["value"] == pytest.approx(0.264, abs=0.002)
+        assert 0.0 <= c["value"] <= 1.0 and "CALIBRADO" in c["flag"], name
+    for name in ("coker_utilization", "kerosene_to_jet_fraction", "butanes_to_gas_plants_fraction"):
+        assert cal[name]["status"] == "resuelto" and abs(cal[name]["residual_rel"]) < 1e-6, name
+    assert cal["coker_utilization"]["fitted_to"] == "coque"
+    assert cal["coker_utilization"]["value"] == pytest.approx(0.2152, abs=0.002)
+    assert cal["cutter_fraction"]["value"] == 0.0 and cal["cutter_fraction"]["status"].startswith("en el límite")
+    assert cal["cutter_fraction"]["residual_rel"] == pytest.approx(0.193, abs=0.005)
+    assert "cutter_fraction" in tula_op["calibration_summary"]["at_bound"]
     assert cal["kerosene_to_jet_fraction"]["value"] == pytest.approx(0.536, abs=0.002)
-    assert cal["butanes_to_gas_plants_fraction"]["value"] == pytest.approx(0.842, abs=0.002)
-    conv = tula_op["fcc_conversion_identification"]
-    assert conv["value_at_bound"] == 76.33 and conv["used_value"] == 66.47
-    assert conv["diesel_model_bpd_at_bound"] == pytest.approx(54554, rel=2e-3)
+    assert cal["butanes_to_gas_plants_fraction"]["value"] == pytest.approx(0.782, abs=0.002)
+    assert tula_op["fcc_conversion_identification"]["status"].startswith("no calibrada: el diésel se reserva")
     assert "fcc_conversion_wt_pct" not in cal
     comp = tula_op["published_comparison"]
     roles = {r["product"]: r["role"] for r in comp["rows"]}
     assert roles == {"gasolina": "validación", "diesel": "validación", "turbosina": "ajustado", "combustoleo": "ajustado",
-                     "glp": "ajustado", "asfalto": "dato de entrada"}
+                     "glp": "ajustado", "asfalto": "dato de entrada", "coque": "ajustado"}
     val = {r["product"]: r["deviation_pct"] for r in comp["validation_rows"]}
-    assert val["gasolina"] == pytest.approx(-2.61, abs=0.3)
-    assert val["diesel"] == pytest.approx(44.30, abs=0.5)
-    assert comp["liquids_deviation_pct"] == pytest.approx(8.56, abs=0.3)
+    assert val["gasolina"] == pytest.approx(-4.64, abs=0.3)
+    assert val["diesel"] == pytest.approx(43.70, abs=0.5)
+    assert comp["liquids_deviation_pct"] == pytest.approx(9.64, abs=0.3)
     assert len(cal) <= len([r for r in comp["rows"] if r["role"] != "dato de entrada"])
     ec = tula_op["economics"]
-    assert ec["gross_margin_usd_bbl"] == pytest.approx(22.17, abs=0.05)
-    assert ec["net_margin_usd_bbl"] == pytest.approx(15.02, abs=0.05)
+    assert ec["gross_margin_usd_bbl"] == pytest.approx(21.92, abs=0.05)
+    assert ec["net_margin_usd_bbl"] == pytest.approx(14.80, abs=0.05)
     assert ec["gross_margin_at_published_slate_usd_bbl"] == pytest.approx(9.34, abs=0.05)
     assert tula_op["evidence"]["verified"] and tula_op["mode"] == "as_operated"
     json.dumps(tula_op)
@@ -306,10 +337,13 @@ def test_dos_bocas_unpublished_products_and_bounds():
     assert set(summ["at_bound"]) == {"kerosene_to_jet_fraction", "butanes_to_gas_plants_fraction"}
     assert not summ["all_resolved"] and "EN EL LÍMITE" in summ["text_es"]
     dev = {x["product"]: x["deviation_pct"] for x in comp["rows"]}
-    assert dev["gasolina"] == pytest.approx(-0.06, abs=0.3)
-    assert dev["diesel"] == pytest.approx(-24.51, abs=0.3)
-    assert dev["glp"] == pytest.approx(618.6, abs=2.0)
-    assert comp["liquids_deviation_pct"] == pytest.approx(-5.92, abs=0.3)
+    # coker identified by published coke 29.336 Mbd -> 0.425 (before: all vacuum residue to the coker)
+    assert cal["coker_utilization"]["fitted_to"] == "coque" and cal["coker_utilization"]["value"] == pytest.approx(0.4254, abs=0.002)
+    assert dev["coque"] == pytest.approx(0.0, abs=1e-4)
+    assert dev["gasolina"] == pytest.approx(-7.71, abs=0.3)
+    assert dev["diesel"] == pytest.approx(-25.59, abs=0.3)
+    assert dev["glp"] == pytest.approx(537.8, abs=2.0)
+    assert comp["liquids_deviation_pct"] == pytest.approx(-11.04, abs=0.3)
     assert r["fcc_conversion_identification"]["status"].startswith("no calibrada: el diésel ya lo ajusta")
     assert not any(u["unit"] == "alkylation" for u in r["unit_table"])
     assert any("alkylation_isomerization: utilización = 0.0" in a for a in r["assumptions"])
@@ -457,3 +491,30 @@ def test_json_and_periods(tula):
 def test_refusals(kwargs):
     with pytest.raises(ValueError):
         TR.refinery_model(**kwargs)
+
+
+def test_dossier_coker_what_if_holds_other_calibrations():
+    """The dossier's «coker at 100 %» what-if changes only the coker: the other calibrated parameters are held (otherwise
+    the cutter would be re-fitted to published fuel oil and absorb the change). Tula: positive, measured +105.5 M USD/y."""
+    from packages.dossier import dossier as D
+    base = M.run_model("tula", today=__import__("datetime").date(2026, 11, 16))
+    ops = D._refinery_capacity_opportunities("tula", base, None, None)
+    assert len(ops) == 1 and ops[0]["value_usd_y"] == pytest.approx(105.5e6, rel=0.02)
+    assert "coque publicado" in ops[0]["explanation_es"]
+
+
+def test_tula_liquid_excess_not_explained_by_own_use(tula_op):
+    """[BNE] Tula: diesel excess +18.2 Mbd ~ total-liquid excess +18.1 Mbd (too much liquid, not mis-routing). Own use of
+    liquid fuels of the WHOLE energy sector = 42.00 PJ over 1,445.32 PJ of refinery liquids (2.91 %; diesel 23.94/344.46 =
+    6.95 %): even all of it inside refineries and excluded from Pemex's «elaboración» explains <= 5.6 Mbd (diesel 3.1).
+    Not modelled as a parameter (no per-refinery figure); stated in warnings and calibration_summary."""
+    d = tula_op["published_comparison"]["liquid_excess_diagnosis"]
+    assert d["own_use_share_liquids_energy"] == pytest.approx(42.00 / 1445.32, rel=1e-9)
+    assert d["own_use_share_diesel_energy"] == pytest.approx(23.94 / 344.46, rel=1e-9)
+    assert d["diesel_excess_mbd"] == pytest.approx(18.16, abs=0.2)
+    assert d["liquids_excess_mbd"] == pytest.approx(18.11, abs=0.2)
+    assert d["own_use_upper_bound_liquids_mbd"] == pytest.approx(5.62, abs=0.05)
+    assert d["own_use_upper_bound_diesel_mbd"] == pytest.approx(3.10, abs=0.05)
+    assert d["own_use_upper_bound_liquids_mbd"] < 0.5 * d["liquids_excess_mbd"]
+    assert "demasiado LÍQUIDO" in tula_op["calibration_summary"]["text_es"]
+    assert "demasiado LÍQUIDO" in d["text_es"]

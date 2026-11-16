@@ -55,6 +55,35 @@
   "support": "Niccum (KBR, 2013): las especificaciones modernas obligan a mejorar el LCO por hidrotratamiento o hidrodesintegración para usarlo en diésel.",
   "rule": "El LCO entra a diésel sólo después del destilado primario y sólo dentro de la capacidad de hidrodesulfuración: la capacidad PROPIA publicada de la HDS de diésel cuando existe (Dos Bocas, 68 Mbd), si no la capacidad total de hidrodesulfuración que dejan libre las demás cargas; el exceso va a combustóleo (diluente / cutter stock)."
  },
+ "pemex_coke_t_per_bbl": {
+  "value": 0.12908,
+  "range": [0.12190, 0.13471],
+  "kind": "DERIVADO (no es un factor publicado): Pemex publica el coque en barriles sin factor de masa; se obtiene dividiendo la producción REAL en toneladas de 2016 (ASF) entre la producción en barriles de 2016 (eBDI) de las tres refinerías con coquizadora en 2016",
+  "derivation": {
+   "tonnes_2016": {"cadereyta": 560179.0, "madero": 601400.7, "minatitlan": 770747.5},
+   "mbd_2016": {"cadereyta": 12.556, "madero": 12.198, "minatitlan": 16.148},
+   "days_2016": 366,
+   "t_per_bbl": {"cadereyta": 0.12190, "madero": 0.13471, "minatitlan": 0.13041},
+   "pooled": "1,932,327.2 t / 366 d / 40,902 b/d = 0.12908 t/bbl (7.75 bbl/t)"
+  },
+  "sources": [
+   {"title": "Auditoría Superior de la Federación, Cuenta Pública 2016, auditoría 2016-6-90T9M-07-0474 (Contratos para la comercialización de coque), cuadro «Volumen contractual, programado y real en 2016», columna Producción Real (toneladas)",
+    "url": "https://www.asf.gob.mx/Trans/Informes/IR2016ii/Documentos/Auditorias/2016_0474_a.pdf"},
+   {"title": "Pemex eBDI, «Elaboración de productos petrolíferos por refinería» (REPETRE), observado anual 2016, renglón Coque (miles de barriles diarios)",
+    "url": "https://ebdi.pemex.com/bdi/bdiController.do?action=cuadro&cvecua=REPETRE"}
+  ],
+  "date_read": "2026-11-16",
+  "spread_note": "Las tres refinerías dan 0.122-0.135 t/bbl (±5 % alrededor del valor agrupado); se usa el agrupado y se reporta el intervalo."
+ },
+ "energy_sector_own_use_bne_2024": {
+  "source": "SENER, Balance Nacional de Energía 2024, Tabla 6.3 «Matriz origen destino… energéticos secundarios, 2024» (renglones «Refinerías y despuntadoras» y «Consumo propio del sector»), PJ; leído en copia alojada por terceros",
+  "url": "https://odondebuenr.com.mx/wp-content/uploads/2026/04/Balance-Nacional-de-Energia-2024.pdf",
+  "date_read": "2026-11-16",
+  "scope": "consumo propio de TODO el sector energético (pozos, refinerías, plantas de gas, centrales, transporte), no sólo refinerías: cota SUPERIOR para las refinerías",
+  "own_use_PJ": {"glp": 2.66, "gasolinas": 4.15, "querosenos": 0.00, "diesel": 23.94, "combustoleo": 11.25},
+  "refinery_output_PJ": {"glp": 18.55, "gasolinas": 441.01, "querosenos": 66.33, "diesel": 344.46, "combustoleo": 574.97},
+  "note": "Si toda esa energía la consumieran las refinerías y la «elaboración» de Pemex fuera NETA de ella, la producción bruta sería publicada/(1 − r), con r = consumo propio / producción de refinerías (por energía)."
+ },
  "reformer": {
   "source": "J. Jechura, «Gasoline Upgrading: Reforming, Isomerization, & Alkylation», CBEN 409, Colorado School of Mines, lámina 13 «Reformer Yield Example», actualizada 3-jul-2019",
   "url": "https://people.mines.edu/jjechura/wp-content/uploads/sites/120/2019/02/CBEN409_09_Gasoline_Upgrading.pdf",

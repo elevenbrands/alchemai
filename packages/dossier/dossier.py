@@ -55,7 +55,10 @@ def _refinery_capacity_opportunities(name: str, base: dict, period: str | None, 
         c = cal.get(key)
         if not c or base_net is None or c.get("value") is None or c["value"] >= 0.95:
             continue
-        alt = RM.run_model(refinery=name, period=period, utilization={unit_id: 1.0}, prices=prices)
+        # what-if: only the coker changes; every other calibrated parameter is held at its base value (otherwise the
+        # cutter / splits would be re-fitted to the published slate and absorb the change)
+        held = {k: v["value"] for k, v in cal.items() if k != key and k in RM.OVERRIDE_KEYS}
+        alt = RM.run_model(refinery=name, period=period, utilization={unit_id: 1.0}, prices=prices, unit_overrides=held)
         alt_net = (alt.get("economics") or {}).get("annual_usd")
         if alt_net is None:
             continue
@@ -65,8 +68,8 @@ def _refinery_capacity_opportunities(name: str, base: dict, period: str | None, 
             "id": f"capacidad_{unit_id}", "unit_ids": [unit["id"]] if unit else [], "stream_ids": [],
             "category": "yield",
             "title_es": "Completar el arranque de la coquizadora y operarla a su capacidad publicada",
-            "explanation_es": (f"La coquizadora opera al {c['value'] * 100:.0f} % (valor CALIBRADO para reproducir el combustóleo "
-                               "publicado). A capacidad, convierte residuo de vacío (que hoy sale como combustóleo, el producto "
+            "explanation_es": (f"La coquizadora opera al {c['value'] * 100:.0f} % (valor CALIBRADO para reproducir el "
+                               f"{c.get('fitted_to', 'combustóleo')} publicado). A capacidad, convierte residuo de vacío (que hoy sale como combustóleo, el producto "
                                "más barato) en gasolina, diésel y gas; el modelo valúa ese cambio con los mismos precios."),
             "value_usd_y": delta, "value_low_usd_y": 0.5 * delta, "value_high_usd_y": delta,
             "basis_es": "diferencia del margen neto anual del mismo modelo con la coquizadora al 100 % vs como opera",

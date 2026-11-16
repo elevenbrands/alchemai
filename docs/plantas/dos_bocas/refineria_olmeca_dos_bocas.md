@@ -20,27 +20,29 @@ Procesa 190,331 barriles diarios de crudo.
 
 | Producto | Modelo, bbl/d | Modelo, t/h | % vol. del crudo |
 |---|---|---|---|
-| gasolina | 76,713 | 399.0 | 40.3 |
-| diesel | 59,032 | 333.4 | 31.0 |
-| combustoleo | 4,847 | 34.7 | 2.5 |
-| coque | — (se reporta en masa) | 200.4 | 0.0 |
-| glp | 11,562 | 39.5 | 6.1 |
-| butanos | 13,340 | 51.7 | 7.0 |
-| gas_seco | — (se reporta en masa) | 56.4 | 0.0 |
+| gasolina | 70,842 | 368.2 | 37.2 |
+| diesel | 58,187 | 328.4 | 30.6 |
+| combustoleo | 19,499 | 135.9 | 10.2 |
+| coque | — (se reporta en masa) | 157.8 | 0.0 |
+| glp | 10,262 | 35.1 | 5.4 |
+| butanos | 12,103 | 47.0 | 6.4 |
+| gas_seco | — (se reporta en masa) | 47.3 | 0.0 |
 
 | Producto | Tipo de comparación | Desviación |
 |---|---|---|
-| gasolina | validación | -0.1 % |
+| gasolina | validación | -7.7 % |
 | turbosina | sin dato publicado (N/D) | — % |
-| diesel | ajustado | -24.5 % |
+| diesel | ajustado | -25.6 % |
 | combustoleo | sin dato publicado (N/D) | — % |
-| glp | ajustado | 618.6 % |
+| glp | ajustado | 537.8 % |
 | asfalto | sin dato publicado (N/D) | — % |
+| coque | ajustado | -0.0 % |
 
-**Calidad de la calibración:** Calibración EN EL LÍMITE (el modelo no reproduce el dato publicado): kerosene_to_jet_fraction = 0.00 → diesel modelo 59.03 vs publicado 78.20 Mbd; butanes_to_gas_plants_fraction = 1.00 → glp modelo 11.56 vs publicado 1.61 Mbd. Pemex no publica (N/D) ['turbosina', 'combustoleo', 'asfalto'] para este periodo: N/D no es cero; esos productos no se comparan ni se calibran. Como la turbosina no está publicada, la fracción de querosina a turbosina se ajustó al diésel.
+**Calidad de la calibración:** Calibración EN EL LÍMITE (el modelo no reproduce el dato publicado): kerosene_to_jet_fraction = 0.00 → diesel modelo 58.19 vs publicado 78.20 Mbd; butanes_to_gas_plants_fraction = 1.00 → glp modelo 10.26 vs publicado 1.61 Mbd. Pemex no publica (N/D) ['turbosina', 'combustoleo', 'asfalto'] para este periodo: N/D no es cero; esos productos no se comparan ni se calibran. Como la turbosina no está publicada, la fracción de querosina a turbosina se ajustó al diésel.
 
 Parámetros CALIBRADOS (no publicados por Pemex; ajustados para reproducir un producto publicado):
 
+- coker_utilization: 0.425 (ajustado a coque)
 - kerosene_to_jet_fraction: 0.000 (ajustado a diesel)
 - butanes_to_gas_plants_fraction: 1.000 (ajustado a glp)
 
@@ -48,11 +50,11 @@ Parámetros CALIBRADOS (no publicados por Pemex; ajustados para reproducir un pr
 
 | Indicador | USD/bbl |
 |---|---|
-| Margen bruto del modelo | 20.39 |
+| Margen bruto del modelo | 19.73 |
 | Margen bruto con la producción PUBLICADA (misma mezcla de crudo y precios) | — |
-| Energía | 2.55 |
+| Energía | 2.40 |
 | Costo fijo (referencia) | 4.86 |
-| Margen neto del modelo | 12.98 |
+| Margen neto del modelo | 12.48 |
 
 La cifra más defendible es el margen con la producción publicada: el modelo produce más diésel y líquidos que la refinería real (ver validación), lo que infla su margen. No se calcula: Pemex no publica ['turbosina', 'combustoleo'] (N/D) en este periodo y no se rellenan.
 
@@ -78,7 +80,9 @@ Precios usados (referencias publicadas, NO cotizaciones):
 
 ## Oportunidades de mejora (numeradas en el diagrama)
 
-1. **Hidrodesulfuradora de turbosina: intensidad energética vs Hidrotratamiento** — sin valor: faltan datos. Confianza baja.
+1. **Completar el arranque de la coquizadora y operarla a su capacidad publicada** — USD 35,276,164/año (rango 17,638,082–35,276,164). Confianza media.
+   La coquizadora opera al 43 % (valor CALIBRADO para reproducir el coque publicado). A capacidad, convierte residuo de vacío (que hoy sale como combustóleo, el producto más barato) en gasolina, diésel y gas; el modelo valúa ese cambio con los mismos precios.
+2. **Hidrodesulfuradora de turbosina: intensidad energética vs Hidrotratamiento** — sin valor: faltan datos. Confianza baja.
    No se puede comparar con la referencia sin carga y energía de la unidad.
 
 No evaluado por falta de datos públicos:
@@ -124,14 +128,14 @@ No evaluado por falta de datos públicos:
 - Densidad de los ligeros C4- = 0.584 (n-butano); el ensaye no la publica.
 - Gas licuado = ligeros C4- del crudo + C3/C4 del FCC, reformadora y coquizadora no alquilados (todo propano-butano).
 - ⚠ Pemex no publica asfalto de esta refinería en el periodo (N/D o '--'): se modela sin asfalto (supuesto marcado; da unit_overrides['asphalt_bpd'] si lo produce).
-- ⚠ Rendimientos del FCC de una tabla de planta piloto con carga de 22.5 °API y 0.55 % S; la carga modelada tiene 21.5 °API y 4.67 % S (se usan los mismos rendimientos; el azufre con el reparto del ejemplo de Jechura).
-- ⚠ El combustóleo modelado tiene 7.04 % de azufre > 4.4 % máximo de la NOM-016-CRE-2016.
+- ⚠ Rendimientos del FCC de una tabla de planta piloto con carga de 22.5 °API y 0.55 % S; la carga modelada tiene 21.4 °API y 4.44 % S (se usan los mismos rendimientos; el azufre con el reparto del ejemplo de Jechura).
+- ⚠ El combustóleo modelado tiene 5.63 % de azufre > 4.4 % máximo de la NOM-016-CRE-2016.
 - ⚠ Los precios internos de Pemex (MXN, ene-sep 2026) se pasan a USD con el FIX 18.5525 MXN/USD del 2026-11-13 (no es el promedio del periodo): da prices['fx_mxn_usd'] si tienes el promedio.
 - ⚠ Gas natural: no hay precio para México en el banco; se usa US (3.971 USD/GJ).
 - ⚠ Sin precio publicado para ['coque', 'azufre']: su valor NO se suma a los ingresos (margen conservador). Dalo en prices ({'coque': 'USD/t', 'azufre': 'USD/t'}).
 - ⚠ Ensaye maya: la masa sumada de los cortes difiere -0.29 % de la del crudo entero por su °API (inconsistencia de la tabla publicada); el modelo usa la suma de los cortes.
-- ⚠ Calibración de kerosene_to_jet_fraction: en el límite: el producto publicado no se alcanza dentro de 0-1 (diesel: publicado 78.20 Mbd, modelo 59.03 Mbd).
-- ⚠ Calibración de butanes_to_gas_plants_fraction: en el límite: el producto publicado no se alcanza dentro de 0-1 (glp: publicado 1.61 Mbd, modelo 11.56 Mbd).
+- ⚠ Calibración de kerosene_to_jet_fraction: en el límite: el producto publicado no se alcanza dentro de 0-1 (diesel: publicado 78.20 Mbd, modelo 58.19 Mbd).
+- ⚠ Calibración de butanes_to_gas_plants_fraction: en el límite: el producto publicado no se alcanza dentro de 0-1 (glp: publicado 1.61 Mbd, modelo 10.26 Mbd).
 - ⚠ fcc_conversion_wt_pct NO se calibra: su producto identificador (diesel) ya lo ajusta otro parámetro y no hay otro producto publicado que lo identifique; se usa el valor por defecto (ver assumptions).
 - No incluye: Cinética de reactores, diseño de columnas y efecto de las condiciones de operación: cada unidad usa UN vector de rendimiento publicado a una condición fija (reformadora a RON 98); el FCC usa rendimientos contra conversión de UNA tabla de planta piloto (una carga de 22.5 °API y 0.55 % S, un catalizador), no la carga ni el catalizador de Pemex.
 - No incluye: Diluente (cutter) del combustóleo: no se calcula por viscosidad (no hay viscosidad abierta del residuo de vacío ni receta publicada); es una fracción del destilado intermedio (cutter_fraction), calibrada al combustóleo sólo donde éste no identifica ya la coquizadora; donde sí, queda en 0 (no identificable).
@@ -139,5 +143,5 @@ No evaluado por falta de datos públicos:
 - No incluye: Calidad de mezclas: octano, cetano, presión de vapor, viscosidad del combustóleo y diluentes.
 - No incluye: Isomerización (su capacidad está sumada a la de alquilación en la eBDI y no hay reparto publicado), H-Oil, planta de hidrógeno y recuperación real de las plantas de azufre (se reporta el azufre potencial en el gas ácido).
 - No incluye: Consumo real de hidrógeno de los hidrotratamientos: se calcula sólo el estequiométrico de la desulfuración (cota inferior).
-- No incluye: Mermas, autoconsumos de producto, inventarios, paros y transferencias entre refinerías.
+- No incluye: Mermas, autoconsumos de producto, inventarios, paros y transferencias entre refinerías (no hay dato abierto por refinería; el BNE 2024 da el consumo propio de líquidos de TODO el sector energético, que se usa sólo como cota en published_comparison.liquid_excess_diagnosis).
 - No incluye: Costo de construir la refinería (VPN): la refinería existe; la rentabilidad aquí es el margen de operación.
