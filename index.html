@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AlchemAI — a chemical engineer in an AI</title>
+<meta name="description" content="AlchemAI is an AI agent for chemical process engineering. Every number comes from a deterministic solver, never from the model.">
+<link rel="icon" href="icon.png">
+<style>
+  :root { --bg:#0E1526; --panel:#162036; --line:#26334f; --text:#E8EEF9; --muted:#9AA9C4; --cyan:#5AD1FF; --amber:#F5B342; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:0 20px; }
+  header { padding:56px 0 28px; }
+  .brand { display:flex; align-items:center; gap:14px; }
+  .brand img { width:56px; height:56px; border-radius:13px; }
+  .brand span { font-size:22px; font-weight:650; letter-spacing:.2px; }
+  h1 { font-size:clamp(32px,6vw,52px); line-height:1.1; margin:36px 0 16px; letter-spacing:-.5px; text-wrap:balance; }
+  h1 em { font-style:normal; color:var(--cyan); }
+  .lead { font-size:20px; color:var(--muted); max-width:720px; margin:0 0 28px; }
+  .cta { display:flex; flex-wrap:wrap; gap:12px; }
+  a.btn { display:inline-block; padding:11px 18px; border-radius:10px; text-decoration:none; font-weight:600; }
+  a.primary { background:var(--cyan); color:#06202e; }
+  a.ghost { border:1px solid var(--line); color:var(--text); }
+  figure { margin:36px 0 0; }
+  figure img { width:100%; height:auto; display:block; border-radius:12px; border:1px solid var(--line); }
+  figcaption { color:var(--muted); font-size:14px; margin-top:8px; }
+  h2 { font-size:26px; margin:64px 0 18px; letter-spacing:-.2px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; }
+  .card h3 { margin:0 0 6px; font-size:17px; }
+  .card p { margin:0; color:var(--muted); font-size:15.5px; }
+  .nums { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+  .num b { display:block; font-size:30px; color:var(--amber); font-variant-numeric:tabular-nums; }
+  .num span { color:var(--muted); font-size:15px; }
+  ol { padding-left:22px; } li { margin:6px 0; }
+  .note { color:var(--muted); font-size:15px; }
+  a { color:var(--cyan); }
+  footer { margin:72px 0 40px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:14.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><img src="icon.png" alt="AlchemAI icon"><span>AlchemAI</span></div>
+    <h1>A chemical engineer in an AI that <em>never guesses</em>.</h1>
+    <p class="lead">Ask in plain language. AlchemAI builds the process, solves it in deterministic engineering engines, and answers with the explanation, the profitability, the flow diagram and the improvement opportunities marked on it. Every number comes from a solver or a cited source, never from the language model.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/elevenbrands/alchemai">Engine on GitHub (MIT)</a>
+      <a class="btn ghost" href="#mac">AlchemAI for Mac</a>
+    </div>
+    <figure>
+      <img src="app.jpg" alt="AlchemAI for Mac showing a refinery: flow diagram, margin per barrel, validation against published production and a valued opportunity">
+      <figcaption>AlchemAI for Mac: a whole refinery from one question, with margin, validation against published production and a valued opportunity.</figcaption>
+    </figure>
+  </header>
+
+  <h2>What it does</h2>
+  <div class="grid">
+    <div class="card"><h3>Builds and solves flowsheets</h3><p>Streams, reactors, rigorous columns, recycles. Solved in DWSIM and BioSTEAM, with closed mass and energy balances as evidence.</p></div>
+    <div class="card"><h3>Whole plants</h3><p>Biodiesel, sugarcane, corn and cellulosic ethanol, refinery planning models and a steam-cycle power plant, each validated against published figures.</p></div>
+    <div class="card"><h3>Economics with sources</h3><p>Equipment cost, operating cost, NPV and minimum selling price. Suggested prices carry source, period and date, and are flagged as assumptions.</p></div>
+    <div class="card"><h3>Process flow diagrams</h3><p>Drawn by the engine from the solved model, with equipment symbols, stream tables and opportunities marked where they occur.</p></div>
+    <div class="card"><h3>Finds opportunities</h3><p>Paste your plant readings; a scanner compares them against benchmarks and reports each opportunity with a value range and a confidence level.</p></div>
+    <div class="card"><h3>Preliminary HAZOP</h3><p>Deterministic rules on the process graph, checked against published HAZOP studies, including held-out cases.</p></div>
+  </div>
+
+  <h2>How it stays honest</h2>
+  <ol>
+    <li><strong>The model proposes, the engine decides.</strong> The agent calls tools; results come from solvers.</li>
+    <li><strong>Calibrated is labelled calibrated.</strong> A fitted parameter is never presented as validation.</li>
+    <li><strong>What does not close is reported.</strong> When a model disagrees with published data, the gap is shown, not hidden.</li>
+    <li><strong>Missing stays missing.</strong> Physical and kinetic data are the user's; the engine does not invent them.</li>
+  </ol>
+
+  <h2>By the numbers</h2>
+  <div class="nums">
+    <div class="num"><b>145</b><span>engineering tools exposed to the agent over MCP</span></div>
+    <div class="num"><b>1,605</b><span>automated tests passing</span></div>
+    <div class="num"><b>50</b><span>benchmark cards, including 15 traps the agent must detect</span></div>
+  </div>
+
+  <figure>
+    <img src="diagram.png" alt="Process flow diagram of a refinery generated by the engine, by sections">
+    <figcaption>A diagram generated by the engine from the solved model (refinery planning model built on public data).</figcaption>
+  </figure>
+
+  <h2 id="mac">AlchemAI for Mac</h2>
+  <p>A native macOS app that is the screen of the engine: conversation with live tool calls, flow diagram, streams and balances, whole-plant view and PDF report. Signed and notarized. The engine runs locally on the user's Mac; the language model is reached with the user's own account.</p>
+  <p class="note">Status: pre-release. The refinery and power-plant models are demonstrations built on public data, not audits of those plants.</p>
+
+  <footer>
+    AlchemAI is built by Ricardo Manjarrez, chemical engineer, at Elevenbrands (Mexico). Engine licensed under MIT.
+    Questions: <a href="https://github.com/elevenbrands/alchemai/issues">open an issue on GitHub</a>.
+    DWSIM (GPL-3) runs as a separate process and is not bundled.
+  </footer>
+</div>
+</body>
+</html>
