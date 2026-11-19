@@ -561,7 +561,7 @@ def test_tools_are_registered_with_spanish_descriptions():
     assert {"steam_system_diagnostic", "steam_diagnostic_report"} <= set(names) and len(T.TOOLS) == 146 and len(set(names)) == 146
     for name in ("steam_system_diagnostic", "steam_diagnostic_report"):
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
-    assert len(AG.AGENT_TOOLS) == 145
+    assert len(AG.AGENT_TOOLS) == 146
     doc = TS.steam_system_diagnostic.__doc__
     assert "Ningún dato de la planta, precio, objetivo ni inversión se supone" in doc and "punto de rocío ácido NO se modela" in doc
     assert "no evaluada: falta el dato" in doc and "Tip Sheets #3, #4, #8, #9 y #10" in doc
