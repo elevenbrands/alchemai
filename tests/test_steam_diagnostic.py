@@ -558,7 +558,7 @@ def test_tools_are_registered_with_spanish_descriptions():
     from packages.agent import agent as AG
     from packages.dwsim_client import tools as T
     names = [f.__name__ for f in T.TOOLS]
-    assert {"steam_system_diagnostic", "steam_diagnostic_report"} <= set(names) and len(T.TOOLS) == 145 and len(set(names)) == 145
+    assert {"steam_system_diagnostic", "steam_diagnostic_report"} <= set(names) and len(T.TOOLS) == 146 and len(set(names)) == 146
     for name in ("steam_system_diagnostic", "steam_diagnostic_report"):
         assert any(getattr(t, "name", "") == name for t in AG.AGENT_TOOLS)
     assert len(AG.AGENT_TOOLS) == 145

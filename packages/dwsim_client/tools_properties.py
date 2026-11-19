@@ -3,6 +3,7 @@ Engines: `packages.properties.pure` (lookup with provenance on chemicals/thermo)
 thermo with an own Michelsen stability test and a fallback multiphase solver)."""
 from __future__ import annotations
 
+from packages.properties import cubic_eos as CE
 from packages.properties import flash as FL
 from packages.properties import pure as PU
 
@@ -110,4 +111,34 @@ def compare_flash(reference: dict, components: list[str], mole_fractions: list[f
                             temperature_tolerance_K, pressure_relative_tolerance)
 
 
-PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash]
+def cubic_eos_volume(components: list[str], model: str, T_K: float, P_Pa: float,
+                     mole_fractions: list[float] | None = None, critical_constants: list[dict] | None = None,
+                     kij: list[dict] | None = None, root: str = "stable") -> dict:
+    """Volumen molar y factor de compresibilidad Z de UNA fase con una ecuación de estado cúbica, para un compuesto puro o
+    una mezcla a T y P dadas, sin flowsheet: van der Waals, Redlich-Kwong (la original de 1949), Soave-Redlich-Kwong o
+    Peng-Robinson. Es la herramienta para los problemas de libro de ecuaciones de estado, porque acepta las constantes
+    críticas del enunciado.
+
+    components: compuestos (nombre, CAS o fórmula). mole_fractions: composición molar (suma 1); se omite si es uno solo.
+    model (OBLIGATORIO, sin valor por defecto): 'RK', 'SRK' (también 'RKS'), 'PR' o 'VDW'.
+    T_K, P_Pa: temperatura y presión ABSOLUTA en Pa (1 atm = 101325 Pa).
+    critical_constants: [{'compound', 'Tc_K', 'Pc_Pa', 'omega'}] con las constantes del USUARIO o del enunciado; lo que no
+      se dé se toma de la base de datos de chemicals y sale marcado source 'library' con su método. omega solo lo usan
+      SRK y PR.
+    kij: [{'i', 'j', 'kij'}] del usuario para la regla de mezclado de van der Waals; los pares sin dato quedan en 0 y se
+      avisa (es lo que supone un problema de libro que no da kij).
+    root: 'stable' (por defecto: la raíz de menor energía de Gibbs a esa composición), 'gas' (la mayor) o 'liquid' (la
+      menor). Con una sola raíz real las tres opciones dan lo mismo.
+
+    Devuelve Z, V_m3_mol, V_L_mol, V_m3_kmol de la raíz elegida, root_type, root_is_lowest_gibbs, ideal_gas (volumen de gas
+    ideal y desviación relativa de la ecuación frente a él), roots (TODAS las raíces reales con Z, volumen, ln del
+    coeficiente de fugacidad y cierre de presión), mixture_parameters (a·alpha, b, A, B), components (Tc, Pc, omega con
+    source 'user' o 'library', Tr, Pr, a, alpha, b), binary_parameters, warnings y evidence: cada raíz se sustituye en la
+    forma explícita en presión y debe reproducir P (max_pressure_closure_rel). verified certifica el cálculo con la
+    ecuación elegida, NO que esa ecuación represente al fluido. NO es un flash: no detecta si la mezcla se separa en dos
+    fases; para eso está independent_flash. Validación: clases RK, SRK, PR y VDW de la librería thermo e identidades del
+    punto crítico (tests/test_cubic_eos.py)."""
+    return CE.cubic_eos_volume(components, model, T_K, P_Pa, mole_fractions, critical_constants, kij, root)
+
+
+PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume]

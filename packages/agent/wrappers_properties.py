@@ -60,4 +60,21 @@ def compare_flash(reference: dict[str, object], components: list[str], mole_frac
                       default=float, ensure_ascii=False)
 
 
-AGENT_WRAPPERS = [compound_properties, independent_flash, compare_flash]
+@beta_tool
+def cubic_eos_volume(components: list[str], model: str, T_K: float, P_Pa: float,
+                     mole_fractions: list[float] | None = None, critical_constants: list[dict] | None = None,
+                     kij: list[dict] | None = None, root: str = "stable") -> str:
+    """Single-phase molar volume and Z from a cubic equation of state at T and P, pure compound or mixture, no flowsheet:
+    model = 'RK' (plain Redlich-Kwong 1949), 'SRK' (= 'RKS'), 'PR' or 'VDW' (mandatory, never default it). Use it for
+    equation-of-state textbook problems: critical_constants = [{'compound', 'Tc_K', 'Pc_Pa', 'omega'}] imposes the
+    statement's constants (anything missing comes from the chemicals database, marked source 'library'). P_Pa is absolute
+    (1 atm = 101325 Pa). mole_fractions only for mixtures (van der Waals one-fluid mixing; kij = [{'i','j','kij'}], pairs
+    without data stay at 0 and are warned). root = 'stable' (lowest Gibbs, default), 'gas' (largest) or 'liquid'
+    (smallest). Returns Z, V_m3_mol, V_L_mol, V_m3_kmol, the ideal-gas volume and the deviation from it, every real
+    root, the parameters used and evidence (each root substituted back must reproduce P). It is NOT a flash: for a
+    mixture that may condense, also run independent_flash and report both."""
+    return json.dumps(TPR.cubic_eos_volume(components, model, T_K, P_Pa, mole_fractions, critical_constants, kij, root),
+                      default=float, ensure_ascii=False)
+
+
+AGENT_WRAPPERS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume]

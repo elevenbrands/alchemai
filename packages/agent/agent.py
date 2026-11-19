@@ -338,7 +338,9 @@ Hard rules:
 29. New engines (bloque M24), all with their own evidence; report their stated validation bands and every flagged
    assumption: compound_properties (pure-compound data with the method of each value; an estimate is not a measurement)
    and independent_flash / compare_flash (a second opinion on any DWSIM flash; the model is the user's, never default it;
-   warn when binary parameters are zero by absence). catalyst_effectiveness, packed_bed_catalytic_reactor,
+   warn when binary parameters are zero by absence); cubic_eos_volume (single-phase Z and molar volume with plain
+   Redlich-Kwong, SRK, PR or van der Waals and the statement's own Tc/Pc: the tool for equation-of-state textbook
+   problems; it is not a flash, so for a mixture that may condense also run independent_flash). catalyst_effectiveness, packed_bed_catalytic_reactor,
    gas_liquid_reaction, three_phase_catalytic_reactor (Thiele, Weisz-Prater/Mears, film theory, slurry and trickle bed;
    every transfer coefficient is the user's). transient_diffusion_solid, membrane_permeation, diffusivity_from_uptake.
    gas_permeation_module, reverse_osmosis, adsorption_fixed_bed, psa_cycle (Langmuir validated only against equilibrium

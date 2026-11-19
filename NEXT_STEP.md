@@ -1,8 +1,10 @@
 # NEXT_STEP — cursor
 
-Actualizado: 2026-11-16 (M26: plantas completas con precios sugeridos con fuente, 135 tools; antes M25, momento completo)
+Actualizado: 2026-11-19 (prueba con libro, 146 tools; antes M26: plantas completas con precios sugeridos con fuente, 135 tools; antes M25, momento completo)
 
 ## Dónde estamos
+**Prueba con libro (2026-11-19, 146 tools).** Finlayson, *Introduction to Chemical Engineering Computing*: capítulo 2 hecho (8/20 → 20/20 tras `cubic_eos_volume`). Faltan los capítulos 3 a 11 (~72 problemas). Material de la prueba (texto, enunciados parafraseados, corridas) en `../alchemai-libros/finlayson/`, fuera del repo por derechos de autor.
+
 **M27 (2026-11-16): una pregunta → planta completa, 143 tools.** `process_dossier` (refinería de Tula u otras 6 de Pemex; plantas modelo) da explicación, rentabilidad, PFD con oportunidades y reporte (`docs/plantas/tula/`). Siguiente: (1) aprobación del owner de la pantalla Figma «08 Planta completa (dossier)» (nodo 12:832) y programarla en la app Mac (dibujar la escena JSON de `process_diagram` de forma nativa); (2) caso Laguna Verde (pendiente del owner); (3) bajar la desviación de diésel de Tula (+41.5 %) con rendimientos de FCC por conversión.
 
 **Hecho 2026-11-16:** Laguna Verde (`docs/plantas/laguna_verde/`) y Dos Bocas (`docs/plantas/dos_bocas/`, modelo débil: diésel y GLP en el límite de la calibración). FCC por conversión y diluyente del combustóleo hechos (Salina Cruz y Salamanca validan diésel); Tula +44.3 % y Dos Bocas siguen sin explicar con fuentes abiertas.
