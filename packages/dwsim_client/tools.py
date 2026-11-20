@@ -30,7 +30,7 @@ _ids = itertools.count(1)
 
 UNIT_KINDS = ["mixer", "splitter", "heater", "cooler", "valve", "pump", "compressor", "expander", "separator",
               "heat_exchanger", "shortcut_column", "distillation_column", "conversion_reactor",
-              "equilibrium_reactor", "gibbs_reactor", "cstr", "pfr", "recycle", "pipe", "absorption_column"]
+              "equilibrium_reactor", "gibbs_reactor", "cstr", "pfr", "recycle", "pipe", "absorption_column", "component_separator"]
 
 
 def _s(fs_id: str) -> dict:
@@ -174,7 +174,7 @@ def define_kinetic_reaction(flowsheet_id: str, name: str, stoichiometry: dict[st
 def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | None = None) -> dict:
     """Add a unit operation. kind ∈ mixer, splitter, heater, cooler, valve, pump, compressor, expander,
     separator, heat_exchanger, shortcut_column, distillation_column, conversion_reactor,
-    equilibrium_reactor, gibbs_reactor, recycle. params by kind:
+    equilibrium_reactor, gibbs_reactor, cstr, pfr, pipe, absorption_column, component_separator, recycle. params by kind:
       splitter: split_ratios [..]; heater: outlet_T_K | heat_added_kW; cooler: outlet_T_K | heat_removed_kW;
       valve: outlet_P_Pa; pump: outlet_P_Pa, efficiency_pct; compressor/expander: outlet_P_Pa,
       adiabatic_eff_pct | polytropic_eff_pct; heat_exchanger: UA_W_K (pinch-point mode), hot_dP_Pa, cold_dP_Pa;
@@ -186,6 +186,9 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
       inner_diameter_m, elevation_change_m (outlet minus inlet), increments (default 10); commercial steel;
       absorption_column (rigorous, equilibrium stages): stages (DWSIM needs ≥ 4), top_P_Pa, dP_Pa — connect feeds [lean_liquid (top stage),
       gas (bottom stage)], products [treated_gas (top), rich_liquid (bottom)].
+      component_separator (ideal splitter with a fixed recovery per compound; a mass-balance block, NOT an equipment design):
+      recoveries {compound: fraction 0–1 of that compound's inlet molar flow sent to products[0]}; compounds left out go
+      entirely to products[1]. Connect products [recovered_stream, other_stream] and energy_products [duty] (required).
       Connect streams afterwards with connect()."""
     try:
         s = _s(flowsheet_id)
@@ -269,6 +272,22 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
         elif kind == "absorption_column":
             b = (fs.AddAbsorptionColumn(name).WithNumberOfStages(int(p["stages"])).WithTopPressure(Q.Pascal(float(p["top_P_Pa"])))
                  .WithColumnPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0)))).WithMaxIterations(int(p.get("max_iterations", 200))))
+        elif kind == "component_separator":
+            from DWSIM.UnitOperations.UnitOperations.Auxiliary import ComponentSeparationSpec, SeparationSpec
+            rec = {str(k): float(v) for k, v in dict(p["recoveries"]).items()}
+            known = list(s["compounds"])
+            for comp, frac in rec.items():
+                if comp not in known:
+                    raise ValueError(f"component_separator {name!r}: compound {comp!r} is not in the flowsheet {known}")
+                if not 0.0 <= frac <= 1.0:
+                    raise ValueError(f"component_separator {name!r}: recovery of {comp!r} must be a fraction between 0 and 1, got {frac}")
+            b = fs.AddUnitOperation(ObjectType.ComponentSeparator, name)
+            o = b.Object.__implementation__
+            o.SpecifiedStreamIndex = System.Byte(0)
+            o.ComponentSepSpecs.Clear()
+            for comp in known:
+                o.ComponentSepSpecs[comp] = ComponentSeparationSpec(comp, SeparationSpec.PercentInletMolarFlow, 100.0 * rec.get(comp, 0.0), "")
+            p["recoveries"] = rec
         elif kind == "recycle":
             b = fs.AddUnitOperation(ObjectType.OT_Recycle, name)
             r = b.Object.__implementation__
@@ -291,12 +310,15 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
     required), energy_feeds = [heat duty]; cstr/pfr products = [outlet], energy_feeds = [heat duty] (required,
     also in isothermal mode); heat_exchanger feeds = [hot_in, cold_in], products = [hot_out, cold_out];
     recycle feeds = [tear stream], products = [recycled stream]; absorption_column feeds = [lean_liquid, gas],
-    products = [treated_gas, rich_liquid]."""
+    products = [treated_gas, rich_liquid]; component_separator products = [recovered_stream, other_stream],
+    energy_products = [duty] (required)."""
     s = _s(flowsheet_id)
     b, kind = s["units"][unit], s["kinds"][unit]
     st, en = s["streams"], s["energy"]
     feeds, products = feeds or [], products or []
     energy_feeds, energy_products = energy_feeds or [], energy_products or []
+    if kind == "component_separator":      # one energy connector, on the product side; accept it under either name
+        energy_feeds, energy_products = [], list(energy_products) + list(energy_feeds)
     s["conn"][unit] = {"feeds": list(feeds), "products": list(products), "energy_feeds": list(energy_feeds), "energy_products": list(energy_products)}
 
     if kind == "distillation_column":
@@ -329,7 +351,10 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
         b.ConnectFeed(st[f], i)
     for i, pr in enumerate(products):
         b.ConnectProduct(st[pr], i)
-    if kind == "shortcut_column":
+    if kind == "component_separator":
+        for e in energy_products[:1]:
+            b.ConnectEnergyProduct(en[e], 0)
+    elif kind == "shortcut_column":
         for e in energy_products:
             b.ConnectEnergyProduct(en[e], 0)
         for e in energy_feeds:

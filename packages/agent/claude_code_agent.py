@@ -107,6 +107,9 @@ def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = 
     if mcp:
         cmd += ["--mcp-config", _mcp_config_path(), "--strict-mcp-config", "--allowedTools", "mcp__alchemai__*"]
     env = clean_env()
+    # A cold MCP server (uv + DWSIM load) can take longer than Claude Code's default wait; the first call of a run then
+    # starts with no tools (seen on Finlayson 2.1, 3.1, 5.1, 8.1). Give the server two minutes to come up.
+    env.setdefault("MCP_TIMEOUT", "120000")
     # Own process group: on timeout we must kill claude AND its MCP server child (a DWSIM solve that never
     # returns would otherwise keep spinning at 100 % CPU as an orphan; three such orphans were found 2026-11-04).
     proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(ROOT), env=env,

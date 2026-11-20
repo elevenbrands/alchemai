@@ -82,6 +82,8 @@ Hard rules:
 2. Call solve() before reading anything. If solve() returns ok=false or an error, fix the flowsheet
    (missing products, wrong ports, bad specs) and solve again. Reactors need BOTH a vapor and a liquid
    product stream; columns need distillate, bottoms and both duties; separators need vapor and liquid.
+   For mass balances with a stated recovery or "perfect split" per compound, use the component_separator unit
+   (ideal splitter, needs an energy stream); say in the answer that it is an ideal split, not a designed separation.
 3. Design questions (find a T, P, N, UA, fraction...) are solved by searching with the simulator. Use
    sweep(): it varies one spec over a list of values, re-solves each time and returns the table and the
    interpolated crossing of your target in ONE call. Then sweep a finer range around the crossing (or
@@ -494,7 +496,7 @@ def dof_check(flowsheet_id: str) -> str:
 def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] | None = None) -> str:
     """Add a unit operation. kind: mixer | splitter | heater | cooler | valve | pump | compressor | expander |
     separator | heat_exchanger | shortcut_column | distillation_column | conversion_reactor |
-    equilibrium_reactor | gibbs_reactor | cstr | pfr | recycle | pipe | absorption_column. params by kind: splitter {split_ratios:[...]};
+    equilibrium_reactor | gibbs_reactor | cstr | pfr | recycle | pipe | absorption_column | component_separator. params by kind: splitter {split_ratios:[...]};
     heater {outlet_T_K | heat_added_kW}; cooler {outlet_T_K | heat_removed_kW}; valve {outlet_P_Pa};
     pump {outlet_P_Pa, efficiency_pct}; compressor/expander {outlet_P_Pa, adiabatic_eff_pct | polytropic_eff_pct};
     heat_exchanger {UA_W_K, hot_dP_Pa, cold_dP_Pa}; shortcut_column {light_key, heavy_key,
@@ -503,7 +505,10 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] 
     top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; cstr/pfr {volume_m3,
     reaction_set, mode: "isothermal" (= feed T)|"adiabatic", dP_Pa} — products [outlet], energy_feeds [duty] required;
     recycle {}; pipe {length_m, inner_diameter_m, elevation_change_m, increments} (adiabatic, Beggs-Brill, two-phase OK);
-    absorption_column {stages (≥ 4), top_P_Pa, dP_Pa}: feeds [lean liquid, gas], products [treated gas, rich liquid]."""
+    absorption_column {stages (≥ 4), top_P_Pa, dP_Pa}: feeds [lean liquid, gas], products [treated gas, rich liquid];
+    component_separator {recoveries: {compound: fraction 0-1 of its inlet flow sent to products[0]}} (compounds left out go to
+    products[1]): ideal splitter for mass balances with fixed recoveries, not an equipment design; products [recovered, other],
+    energy_products [duty] required."""
     return json.dumps(T.add_unit(flowsheet_id, kind, name, params))
 
 
@@ -513,7 +518,8 @@ def connect(flowsheet_id: str, unit: str, feeds: list[str] | None = None, produc
     """Connect streams to a unit in port order. separator products=[vapor, liquid]; columns
     products=[distillate, bottoms], energy_products=[condenser duty], energy_feeds=[reboiler duty];
     reactors products=[vapor, liquid] (both required), energy_feeds=[heat duty]; heat_exchanger
-    feeds=[hot_in, cold_in], products=[hot_out, cold_out]; recycle feeds=[tear], products=[recycled]."""
+    feeds=[hot_in, cold_in], products=[hot_out, cold_out]; recycle feeds=[tear], products=[recycled];
+    component_separator products=[recovered, other], energy_products=[duty]."""
     return json.dumps(T.connect(flowsheet_id, unit, feeds, products, energy_feeds, energy_products))
 
 

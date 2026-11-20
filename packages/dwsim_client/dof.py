@@ -39,6 +39,7 @@ RULES: dict[str, dict[str, Any]] = {
     "pfr":                dict(ports=(1, 99, 1, 1, 0), required=["volume_m3", "reaction_set"], one_of=[], optional=["mode", "dP_Pa"]),
     "recycle":            dict(ports=(1, 1, 1, 0, 0), required=[], one_of=[]),
     "absorption_column":  dict(ports=(2, 2, 2, 0, 0), required=["stages", "top_P_Pa"], one_of=[], optional=["dP_Pa", "max_iterations"]),
+    "component_separator": dict(ports=(1, 1, 2, 0, 1), required=["recoveries"], one_of=[]),
     "pipe":               dict(ports=(1, 1, 1, 0, 0), required=["length_m", "inner_diameter_m"], one_of=[], optional=["elevation_change_m", "increments"]),
 }
 STREAM_STATE = ("temperature_K", "pressure_Pa", "vapor_fraction")
