@@ -34,7 +34,7 @@ RULES: dict[str, dict[str, Any]] = {
                                 one_of=[("bottoms_molar_flow_mol_s", "distillate_molar_flow_mol_s")], optional=["feed_stage", "dP_Pa"]),
     "conversion_reactor": dict(ports=(1, 99, 2, 1, 0), required=["reaction_set"], one_of=[], optional=["mode", "dP_Pa"]),
     "equilibrium_reactor": dict(ports=(1, 99, 2, 1, 0), required=["reaction_set"], one_of=[], optional=["mode", "dP_Pa"]),
-    "gibbs_reactor":      dict(ports=(1, 99, 2, 1, 0), required=[], one_of=[], optional=["reaction_set", "mode", "dP_Pa"]),
+    "gibbs_reactor":      dict(ports=(1, 99, 2, 1, 0), required=[], one_of=[], optional=["reaction_set", "mode", "dP_Pa", "species"]),
     "cstr":               dict(ports=(1, 99, 1, 1, 0), required=["volume_m3", "reaction_set"], one_of=[], optional=["mode", "dP_Pa"]),
     "pfr":                dict(ports=(1, 99, 1, 1, 0), required=["volume_m3", "reaction_set"], one_of=[], optional=["mode", "dP_Pa"]),
     "recycle":            dict(ports=(1, 1, 1, 0, 0), required=[], one_of=[]),

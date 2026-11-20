@@ -42,6 +42,10 @@ def clean_env() -> dict[str, str]:
     # PWD/OLDPWD are whatever shell launched the app (e.g. a folder in ~/Documents); claude trusts $PWD over the
     # real cwd, touched it and sat on the macOS privacy prompt. Without them it uses the cwd it is given.
     env.pop("PWD", None)
+    # MCP start-up: wait up to two minutes for the tool server and load every tool schema up front (see run_claude_p).
+    env.setdefault("MCP_TIMEOUT", "120000")
+    env.setdefault("CLAUDE_CODE_MCP_STARTUP_WAIT_MS", "120000")
+    env.setdefault("ENABLE_TOOL_SEARCH", "false")
     env.pop("OLDPWD", None)
     env["CLAUDE_CODE_DISABLE_CLAUDE_MDS"] = "1"
     env["CLAUDE_CODE_DISABLE_AUTO_MEMORY"] = "1"
@@ -103,13 +107,33 @@ def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = 
     Never raises: timeouts and bad output come back as {"is_error": True, "result": <why>}."""
     cmd = ["claude", "-p", prompt, "--model", model, "--effort", effort, "--tools", "",
            "--append-system-prompt", system, "--max-turns", str(max_turns),
-           "--output-format", "json", "--no-session-persistence", "--setting-sources", "project,local", "--permission-mode", "bypassPermissions"]
+           "--output-format", "stream-json", "--verbose", "--no-session-persistence", "--setting-sources", "project,local",
+           "--permission-mode", "bypassPermissions"]
     if mcp:
         cmd += ["--mcp-config", _mcp_config_path(), "--strict-mcp-config", "--allowedTools", "mcp__alchemai__*"]
     env = clean_env()
-    # A cold MCP server (uv + DWSIM load) can take longer than Claude Code's default wait; the first call of a run then
-    # starts with no tools (seen on Finlayson 2.1, 3.1, 5.1, 8.1). Give the server two minutes to come up.
-    env.setdefault("MCP_TIMEOUT", "120000")
+    # A cold MCP server (uv + DWSIM load) on a busy machine can miss Claude Code's first-turn wait; the call then starts with
+    # no tools (seen on Finlayson 2.1, 3.1, 5.1, 7.1, 8.1). MCP_TIMEOUT alone did not cure it: the first-turn wait is its own
+    # variable. Tool search is switched off so every tool schema is loaded up front (built-in tools are disabled here).
+    out: dict = {}
+    for attempt in range(MCP_START_ATTEMPTS if mcp else 1):
+        out = _run_once(cmd, env, timeout_s, log)
+        if not mcp or out.pop("_mcp_connected", True):
+            break
+        # Deterministic check on the init event: the server was not connected, so whatever the model said is not an answer.
+        if log:
+            log(f"  alchemai MCP server not connected at start (attempt {attempt + 1}); retrying")
+        out = {"is_error": True, "num_turns": None,
+               "result": "alchemai MCP server did not connect: the model had no tools (nothing was computed)"}
+    return out
+
+
+MCP_START_ATTEMPTS = 3
+
+
+def _run_once(cmd: list[str], env: dict, timeout_s: int, log=None) -> dict:
+    """One `claude -p` process in its own process group. Returns the final `result` event of the stream plus
+    `_mcp_connected` (from the init event: alchemai server connected and at least one of its tools listed)."""
     # Own process group: on timeout we must kill claude AND its MCP server child (a DWSIM solve that never
     # returns would otherwise keep spinning at 100 % CPU as an orphan; three such orphans were found 2026-11-04).
     proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(ROOT), env=env,
@@ -119,14 +143,28 @@ def run_claude_p(prompt: str, system: str, *, model: str = MODEL, effort: str = 
     except subprocess.TimeoutExpired:
         _kill_group(proc)
         return {"is_error": True, "result": f"timeout after {timeout_s} s", "num_turns": None}
-    proc.stdout, proc.stderr = stdout, stderr   # keep the attribute shape the code below expects
     if log:
-        log(f"  claude -p exit={proc.returncode} stderr={proc.stderr.strip()[-300:]}")
-    try:
-        out = json.loads(proc.stdout)
-    except Exception:  # noqa: BLE001
-        return {"is_error": True, "result": f"claude -p produced no JSON (exit {proc.returncode}): {proc.stdout[-500:]} {proc.stderr[-500:]}", "num_turns": None}
-    return out if isinstance(out, dict) else {"is_error": True, "result": str(out)[:500]}
+        log(f"  claude -p exit={proc.returncode} stderr={stderr.strip()[-300:]}")
+    result, connected = None, True
+    for line in stdout.splitlines():
+        try:
+            ev = json.loads(line)
+        except Exception:  # noqa: BLE001
+            continue
+        if not isinstance(ev, dict):
+            continue
+        if ev.get("type") == "system" and ev.get("subtype") == "init" and "mcp_servers" in ev:
+            status = {m.get("name"): m.get("status") for m in ev.get("mcp_servers") or []}
+            if "alchemai" in status or "--mcp-config" in cmd:
+                connected = status.get("alchemai") == "connected" and any(
+                    str(t).startswith("mcp__alchemai__") for t in ev.get("tools") or [])
+        elif ev.get("type") == "result":
+            result = ev
+    if result is None:
+        return {"is_error": True, "result": f"claude -p produced no result event (exit {proc.returncode}): {stdout[-500:]} {stderr[-500:]}",
+                "num_turns": None}
+    result["_mcp_connected"] = connected
+    return result
 
 
 def _solve_card_once(card: dict, log=None) -> dict:

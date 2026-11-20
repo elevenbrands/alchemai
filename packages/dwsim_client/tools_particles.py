@@ -9,28 +9,56 @@ from packages.transport import non_newtonian as NN
 from packages.transport import particles as PT
 
 
-def non_newtonian_pipe_flow(volumetric_flow_m3_s: float, diameter_m: float, length_m: float, density_kg_m3: float,
-                            rheology: dict, profile_points: int = 21) -> dict:
-    """Caída de presión por fricción de un líquido no newtoniano (ley de potencia, Bingham o Herschel-Bulkley) en un tubo
-    recto, liso, horizontal y circular, con el régimen de flujo. La reología es del usuario: no hay valores por defecto.
+def non_newtonian_pipe_flow(volumetric_flow_m3_s: float | None = None, diameter_m: float | None = None,
+                            length_m: float | None = None, density_kg_m3: float | None = None,
+                            rheology: dict | None = None, profile_points: int = 21, geometry: str = "tube",
+                            gap_m: float | None = None, width_m: float | None = None,
+                            pressure_gradient_Pa_m: float | None = None, positions_m: list | None = None,
+                            shear_rates_1_s: list | None = None, compare_rheology: dict | None = None,
+                            free_stream_velocity_m_s: float | None = None) -> dict:
+    """Flujo de un líquido no newtoniano (o newtoniano) en tubo circular o entre placas paralelas, curva de viscosidad
+    aparente y capa límite laminar de Blasius sobre placa plana. La reología es del usuario: no hay valores por defecto.
 
-    volumetric_flow_m3_s: caudal (m³/s). diameter_m: diámetro interno. length_m: longitud recta. density_kg_m3: densidad.
-    rheology: {'model': 'power_law', 'K_Pa_sn', 'n'} (τ = K·γ̇^n; K es la consistencia verdadera, no K' = K((3n+1)/4n)^n)
-      | {'model': 'bingham', 'yield_stress_Pa', 'plastic_viscosity_Pa_s'} (τ = τ_y + μ_p·γ̇)
-      | {'model': 'herschel_bulkley', 'yield_stress_Pa', 'K_Pa_sn', 'n'} (τ = τ_y + K·γ̇^n).
-    profile_points: puntos radiales del perfil de velocidad laminar.
+    rheology: {'model': 'power_law', 'K_Pa_sn', 'n'} (τ = K·γ̇^n; K verdadera, no K' = K((3n+1)/4n)^n)
+      | {'model': 'bingham', 'yield_stress_Pa', 'plastic_viscosity_Pa_s'} | {'model': 'herschel_bulkley',
+      'yield_stress_Pa', 'K_Pa_sn', 'n'} | {'model': 'newtonian', 'viscosity_Pa_s'}
+      | {'model': 'carreau', 'eta0_Pa_s', 'eta_inf_Pa_s' (0 si se omite), 'lambda_s', 'n'}:
+        η = η∞ + (η0 − η∞)[1 + (λγ̇)²]^((n−1)/2) | {'model': 'carreau_yasuda', ... + 'a'}: [1 + (λγ̇)^a]^((n−1)/a)
+      | {'model': 'cross', 'eta0_Pa_s', 'eta_inf_Pa_s', 'lambda_s', 'm'}: η = η∞ + (η0 − η∞)/(1 + (λγ̇)^m).
+    geometry:
+      'tube' (por defecto): diameter_m y volumetric_flow_m3_s (m³/s) -> ΔP, o pressure_gradient_Pa_m (−dp/dz) -> caudal
+        (laminar). Con caudal y ley de potencia/Bingham/Herschel-Bulkley/newtoniano hacen falta length_m y density_kg_m3
+        y se da el régimen: laminar EXACTO (Rabinowitsch-Mooney, Buckingham-Reiner), transición de Ryan-Johnson/Hanks,
+        turbulento liso de Dodge-Metzner o Darby (Herschel-Bulkley turbulento es ESTIMACIÓN). Carreau/Yasuda/Cross y el
+        problema inverso: solo solución laminar (integración numérica), con aviso si el Reynolds supera el crítico.
+      'slit': placas paralelas separadas gap_m (h). Caudal en volumetric_flow_m3_s: m³/s si das width_m, o m²/s por
+        unidad de ancho si no; o pressure_gradient_Pa_m -> caudal. Solo laminar, cualquier reología. length_m y
+        density_kg_m3 opcionales (ΔP; comprobación de Reynolds).
+      'flat_plate': capa límite laminar de Blasius (resuelta numéricamente). free_stream_velocity_m_s, density_kg_m3,
+        rheology newtoniana, length_m = longitud L de la placa (arrastre), width_m = ancho W, positions_m = lista de x o
+        de pares [x, y] (m; x desde el borde de ataque, y desde la pared). Avisa si Re_x > 5e5.
+    positions_m (tube/slit): distancias al eje (r) o al plano medio (y) donde evaluar velocidad, τ y γ̇ (perfil laminar).
+    profile_points: puntos del perfil tabulado.
+    shear_rates_1_s y/o compare_rheology: viscosidad aparente η = τ/γ̇ de rheology (y de compare_rheology) a esas γ̇ y,
+      con dos reologías, la(s) γ̇ donde se cruzan (búsqueda de 1e-8 a 1e10 1/s) más las asíntotas de Carreau/Cross
+      (rama de ley de potencia y γ̇ donde corta la meseta η0). Sin caudal ni gradiente devuelve solo ese bloque
+      ('viscosity'); no hace falta geometría.
 
-    Laminar: solución EXACTA (Rabinowitsch-Mooney; Metzner-Reed para ley de potencia, Buckingham-Reiner para Bingham).
-    Transición: Re de Metzner-Reed crítico de Ryan-Johnson/Hanks (ley de potencia) o de Hanks con el número de Hedström
-    (Bingham). Turbulento (tubo liso): Dodge-Metzner (ley de potencia), Darby (Bingham); Herschel-Bulkley turbulento es una
-    ESTIMACIÓN (Dodge-Metzner con n', K' locales) y se avisa.
-
-    Devuelve regime, pressure_drop_Pa, pressure_gradient_Pa_m, wall_shear_stress_Pa, f_fanning, f_darcy, hydraulic_power_W,
-    generalized_reynolds_metzner_reed (y bingham_reynolds, hedstrom_number), transition {criterion, critical_reynolds},
-    laminar_solution {perfil u(r), radio del tapón, velocidad al centro, ΔP laminar}, turbulent (si aplica), evidence
-    (forma cerrada vs cuadratura vs perfil integrado; residuo de la correlación turbulenta), warnings, assumptions y
-    not_included. Validación: soluciones analíticas laminares, Geankoplis 3.5-1 y 3.5-2, de Nevers 13.1, 13.3 y 13.5."""
-    return NN.pipe_flow(volumetric_flow_m3_s, diameter_m, length_m, density_kg_m3, rheology, profile_points)
+    Devuelve (tube clásico) regime, pressure_drop_Pa, pressure_gradient_Pa_m, wall_shear_stress_Pa, f_fanning, f_darcy,
+    generalized_reynolds_metzner_reed (bingham_reynolds, hedstrom_number), transition, laminar_solution {perfil u(r),
+    wall_shear_rate_1_s, plug_radius_m, centerline_velocity_m_s, velocity_at_positions}, turbulent; (slit, Carreau,
+    inverso) mean_velocity_m_s, max_velocity_m_s, max_to_mean, wall_shear_stress_Pa, wall_shear_rate_1_s,
+    pressure_gradient_Pa_m, volumetric_flow_m3_s / flow_per_unit_width_m2_s, velocity_profile, velocity_at_positions,
+    regime; (flat_plate) blasius_constants, points [{reynolds_x, delta_99_m, displacement_thickness_m,
+    momentum_thickness_m, local_skin_friction_coefficient, wall_shear_stress_Pa, u_m_s, v_m_s}], plate {reynolds_L,
+    average_skin_friction_coefficient, drag_one_side_N, drag_both_sides_N o por unidad de ancho}; viscosity {table,
+    crossings, asymptotes}. Siempre evidence (forma cerrada vs cuadratura; Carreau: cuadratura N vs 2N e integral por
+    partes; Blasius: f''(0) = 0.33206 e identidad integral), warnings, assumptions y not_included. Validación:
+    soluciones analíticas (tubo y placas, newtoniano, ley de potencia, Bingham), Geankoplis 3.5-1 y 3.5-2, de Nevers
+    13.1, 13.3 y 13.5, límites de Carreau, constantes de Blasius."""
+    return NN.flow(volumetric_flow_m3_s, diameter_m, length_m, density_kg_m3, rheology, profile_points, geometry, gap_m,
+                   width_m, pressure_gradient_Pa_m, positions_m, shear_rates_1_s, compare_rheology,
+                   free_stream_velocity_m_s)
 
 
 def particle_settling(particle_diameter_m: float, particle_density_kg_m3: float, fluid_density_kg_m3: float,
@@ -47,15 +75,22 @@ def particle_settling(particle_diameter_m: float, particle_density_kg_m3: float,
       'Barati', 'Haider_Levenspiel', 'Morrison', ...). Siempre se reporta la dispersión entre cuatro correlaciones.
     solids_volume_fraction: si se da, velocidad obstaculizada por Richardson-Zaki u = u_t(1 − φ)^n (exponente escalonado
       de Richardson-Zaki 1954; column_diameter_m añade el término d/D).
+    column_diameter_m: diámetro D del tubo o columna. Además del término d/D, para ESFERA da el efecto de pared sobre la
+      partícula sola que cae por el eje: wall_effect {wall_factor = u_pared/u_infinito, correlation_used,
+      wall_factor_by_correlation} y terminal_velocity_with_wall_m_s. Flujo reptante (Re < 0.1, d/D < 0.8): Haberman-Sayre
+      (1958), con Francis (1933) de contraste; Re mayor: Di Felice (1996), ESTIMACIÓN (y Munroe si Re > 1000).
+      terminal_velocity_m_s es siempre la del fluido infinito.
     thickener: {'feed_flow_m3_s', 'feed_solids_kg_m3', 'underflow_solids_kg_m3', opcional 'batch_tests':
       {'concentration_kg_m3': [...], 'settling_velocity_m_s': [...]}} -> área de Coe-Clevenger con las pruebas por lotes
       del usuario; sin batch_tests se ESTIMA con Richardson-Zaki (solo suspensiones no floculadas) y se avisa.
 
     Devuelve terminal_velocity_m_s, reynolds_terminal, drag_coefficient, regime (Stokes/intermedio/Newton),
-    stokes_velocity_m_s,
+    stokes_velocity_m_s, drag_split (solo esfera con Re < 0.1, solución exacta de Stokes F = 3πμdU: form_drag_N = 1/3
+    por presión, friction_drag_N = 2/3 por esfuerzo viscoso; fuera de ese límite dice que hace falta el campo de flujo),
     terminal_velocity_by_correlation_m_s, richardson_zaki_exponent, hindered {...}, thickener {area_m2, diameter_m,
     limiting_concentration_kg_m3, solids_flux_kg_m2_s, underflow_m3_s, overflow_m3_s, table}, evidence, warnings, assumptions
-    y not_included. Validación: Geankoplis 14.3-1 (Stokes), GPSA ej. 7-1, límite de Stokes."""
+    y not_included. Validación: Geankoplis 14.3-1 (Stokes), GPSA ej. 7-1, límite de Stokes, tabla de teoría exacta
+    del factor de pared (arXiv:1202.1400, Tabla 9)."""
     return PT.settling(particle_diameter_m, particle_density_kg_m3, fluid_density_kg_m3, fluid_viscosity_Pa_s, sphericity,
                        projected_area_ratio, drag_method, solids_volume_fraction, column_diameter_m, thickener)
 

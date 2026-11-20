@@ -264,6 +264,16 @@ def verify(fs, rel_tol: float = REL_TOL, energy_tol: float = ENERGY_TOL, solve: 
 
         calculated = bool(getattr(o, "Calculated", True))
         error = str(getattr(o, "ErrorMessage", "") or "")
+        if "shortcut" in kind.lower() and len(vout) == 2:
+            # The shortcut (FUG) model assumes a liquid bottoms at its bubble point. With some property packages DWSIM
+            # returns that stream as vapour (seen with Chao-Seader): the energy balance still closes, but the reboiler
+            # duty then carries the latent heat of the whole bottoms. Not a result to trust.
+            bottoms = max(vout, key=lambda v: v.temperature_k)
+            if (bottoms.vapor_fraction or 0.0) > 0.01:
+                error = error or (f"fondos '{bottoms.name}' devueltos como vapor (fracción vapor {bottoms.vapor_fraction:.3g}); "
+                                  "el calor del rehervidor incluye su calor latente y está sobreestimado")
+                notes.append("shortcut column: bottoms must be a bubble-point liquid; reboiler duty NOT trustworthy with this "
+                             "property package — use another package for the duties or a rigorous distillation_column")
         ok = calculated and not error and mass_err <= rel_tol and energy_err <= energy_tol \
             and (comp_err is None or comp_err <= rel_tol)
         units.append(UnitCheck(

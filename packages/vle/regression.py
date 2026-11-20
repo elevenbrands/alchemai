@@ -29,6 +29,8 @@ MAX_NFEV_ML_HE = 12000   # with an h^E block the ML fit needs ~4000 evaluations 
 INIT = {"NRTL": [(0.0, 0.0), (300.0, 300.0), (800.0, -200.0), (-200.0, 800.0), (1500.0, 500.0), (500.0, 1500.0)],
         "UNIQUAC": [(0.0, 0.0), (-150.0, -150.0), (150.0, -300.0), (-300.0, 150.0), (-500.0, 100.0), (100.0, -500.0)],
         "Wilson": [(0.0, 0.0), (-300.0, -300.0), (-800.0, 100.0), (100.0, -800.0), (-1200.0, -100.0), (-100.0, -1200.0)]}
+# starts for a_ij = ln Λ_ij when Wilson is fitted with constant Λ (no b_ij in the parameter list)
+INIT_LN = [(0.0, 0.0), (-1.0, -1.0), (-2.5, 0.3), (0.3, -2.5), (-4.0, -0.3), (-0.3, -4.0), (0.5, 0.5)]
 
 
 class Data:
@@ -141,9 +143,10 @@ def _gamma_start(model, fixed, names, d, system):
         v = np.concatenate([a - lg1, b - lg2])
         return np.where(np.isfinite(v), v, 1e2)
     best = None
-    for g in INIT[model]:
+    has_b = "b12" in names
+    for g in (INIT[model] if has_b else INIT_LN):
         th0 = np.zeros(len(names))
-        th0[names.index("b12")], th0[names.index("b21")] = g
+        th0[names.index("b12" if has_b else "a12")], th0[names.index("b21" if has_b else "a21")] = g
         if "alpha" in names:
             th0[names.index("alpha")] = 0.3
         if "_T_ref" in fixed:  # start from a_ij = 0
@@ -170,7 +173,7 @@ def fit(system, model: str, d: Data, fixed: dict, names: list[str], objective: s
     he: calorimetric points fitted at the same time (weights w_vle, w_he on the two blocks of the objective)."""
     if he is not None and (he.n == 0 or w_he <= 0):
         he = None
-    if "a12" not in names:
+    if "a12" not in names or "b12" not in names:   # no a-b pair to decorrelate (b only, or constant-Λ Wilson: a only)
         return _fit(system, model, d, fixed, names, objective, sig, he, w_vle, w_he)
     Tref = float(np.mean(d.T[d.inner]))
     n = len(names)
@@ -194,7 +197,7 @@ def _he_starts(model, fixed, names, d, system, sig, he, w_vle, w_he, th0):
     rest left at the VLE start (h^E is driven by b, which one isobar barely identifies), each refined on the joint
     bubble objective with a short budget. Returns the candidates sorted by cost."""
     cands = [np.array(th0, float)]
-    for g in INIT[model]:
+    for g in (INIT[model] if "b12" in names else []):
         t = np.array(th0, float)
         t[names.index("b12")], t[names.index("b21")] = g
         cands.append(t)

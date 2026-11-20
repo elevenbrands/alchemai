@@ -6,6 +6,7 @@ from __future__ import annotations
 from packages.properties import cubic_eos as CE
 from packages.properties import flash as FL
 from packages.properties import pure as PU
+from packages.properties import reaction_equilibrium as RE
 
 
 def compound_properties(compound: str, T_K: float | None = None, P_Pa: float | None = None,
@@ -141,4 +142,42 @@ def cubic_eos_volume(components: list[str], model: str, T_K: float, P_Pa: float,
     return CE.cubic_eos_volume(components, model, T_K, P_Pa, mole_fractions, critical_constants, kij, root)
 
 
-PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume]
+def reaction_equilibrium(reactions: list[dict], T_K: float | list[float], P_Pa: float | None = None,
+                         feed_mol: dict | None = None, data_overrides: dict | None = None,
+                         fugacity_coefficients: dict | None = None, cantera_mechanism: str | None = "gri30.yaml") -> dict:
+    """Equilibrio químico en fase GAS IDEAL a partir de datos termoquímicos de formación, sin flowsheet ni mecanismo:
+    constante de equilibrio K(T) de cada reacción y, si se da la alimentación, avances, composición y conversiones de una
+    o varias reacciones simultáneas restringidas a las especies y reacciones elegidas. Estado estándar: gas ideal puro a
+    T y P° = 1 bar para TODAS las especies.
+
+    reactions: [{'name': opcional, 'stoichiometry': {compuesto: coeficiente}}] o directamente [{compuesto: coeficiente}];
+      coeficiente negativo = reactivo, positivo = producto. Compuestos por nombre, CAS o fórmula. Deben estar balanceadas
+      y ser linealmente independientes (si no, error que dice qué átomos sobran).
+    T_K: temperatura o lista de temperaturas (K). P_Pa: presión ABSOLUTA (Pa); obligatoria con feed_mol.
+    feed_mol: {compuesto: moles} de la alimentación; los compuestos que no aparecen en ninguna reacción son INERTES (solo
+      diluyen). Sin feed_mol solo se devuelve K(T).
+    data_overrides: {compuesto: {'Hf_J_mol', 'Gf_J_mol' (gas ideal, 298.15 K, 1 bar), 'Cp_J_molK'}} con datos del
+      USUARIO o del enunciado; Cp_J_molK = número (constante), lista [c0, c1, ...] de Cp = Σc_k·T^k en J/(mol·K), o
+      {'A','B','C','D'} de Cp/R = A + B·T + C·T² + D/T² (forma de Smith-Van Ness). Salen marcados 'dato del usuario'.
+      Si a un compuesto le faltan datos de formación en la base de datos, la herramienta se detiene y los pide: no inventa.
+    fugacity_coefficients: {compuesto: φ} del usuario, constantes (a_i = y_i·φ_i·P/P°); sin ellos φ = 1.
+    cantera_mechanism: mecanismo de Cantera para la comparación de datos ('gri30.yaml'; None la omite).
+
+    Devuelve species (CAS, ΔfH° y ΔfG° con su fuente: chemicals.reaction.Hfg método ATCT_G/CRC/..., ΔfG° derivado de S°,
+    Cp de thermo.HeatCapacityGas con método e intervalo), reactions [{equation, delta_nu, dH_298_J_mol, dG_298_J_mol,
+    dS_298_J_molK, K_298, K_of_T: [{T_K, K, lnK, log10K, dG_T_J_mol, dH_T_J_mol, constant_dH_approximation}]}] donde K es
+    la integración rigurosa de van't Hoff con los Cp y constant_dH_approximation es la aproximación ΔH° constante
+    (etiquetada, no usarla como resultado), equilibrium por temperatura [{extents_mol, moles_out, mole_fractions,
+    partial_pressures_Pa, conversion de cada reactivo alimentado, K_consistency, element_balance,
+    gibbs_minimization_check}], cantera_comparison (ln K y composición con los polinomios NASA de GRI-Mech 3.0 cuando
+    todas las especies están ahí: compara FUENTES de datos), warnings, assumptions, not_included y evidence.
+    evidence.verified exige: ln K(T) analítico = cuadratura numérica de van't Hoff, Π a_i^ν = K en la solución, balance
+    de elementos, y la misma composición por minimización directa de Gibbs con multiplicadores de Lagrange; certifica el
+    cálculo con esos datos, no que la mezcla sea gas ideal ni que el equilibrio se alcance. NO incluye: φ calculados con
+    ecuación de estado, modo adiabático, fases condensadas (carbono sólido, agua líquida). Validación: JANAF/NIST,
+    Smith-Van Ness ejemplos 13.4, 13.5 y 13.14 (tests/test_reaction_equilibrium.py)."""
+    return RE.reaction_equilibrium(reactions, T_K, P_Pa, feed_mol, data_overrides, fugacity_coefficients,
+                                   cantera_mechanism)
+
+
+PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume, reaction_equilibrium]

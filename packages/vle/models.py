@@ -13,6 +13,10 @@ exp(-Δλ_12/RT) for Wilson. UNIQUAC uses z = 10.
 
 Excess enthalpy (M15c): h^E = −R·T²·∂(g^E/RT)/∂T at constant x (Gibbs-Helmholtz), analytic for the three models with
 d(a + b/T)/dT = −b/T² (`excess_enthalpy`); `thermo_excess_enthalpy` is the same quantity from thermo's GibbsExcess.HE().
+
+Textbook parameters (`textbook_parameters`): the dimensionless quantities that enter the γ expressions at a stated T —
+NRTL τ_12, τ_21, G_12, G_21; UNIQUAC τ_12, τ_21; Wilson Λ_12, Λ_21. Wilson with CONSTANT Λ (the form of Smith-Van Ness
+and Perry worked examples: Λ_12, Λ_21 independent of T) is the same code with b_ij = 0, V = (1, 1) and a_ij = ln Λ_ij.
 """
 from __future__ import annotations
 
@@ -155,3 +159,18 @@ def energy_parameters(model: str, p: dict) -> dict:
 def b_from_energy(model: str, d12_J: float, d21_J: float) -> tuple[float, float]:
     sign = 1.0 if model == "NRTL" else -1.0
     return sign * d12_J / R, sign * d21_J / R
+
+
+def textbook_parameters(model: str, T: float, p: dict) -> dict:
+    """Dimensionless parameters of the γ expressions at temperature T [K]: NRTL {tau12, tau21, G12, G21}, UNIQUAC
+    {tau12, tau21}, Wilson {Lambda12, Lambda21} (volume ratio included)."""
+    e12, e21 = _pair(p.get("a12", 0.0), p.get("a21", 0.0), float(T), p["b12"], p["b21"])
+    if model == "NRTL":
+        al = p["alpha"]
+        return {"tau12": float(e12), "tau21": float(e21), "G12": float(np.exp(-al * e12)), "G21": float(np.exp(-al * e21))}
+    if model == "UNIQUAC":
+        return {"tau12": float(np.exp(e12)), "tau21": float(np.exp(e21))}
+    if model == "Wilson":
+        V1, V2 = p["V"]
+        return {"Lambda12": float(V2 / V1 * np.exp(e12)), "Lambda21": float(V1 / V2 * np.exp(e21))}
+    raise ValueError(f"modelo desconocido: {model}")

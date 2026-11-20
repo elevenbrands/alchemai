@@ -59,6 +59,10 @@ from packages.agent.wrappers_refinery import AGENT_WRAPPERS as _W_REFINERY  # no
 from packages.agent.wrappers_diagram import AGENT_WRAPPERS as _W_DIAGRAM  # noqa: E402  (bloque M27)
 from packages.agent.wrappers_opportunities import AGENT_WRAPPERS as _W_OPPORTUNITIES  # noqa: E402  (bloque M27)
 from packages.agent.wrappers_power import AGENT_WRAPPERS as _W_POWER  # noqa: E402  (bloque M27)
+from packages.agent.wrappers_build import AGENT_WRAPPERS as _W_BUILD  # noqa: E402  (bloque M28)
+from packages.agent.wrappers_equations import AGENT_WRAPPERS as _W_EQUATIONS  # noqa: E402  (bloque M28)
+from packages.agent.wrappers_pde2d import AGENT_WRAPPERS as _W_PDE2D  # noqa: E402  (bloque M28)
+from packages.agent.wrappers_flow2d import AGENT_WRAPPERS as _W_FLOW2D  # noqa: E402  (bloque M28)
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -84,6 +88,12 @@ Hard rules:
    product stream; columns need distillate, bottoms and both duties; separators need vapor and liquid.
    For mass balances with a stated recovery or "perfect split" per compound, use the component_separator unit
    (ideal splitter, needs an energy stream); say in the answer that it is an ideal split, not a designed separation.
+   The shortcut_column is DWSIM's Fenske-Underwood-Gilliland with one average volatility: for non-ideal or azeotropic
+   mixtures (ethanol-water, tangent pinches) its N_min and R_min are NOT reliable — say so and size with a rigorous
+   distillation_column instead of reporting them as results.
+   A process with more than ~4 units is built with ONE build_flowsheet call (all streams, units, connections and
+   reactions in one specification), never unit by unit; constraints such as a feed ratio at a reactor inlet or an
+   inert level set by a purge are met with flowsheet_goal_seek (1-3 specifications together), not by trial solves.
 3. Design questions (find a T, P, N, UA, fraction...) are solved by searching with the simulator. Use
    sweep(): it varies one spec over a list of values, re-solves each time and returns the table and the
    interpolated crossing of your target in ONE call. Then sweep a finer range around the crossing (or
@@ -364,6 +374,28 @@ Hard rules:
    method of characteristics, cavitation) and pump_selection (operating point, specific speed, affinity laws, NPSH;
    efficiency only from the user's curve unless the user accepts the flagged Corripio estimate). Rheology, particle
    size, sphericity, densities, pipe elasticity, closure law and pump curves are user data: ASK, never invent.
+   non_newtonian_pipe_flow also does flow between parallel plates (geometry "slit"), Carreau / Carreau-Yasuda /
+   Cross fluids, apparent-viscosity tables and the crossing of two rheologies, the inverse problem (pressure gradient
+   -> flow) and the laminar flat-plate boundary layer (geometry "flat_plate", Blasius); particle_settling gives the
+   wall effect in a tube (column_diameter_m) and the Stokes form/friction drag split.
+   Equations the user writes down (bloque M28): solve_ode_system (initial-value problems, events, oscillation
+   diagnosis), solve_bvp_system (two-point boundary-value problems: dispersion reactors, pellets, boundary layers,
+   several solutions from different guesses) and solve_pde_1d (transient or marching diffusion-convection-reaction in
+   slab/cylinder/sphere, several coupled variables). Use them whenever the problem IS a set of equations and no
+   dedicated tool has that model; never borrow a control tool to integrate equations, and never decline a transient
+   because only the steady-state tool exists. Report their evidence (tolerance / grid refinement) with the numbers.
+   laminar_flow_2d SOLVES the incompressible Navier-Stokes equations (FEniCSx) on a planar or axisymmetric geometry
+   made of rectangles with rectangular/circular obstacles: channels and junctions, entry flow, expansions, orifices,
+   flow past a cylinder or a sphere (drag split into pressure and friction, recirculation, vortex shedding with
+   `transient`, Nusselt number with `scalar`). Use it when the question is a flow FIELD; correlations stay labelled as
+   correlations. Transient results are never mesh-verified: say so. Domain size matters for "unbounded" streams.
+   reaction_equilibrium gives K(T) of any reaction from formation data (rigorous van't Hoff) and the ideal-gas
+   equilibrium composition for one or several simultaneous reactions, with the data source of every compound; the
+   gibbs_reactor unit does the same inside a flowsheet with the property package. Never back-calculate a K by hand.
+   solve_pde_2d does steady 2-D fields on a rectangle, an axisymmetric cylinder, a polar sector or a spherical shell
+   (Laplace/Poisson, diffusion-reaction, convection-diffusion with a GIVEN velocity field: finite-cylinder pellets,
+   Graetz-type problems with a wall temperature that changes along the tube, heat/mass transfer from a sphere in
+   creeping flow). A quantity it returns with grid_converged=false is reported as not converged, never as a result.
 
 31. Whole plants and suggested economics (bloque M26). ECONOMIC and DESIGN-BASIS inputs (raw-material and product
    prices, utility prices, wages, tax, discount rate, plant life, on-stream hours, construction schedule, capital and
@@ -502,7 +534,8 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, object] 
     heat_exchanger {UA_W_K, hot_dP_Pa, cold_dP_Pa}; shortcut_column {light_key, heavy_key,
     lk_mole_frac_in_bottoms, hk_mole_frac_in_distillate, condenser_P_Pa, reboiler_P_Pa, reflux_ratio};
     distillation_column {stages, feed_stage (1-based, 1 = condenser), reflux_ratio, bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s,
-    top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; cstr/pfr {volume_m3,
+    top_P_Pa, dP_Pa}; *_reactor {reaction_set, mode: "isothermal"|"adiabatic", dP_Pa}; gibbs_reactor needs no
+    reaction_set, optional species [compounds allowed to react, default all]; cstr/pfr {volume_m3,
     reaction_set, mode: "isothermal" (= feed T)|"adiabatic", dP_Pa} — products [outlet], energy_feeds [duty] required;
     recycle {}; pipe {length_m, inner_diameter_m, elevation_change_m, increments} (adiabatic, Beggs-Brill, two-phase OK);
     absorption_column {stages (≥ 4), top_P_Pa, dP_Pa}: feeds [lean liquid, gas], products [treated gas, rich liquid];
@@ -777,7 +810,8 @@ def vle_binary_regression(components: list[str], data_sets: list[dict[str, objec
                           published_parameters: dict[str, object] | None = None, legendre_order: int = 4,
                           excess_enthalpy_sets: list[dict[str, object]] | None = None,
                           weights: dict[str, float] | None = None, he_weight_scan: list[float] | None = None,
-                          joint_tolerances: dict[str, float] | None = None) -> str:
+                          joint_tolerances: dict[str, float] | None = None, wilson_form: str = "energia",
+                          report_temperature_K: float | list[float] | None = None) -> str:
     """Regress binary activity-model parameters (NRTL, UNIQUAC, Wilson) from the USER's VLE data.
     components [name1, name2]; data_sets [{label, citation, points: [{T_K, P_Pa (or P_kPa), x1, y1}]}], each set
     isothermal, isobaric or P-T-x-y. models subset of NRTL/UNIQUAC/Wilson (default all). nrtl_alpha number or "ajustar"
@@ -794,11 +828,15 @@ def vle_binary_regression(components: list[str], data_sets: list[dict[str, objec
     temperature_dependence "a+b/T"). weights {"vle", "hE"} multiply the two blocks of the objective (default 1 and 1);
     sigma also takes hE_J_mol and hE_rel; he_weight_scan [w, ...] repeats the fit with other h^E weights (0 = VLE only)
     and returns the trade-off; joint_tolerances overrides the verdict's limits. Extra output per model: estadistica_hE
-    (AAD, bias, wrong-sign points, per set and temperature), residuos_hE, veredicto_conjunto.representa_VLE_y_hE."""
+    (AAD, bias, wrong-sign points, per set and temperature), residuos_hE, veredicto_conjunto.representa_VLE_y_hE.
+    wilson_form "energia" (default, Λij = (Vj/Vi)·exp(−Δλ/RT)) or "lambda_constante" (textbook form: Λ12, Λ21 fitted
+    directly, independent of T). Every model also returns parametros_de_libro: Λ12/Λ21 (Wilson), τ and G (NRTL), τ
+    (UNIQUAC) at the data temperatures and at report_temperature_K — quote these, never convert parameters by hand."""
     return _cq(_VLE.vle_binary_regression(components, data_sets, models, nrtl_alpha, temperature_dependence,
                                           objective, sigma, psat, vapor_phase, uniquac_rq, wilson_volumes_m3_mol,
                                           reported_azeotropes, compare_unifac, published_parameters, legendre_order,
-                                          excess_enthalpy_sets, weights, he_weight_scan, joint_tolerances))
+                                          excess_enthalpy_sets, weights, he_weight_scan, joint_tolerances, wilson_form,
+                                          report_temperature_K))
 
 @beta_tool
 def stream_transport_properties(flowsheet_id: str, stream: str) -> str:
@@ -1518,7 +1556,8 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                *_W_PROPERTIES, *_W_CATALYSIS, *_W_SOLID_DIFFUSION, *_W_SOLIDS, *_W_SEPARATIONS, *_W_DYNAMIC, *_W_DYNAMIC_FLOWSHEET, *_W_ADVANCED_CONTROL, *_W_PARTICLES, *_W_MOMENTUM,
                *_W_REFERENCE_PRICES, *_W_PLANT_ECONOMICS, *_W_PLANTS, *_W_LIQUID_EQUIPMENT, *_W_BATCH,
                *_W_SOLIDS_HANDLING, *_W_UTILITIES_CAPITAL,
-               *_W_DOSSIER, *_W_REFINERY, *_W_DIAGRAM, *_W_OPPORTUNITIES, *_W_POWER]
+               *_W_DOSSIER, *_W_REFINERY, *_W_DIAGRAM, *_W_OPPORTUNITIES, *_W_POWER,
+               *_W_BUILD, *_W_EQUATIONS, *_W_PDE2D, *_W_FLOW2D]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

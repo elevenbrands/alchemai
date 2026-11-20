@@ -181,7 +181,8 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
       shortcut_column: light_key, heavy_key, lk_mole_frac_in_bottoms, hk_mole_frac_in_distillate,
       condenser_P_Pa, reboiler_P_Pa, reflux_ratio; distillation_column: stages, feed_stage (1-based, 1 = condenser), reflux_ratio,
       bottoms_molar_flow_mol_s | distillate_molar_flow_mol_s, top_P_Pa, dP_Pa; *_reactor: reaction_set,
-      mode ("isothermal" | "adiabatic"), dP_Pa; cstr / pfr (kinetic reactions): volume_m3, reaction_set,
+      mode ("isothermal" | "adiabatic"), dP_Pa; gibbs_reactor (Gibbs minimisation, no reaction_set): optional species
+      [compounds allowed to react; default all, the rest pass as inerts]; cstr / pfr (kinetic reactions): volume_m3, reaction_set,
       mode ("isothermal" at the feed T | "adiabatic"), dP_Pa; pipe (adiabatic, Beggs-Brill, handles two-phase): length_m,
       inner_diameter_m, elevation_change_m (outlet minus inlet), increments (default 10); commercial steel;
       absorption_column (rigorous, equilibrium stages): stages (DWSIM needs ≥ 4), top_P_Pa, dP_Pa — connect feeds [lean_liquid (top stage),
@@ -250,6 +251,21 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
             if "reaction_set" in p:
                 b = b.WithReactionSet(p["reaction_set"])
             b = b.WithPressureDrop(Q.Pascal(float(p.get("dP_Pa", 0.0))))
+            if kind == "gibbs_reactor":
+                # DWSIM needs the list of reacting species and their element matrix; without them the reactor fails with
+                # "The Element Matrix is not defined". species = the compounds allowed to react (default: all); the
+                # others pass through as inerts.
+                from System.Collections.Generic import List
+                species = list(p.get("species") or s["compounds"])
+                missing = [c for c in species if c not in s["compounds"]]
+                if missing or len(species) < 2:
+                    raise ValueError(f"gibbs_reactor {name!r}: species must be at least two compounds of the flowsheet "
+                                     f"{s['compounds']}; not found: {missing}")
+                ids = List[str]()
+                for c in species:
+                    ids.Add(c)
+                b.Object.ComponentIDs = ids                # the element matrix is built in connect() (needs the feed)
+                p["species"] = species
         elif kind in ("cstr", "pfr"):
             b = (fs.AddCSTR if kind == "cstr" else fs.AddPFR)(name).WithVolume(Q.CubicMeters(float(p["volume_m3"])))
             # NOTE: CSTRBuilder.WithIsothermalTemperature breaks the PH flash in DWSIM 10.2.12; Isothermal() = feed T.
@@ -387,6 +403,12 @@ def solve(flowsheet_id: str) -> dict:
     this returns ok=true; report anything else as unverified."""
     s = _s(flowsheet_id)
     s["fs"].AutoLayout()
+    for uname, kind in s["kinds"].items():               # Gibbs reactors: element matrix of their species (needs the feed)
+        if kind == "gibbs_reactor":
+            try:
+                s["units"][uname].Object.CreateElementMatrix()
+            except Exception:  # noqa: BLE001  (not connected yet: the solver reports it)
+                pass
     rep = verify(s["fs"])
     s["report"] = rep
     return {"solved": rep.solved, "ok": rep.ok, "solver_errors": rep.solver_errors,
@@ -489,6 +511,10 @@ from packages.dwsim_client.tools_diagram import DIAGRAM_TOOLS  # noqa: E402  (bl
 from packages.dwsim_client.tools_opportunities import OPPORTUNITIES_TOOLS  # noqa: E402  (bloque M27)
 from packages.dwsim_client.tools_dossier import DOSSIER_TOOLS  # noqa: E402  (bloque M27)
 from packages.dwsim_client.tools_power import POWER_TOOLS  # noqa: E402  (bloque M27)
+from packages.dwsim_client.tools_build import BUILD_TOOLS  # noqa: E402  (bloque M28)
+from packages.dwsim_client.tools_equations import EQUATIONS_TOOLS  # noqa: E402  (bloque M28)
+from packages.dwsim_client.tools_pde2d import PDE2D_TOOLS  # noqa: E402  (bloque M28)
+from packages.dwsim_client.tools_flow2d import FLOW2D_TOOLS  # noqa: E402  (bloque M28)
 from packages.dwsim_client.dof import dof_check  # noqa: E402  (imports this module; placed last on purpose)
 from packages.hazop.report import hazop_preliminary  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet  # noqa: E402
@@ -506,4 +532,5 @@ TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_energy_
          *PROPERTIES_TOOLS, *CATALYSIS_TOOLS, *SOLID_DIFFUSION_TOOLS, *SOLIDS_TOOLS, *SEPARATIONS_TOOLS, *DYNAMIC_TOOLS, *DYNAMIC_FLOWSHEET_TOOLS, *ADVANCED_CONTROL_TOOLS, *PARTICLES_TOOLS, *MOMENTUM_TOOLS,
          *REFERENCE_PRICES_TOOLS, *PLANT_ECONOMICS_TOOLS, *PLANTS_TOOLS, *LIQUID_EQUIPMENT_TOOLS, *BATCH_TOOLS,
          *SOLIDS_HANDLING_TOOLS, *UTILITIES_CAPITAL_TOOLS,
-         *DOSSIER_TOOLS, *REFINERY_TOOLS, *DIAGRAM_TOOLS, *OPPORTUNITIES_TOOLS, *POWER_TOOLS]
+         *DOSSIER_TOOLS, *REFINERY_TOOLS, *DIAGRAM_TOOLS, *OPPORTUNITIES_TOOLS, *POWER_TOOLS,
+         *BUILD_TOOLS, *EQUATIONS_TOOLS, *PDE2D_TOOLS, *FLOW2D_TOOLS]

@@ -21,7 +21,26 @@ well and their spread is reported as model uncertainty. Non-spherical particles:
 ratio of equivalent-sphere area to projected area, data for spheres, cubes and cylinders, 0.001 < Re < 100).
 Terminal velocity: brentq on Re of Cd(Re) Re^2 = 4/3 Ar, Ar = g d^3 rho_f |rho_p - rho_f| / mu^2.
 
-Not included: wall effect on a single particle, non-Newtonian liquids, Brownian particles, drops and bubbles that
+Wall effect on one sphere falling along the axis of a cylindrical tube (lam = d/D, wall factor f = u_wall/u_unbounded):
+  * creeping flow, Haberman and Sayre (1958, David Taylor Model Basin Report 1143), drag ratio
+        F/F_Stokes = (1 - 0.75857 lam^5) / (1 - 2.1050 lam + 2.0865 lam^3 - 1.7068 lam^5 + 0.72603 lam^6),  f = 1/that,
+    valid lam < 0.8 (coefficients and range as in Wham et al. 1996 and in Eqs. 20-22 of «Studies on falling ball
+    viscometry», arXiv:1202.1400, whose Table 9 compares it with the exact theory of Haberman/Bohlin/Paine-Scherr:
+    equal to 3 decimals up to lam = 0.3, -0.4 % at 0.4, -1.7 % at 0.5, -5 % at 0.6);
+  * creeping flow, Francis (1933, Physics 4, 403): f = ((1 - lam)/(1 - 0.475 lam))^4, Re < 0.1, lam < 0.8 (as given in
+    Braz. J. Chem. Eng. 16(4), 1999, Eq. 7);
+  * any Reynolds number, Di Felice (1996, Int. J. Multiphase Flow 22, 527): f = ((1 - lam)/(1 - 0.33 lam))^alpha with
+    (3.3 - alpha)/(alpha - 0.85) = 0.1 Re_unbounded (arXiv:1202.1400, Eq. 18; the same source notes that it saturates
+    too early in the intermediate regime): reported as an ESTIMATE;
+  * Newton regime, Munroe (1888): f = 1 - lam^1.5, Re > 1000 (Braz. J. Chem. Eng. 16(4), 1999, Eq. 6).
+The `fluids` library has no wall correction for single particles. Kehlenbeck-Di Felice (1999) and Wham et al. (1996) are
+not implemented.
+
+Stokes drag split (exact creeping-flow solution around a sphere, e.g. Bird-Stewart-Lightfoot §2.6): F = 3 pi mu d U, of
+which pi mu d U (1/3) is form drag (pressure) and 2 pi mu d U (2/3) friction drag (viscous shear). Reported only when
+Re_t < 0.1; above it the split needs the actual flow field.
+
+Not included: wall effect off the tube axis or near the bottom, non-Newtonian liquids, Brownian particles, drops and bubbles that
 deform or circulate internally, polydisperse suspensions, flocculation (for flocculated slurries use measured batch data),
 bubbling-bed hydrodynamics of gas fluidization (bubble size, expansion), entrainment and TDH, Geldart classification."""
 from __future__ import annotations
@@ -91,6 +110,114 @@ def _solve_re(Ar: float, method: str, sphericity: float, area_ratio: float) -> t
         return 1e-12, 0.0
     lnre = brentq(g, lo, hi, xtol=1e-14, rtol=ROOT_RTOL, maxiter=500)
     return math.exp(lnre), abs(math.expm1(g(lnre)))
+
+
+WALL_LAMBDA_MAX = 0.8        # Haberman-Sayre and Francis: d/D < 0.8
+MUNROE_RE_MIN = 1000.0
+# exact creeping-flow theory (Haberman 1956; Bohlin 1960; Paine & Scherr 1975) as tabulated in arXiv:1202.1400, Table 9
+EXACT_WALL_FACTOR = {0.1: 0.792, 0.2: 0.595, 0.3: 0.422, 0.4: 0.278, 0.5: 0.168, 0.6: 0.090}
+
+
+def wall_factor_haberman_sayre(lam: float) -> float:
+    """u_wall/u_unbounded in creeping flow, sphere on the axis of a cylinder (Haberman & Sayre 1958), lam = d/D < 0.8."""
+    drag_ratio = (1.0 - 0.75857 * lam ** 5) / (1.0 - 2.1050 * lam + 2.0865 * lam ** 3 - 1.7068 * lam ** 5
+                                               + 0.72603 * lam ** 6)
+    return 1.0 / drag_ratio
+
+
+def wall_factor_francis(lam: float) -> float:
+    """Francis (1933), creeping flow (Re < 0.1), lam < 0.8."""
+    return ((1.0 - lam) / (1.0 - 0.475 * lam)) ** 4
+
+
+def wall_factor_di_felice(lam: float, re_unbounded: float) -> float:
+    """Di Felice (1996), any flow regime; the exponent goes from 3.3 (viscous) to 0.85 (inertial)."""
+    alpha = (3.3 + 0.085 * re_unbounded) / (1.0 + 0.1 * re_unbounded)
+    return ((1.0 - lam) / (1.0 - 0.33 * lam)) ** alpha
+
+
+def wall_factor_munroe(lam: float) -> float:
+    """Munroe (1888), Newton regime (Re > 1000)."""
+    return 1.0 - lam ** 1.5
+
+
+def wall_effect(particle_diameter_m: float, tube_diameter_m: float, unbounded_velocity_m_s: float,
+                reynolds_unbounded: float, fluid_density_kg_m3: float, fluid_viscosity_Pa_s: float) -> dict:
+    """Wall-corrected terminal velocity of a sphere on the axis of a cylindrical tube (module docstring)."""
+    d, D = float(particle_diameter_m), float(tube_diameter_m)
+    lam = d / D
+    if lam >= 1.0:
+        raise ValueError(f"la partícula (d = {d:.4g} m) no cabe en el tubo (column_diameter_m = {D:.4g} m): d/D debe "
+                         "ser < 1")
+    Re = reynolds_unbounded
+    creeping = Re < STOKES_RE_LIMIT
+    in_lam = lam < WALL_LAMBDA_MAX
+    table = {
+        "Haberman_Sayre_1958": {"wall_factor": wall_factor_haberman_sayre(lam) if in_lam else None,
+                                "validity": "flujo reptante (Re < 0.1 aquí; la fuente da Re < 2), d/D < 0.8",
+                                "applicable": creeping and in_lam},
+        "Francis_1933": {"wall_factor": wall_factor_francis(lam) if in_lam else None,
+                         "validity": "Re < 0.1, d/D < 0.8", "applicable": creeping and in_lam},
+        "Di_Felice_1996": {"wall_factor": wall_factor_di_felice(lam, Re),
+                           "validity": "cualquier Re (empírica; intervalo de d/D no verificado; imprecisa en el régimen "
+                                       "intermedio)", "applicable": True},
+        "Munroe_1888": {"wall_factor": wall_factor_munroe(lam), "validity": "régimen de Newton, Re > 1000",
+                        "applicable": Re > MUNROE_RE_MIN}}
+    warnings: list[str] = []
+    checks: dict = {}
+    if creeping and in_lam:
+        used, estimate = "Haberman_Sayre_1958", False
+        if lam > 0.45:
+            warnings.append(f"d/D = {lam:.3g}: Haberman-Sayre se aparta de la teoría exacta (−1.7 % en 0.5, −5 % en 0.6 "
+                            "y más al acercarse a 0.8)")
+    elif creeping:
+        used, estimate = None, False
+        warnings.append(f"d/D = {lam:.3g} ≥ 0.8: fuera del intervalo de Haberman-Sayre y Francis; no hay corrección de "
+                        "pared verificada para este caso (se reporta Di Felice solo como referencia)")
+    else:
+        used, estimate = "Di_Felice_1996", True
+        warnings.append(f"efecto de pared con Re = {Re:.4g} fuera del flujo reptante: se usa Di Felice (1996), "
+                        "correlación empírica; trátalo como ESTIMACIÓN"
+                        + (" (en régimen de Newton compárala con Munroe, también reportada)" if Re > MUNROE_RE_MIN
+                           else ""))
+    applicable = [v["wall_factor"] for v in table.values() if v["applicable"]]
+    out: dict = {"diameter_ratio_d_over_D": lam, "reynolds_unbounded": Re, "correlation_used": used,
+                 "is_estimate": estimate, "wall_factor_by_correlation": table}
+    if used:
+        f = table[used]["wall_factor"]
+        uw = f * unbounded_velocity_m_s
+        out.update(wall_factor=f, terminal_velocity_with_wall_m_s=uw,
+                   reynolds_with_wall=fluid_density_kg_m3 * uw * d / fluid_viscosity_Pa_s,
+                   velocity_reduction_percent=100.0 * (1.0 - f))
+        checks["wall_factor_spread_between_applicable_rel"] = (max(applicable) - min(applicable)) / f
+    else:
+        out.update(wall_factor=None, terminal_velocity_with_wall_m_s=None)
+    # the coded Haberman-Sayre formula against the exact-theory table it was published with
+    checks["haberman_sayre_vs_exact_theory_table_max_abs"] = max(abs(wall_factor_haberman_sayre(x) - v)
+                                                                 for x, v in EXACT_WALL_FACTOR.items())
+    out.update(warnings=warnings, checks=checks,
+               sources=["Haberman & Sayre (1958), David Taylor Model Basin Rep. 1143; coeficientes e intervalo según "
+                        "arXiv:1202.1400 (Ecs. 20-22 y Tabla 9, teoría exacta)",
+                        "Francis (1933), Physics 4, 403; forma según Braz. J. Chem. Eng. 16(4) 1999, Ec. 7",
+                        "Di Felice (1996), Int. J. Multiphase Flow 22, 527; forma según arXiv:1202.1400, Ec. 18",
+                        "Munroe (1888); forma según Braz. J. Chem. Eng. 16(4) 1999, Ec. 6"])
+    return out
+
+
+def stokes_drag_split(d: float, mu: float, velocity: float, Re: float, net_weight_N: float) -> dict:
+    """Form (pressure) and friction (viscous) parts of the drag of a sphere from the exact Stokes solution."""
+    if Re >= STOKES_RE_LIMIT:
+        return {"available": False,
+                "reason": f"Re = {Re:.4g} ≥ {STOKES_RE_LIMIT}: fuera del flujo reptante el reparto entre arrastre de forma "
+                          "y de fricción no es 1/3-2/3 y requiere resolver el campo de flujo (no hay fórmula cerrada)"}
+    total = 3.0 * math.pi * mu * d * velocity
+    return {"available": True, "reynolds_limit_used": STOKES_RE_LIMIT, "stokes_drag_N": total,
+            "form_drag_N": total / 3.0, "friction_drag_N": 2.0 * total / 3.0, "form_fraction": 1.0 / 3.0,
+            "friction_fraction": 2.0 / 3.0, "net_weight_minus_buoyancy_N": net_weight_N,
+            "stokes_drag_vs_net_weight_rel": abs(total - net_weight_N) / net_weight_N,
+            "note": "solución exacta de Stokes para esfera en fluido infinito: F = 3πμdU = πμdU (forma, presión) + "
+                    "2πμdU (fricción, esfuerzo viscoso); la pequeña diferencia con el peso neto es la inercia que la "
+                    "curva de arrastre sí incluye"}
 
 
 def _regime(Re: float) -> str:
@@ -170,13 +297,18 @@ def terminal_velocity(particle_diameter_m: float, particle_density_kg_m3: float,
         checks["stokes_limit_rel"] = abs(ut - stokes) / stokes
     if any(v > CHECK_TOL for k, v in checks.items() if k in ("force_balance_rel", "drag_equation_residual_rel")):
         reasons.append("el balance de fuerzas no cierra")
-    return {"terminal_velocity_m_s": ut, "direction": "sedimenta" if rho_p > rho_f else "asciende (flota)",
+    if sphere:
+        split = stokes_drag_split(d, mu, ut, Re, math.pi / 6.0 * d ** 3 * abs(rho_p - rho_f) * G)
+    else:
+        split = {"available": False, "reason": "el reparto exacto de Stokes (1/3 forma, 2/3 fricción) es solo para esferas"}
+    return {"drag_split": split, "terminal_velocity_m_s": ut, "direction": "sedimenta" if rho_p > rho_f else "asciende (flota)",
             "reynolds_terminal": Re, "drag_coefficient": Cd, "archimedes_number": Ar, "regime": _regime(Re),
             "stokes_velocity_m_s": stokes, "drag_correlation": method,
             "terminal_velocity_by_correlation_m_s": spread,
             "method": f"Cd(Re)·Re² = 4/3·Ar resuelto con scipy.optimize.brentq; Cd de fluids.drag ({method})",
             "warnings": warnings, "assumptions": assumptions,
-            "not_included": ["efecto de pared", "fluidos no newtonianos", "partículas brownianas", "gotas o burbujas "
+            "not_included": ["efecto de pared (se calcula solo para esfera si das column_diameter_m)",
+                             "fluidos no newtonianos", "partículas brownianas", "gotas o burbujas "
                              "deformables"],
             "evidence": {"verified": not reasons, "checks": checks, "tolerance": CHECK_TOL, "reasons": reasons}}
 
@@ -267,6 +399,20 @@ def settling(particle_diameter_m: float, particle_density_kg_m3: float, fluid_de
     dD = 0.0
     if column_diameter_m is not None:
         dD = d / _pos("column_diameter_m", column_diameter_m, "diámetro de la columna o recipiente, para el término d/D")
+    if column_diameter_m is not None:
+        if float(sphericity) >= 1.0 - 1e-12:
+            we = wall_effect(d, float(column_diameter_m), ut, Re, float(fluid_density_kg_m3), float(fluid_viscosity_Pa_s))
+            out["warnings"].extend(we.pop("warnings"))
+            out["evidence"]["checks"].update({f"wall_{k}": v for k, v in we.pop("checks").items()})
+            out["evidence"]["wall_effect_sources"] = we.pop("sources")
+            out["terminal_velocity_with_wall_m_s"] = we["terminal_velocity_with_wall_m_s"]
+            out["wall_effect"] = we
+            out["assumptions"].append("efecto de pared: esfera rígida que cae por el EJE de un tubo cilíndrico largo; "
+                                      "terminal_velocity_m_s sigue siendo la del fluido infinito y "
+                                      "terminal_velocity_with_wall_m_s la corregida")
+            out["method"] += "; efecto de pared por " + str(we["correlation_used"] or "ninguna correlación aplicable")
+        else:
+            out["warnings"].append("efecto de pared no calculado: las correcciones implementadas son solo para esferas")
     n = richardson_zaki_exponent(Re, dD)
     out["richardson_zaki_exponent"] = n
     out["richardson_zaki_d_over_D"] = dD

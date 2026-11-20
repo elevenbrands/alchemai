@@ -8,6 +8,11 @@ M15c: optional calorimetric sets (`excess_enthalpy_sets`: T, x1, h^E) are fitted
 separate weights (`weights`), separate statistics (`estadistica_hE`, per set and per temperature) and a stated verdict
 on whether ONE parameter set represents both (`representa_VLE_y_hE`, tolerances JOINT_TOLERANCES or the user's).
 Without `excess_enthalpy_sets` the tool returns exactly what it returned before.
+
+Textbook parameters: every model reports `parametros_de_libro` (NRTL τ and G, UNIQUAC τ, Wilson Λ_12 and Λ_21 with
+their 95 % intervals) at the minimum, mean and maximum temperature of the fitted points and at `report_temperature_K`
+if given, so nobody converts b_ij by hand. `wilson_form="lambda_constante"` fits Wilson with Λ_12, Λ_21 independent of
+T (the form of textbook worked examples) instead of the energy form Λ_ij = (V_j/V_i)·exp(−Δλ_ij/RT).
 """
 from __future__ import annotations
 
@@ -283,9 +288,56 @@ def _joint_verdict(st_vle: dict, st_he: dict, tol: dict) -> dict:
             "no_cumple": [c["criterio"] for c in checks if not c["cumple"]]}
 
 
+WILSON_FORMS = ("energia", "lambda_constante")
+BOOK_DEFS = {"NRTL": "tau_ij = a_ij + b_ij/T ; G_ij = exp(-alpha·tau_ij)",
+             "UNIQUAC": "tau_ij = exp(a_ij + b_ij/T)",
+             "Wilson": "Lambda_ij = (V_j/V_i)·exp(a_ij + b_ij/T) ; ln γ1 = -ln(x1 + Λ12·x2) + x2·[Λ12/(x1 + Λ12·x2) - "
+                       "Λ21/(x2 + Λ21·x1)]"}
+
+
+def _book_parameters(model, p, names, cov, tq, temps) -> dict:
+    """Textbook (dimensionless) parameters at each temperature, with 95 % intervals by linear error propagation of the
+    covariance of the fitted parameters (delta method)."""
+    cov = np.asarray(cov, float)
+    idx = {n: i for i, n in enumerate(names)}
+    rows = []
+    for T, origin in temps:
+        vals = M.textbook_parameters(model, T, p)
+        row = {"T_K": float(T), "origen": origin}
+        for ij in ("12", "21"):
+            g = np.zeros(len(names))                       # gradient of e_ij = a_ij + b_ij/T
+            if "a" + ij in idx:
+                g[idx["a" + ij]] = 1.0
+            if "b" + ij in idx:
+                g[idx["b" + ij]] = 1.0 / T
+            e = p.get("a" + ij, 0.0) + p["b" + ij] / T
+            if model == "NRTL":
+                gG = -p["alpha"] * g
+                if "alpha" in idx:
+                    gG[idx["alpha"]] = -e
+                grads = {"tau" + ij: g, "G" + ij: vals["G" + ij] * gG}
+            elif model == "UNIQUAC":
+                grads = {"tau" + ij: vals["tau" + ij] * g}
+            else:
+                grads = {"Lambda" + ij: vals["Lambda" + ij] * g}
+            for k, gr in grads.items():
+                row[k] = vals[k]
+                var = float(gr @ cov @ gr)
+                row[k + "_ic95"] = float(tq * np.sqrt(var)) if np.isfinite(var) and var >= 0 and np.isfinite(tq) else None
+        rows.append(row)
+    return {"definicion": BOOK_DEFS[model], "a_T": rows,
+            "nota": "valores implicados por los parámetros ajustados a la T indicada; IC95 por propagación lineal de la "
+                    "covarianza (no incluye la incertidumbre de V ni de un alpha fijo)"}
+
+
 def _published(model, spec, fixed):
     p = dict(fixed)
-    if "d12_J_mol" in spec:
+    if model == "Wilson" and "Lambda12" in spec:
+        V1, V2 = p["V"]
+        p["a12"] = float(np.log(float(spec["Lambda12"]) * V1 / V2))
+        p["a21"] = float(np.log(float(spec["Lambda21"]) * V2 / V1))
+        p["b12"] = p["b21"] = 0.0
+    elif "d12_J_mol" in spec:
         p["b12"], p["b21"] = M.b_from_energy(model, float(spec["d12_J_mol"]), float(spec["d21_J_mol"]))
         p["a12"] = p["a21"] = 0.0
     else:
@@ -304,19 +356,43 @@ def vle_binary_regression(components: list[str], data_sets: list[dict], models: 
                           compare_unifac: bool = True, published_parameters: dict | None = None,
                           legendre_order: int = 4, excess_enthalpy_sets: list[dict] | None = None,
                           weights: dict | None = None, he_weight_scan: list[float] | None = None,
-                          joint_tolerances: dict | None = None) -> dict:
+                          joint_tolerances: dict | None = None, wilson_form: str = "energia",
+                          report_temperature_K: float | list[float] | None = None) -> dict:
+    """Regress binary activity-model parameters (NRTL, UNIQUAC, Wilson) from the USER's VLE data (never invent points).
+    components [name1, name2]; data_sets [{label, citation, points: [{T_K, P_Pa (or P_kPa), x1, y1}]}], each set
+    isothermal, isobaric or P-T-x-y. models subset of NRTL/UNIQUAC/Wilson (default all). nrtl_alpha number or "ajustar"
+    (default 0.3, labelled). temperature_dependence "constante" (energy parameters: tau or ln of it = b_ij/T) or
+    "a+b/T". objective "bubble" (T or P plus y residuals) or "ml" (maximum likelihood, errors in T, P, x, y). sigma
+    {T_K, P_Pa or P_rel, x1, y1, hE_J_mol, hE_rel}. psat {name: {"antoine": {A, B, C, log, P_unit, T_unit}} or
+    {"antoine_ext": [A1..A7] Aspen PLXANT}}, default chemicals. vapor_phase "ideal" or "virial" (Tsonopoulos).
+    uniquac_rq {name: [r, q]} (default UNIFAC groups); wilson_volumes_m3_mol {name: V}. reported_azeotropes {label:
+    {x1, T_K or P_Pa}}. published_parameters {model: {a12, a21, b12, b21, alpha} or {d12_J_mol, d21_J_mol} or, Wilson
+    only, {Lambda12, Lambda21} constant} to compare. excess_enthalpy_sets [{label, citation, T_K, points: [{x1,
+    hE_J_mol, optional T_K, sigma_hE_J_mol}]}] are fitted together with the VLE (weights {"vle", "hE"}, he_weight_scan,
+    joint_tolerances).
+    wilson_form: "energia" (default: Λ_ij = (V_j/V_i)·exp(b_ij/T), Δλ_ij = −R·b_ij fitted, Λ depends on T) or
+    "lambda_constante" (textbook form: Λ12, Λ21 fitted directly and independent of T; no molar volumes needed; returns
+    a12 = ln Λ12, a21 = ln Λ21 and Lambda12, Lambda21 ± IC95 in parametros; on isobaric data it is a different model
+    with different statistics; gives h^E = 0).
+    report_temperature_K: number or list, extra temperature(s) for parametros_de_libro.
+    Returns per model: parametros ± IC95, energias, correlacion, estadistica (AAD, RMSD), residuos, azeotropo_predicho,
+    verificacion_thermo and parametros_de_libro = {definicion, a_T: [{T_K, origen, ...}]} with the dimensionless
+    textbook parameters IMPLIED by the fit at the minimum, mean and maximum data temperature (and the requested ones):
+    Wilson Lambda12, Lambda21; NRTL tau12, tau21, G12, G21; UNIQUAC tau12, tau21; each with *_ic95. Quote those,
+    never convert b_ij by hand. Plus consistency tests, UNIFAC Dortmund comparison, supuestos and avisos."""
     try:
         return _run(components, data_sets, models, nrtl_alpha, temperature_dependence, objective, sigma, psat,
                     vapor_phase, uniquac_rq, wilson_volumes_m3_mol, reported_azeotropes, compare_unifac,
                     published_parameters, legendre_order, excess_enthalpy_sets, weights, he_weight_scan,
-                    joint_tolerances)
+                    joint_tolerances, wilson_form, report_temperature_K)
     except (MissingData, DataError, ValueError) as e:
         return {"ok": False, "error": str(e)}
 
 
 def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, objective, sigma, psat, vapor_phase,
          uniquac_rq, wilson_volumes, reported_az, compare_unifac, published, legendre_order,
-         excess_enthalpy_sets=None, weights=None, he_weight_scan=None, joint_tolerances=None) -> dict:
+         excess_enthalpy_sets=None, weights=None, he_weight_scan=None, joint_tolerances=None,
+         wilson_form="energia", report_temperature_K=None) -> dict:
     if not components or len(components) != 2:
         raise MissingData("components: se esperan exactamente dos compuestos [1, 2]")
     if not data_sets:
@@ -329,6 +405,17 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
         raise MissingData("objective: 'bubble' o 'ml'")
     if temperature_dependence not in ("constante", "a+b/T"):
         raise MissingData("temperature_dependence: 'constante' o 'a+b/T'")
+    if wilson_form not in WILSON_FORMS:
+        raise MissingData(f"wilson_form: una de {list(WILSON_FORMS)}")
+    wilson_const = wilson_form == "lambda_constante"
+    if report_temperature_K is None:
+        user_T = []
+    elif isinstance(report_temperature_K, (int, float)):
+        user_T = [float(report_temperature_K)]
+    else:
+        user_T = [float(t) for t in report_temperature_K]
+    if any(not np.isfinite(t) or t <= 0 for t in user_T):
+        raise MissingData("report_temperature_K: temperaturas absolutas en K (> 0)")
     supuestos, avisos = [], []
     n1, n2 = components
     cas = (_cas(n1), _cas(n2))
@@ -421,7 +508,16 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
             rq[n] = (r, q)
             if src != "del usuario":
                 supuestos.append(f"UNIQUAC r, q de {n} = {r:.4f}, {q:.4f}: {src}; {SOURCES['rq']}")
-    if "Wilson" in models:
+    if "Wilson" in models and wilson_const:
+        if "Wilson" in (published or {}) and "Lambda12" not in published["Wilson"]:
+            raise MissingData("published_parameters['Wilson'] con wilson_form='lambda_constante': da {Lambda12, Lambda21}")
+        if temperature_dependence == "a+b/T":
+            avisos.append("Wilson con wilson_form='lambda_constante': Λ12 y Λ21 no dependen de T; temperature_dependence "
+                          "'a+b/T' solo aplica a los otros modelos")
+        if he is not None:
+            avisos.append("Wilson con Λ constantes da h^E = 0 por construcción (∂Λ/∂T = 0): no puede representar los "
+                          "datos calorimétricos; usa wilson_form='energia'")
+    if "Wilson" in models and not wilson_const:
         for n, c in zip(components, cas):
             v, src = _vol(n, c, wilson_volumes)
             vols[n] = v
@@ -429,6 +525,14 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
                 supuestos.append(f"Wilson V de {n} = {v * 1e6:.2f} cm³/mol: {src}")
 
     n_inner = int(d.inner.sum())
+    Tfit = d.T[d.inner]
+    book_T, seen = [], set()
+    for T_, origin in ([(float(Tfit.min()), "T mínima de los datos"), (float(Tfit.mean()), "T media de los datos"),
+                        (float(Tfit.max()), "T máxima de los datos")] if Tfit.size else []) + \
+            [(t, "T pedida por el usuario") for t in user_T]:
+        if round(T_, 6) not in seen:
+            seen.add(round(T_, 6))
+            book_T.append((T_, origin))
     out_models = {}
     for model in models:
         fx = {}
@@ -443,7 +547,11 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
         if model == "UNIQUAC":
             fx["r"] = (rq[n1][0], rq[n2][0])
             fx["q"] = (rq[n1][1], rq[n2][1])
-        if model == "Wilson":
+        const = model == "Wilson" and wilson_const
+        if const:   # Λ_ij = exp(a_ij): no volumes, no energy term
+            names = ["a12", "a21"]
+            fx.update(V=(1.0, 1.0), b12=0.0, b21=0.0)
+        elif model == "Wilson":
             fx["V"] = (vols[n1], vols[n2])
         if n_inner < len(names) + 1:
             raise MissingData(f"{model}: {n_inner} puntos con 0 < x1 < 1 no bastan para {len(names)} parámetros")
@@ -455,7 +563,14 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
         params = [{"nombre": n, "valor": float(v), "ic95": float(c), "error_estandar": float(e), "unidad": units[n]}
                   for n, v, c, e in zip(names, r["theta"], r["ci95"], r["se"])]
         energ = M.energy_parameters(model, p)
-        if temperature_dependence == "a+b/T":
+        if const:
+            energ = {"nota": "Wilson con Λ12, Λ21 constantes: no hay Δλ (la forma de energía es wilson_form='energia')"}
+            for k, nm in ((0, "12"), (1, "21")):
+                params[k]["descripcion"] = f"ln(Lambda{nm})"
+                lam = float(np.exp(r["theta"][k]))
+                params.append({"nombre": f"Lambda{nm}", "valor": lam, "ic95": float(lam * r["ci95"][k]),
+                               "error_estandar": float(lam * r["se"][k]), "unidad": "-"})
+        elif temperature_dependence == "a+b/T":
             energ["nota"] = "Δ de energía = ±R·b (la parte a_ij es adimensional y aparte)"
         else:
             for k, nm in ((0, "12"), (1, "21")):
@@ -492,6 +607,8 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
             "convergencia": {"exito": r["success"], "mensaje": r["message"], "evaluaciones": r["nfev"]},
             "estadistica": _stats(d, Tc, Pc, yc), "residuos": _residuals(d, Tc, Pc, yc, labels),
             "azeotropo_predicho": az,
+            "parametros_de_libro": _book_parameters(model, p, names, r["cov"], r["t_quantile"], book_T),
+            **({"forma_wilson": wilson_form} if model == "Wilson" else {}),
             "verificacion_thermo": {
                 "max_dif_ln_gamma": float(max(np.max(np.abs(a - ta)), np.max(np.abs(b - tb)))),
                 "estadistica_con_thermo": _stats(d, Tt, Pt, yt),
@@ -620,6 +737,7 @@ def _run(components, data_sets, models, nrtl_alpha, temperature_dependence, obje
                  "T_K": sorted({q["T_K"] for q in s_["points"]})} for s_ in he_sets]}),
             "objetivo": {"tipo": objective, "descripcion": OBJECTIVES[objective] + ("" if he is None else "; " + HE_OBJECTIVE),
                          "sigmas": sig, "dependencia_T": temperature_dependence,
+                         **({"forma_wilson": wilson_form} if "Wilson" in models else {}),
                          **({} if he is None else {"pesos": {"vle": w_vle, "hE": w_he}, "tolerancias_veredicto": tol})},
             "modelos": out_models, "mejor_modelo": {"modelo": best, "criterio": f"menor {key}, luego AAD_y"},
             "consistencia": cons, "azeotropo": azr, "unifac_dortmund": unifac,
