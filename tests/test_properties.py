@@ -469,6 +469,7 @@ def test_tools_and_wrappers():
     assert [f.__name__ for f in TPR.PROPERTIES_TOOLS] == ["compound_properties", "independent_flash", "compare_flash",
                                                            "cubic_eos_volume", "binary_distillation_design",
                                                            "shortcut_distillation_design", "fluid_state",
+                                                           "generalized_compressibility",
                                                            "reaction_equilibrium"]
     assert [getattr(w, "name", None) or w.__name__ for w in WP.AGENT_WRAPPERS] == [f.__name__ for f in TPR.PROPERTIES_TOOLS]
     r = TPR.compound_properties("toluene", 330.0)

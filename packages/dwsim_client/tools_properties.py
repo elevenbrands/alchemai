@@ -277,7 +277,36 @@ def fluid_state(fluid: str, states: list[dict]) -> dict:
         return {"ok": False, "error": str(ex)}
 
 
+def generalized_compressibility(components: list[str], T_K: float | None = None, P_Pa: float | None = None,
+                                molar_volume_m3_mol: float | None = None, mole_fractions: list[float] | None = None,
+                                moles: float | None = None, volume_m3: float | None = None, phase: str = "gas",
+                                critical: dict | None = None, quantum_gas_correction: bool | None = None,
+                                chart: str = "lee_kesler") -> dict:
+    """Factor de compresibilidad GENERALIZADO (Lee-Kesler): la gráfica de compresibilidad de los libros (z contra Tr y Pr),
+    calculada. Úsala cuando el problema pide «la gráfica de compresibilidad generalizada», «estados correspondientes» o la
+    regla de Kay, en vez de una ecuación cúbica o de leer el valor del enunciado.
+
+    components: nombres (puro o mezcla con mole_fractions; mezcla por regla de Kay: Tc, Pc, ω promedio molar).
+    Da exactamente DOS de: T_K, P_Pa, y el volumen (molar_volume_m3_mol, o volume_m3 junto con moles); la tercera se calcula.
+    phase: "gas" (raíz de vapor) o "liquid". critical: {nombre: {Tc_K, Pc_Pa, omega}} para usar las constantes del enunciado
+    (si no, las de chemicals, marcadas). chart: "lee_kesler" (tres parámetros, con ω; por defecto) o "two_parameter" (z(Tr, Pr)
+    sin ω: la gráfica de dos parámetros de los libros; úsala cuando el problema pide leer esa gráfica).
+    quantum_gas_correction: corrección de Newton para H2 y He (Tc + 8 K, Pc + 8 atm); por defecto solo con two_parameter,
+    porque con la forma de tres parámetros empeora Z (medido contra CoolProp).
+
+    Devuelve Z, Z0 y Z1 (fluido simple y corrección), T, P, volumen molar (y total con moles), Tr, Pr, Vr ideal, las
+    constantes pseudocríticas usadas, supuestos, avisos (raíces múltiples, fuera de 0.3 ≤ Tr ≤ 4 o Pr > 10) y evidencia.
+    Exactitud de una gráfica generalizada: 1–3 % en gases no polares, peor en polares y cerca del punto crítico. Sin
+    entalpías residuales."""
+    from packages.properties import lee_kesler as LK
+    try:
+        return LK.generalized_compressibility(components, T_K, P_Pa, molar_volume_m3_mol, mole_fractions, moles, volume_m3, phase, critical, quantum_gas_correction, chart)
+    except ValueError as ex:
+        return {"ok": False, "error": str(ex)}
+
+
 PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
                     binary_distillation_design,
                     shortcut_distillation_design, fluid_state,
+                    generalized_compressibility,
                     reaction_equilibrium]

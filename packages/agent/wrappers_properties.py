@@ -152,7 +152,23 @@ def fluid_state(fluid: str, states: list[dict]) -> str:
     return json.dumps(TPR.fluid_state(fluid, states), default=float, ensure_ascii=False)
 
 
+@beta_tool
+def generalized_compressibility(components: list[str], T_K: float | None = None, P_Pa: float | None = None,
+                                molar_volume_m3_mol: float | None = None, mole_fractions: list[float] | None = None,
+                                moles: float | None = None, volume_m3: float | None = None, phase: str = "gas",
+                                critical: dict | None = None, quantum_gas_correction: bool | None = None,
+                                chart: str = "lee_kesler") -> str:
+    """GENERALIZED compressibility factor (Lee-Kesler): the textbook compressibility chart (z vs Tr, Pr) computed. Use it
+    when a problem asks for the generalized compressibility chart, corresponding states or Kay's rule. Give exactly TWO of
+    T_K, P_Pa and the volume (molar_volume_m3_mol, or volume_m3 with moles); the third is computed. Mixtures by Kay's rule;
+    critical {name: {Tc_K, Pc_Pa, omega}} to use the problem's constants; chart "lee_kesler" (3-parameter, default) or
+    "two_parameter" (textbook z(Tr, Pr) chart, no omega; Newton's H2/He correction applied by default only there).
+    Returns Z, Z0, Z1, T, P, V, reduced variables, pseudo-critical constants, warnings and evidence."""
+    return json.dumps(TPR.generalized_compressibility(components, T_K, P_Pa, molar_volume_m3_mol, mole_fractions, moles, volume_m3, phase, critical, quantum_gas_correction, chart), default=float, ensure_ascii=False)
+
+
 AGENT_WRAPPERS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
                     binary_distillation_design,
                   shortcut_distillation_design, fluid_state,
+                  generalized_compressibility,
                   reaction_equilibrium]
