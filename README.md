@@ -11,7 +11,7 @@ that HAZOP on the process graph. Spanish-first content, English code. Status: mo
 
 | Capability | Evidence |
 |---|---|
-| **160 MCP tools, DWSIM 10 at the core** (streams, 20 unit kinds incl. kinetic CSTR/PFR, rigorous columns, absorbers, pipes, recycle; `dof_check`, `sweep`, export to SFILES 2.0 / DEXPI) | `packages/dwsim_client/`, `packages/dwsim_mcp/server.py` |
+| **161 MCP tools, DWSIM 10 at the core** (streams, 20 unit kinds incl. kinetic CSTR/PFR, rigorous columns, absorbers, pipes, recycle; `dof_check`, `sweep`, export to SFILES 2.0 / DEXPI) | `packages/dwsim_client/`, `packages/dwsim_mcp/server.py` |
 | **ChemE Design Bench**: 50 bilingual cards — 20 feasible designs, 15 traps the agent must *detect* (impossible specs, under/over-specification), 4 polar systems without the package in the statement, 11 transport / costing / optimization cards | `packages/bench/`, `notebooks/bench_runs/` — Claude Opus and Sonnet at 100 % on every card measured (traps: 15/15 with simulator evidence, 0 false alarms) |
 | **Preliminary HAZOP** from the solved flowsheet or from a third-party **DEXPI** file: deterministic rules instantiated with the numbers (hydrates, runaway, blocked-in liquid, vacuum, decomposition, condensation-induced hammer…), plus an optional LLM proposal layer that never overwrites a rule row | Validated against 10 published HAZOPs: 5 used to write rules (Lawley/Kletz, CCPS DAP, Crowl-Louvar, CSB Texas City, Williams) and 5 **held out** (blind recall 83 %, precision 76 % useful / 0 spurious rows after review) — `notebooks/11_*`, `notebooks/19_*` |
 | **Transport**: pipe ΔP (Darcy-Colebrook), line sizing, exchanger area (LMTD·F, Gnielinski) | ≤ 1.4 % vs DWSIM pipe segments, area to 0.2 % — `notebooks/12_*` |

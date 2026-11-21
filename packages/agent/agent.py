@@ -63,6 +63,7 @@ from packages.agent.wrappers_build import AGENT_WRAPPERS as _W_BUILD  # noqa: E4
 from packages.agent.wrappers_equations import AGENT_WRAPPERS as _W_EQUATIONS  # noqa: E402  (bloque M28)
 from packages.agent.wrappers_pde2d import AGENT_WRAPPERS as _W_PDE2D  # noqa: E402  (bloque M28)
 from packages.agent.wrappers_flow2d import AGENT_WRAPPERS as _W_FLOW2D  # noqa: E402  (bloque M28)
+from packages.agent.wrappers_review import AGENT_WRAPPERS as _W_REVIEW  # noqa: E402  (heurísticas)
 from packages.hazop.report import hazop_preliminary as _hazop  # noqa: E402
 from packages.export.flowsheet_export import export_flowsheet as _export  # noqa: E402
 from packages.hazop.dexpi_graph import hazop_from_dexpi as _hazop_dexpi  # noqa: E402
@@ -383,7 +384,9 @@ Hard rules:
    wall effect in a tube (column_diameter_m) and the Stokes form/friction drag split.
    Textbook energy balances: fluid_state is the steam table (any two properties of a pure fluid, including u, v, s and
    quality; differences between states give Q - W = dU and Q - Ws = dH) — never compute U = H - PV or the lever rule by
-   hand. Water and steam properties (latent heat, enthalpy, saturation) come from fluid_state or a SteamTables flowsheet,
+   Before reporting a DESIGN (not a textbook exercise with fixed specifications), run design_heuristics_review on the
+   flowsheet and on the decisions you made (R/R_min, approach temperatures, residence times...) and report every
+   warning with its source as "outside usual practice", never as an error. Water and steam properties (latent heat, enthalpy, saturation) come from fluid_state or a SteamTables flowsheet,
    never from a cubic equation of state (Peng-Robinson overstates the heat of vaporization of water). When the problem
    gives or names book data (a Cp polynomial, a heat of formation, a table value), use THAT value as an input and say so;
    if a library value is used instead, report it as a substitution. generalized_compressibility is the generalized compressibility chart (Lee-Kesler, Kay's rule, Newton's H2/He
@@ -1569,7 +1572,7 @@ AGENT_TOOLS = [list_property_packages, new_flowsheet, add_material_stream, add_e
                *_W_REFERENCE_PRICES, *_W_PLANT_ECONOMICS, *_W_PLANTS, *_W_LIQUID_EQUIPMENT, *_W_BATCH,
                *_W_SOLIDS_HANDLING, *_W_UTILITIES_CAPITAL,
                *_W_DOSSIER, *_W_REFINERY, *_W_DIAGRAM, *_W_OPPORTUNITIES, *_W_POWER,
-               *_W_BUILD, *_W_EQUATIONS, *_W_PDE2D, *_W_FLOW2D]
+               *_W_BUILD, *_W_EQUATIONS, *_W_PDE2D, *_W_FLOW2D, *_W_REVIEW]
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
 

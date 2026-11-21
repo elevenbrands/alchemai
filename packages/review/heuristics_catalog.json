@@ -1,0 +1,2442 @@
+[
+  {
+    "id": "dist.reflux_ratio.walas",
+    "area": "distillation",
+    "rule_es": "La relación de reflujo económica óptima es de alrededor de 1.2 veces el reflujo mínimo.",
+    "quantity": "R/R_min",
+    "low": null,
+    "high": null,
+    "typical": 1.2,
+    "units": "-",
+    "applies_when": "Columnas de destilación convencionales, diseño preliminar",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "sección «Distillation and Gas Absorption A», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Walas da un valor puntual (~1.2). Ver dist.reflux_ratio.range para el intervalo 1.2-1.5."
+  },
+  {
+    "id": "dist.reflux_ratio.range",
+    "area": "distillation",
+    "rule_es": "La heurística de reflujo óptimo de 1.2 a 1.5 veces el mínimo se verificó como válida con independencia del costo de energía y acero; con energía cara conviene acercarse a 1.2.",
+    "quantity": "R/R_min",
+    "low": 1.2,
+    "high": 1.5,
+    "typical": 1.3,
+    "units": "-",
+    "applies_when": "Rectificación multicomponente; evaluación económica",
+    "source_consulted": {
+      "title": "Bonet et al., «Multicomponent rectification: Representation of number of stages as function of reflux ratio», Proc. ECCE-6, Copenhague 2007 (alojado en NTNU)",
+      "url": "https://skoge.folk.ntnu.no/prost/proceedings/ecce6_sep07/upload/399.pdf",
+      "accessed": "2026-11-21",
+      "location": "Resumen y sección 1 (p. 1)"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Typical 1.3 es un valor medio elegido por nosotros, no de la fuente. El artículo confirma la regla, no la origina."
+  },
+  {
+    "id": "dist.stages_vs_min",
+    "area": "distillation",
+    "rule_es": "El número económicamente óptimo de etapas está cerca del doble del mínimo (Fenske).",
+    "quantity": "N/N_min",
+    "low": null,
+    "high": null,
+    "typical": 2.0,
+    "units": "-",
+    "applies_when": "Diseño preliminar con métodos cortos FUG",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption A», regla 6"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Bonet et al. (ECCE-6) reportan una curva de máximo plano con N/N_min = 1.84 en un caso; coherente con ~2."
+  },
+  {
+    "id": "dist.stage_safety_factor",
+    "area": "distillation",
+    "rule_es": "Añadir un factor de seguridad de 10 % al número de platos calculado por el mejor método.",
+    "quantity": "factor de sobrediseño de platos",
+    "low": null,
+    "high": null,
+    "typical": 0.1,
+    "units": "fracción",
+    "applies_when": "Después de calcular platos reales",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.condenser_cw_temp",
+    "area": "distillation",
+    "rule_es": "La presión de la columna la fija casi siempre la temperatura del medio de condensación: 100-120 °F (37.8-48.9 °C) si es agua de enfriamiento.",
+    "quantity": "T de condensación del destilado con agua de enfriamiento",
+    "low": 37.8,
+    "high": 48.9,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Condensador con agua de enfriamiento; usar para elegir presión de columna",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption A», regla 3"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Original en °F (100-120 °F). La presión de columna debe ser tal que el destilado condense en este intervalo."
+  },
+  {
+    "id": "dist.reboiler_max_temp",
+    "area": "distillation",
+    "rule_es": "Alternativamente la presión la limita la temperatura máxima del rehervidor: vapor de 150 psig, 366 °F (185.6 °C).",
+    "quantity": "T máxima del rehervidor (vapor de 150 psig)",
+    "low": null,
+    "high": 185.6,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Rehervidor calentado con vapor de 150 psig",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption A», regla 3"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Si los fondos requieren más temperatura, hace falta vapor de mayor presión, aceite térmico u horno."
+  },
+  {
+    "id": "dist.tray_spacing.walas",
+    "area": "distillation",
+    "rule_es": "Por accesibilidad, el espaciamiento entre platos es de 20-24 in (0.51-0.61 m).",
+    "quantity": "espaciamiento entre platos",
+    "low": 0.51,
+    "high": 0.61,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Columnas de platos",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 3"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Original: 20-24 in."
+  },
+  {
+    "id": "dist.tray_spacing.aiche",
+    "area": "distillation",
+    "rule_es": "Espaciamiento inicial por diámetro: 2.5-3 ft → 18 o 24 in; 3-10 ft → 24 in; 10-20 ft → 30 in (1 paso) o 24 in (2+ pasos); >20 ft → 30 in o más.",
+    "quantity": "espaciamiento entre platos (columna de 3-10 ft de diámetro)",
+    "low": null,
+    "high": null,
+    "typical": 0.61,
+    "units": "m",
+    "applies_when": "Estimación inicial; columna de 0.9-3.0 m de diámetro",
+    "source_consulted": {
+      "title": "Distillation Column Design and Analysis — 8th AIChE Southwest Process Technology Conference, Galveston, 6-7 oct 2016 (diapositivas)",
+      "url": "https://www.aiche.org/system/files/aiche-proceedings/412141/papers/475188/P475188.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva 24 «Step 7: Determine tray spacing»"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "El valor typical corresponde a 24 in para 3-10 ft. Los demás intervalos están en rule_es."
+  },
+  {
+    "id": "dist.flooding.trays",
+    "area": "distillation",
+    "rule_es": "Inundación de chorro y de bajante menor a 85 % como valor típico de diseño.",
+    "quantity": "fracción de inundación (platos)",
+    "low": null,
+    "high": 0.85,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Columnas de platos, rating hidráulico",
+    "source_consulted": {
+      "title": "Distillation Column Design and Analysis — 8th AIChE Southwest Process Technology Conference, Galveston, 6-7 oct 2016 (diapositivas)",
+      "url": "https://www.aiche.org/system/files/aiche-proceedings/412141/papers/475188/P475188.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva 26 «Typical design values»"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Es un máximo. No encontramos en fuente abierta el 0.70-0.80 de otros apuntes (solo apareció en resúmenes de búsqueda, no verificados)."
+  },
+  {
+    "id": "dist.flooding.packed",
+    "area": "distillation",
+    "rule_es": "Las torres empacadas deben operar cerca del 70 % del flujo de inundación de la correlación de Sherwood-Lobo.",
+    "quantity": "fracción de inundación (empaque)",
+    "low": null,
+    "high": null,
+    "typical": 0.7,
+    "units": "fracción",
+    "applies_when": "Torres empacadas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption C», regla 6"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.tray_dp.walas",
+    "area": "distillation",
+    "rule_es": "La caída de presión por plato es del orden de 3 in de agua o 0.1 psi (~0.7 kPa).",
+    "quantity": "ΔP por plato",
+    "low": null,
+    "high": null,
+    "typical": 0.7,
+    "units": "kPa",
+    "applies_when": "Platos perforados/válvulas, presión moderada",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 6"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "3 inH2O = 0.75 kPa; 0.1 psi = 0.69 kPa."
+  },
+  {
+    "id": "dist.tray_dp.aiche",
+    "area": "distillation",
+    "rule_es": "Caída total por plato menor a 0.1 psi; caída en plato seco < 2 in de líquido o < 15 % del espaciamiento.",
+    "quantity": "ΔP total por plato",
+    "low": null,
+    "high": 0.69,
+    "typical": null,
+    "units": "kPa",
+    "applies_when": "Rating hidráulico de platos",
+    "source_consulted": {
+      "title": "Distillation Column Design and Analysis — 8th AIChE Southwest Process Technology Conference, Galveston, 6-7 oct 2016 (diapositivas)",
+      "url": "https://www.aiche.org/system/files/aiche-proceedings/412141/papers/475188/P475188.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva 26 «Typical design values»"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Coincide con Walas (0.1 psi)."
+  },
+  {
+    "id": "dist.tray_eff.distillation",
+    "area": "distillation",
+    "rule_es": "Eficiencias de plato de 60-90 % para destilación de hidrocarburos ligeros y soluciones acuosas.",
+    "quantity": "eficiencia global de plato",
+    "low": 0.6,
+    "high": 0.9,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Destilación de hidrocarburos ligeros y sistemas acuosos",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.tray_eff.absorption",
+    "area": "absorption",
+    "rule_es": "Eficiencias de plato de 10-20 % para absorción y desorción (stripping) de gases.",
+    "quantity": "eficiencia global de plato",
+    "low": 0.1,
+    "high": 0.2,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Absorción/stripping en platos",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.vapor_factor_Fs",
+    "area": "distillation",
+    "rule_es": "La eficiencia pico de los platos ocurre con factor de vapor Fs = u·ρv^0.5 de 1.0-1.2 (ft/s)(lb/ft³)^0.5; esto fija el diámetro.",
+    "quantity": "Fs = u·sqrt(ρv)",
+    "low": 1.0,
+    "high": 1.2,
+    "typical": null,
+    "units": "(ft/s)(lb/ft3)^0.5",
+    "applies_when": "Dimensionamiento de diámetro de columnas de platos",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 4"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "En SI: 1.22-1.46 (m/s)(kg/m³)^0.5 = Pa^0.5. La misma regla da velocidades lineales de ~2 ft/s (0.61 m/s) a presión moderada y ~6 ft/s (1.83 m/s) en vacío."
+  },
+  {
+    "id": "dist.downcomer_backup",
+    "area": "distillation",
+    "rule_es": "El nivel de líquido claro en el bajante debe ser < 40 % del espaciamiento más la altura del vertedero.",
+    "quantity": "respaldo en bajante / (espaciamiento + altura de vertedero)",
+    "low": null,
+    "high": 0.4,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Rating hidráulico de platos",
+    "source_consulted": {
+      "title": "Distillation Column Design and Analysis — 8th AIChE Southwest Process Technology Conference, Galveston, 6-7 oct 2016 (diapositivas)",
+      "url": "https://www.aiche.org/system/files/aiche-proceedings/412141/papers/475188/P475188.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva 26"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.downcomer_exit_velocity",
+    "area": "distillation",
+    "rule_es": "Velocidad de salida del bajante menor a 1.5 ft/s (0.46 m/s).",
+    "quantity": "velocidad de salida del bajante",
+    "low": null,
+    "high": 0.46,
+    "typical": null,
+    "units": "m/s",
+    "applies_when": "Rating hidráulico de platos",
+    "source_consulted": {
+      "title": "Distillation Column Design and Analysis — 8th AIChE Southwest Process Technology Conference, Galveston, 6-7 oct 2016 (diapositivas)",
+      "url": "https://www.aiche.org/system/files/aiche-proceedings/412141/papers/475188/P475188.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva 26"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.weir_height",
+    "area": "distillation",
+    "rule_es": "Altura de vertedero de 2 a 3 in (51-76 mm).",
+    "quantity": "altura de vertedero",
+    "low": 0.051,
+    "high": 0.076,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Platos de flujo cruzado",
+    "source_consulted": {
+      "title": "Distillation Column Design and Analysis — 8th AIChE Southwest Process Technology Conference, Galveston, 6-7 oct 2016 (diapositivas)",
+      "url": "https://www.aiche.org/system/files/aiche-proceedings/412141/papers/475188/P475188.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva 26"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Walas («Distillation B», regla 11) da 2 in y longitud de vertedero ~75 % del diámetro."
+  },
+  {
+    "id": "dist.weir_load",
+    "area": "distillation",
+    "rule_es": "Carga de vertedero < 80 gpm/ft para un paso y < 120 gpm/ft para dos o más pasos.",
+    "quantity": "carga de líquido por longitud de vertedero (1 paso)",
+    "low": null,
+    "high": 80,
+    "typical": null,
+    "units": "gpm/ft",
+    "applies_when": "Platos de un paso",
+    "source_consulted": {
+      "title": "Distillation Column Design and Analysis — 8th AIChE Southwest Process Technology Conference, Galveston, 6-7 oct 2016 (diapositivas)",
+      "url": "https://www.aiche.org/system/files/aiche-proceedings/412141/papers/475188/P475188.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva 26"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Walas («Distillation B», regla 11) da un máximo de ~8 gpm/in de vertedero = 96 gpm/ft, por encima del límite de 80 gpm/ft de AIChE para un paso. 80 gpm/ft ≈ 0.0166 m³/(s·m)."
+  },
+  {
+    "id": "dist.packing_diameter_ratio",
+    "area": "distillation",
+    "rule_es": "La relación entre diámetro de torre y tamaño de empaque debe ser al menos 15.",
+    "quantity": "D_torre/d_empaque",
+    "low": 15,
+    "high": null,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Torres con empaque aleatorio",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption C», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.hetp_pall",
+    "area": "distillation",
+    "rule_es": "HETP de 1.3-1.8 ft (0.40-0.55 m) para anillos Pall de 1 in; 2.5-3.0 ft (0.76-0.91 m) para anillos Pall de 2 in.",
+    "quantity": "HETP (anillos Pall de 1 in)",
+    "low": 0.4,
+    "high": 0.55,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Contacto vapor-líquido con anillos Pall de 1 in",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption C», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.redistributors",
+    "area": "distillation",
+    "rule_es": "Redistribuidores de líquido cada 5-10 diámetros de torre con anillos Pall, y como mínimo cada 20 ft (6.1 m).",
+    "quantity": "altura de lecho entre redistribuidores",
+    "low": 5,
+    "high": 10,
+    "typical": null,
+    "units": "diámetros de torre",
+    "applies_when": "Torres empacadas con anillos Pall",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption C», regla 4"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Tope absoluto: 20 ft (6.1 m)."
+  },
+  {
+    "id": "dist.max_height",
+    "area": "distillation",
+    "rule_es": "Limitar la altura de la torre a ~175 ft (53 m) por carga de viento y cimentación; además L/D < 30.",
+    "quantity": "altura máxima de torre",
+    "low": null,
+    "high": 53,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Torres verticales autosoportadas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption C», regla 9"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Criterio adicional: L/D < 30."
+  },
+  {
+    "id": "dist.reflux_pump_oversize",
+    "area": "distillation",
+    "rule_es": "Las bombas de reflujo se sobredimensionan al menos 25 %.",
+    "quantity": "sobrediseño de capacidad de bomba de reflujo",
+    "low": 0.25,
+    "high": null,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Bombas de reflujo",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "dist.reflux_drum_holdup",
+    "area": "vessels",
+    "rule_es": "Los tanques de reflujo suelen ser horizontales, con retención de líquido de 5 min a medio llenar.",
+    "quantity": "tiempo de residencia del tanque de reflujo (medio lleno)",
+    "low": null,
+    "high": null,
+    "typical": 5,
+    "units": "min",
+    "applies_when": "Acumulador de reflujo",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption C», regla 7; «Vessels (Drums)», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "La bota para segunda fase líquida se dimensiona a 0.5 ft/s (0.15 m/s), diámetro mínimo 16 in."
+  },
+  {
+    "id": "abs.absorption_factor",
+    "area": "absorption",
+    "rule_es": "El valor óptimo del factor de absorción de Kremser-Brown está entre 1.25 y 2.0.",
+    "quantity": "factor de absorción A = L/(mV)",
+    "low": 1.25,
+    "high": 2.0,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Absorbedores de gases, diseño preliminar",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Distillation and Gas Absorption B», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "media",
+    "notes": "La transcripción dice «A = K(V/L)», que es la definición del factor de stripping; el intervalo 1.25-2.0 corresponde al factor de absorción L/(KV) en la literatura. Verificar contra el Walas original."
+  },
+  {
+    "id": "hx.min_approach.walas",
+    "area": "heat_exchangers",
+    "rule_es": "El acercamiento mínimo de temperatura es 20 °F (11 K) con refrigerantes normales (agua) y 10 °F (5.6 K) o menos con refrigerantes de refrigeración.",
+    "quantity": "ΔT_min (servicios normales)",
+    "low": null,
+    "high": null,
+    "typical": 11.1,
+    "units": "K",
+    "applies_when": "Intercambiadores de coraza y tubos con agua de enfriamiento u otros servicios normales",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 6"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Con refrigerantes: ≤ 5.6 K (10 °F)."
+  },
+  {
+    "id": "hx.min_approach.seider.below_ambient",
+    "area": "heat_exchangers",
+    "rule_es": "Acercamiento mínimo casi óptimo de 5 °C (10 °F) o menos por debajo de la temperatura ambiente.",
+    "quantity": "ΔT_min",
+    "low": null,
+    "high": 5,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Intercambio por debajo de la temperatura ambiente",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 26 (diapositiva «Heat Exchangers and Furnaces»)"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.min_approach.seider.above_ambient",
+    "area": "heat_exchangers",
+    "rule_es": "Acercamiento mínimo casi óptimo de 10 °C (20 °F) por encima del ambiente hasta ~150-170 °C (300 °F).",
+    "quantity": "ΔT_min",
+    "low": null,
+    "high": null,
+    "typical": 10,
+    "units": "K",
+    "applies_when": "Por encima del ambiente hasta ~300 °F",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 26"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": "La diapositiva dice «up to 170 °C (300 °F)», pero 300 °F = 149 °C; posible error de la diapositiva."
+  },
+  {
+    "id": "hx.min_approach.seider.high_temp",
+    "area": "heat_exchangers",
+    "rule_es": "Acercamiento mínimo de 30 °C (50 °F) a altas temperaturas.",
+    "quantity": "ΔT_min",
+    "low": null,
+    "high": null,
+    "typical": 30,
+    "units": "K",
+    "applies_when": "Intercambio a alta temperatura (> ~150 °C)",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 26"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.min_approach.seider.furnace",
+    "area": "furnaces",
+    "rule_es": "Acercamiento de 140-190 °C (250-350 °F) en un horno.",
+    "quantity": "ΔT_min en horno",
+    "low": 140,
+    "high": 190,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Hornos de proceso",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 26"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": "Walas («Heat Exchangers», regla 13) da gases de combustión 250-350 °F por encima de la entrada de carga, coherente."
+  },
+  {
+    "id": "hx.dtmin.towler",
+    "area": "heat_exchangers",
+    "rule_es": "La diferencia mínima práctica de temperatura en un intercambiador suele estar entre 5 y 30 °C.",
+    "quantity": "ΔT_min",
+    "low": 5,
+    "high": 30,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Integración energética / pinch",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.5.1, p. 127"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.approach.csjmu.cw",
+    "area": "heat_exchangers",
+    "rule_es": "Diferencia de temperatura menor de 5-7 °C en enfriadores con agua de enfriamiento; 3-5 °C con salmueras refrigeradas; la mayor debe ser de al menos 20 °C.",
+    "quantity": "ΔT menor (enfriador con agua)",
+    "low": 5,
+    "high": 7,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Enfriadores con agua de enfriamiento",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Stream Temperatures»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": "Las diapositivas no citan fuente; el texto coincide con Coulson & Richardson vol. 6 (Sinnott), sin confirmar."
+  },
+  {
+    "id": "hx.approach.csjmu.recovery",
+    "area": "heat_exchangers",
+    "rule_es": "En recuperación de calor entre corrientes de proceso, el acercamiento óptimo no suele bajar de 20 °C.",
+    "quantity": "ΔT_min (proceso-proceso)",
+    "low": 20,
+    "high": null,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Recuperación de calor proceso-proceso",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Stream Temperatures»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": "Contrasta con 10 °C de Seider/Walas y 5-30 °C de Towler."
+  },
+  {
+    "id": "hx.boiling_max_dt",
+    "area": "heat_exchangers",
+    "rule_es": "Hervir un líquido puro o de punto de ebullición cercano con una fuerza impulsora global máxima de 25 °C (45 °F) para asegurar ebullición nucleada.",
+    "quantity": "ΔT global en rehervidor/vaporizador",
+    "low": null,
+    "high": 25,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Rehervidores y vaporizadores",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 28"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.reboiler_max_flux",
+    "area": "heat_exchangers",
+    "rule_es": "El flujo de calor máximo en rehervidores es de 10 000 Btu/(h·ft²) (≈31.5 kW/m²).",
+    "quantity": "flujo de calor en rehervidor",
+    "low": null,
+    "high": 31.5,
+    "typical": null,
+    "units": "kW/m2",
+    "applies_when": "Rehervidores",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.U.water_liquid",
+    "area": "heat_exchangers",
+    "rule_es": "U de estimación agua-líquido: 150 Btu/(h·ft²·°F) (≈850 W/m²K).",
+    "quantity": "U",
+    "low": null,
+    "high": null,
+    "typical": 852,
+    "units": "W/m2K",
+    "applies_when": "Estimación preliminar, agua contra líquido",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.U.condenser",
+    "area": "heat_exchangers",
+    "rule_es": "U de estimación para condensadores: 150 Btu/(h·ft²·°F) (≈850 W/m²K).",
+    "quantity": "U",
+    "low": null,
+    "high": null,
+    "typical": 852,
+    "units": "W/m2K",
+    "applies_when": "Condensadores",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.U.liquid_liquid",
+    "area": "heat_exchangers",
+    "rule_es": "U de estimación líquido-líquido: 50 Btu/(h·ft²·°F) (≈280 W/m²K).",
+    "quantity": "U",
+    "low": null,
+    "high": null,
+    "typical": 284,
+    "units": "W/m2K",
+    "applies_when": "Líquido contra líquido",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.U.gas",
+    "area": "heat_exchangers",
+    "rule_es": "U de estimación líquido-gas y gas-gas: 5 Btu/(h·ft²·°F) (≈28 W/m²K).",
+    "quantity": "U",
+    "low": null,
+    "high": null,
+    "typical": 28.4,
+    "units": "W/m2K",
+    "applies_when": "Servicios con gas a baja presión",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Valor conservador para gas a baja presión; a alta presión el U real puede ser mucho mayor."
+  },
+  {
+    "id": "hx.U.reboiler",
+    "area": "heat_exchangers",
+    "rule_es": "U de estimación para rehervidores: 200 Btu/(h·ft²·°F) (≈1140 W/m²K).",
+    "quantity": "U",
+    "low": null,
+    "high": null,
+    "typical": 1136,
+    "units": "W/m2K",
+    "applies_when": "Rehervidores",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.U.air_cooler",
+    "area": "heat_exchangers",
+    "rule_es": "Enfriadores de aire: U = 80-100 Btu/(h·ft² de superficie desnuda·°F) (≈450-570 W/m²K) y acercamiento de 50 °F (28 K) o más.",
+    "quantity": "U (base superficie desnuda)",
+    "low": 454,
+    "high": 568,
+    "typical": null,
+    "units": "W/m2K",
+    "applies_when": "Enfriadores por aire",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 12"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Potencia de ventiladores 2-5 HP por MBtu/h. Acercamiento ≥ 28 K."
+  },
+  {
+    "id": "hx.dp.walas",
+    "area": "heat_exchangers",
+    "rule_es": "Caídas de presión de 1.5 psi (10 kPa) en ebullición y 3-9 psi (21-62 kPa) en otros servicios.",
+    "quantity": "ΔP por lado (servicios sin cambio de fase)",
+    "low": 20.7,
+    "high": 62.1,
+    "typical": null,
+    "units": "kPa",
+    "applies_when": "Intercambiadores de coraza y tubos",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Ebullición: 10.3 kPa."
+  },
+  {
+    "id": "hx.dp.seider",
+    "area": "heat_exchangers",
+    "rule_es": "Estimar ΔP: 0.1 atm en ebullición/condensación, 0.2 atm en gas, 0.3 atm en líquido poco viscoso, 0.5-0.6 atm en líquido viscoso, 1.4 atm a través de un horno.",
+    "quantity": "ΔP (líquido de baja viscosidad)",
+    "low": null,
+    "high": null,
+    "typical": 30.4,
+    "units": "kPa",
+    "applies_when": "Simulación preliminar de intercambiadores",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 31"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": "Equivalentes: 10.1 / 20.3 / 30.4 / 50.7-60.8 / 141.9 kPa."
+  },
+  {
+    "id": "hx.dp.csjmu",
+    "area": "heat_exchangers",
+    "rule_es": "ΔP casi óptima para líquidos: 35 kN/m² si μ < 1 mPa·s; 50-70 kN/m² si μ = 1-10 mPa·s; gases a 1-2 bar: 0.5 × presión manométrica; >10 bar: 0.1 × presión manométrica.",
+    "quantity": "ΔP (líquido μ < 1 mPa·s)",
+    "low": null,
+    "high": null,
+    "typical": 35,
+    "units": "kPa",
+    "applies_when": "Coraza y tubos, selección libre de ΔP",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Pressure Drop»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": "Sin fuente citada en las diapositivas (texto coincide con Sinnott)."
+  },
+  {
+    "id": "hx.tube_velocity.process_liquid",
+    "area": "heat_exchangers",
+    "rule_es": "Velocidad en tubos para líquidos de proceso: 1-2 m/s, máximo 4 m/s si hace falta reducir ensuciamiento.",
+    "quantity": "velocidad en tubos (líquido de proceso)",
+    "low": 1.0,
+    "high": 2.0,
+    "typical": null,
+    "units": "m/s",
+    "applies_when": "Lado tubos, líquidos",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Shell and Tube Fluid Velocities»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": "Máximo 4 m/s."
+  },
+  {
+    "id": "hx.tube_velocity.water",
+    "area": "heat_exchangers",
+    "rule_es": "Velocidad en tubos para agua: 1.5-2.5 m/s.",
+    "quantity": "velocidad en tubos (agua)",
+    "low": 1.5,
+    "high": 2.5,
+    "typical": null,
+    "units": "m/s",
+    "applies_when": "Agua por tubos",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Shell and Tube Fluid Velocities»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": ""
+  },
+  {
+    "id": "hx.shell_velocity.liquid",
+    "area": "heat_exchangers",
+    "rule_es": "Velocidad de líquido en la coraza: 0.3-1 m/s.",
+    "quantity": "velocidad en coraza (líquido)",
+    "low": 0.3,
+    "high": 1.0,
+    "typical": null,
+    "units": "m/s",
+    "applies_when": "Líquido por coraza",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Shell and Tube Fluid Velocities»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": ""
+  },
+  {
+    "id": "hx.vapor_velocity",
+    "area": "heat_exchangers",
+    "rule_es": "Velocidad de vapores: vacío 50-70 m/s; presión atmosférica 10-30 m/s; alta presión 5-10 m/s (valores bajos para alto peso molecular).",
+    "quantity": "velocidad de vapor (presión atmosférica)",
+    "low": 10,
+    "high": 30,
+    "typical": null,
+    "units": "m/s",
+    "applies_when": "Vapores en intercambiadores a presión atmosférica",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Shell and Tube Fluid Velocities»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": ""
+  },
+  {
+    "id": "hx.shell_area_vs_diameter",
+    "area": "heat_exchangers",
+    "rule_es": "Con tubos estándar de 3/4 in OD, paso triangular de 1 in y 16 ft de largo: coraza de 1 ft ≈ 100 ft², 2 ft ≈ 400 ft², 3 ft ≈ 1100 ft² (≈102 m²).",
+    "quantity": "área por coraza de 3 ft de diámetro",
+    "low": null,
+    "high": null,
+    "typical": 102,
+    "units": "m2",
+    "applies_when": "Coraza y tubos con tubos estándar",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "No es un máximo por coraza; no encontramos en fuente abierta el área máxima por coraza que dan Turton y otros."
+  },
+  {
+    "id": "hx.double_pipe_range",
+    "area": "heat_exchangers",
+    "rule_es": "El intercambiador de doble tubo es competitivo para áreas de 100-200 ft² (9.3-18.6 m²).",
+    "quantity": "área de doble tubo",
+    "low": 9.3,
+    "high": 18.6,
+    "typical": null,
+    "units": "m2",
+    "applies_when": "Selección de tipo de intercambiador",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 9"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "hx.furnace_threshold",
+    "area": "furnaces",
+    "rule_es": "Si una corriente debe calentarse por encima de 400 °C (750 °F), usar un horno, salvo que el fluido se descomponga.",
+    "quantity": "T de calentamiento a partir de la cual usar horno",
+    "low": 400,
+    "high": null,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Calentamiento de corrientes de proceso",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 25"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": "Towler (§3.2.2) usa calentamiento con fuego por encima de lo que da el vapor de alta, ~250 °C. Ver contradicción."
+  },
+  {
+    "id": "furn.radiant_flux",
+    "area": "furnaces",
+    "rule_es": "Hornos: flujo radiante 12 000 Btu/(h·ft²) (≈38 kW/m²); convectivo 4000 (≈12.6 kW/m²); calor repartido casi igual entre ambas secciones.",
+    "quantity": "flujo de calor en sección radiante",
+    "low": null,
+    "high": null,
+    "typical": 37.9,
+    "units": "kW/m2",
+    "applies_when": "Hornos de proceso",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 13"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "furn.efficiency.walas",
+    "area": "furnaces",
+    "rule_es": "Eficiencia térmica de hornos de 70-75 %; temperatura de chimenea 650-950 °F (343-510 °C).",
+    "quantity": "eficiencia térmica del horno",
+    "low": 0.7,
+    "high": 0.75,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Hornos de proceso",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 13"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Velocidad de aceite frío en tubos: 6 ft/s (1.8 m/s)."
+  },
+  {
+    "id": "furn.efficiency.towler",
+    "area": "furnaces",
+    "rule_es": "Eficiencia del horno ~0.85 si se usan secciones radiante y convectiva; ~0.6 si solo la radiante. Calentadores de aceite térmico: 80-85 %.",
+    "quantity": "eficiencia del horno (radiante + convectiva)",
+    "low": null,
+    "high": null,
+    "typical": 0.85,
+    "units": "fracción",
+    "applies_when": "Cálculo de costo de calor con fuego",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.2.2 (p. 106) y §3.2.4 (p. 109)"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Más alta que el 70-75 % de Walas (fuentes de 1990 vs 2013)."
+  },
+  {
+    "id": "furn.stack_temp",
+    "area": "furnaces",
+    "rule_es": "La temperatura de los gases de chimenea está entre 650 y 950 °F (343-510 °C); los gases de combustión salen 250-350 °F por encima de la entrada de la carga.",
+    "quantity": "T de gases de chimenea",
+    "low": 343,
+    "high": 510,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Hornos de proceso",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 13"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "util.cw.inlet_outlet.walas",
+    "area": "utilities",
+    "rule_es": "Agua de enfriamiento: entrada a 90 °F (32 °C), salida máxima de 120 °F (49 °C).",
+    "quantity": "T de salida del agua de enfriamiento (máx.)",
+    "low": null,
+    "high": 48.9,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Intercambiadores con agua de torre",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Heat Exchangers», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Entrada: 32.2 °C."
+  },
+  {
+    "id": "util.cw.supply_return.walas",
+    "area": "utilities",
+    "rule_es": "Agua de enfriamiento: suministro a 80-90 °F (27-32 °C) desde la torre, retorno a 115-125 °F (46-52 °C); agua de mar retorna a 110 °F (43 °C).",
+    "quantity": "T de suministro del agua de enfriamiento",
+    "low": 26.7,
+    "high": 32.2,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Especificación de servicios",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Utilities: Common Specifications», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Retorno: 46.1-51.7 °C."
+  },
+  {
+    "id": "util.cw.seider",
+    "area": "utilities",
+    "rule_es": "Al enfriar o condensar con agua de enfriamiento, suponer entrada a 30 °C (90 °F) y salida máxima de 120 °F.",
+    "quantity": "T de entrada del agua de enfriamiento",
+    "low": null,
+    "high": null,
+    "typical": 30,
+    "units": "°C",
+    "applies_when": "Síntesis de procesos",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 27"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "media",
+    "notes": "La diapositiva escribe «70 °C (120 °F)», pero 120 °F = 49 °C; el valor coherente con Walas es ~49-50 °C. Tratar 70 °C como error tipográfico."
+  },
+  {
+    "id": "util.cw.range.towler",
+    "area": "utilities",
+    "rule_es": "Las torres operan con un rango de enfriamiento de 5-20 °F (2.8-11.1 °C); diseño inicial: retorno ~10 °F (5.5 °C) más caliente que el agua fría.",
+    "quantity": "aumento de T del agua de enfriamiento",
+    "low": 2.8,
+    "high": 11.1,
+    "typical": 5.5,
+    "units": "K",
+    "applies_when": "Diseño de sistema de agua de enfriamiento",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.2.5, p. 113"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Contrasta con ~16.7 K implícito en Walas (90→120 °F) y con un tope de ~30 K en las diapositivas de CSJMU."
+  },
+  {
+    "id": "util.cw.max_rise.csjmu",
+    "area": "utilities",
+    "rule_es": "El aumento máximo de temperatura del agua de enfriamiento recirculada se limita a unos 30 °C.",
+    "quantity": "aumento máximo de T del agua de enfriamiento",
+    "low": null,
+    "high": 30,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Agua de enfriamiento recirculada",
+    "source_consulted": {
+      "title": "Introduction to Shell and Tube Heat Exchanger II — diapositivas de curso, A. K. Chandra, CSJM University (Kanpur)",
+      "url": "https://gyansanchay.csjmu.ac.in/wp-content/uploads/2021/11/Introduction-to-Shell-and-Tube-Heat-Exchanger-II.pdf",
+      "accessed": "2026-11-21",
+      "location": "diapositiva «Stream Temperatures»"
+    },
+    "source_cited": null,
+    "confidence": "media",
+    "notes": ""
+  },
+  {
+    "id": "util.cw.min_process_temp.towler",
+    "area": "utilities",
+    "rule_es": "El agua de enfriamiento es el servicio frío usual entre 120 y 40 °C; para enfriar por debajo de 40 °C se usa agua o aire hasta 40-50 °C y luego agua helada o refrigeración.",
+    "quantity": "T mínima de proceso alcanzable con agua de enfriamiento",
+    "low": 40,
+    "high": 50,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Selección de servicio frío",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.2.5, pp. 110-111"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "util.cooling_tower_approach.towler",
+    "area": "cooling_towers",
+    "rule_es": "La mayoría de las torres operan con un acercamiento al bulbo húmedo de al menos 2.8 °C (5 °F).",
+    "quantity": "T agua fría − T bulbo húmedo",
+    "low": 2.8,
+    "high": null,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Torres de enfriamiento",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.2.5, p. 111"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "util.cooling_tower_approach.walas",
+    "area": "cooling_towers",
+    "rule_es": "Las torres de tiro inducido a contracorriente, las más comunes, pueden enfriar el agua hasta 2 °F (1.1 K) del bulbo húmedo.",
+    "quantity": "T agua fría − T bulbo húmedo (mínimo alcanzable)",
+    "low": 1.1,
+    "high": null,
+    "typical": null,
+    "units": "K",
+    "applies_when": "Torres de tiro inducido a contracorriente",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Cooling Towers», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Walas da lo alcanzable (2 °F); Towler da lo práctico de diseño (≥5 °F)."
+  },
+  {
+    "id": "util.cooling_tower_losses",
+    "area": "cooling_towers",
+    "rule_es": "Pérdidas por arrastre de 0.1-0.3 % y purga de 2.5-3.0 % de la circulación para evitar acumulación de sales.",
+    "quantity": "purga (blowdown) / circulación",
+    "low": 0.025,
+    "high": 0.03,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Torres mecánicas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Cooling Towers», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "media",
+    "notes": "La misma regla dice evaporación de «1 % por cada 100 F» de rango; probablemente es 10 °F en el original (error de transcripción). No incluida como regla."
+  },
+  {
+    "id": "util.cooling_tower_water_rate",
+    "area": "cooling_towers",
+    "rule_es": "Circulación de agua de 1-4 gpm/ft² y aire de 1300-1800 lb/(h·ft²) o 300-400 ft/min.",
+    "quantity": "carga de agua",
+    "low": 1,
+    "high": 4,
+    "typical": null,
+    "units": "gpm/ft2",
+    "applies_when": "Dimensionamiento de torres de enfriamiento",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Cooling Towers», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "1-4 gpm/ft² ≈ 0.68-2.7 kg/(s·m²)."
+  },
+  {
+    "id": "util.steam.walas",
+    "area": "utilities",
+    "rule_es": "Niveles de vapor: 15-30 psig (250-275 °F); 150 psig (366 °F); 400 psig (448 °F); 600 psig (488 °F) o con 100-150 °F de sobrecalentamiento.",
+    "quantity": "presión de vapor de media (150 psig)",
+    "low": null,
+    "high": null,
+    "typical": 10.3,
+    "units": "barg",
+    "applies_when": "Especificación de servicios",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Utilities: Common Specifications», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Equivalentes: BP 1.0-2.1 barg (121-135 °C); MP 10.3 barg (186 °C); 27.6 barg (231 °C); AP 41.4 barg (253 °C)."
+  },
+  {
+    "id": "util.steam.towler",
+    "area": "utilities",
+    "rule_es": "Niveles de vapor típicos: alta ~40 bar (condensa a 250 °C), media ~20 bar (212 °C), baja ~3 bar (134 °C); varían de sitio a sitio.",
+    "quantity": "presión de vapor de media",
+    "low": null,
+    "high": null,
+    "typical": 20,
+    "units": "bara",
+    "applies_when": "Sistemas de vapor de sitio",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.2.3, p. 108"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Las presiones son absolutas (40 bara → 250 °C de saturación). MP de Towler (20 bara, 212 °C) es mayor que el MP de Walas (150 psig ≈ 11.4 bara, 186 °C)."
+  },
+  {
+    "id": "util.steam.lowest_level",
+    "area": "utilities",
+    "rule_es": "La presión de vapor más baja usada normalmente es ~2.7 bar (25 psig); todo reactor por encima de 150 °C es un posible generador de vapor.",
+    "quantity": "T de reactor a partir de la cual generar vapor",
+    "low": 150,
+    "high": null,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Recuperación de calor de reactores exotérmicos",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.3.3, p. 121"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "util.heat_transfer_fluids",
+    "area": "utilities",
+    "rule_es": "Fluidos térmicos: aceites de petróleo por debajo de 600 °F (316 °C), Dowtherm por debajo de 750 °F (399 °C), sales fundidas por debajo de 1100 °F (593 °C).",
+    "quantity": "T máxima de aceite de petróleo",
+    "low": null,
+    "high": 316,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Selección de fluido térmico",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Utilities: Common Specifications», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Towler (§3.2.4) da 50-400 °C para aceites térmicos y minerales, coherente."
+  },
+  {
+    "id": "util.instrument_air",
+    "area": "utilities",
+    "rule_es": "Aire comprimido en niveles de 45, 150, 300 o 450 psig; aire de instrumentos a 45 psig y punto de rocío de 0 °F.",
+    "quantity": "presión de aire de instrumentos",
+    "low": null,
+    "high": null,
+    "typical": 3.1,
+    "units": "barg",
+    "applies_when": "Servicios de aire",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Utilities: Common Specifications», reglas 4-5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Towler (§3.2.8) da distribución de aire de planta a 6 bar (100 psig)."
+  },
+  {
+    "id": "util.power_recovery_liquid",
+    "area": "drivers",
+    "rule_es": "Vale la pena considerar recuperar potencia de corrientes líquidas de alta presión (>15 bar).",
+    "quantity": "presión del líquido para considerar recuperación",
+    "low": 15,
+    "high": null,
+    "typical": null,
+    "units": "bar",
+    "applies_when": "Corrientes líquidas que se despresurizan",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.3.4, p. 122"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "refr.chilled_water_brine",
+    "area": "refrigeration",
+    "rule_es": "Refrigeración por debajo de ~40 °C; agua helada hasta ~10 °C; salmueras (NaCl, CaCl2) hasta −30 °C.",
+    "quantity": "T mínima con agua helada",
+    "low": null,
+    "high": null,
+    "typical": 10,
+    "units": "°C",
+    "applies_when": "Selección de servicio de refrigeración",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.2.6, p. 113"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "Walas («Refrigeration», regla 2): salmueras y glicoles 0-50 °F (−18 a 10 °C); amoníaco/freones/butano −50 a 40 °F; etano o propano −150 a −50 °F."
+  },
+  {
+    "id": "refr.cop_carnot",
+    "area": "refrigeration",
+    "rule_es": "El COP real es ~0.6 veces el de Carnot en un ciclo simple y hasta 0.9 en ciclos complejos.",
+    "quantity": "COP real / COP Carnot",
+    "low": 0.6,
+    "high": 0.9,
+    "typical": 0.6,
+    "units": "fracción",
+    "applies_when": "Estimación de potencia de refrigeración",
+    "source_consulted": {
+      "title": "Towler & Sinnott, Chemical Engineering Design, 2.ª ed. (2013), cap. 3 «Utilities and Energy Efficient Design» — capítulo de muestra publicado por Elsevier",
+      "url": "https://booksite.elsevier.com/samplechapters/9780080966595/Chapter_3.pdf",
+      "accessed": "2026-11-21",
+      "location": "§3.2.6, p. 115"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "refr.hp_per_ton",
+    "area": "refrigeration",
+    "rule_es": "Refrigeración por compresión con condensador a 100 °F requiere 1.24 HP/ton a 20 °F, 1.75 a 0 °F, 3.1 a −40 °F y 5.2 a −80 °F.",
+    "quantity": "potencia por tonelada de refrigeración a 0 °F (−18 °C)",
+    "low": null,
+    "high": null,
+    "typical": 1.75,
+    "units": "HP/ton",
+    "applies_when": "Refrigeración mecánica, condensador a 100 °F",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Refrigeration», regla 3"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "1 ton = 12 000 Btu/h = 3.517 kW. Por debajo de −80 °F se usan cascadas."
+  },
+  {
+    "id": "refr.single_stage_ratio",
+    "area": "refrigeration",
+    "rule_es": "En compresión de una sola etapa de refrigerante, la relación de compresión se limita a ~4.",
+    "quantity": "relación de compresión por etapa (refrigeración)",
+    "low": null,
+    "high": 4,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Ciclos de refrigeración",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Refrigeration», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "comp.fan_blower_limits.walas",
+    "area": "compressors",
+    "rule_es": "Los ventiladores elevan la presión ~3 % (12 in de agua), los sopladores hasta menos de 40 psig, los compresores más allá.",
+    "quantity": "presión de descarga máxima de soplador",
+    "low": null,
+    "high": 2.76,
+    "typical": null,
+    "units": "barg",
+    "applies_when": "Selección de máquina para gas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Seider (heurística 34): ventilador hasta 0.1 atm man., soplador hasta 2 atm man. (30 psig). Ver contradicción."
+  },
+  {
+    "id": "comp.fan_blower_limits.seider",
+    "area": "compressors",
+    "rule_es": "Ventilador hasta 0.1 atm man. (1.47 psig); soplador o compresor hasta 2 atm man. (30 psig); compresor por etapas por encima.",
+    "quantity": "presión de descarga máxima de soplador",
+    "low": null,
+    "high": 2.03,
+    "typical": null,
+    "units": "barg",
+    "applies_when": "Selección de máquina para gas",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 34"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "comp.max_discharge_temp",
+    "area": "compressors",
+    "rule_es": "La temperatura de descarga no debe superar 350-400 °F (177-204 °C); para gases diatómicos (k = 1.4) corresponde a una relación de compresión de ~4.",
+    "quantity": "T de descarga máxima",
+    "low": 177,
+    "high": 204,
+    "typical": null,
+    "units": "°C",
+    "applies_when": "Compresores de gas, cada etapa",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "comp.ratio_per_stage",
+    "area": "compressors",
+    "rule_es": "Relación de compresión por etapa ~4 para gases diatómicos (límite por temperatura de descarga).",
+    "quantity": "relación de compresión por etapa",
+    "low": null,
+    "high": 4,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Gases con k ≈ 1.4, entrada cercana a ambiente",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Derivada del límite de 350-400 °F; con otra k o T de entrada, recalcular con T2 = T1·(P2/P1)^((k−1)/k)."
+  },
+  {
+    "id": "comp.equal_stage_ratio",
+    "area": "compressors",
+    "rule_es": "En compresores multietapa la relación debe ser casi igual en cada etapa: r = (Pn/P1)^(1/n).",
+    "quantity": "desviación entre relaciones de etapa",
+    "low": null,
+    "high": null,
+    "typical": 0,
+    "units": "-",
+    "applies_when": "Compresión multietapa con interenfriamiento",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», regla 9"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Regla cualitativa: la verificación es comparar cada r_i con (Pn/P1)^(1/n)."
+  },
+  {
+    "id": "comp.eff.reciprocating",
+    "area": "compressors",
+    "rule_es": "Eficiencia de compresores reciprocantes: 65 % a relación 1.5, 75 % a 2.0, 80-85 % a 3-6.",
+    "quantity": "eficiencia (reciprocante, r = 3-6)",
+    "low": 0.8,
+    "high": 0.85,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Compresores reciprocantes",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», regla 10"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "comp.eff.centrifugal",
+    "area": "compressors",
+    "rule_es": "Eficiencia de compresores centrífugos grandes (6000-100 000 ACFM en succión): 76-78 %.",
+    "quantity": "eficiencia (centrífugo grande)",
+    "low": 0.76,
+    "high": 0.78,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Centrífugos de 6000-100 000 ACFM (≈2.8-47 m³/s)",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», regla 11"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "No dice si es isentrópica o politrópica."
+  },
+  {
+    "id": "comp.eff.rotary",
+    "area": "compressors",
+    "rule_es": "Compresores rotatorios: eficiencia de 70 %, excepto los de anillo líquido, 50 %.",
+    "quantity": "eficiencia (rotatorio)",
+    "low": null,
+    "high": null,
+    "typical": 0.7,
+    "units": "fracción",
+    "applies_when": "Compresores rotatorios",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», regla 12"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "comp.ejector_steam",
+    "area": "compressors",
+    "rule_es": "Un eyector de tres etapas necesita 100 lb de vapor por lb de aire para mantener 1 Torr; un eyector de una etapa llega a 100 Torr, tres etapas a 1 Torr, cinco a 0.05 Torr.",
+    "quantity": "consumo de vapor de eyector de 3 etapas a 1 Torr",
+    "low": null,
+    "high": null,
+    "typical": 100,
+    "units": "kg vapor/kg aire",
+    "applies_when": "Sistemas de vacío con eyectores",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Compressors and Vacuum Pumps», reglas 2-3"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "drv.efficiency",
+    "area": "drivers",
+    "rule_es": "Eficiencia de accionadores: motores 85-95 %; turbinas de vapor 42-78 %; motores y turbinas de gas 28-38 %.",
+    "quantity": "eficiencia de motor eléctrico",
+    "low": 0.85,
+    "high": 0.95,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Selección de accionador",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Drivers and Power Recovery Equipment», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Por debajo de 100 HP se usan casi solo motores eléctricos; las turbinas de vapor compiten por encima de 100 HP."
+  },
+  {
+    "id": "pump.npsh_margin.doe",
+    "area": "pumps",
+    "rule_es": "Regla común de diseño: NPSH disponible al menos 25 % mayor que el NPSH requerido en todos los flujos esperados.",
+    "quantity": "NPSHA/NPSHR",
+    "low": 1.25,
+    "high": null,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Bombas centrífugas",
+    "source_consulted": {
+      "title": "U.S. DOE (ITP) y Hydraulic Institute, Improving Pumping System Performance: A Sourcebook for Industry, 2.ª ed.",
+      "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/pump.pdf",
+      "accessed": "2026-11-21",
+      "location": "Sección 2, «Net Positive Suction Head», p. 38 impresa (p. 42 del PDF)"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": "El documento remite a ANSI/HI 9.6.1 para márgenes específicos."
+  },
+  {
+    "id": "pump.npsh_range.walas",
+    "area": "pumps",
+    "rule_es": "El NPSH requerido usual está entre 4 y 20 ft (1.2-6.1 m).",
+    "quantity": "NPSH",
+    "low": 1.2,
+    "high": 6.1,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Bombas centrífugas de proceso",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Pumps», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "pump.bep_deviation.doe",
+    "area": "pumps",
+    "rule_es": "Identificar bombas cuyo caudal se aleje 30 % o más del caudal de mejor eficiencia (BEP).",
+    "quantity": "|Q − Q_BEP|/Q_BEP",
+    "low": null,
+    "high": 0.3,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Auditoría de sistemas de bombeo",
+    "source_consulted": {
+      "title": "U.S. DOE, Energy Tips – Pumping Systems, Tip Sheet #4 «Test for Pumping System Efficiency» (sept. 2005)",
+      "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/test_pumping_system__pumping_systemts4.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Suggested Actions», p. 1"
+    },
+    "source_cited": "DOE Pumping System Sourcebook (estudio de instalaciones industriales encargado por DOE)",
+    "confidence": "alta",
+    "notes": "Es un umbral de alerta, no una zona de operación recomendada."
+  },
+  {
+    "id": "pump.eff.centrifugal",
+    "area": "pumps",
+    "rule_es": "Eficiencia de bombas centrífugas: 45 % a 100 gpm, 70 % a 500 gpm, 80 % a 10 000 gpm.",
+    "quantity": "eficiencia de bomba centrífuga (500 gpm ≈ 114 m³/h)",
+    "low": null,
+    "high": null,
+    "typical": 0.7,
+    "units": "fracción",
+    "applies_when": "Bombas centrífugas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Pumps», regla 4"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "100 gpm ≈ 22.7 m³/h; 10 000 gpm ≈ 2271 m³/h."
+  },
+  {
+    "id": "pump.eff.measured.doe",
+    "area": "pumps",
+    "rule_es": "En instalaciones industriales son comunes eficiencias de 50-60 % o menos, y la eficiencia puede degradarse 10-25 % antes del reemplazo.",
+    "quantity": "eficiencia de bomba en campo",
+    "low": 0.5,
+    "high": 0.6,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Bombas existentes en operación",
+    "source_consulted": {
+      "title": "U.S. DOE, Energy Tips – Pumping Systems, Tip Sheet #4 «Test for Pumping System Efficiency» (sept. 2005)",
+      "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/test_pumping_system__pumping_systemts4.pdf",
+      "accessed": "2026-11-21",
+      "location": "p. 1, párrafo inicial"
+    },
+    "source_cited": "DOE Pumping System Sourcebook (estudio de instalaciones industriales encargado por DOE)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "pump.centrifugal_range.walas",
+    "area": "pumps",
+    "rule_es": "Centrífugas de una etapa: 15-5000 gpm, carga máx. 500 ft (152 m); multietapa: 20-11 000 gpm, carga máx. 5500 ft (1676 m).",
+    "quantity": "carga máxima de centrífuga de una etapa",
+    "low": null,
+    "high": 152,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Selección de tipo de bomba",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Pumps», regla 4"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "pump.centrifugal_range.seider",
+    "area": "pumps",
+    "rule_es": "Para cargas hasta 975 m (3200 ft) y caudales de 40-19 000 L/min usar bomba centrífuga; para cargas hasta 6100 m y hasta 1900 L/min, reciprocante.",
+    "quantity": "carga máxima de bomba centrífuga",
+    "low": null,
+    "high": 975,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Selección de tipo de bomba",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 37"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": "Walas da 1676 m (5500 ft) para multietapa. Ver contradicción."
+  },
+  {
+    "id": "pump.eff.reciprocating",
+    "area": "pumps",
+    "rule_es": "Bombas reciprocantes: eficiencia de 70 % a 10 HP, 85 % a 50 HP, 90 % a 500 HP.",
+    "quantity": "eficiencia de bomba reciprocante (50 HP)",
+    "low": null,
+    "high": null,
+    "typical": 0.85,
+    "units": "fracción",
+    "applies_when": "Bombas reciprocantes",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Pumps», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "pump.velocity_cooling.doe",
+    "area": "pumps",
+    "rule_es": "La velocidad del flujo en sistemas de enfriamiento no suele superar 15 ft/s (4.6 m/s), ~3.5 ft de carga de velocidad.",
+    "quantity": "velocidad en tubería de sistemas de enfriamiento",
+    "low": null,
+    "high": 4.6,
+    "typical": null,
+    "units": "m/s",
+    "applies_when": "Circuitos de agua de enfriamiento",
+    "source_consulted": {
+      "title": "U.S. DOE (ITP) y Hydraulic Institute, Improving Pumping System Performance: A Sourcebook for Industry, 2.ª ed.",
+      "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/pump.pdf",
+      "accessed": "2026-11-21",
+      "location": "Sección 1, «Velocity head» (p. 11 del PDF)"
+    },
+    "source_cited": null,
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "pipe.velocity.pump_discharge",
+    "area": "piping",
+    "rule_es": "Velocidad en descarga de bomba: (5 + D/3) ft/s con D en pulgadas; caída de 2.0 psi/100 ft (≈45 kPa/100 m).",
+    "quantity": "velocidad de líquido en descarga (D = 4 in)",
+    "low": null,
+    "high": null,
+    "typical": 6.33,
+    "units": "ft/s",
+    "applies_when": "Líneas de descarga de bombas; D nominal en pulgadas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Piping», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "La regla es una función: u = 5 + D/3 [ft/s]. Typical evaluada para D = 4 in (1.93 m/s)."
+  },
+  {
+    "id": "pipe.velocity.pump_suction",
+    "area": "piping",
+    "rule_es": "Velocidad en succión de bomba: (1.3 + D/6) ft/s con D en pulgadas; caída de 0.4 psi/100 ft (≈9 kPa/100 m).",
+    "quantity": "velocidad de líquido en succión (D = 4 in)",
+    "low": null,
+    "high": null,
+    "typical": 1.97,
+    "units": "ft/s",
+    "applies_when": "Líneas de succión de bombas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Piping», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "u = 1.3 + D/6 [ft/s]; typical para D = 4 in (0.60 m/s). Turton 4.ª ed. tabla 11.8 1(b) da la misma fórmula (ver pipe.velocity.pump_suction.turton)."
+  },
+  {
+    "id": "pipe.velocity.pump_suction.turton",
+    "area": "piping",
+    "rule_es": "Para succión de bomba, la velocidad recomendada y el diámetro se relacionan por u = (1.3 + D/6) ft/s, D en pulgadas.",
+    "quantity": "velocidad de líquido en succión (D = 4 in)",
+    "low": null,
+    "high": null,
+    "typical": 1.97,
+    "units": "ft/s",
+    "applies_when": "Líneas de succión de bombas",
+    "source_consulted": {
+      "title": "Turton et al., Analysis, Synthesis and Design of Chemical Processes, 4.ª ed. — páginas de muestra publicadas por Pearson (cap. 1)",
+      "url": "https://ptgmedia.pearsoncmg.com/images/9780132618120/samplepages/0132618125.pdf",
+      "accessed": "2026-11-21",
+      "location": "Ejemplo 1.12, p. 32"
+    },
+    "source_cited": "Turton et al., 4.ª ed., tabla 11.8, 1(b) (citada en el ejemplo 1.12)",
+    "confidence": "alta",
+    "notes": "Confirma que Turton (tabla 11.8) y Walas coinciden."
+  },
+  {
+    "id": "pipe.velocity.gas",
+    "area": "piping",
+    "rule_es": "Velocidad de vapor o gas: 20·D ft/s con D en pulgadas; caída de 0.5 psi/100 ft (≈11 kPa/100 m).",
+    "quantity": "velocidad de gas/vapor (D = 4 in)",
+    "low": null,
+    "high": null,
+    "typical": 80,
+    "units": "ft/s",
+    "applies_when": "Líneas de vapor y gas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Piping», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "u = 20·D [ft/s]; typical para D = 4 in (24 m/s)."
+  },
+  {
+    "id": "pipe.dp_per_length.liquid_discharge",
+    "area": "piping",
+    "rule_es": "Caída de presión típica en descarga de bombas de 2.0 psi por 100 ft.",
+    "quantity": "ΔP por longitud (descarga de bomba)",
+    "low": null,
+    "high": null,
+    "typical": 45.2,
+    "units": "kPa/100 m",
+    "applies_when": "Líneas de líquido a la descarga",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Piping», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Succión: 0.4 psi/100 ft (9.0 kPa/100 m); gas: 0.5 psi/100 ft (11.3 kPa/100 m)."
+  },
+  {
+    "id": "pipe.control_valve_dp",
+    "area": "piping",
+    "rule_es": "Las válvulas de control requieren al menos 10 psi (69 kPa) de caída para buen control.",
+    "quantity": "ΔP en válvula de control",
+    "low": 69,
+    "high": null,
+    "typical": null,
+    "units": "kPa",
+    "applies_when": "Lazos con válvula de control",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Piping», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.drum_LD",
+    "area": "vessels",
+    "rule_es": "Longitud/diámetro óptima de tambores = 3, con intervalo común de 2.5-5.0.",
+    "quantity": "L/D de tambor",
+    "low": 2.5,
+    "high": 5.0,
+    "typical": 3.0,
+    "units": "-",
+    "applies_when": "Tambores de proceso",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 4"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.holdup.product_to_tower",
+    "area": "vessels",
+    "rule_es": "Tiempo de retención de 5-10 min para un producto que alimenta otra torre.",
+    "quantity": "tiempo de residencia",
+    "low": 5,
+    "high": 10,
+    "typical": null,
+    "units": "min",
+    "applies_when": "Tambor que alimenta otra columna",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.holdup.furnace_feed",
+    "area": "vessels",
+    "rule_es": "En tambores que alimentan un horno se permiten 30 min a medio llenar.",
+    "quantity": "tiempo de residencia (medio lleno)",
+    "low": null,
+    "high": null,
+    "typical": 30,
+    "units": "min",
+    "applies_when": "Tambor de alimentación a horno",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 6"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.knockout_compressor",
+    "area": "vessels",
+    "rule_es": "Los tambores separadores antes de compresores deben contener no menos de 10 veces el volumen de líquido que pasa por minuto.",
+    "quantity": "volumen de líquido retenido / flujo de líquido por minuto",
+    "low": 10,
+    "high": null,
+    "typical": null,
+    "units": "min",
+    "applies_when": "Knock-out drums aguas arriba de compresores",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.ll_settling",
+    "area": "vessels",
+    "rule_es": "Los separadores líquido-líquido se diseñan para velocidad de sedimentación de 2-3 in/min (0.85-1.27 mm/s).",
+    "quantity": "velocidad de sedimentación de diseño",
+    "low": 0.85,
+    "high": 1.27,
+    "typical": null,
+    "units": "mm/s",
+    "applies_when": "Decantadores líquido-líquido",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 8"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.gl_k_factor",
+    "area": "vessels",
+    "rule_es": "Velocidad de gas en separadores gas-líquido: V = k·(ρL/ρV − 1)^0.5 ft/s, k = 0.35 con malla y 0.1 sin malla.",
+    "quantity": "k (Souders-Brown) con malla",
+    "low": null,
+    "high": null,
+    "typical": 0.35,
+    "units": "ft/s",
+    "applies_when": "Separadores verticales gas-líquido con malla",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 9"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "k = 0.107 m/s con malla, 0.030 m/s sin malla. Para mallas verticales, multiplicar k por 2/3."
+  },
+  {
+    "id": "vessel.gl_design_fraction",
+    "area": "vessels",
+    "rule_es": "Buen desempeño a 30-100 % de la velocidad calculada con k; 75 % es lo usual.",
+    "quantity": "velocidad de diseño / velocidad con k",
+    "low": 0.3,
+    "high": 1.0,
+    "typical": 0.75,
+    "units": "fracción",
+    "applies_when": "Separadores gas-líquido",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 12"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.mesh_pad",
+    "area": "vessels",
+    "rule_es": "Se logra 99 % de remoción de arrastre con mallas de 4-12 in de espesor; 6 in (0.15 m) es lo usual.",
+    "quantity": "espesor de malla",
+    "low": 0.1,
+    "high": 0.3,
+    "typical": 0.15,
+    "units": "m",
+    "applies_when": "Separadores con malla desnebulizadora",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Drums)», regla 10"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.design_pressure",
+    "area": "vessels",
+    "rule_es": "La presión de diseño es 10 % o 10-25 psi por encima de la presión máxima de operación (lo que sea mayor); la máxima de operación se toma 25 psi sobre la normal.",
+    "quantity": "margen de presión de diseño",
+    "low": 0.1,
+    "high": null,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Recipientes a presión",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Pressure)», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": "Margen absoluto alternativo: 0.69-1.72 bar (10-25 psi). Vacío: diseñar para 15 psig y vacío total."
+  },
+  {
+    "id": "vessel.design_temperature",
+    "area": "vessels",
+    "rule_es": "Entre −20 y 650 °F, la temperatura de diseño es 50 °F (28 K) mayor que la de operación.",
+    "quantity": "T diseño − T operación",
+    "low": null,
+    "high": null,
+    "typical": 27.8,
+    "units": "K",
+    "applies_when": "Recipientes entre −29 y 343 °C",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Pressure)», regla 1"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "vessel.storage_freeboard",
+    "area": "vessels",
+    "rule_es": "Espacio libre en tanques de 15 % por debajo de 500 gal y 10 % por encima; 30 días de capacidad para materias primas y productos.",
+    "quantity": "espacio libre (tanques > 500 gal)",
+    "low": null,
+    "high": null,
+    "typical": 0.1,
+    "units": "fracción",
+    "applies_when": "Tanques de almacenamiento",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Vessels (Storage Tanks)», reglas 5-6"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "rxn.cstr_residence_vs_mixing",
+    "area": "reactors",
+    "rule_es": "Se aproxima el CSTR ideal cuando el tiempo de residencia medio es 5-10 veces el tiempo necesario para homogeneizar (500-2000 revoluciones del agitador).",
+    "quantity": "τ / t_mezclado",
+    "low": 5,
+    "high": 10,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Reactores de tanque agitado continuos",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Reactors», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "rxn.cstr_battery",
+    "area": "reactors",
+    "rule_es": "Para reacciones lentas en líquidos, una batería de 4 o 5 CSTR en serie es lo más económico; con conversión < 95 % del equilibrio, 5 etapas se aproximan a flujo pistón.",
+    "quantity": "número de CSTR en serie",
+    "low": 4,
+    "high": 5,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Reacciones lentas en fase líquida o lodos",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Reactors», reglas 7 y 10"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "rxn.stirred_power",
+    "area": "reactors",
+    "rule_es": "Potencia en tanque agitado para reacción homogénea: 0.5-1.5 HP/1000 gal (≈0.1-0.3 kW/m³); el triple cuando se transfiere calor.",
+    "quantity": "potencia de agitación por volumen",
+    "low": 0.1,
+    "high": 0.3,
+    "typical": null,
+    "units": "kW/m3",
+    "applies_when": "Reacción homogénea en tanque agitado sin transferencia de calor",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Reactors», regla 4; «Mixing and Agitation», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "rxn.catalyst_size",
+    "area": "reactors",
+    "rule_es": "Tamaño de partícula de catalizador: 0.1 mm en lechos fluidizados, 1 mm en lodos, 2-5 mm en lechos fijos.",
+    "quantity": "diámetro de partícula en lecho fijo",
+    "low": 2,
+    "high": 5,
+    "typical": null,
+    "units": "mm",
+    "applies_when": "Reactores catalíticos de lecho fijo",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Reactors», regla 2"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "ext.mixer_settler",
+    "area": "extraction",
+    "rule_es": "Mezcladores-sedimentadores: a lo sumo cinco etapas; sedimentadores con 30-60 min de residencia o 0.5-1.5 ft/min; eficiencia de etapa ~80 %.",
+    "quantity": "eficiencia de etapa de mezclador-sedimentador",
+    "low": null,
+    "high": null,
+    "typical": 0.8,
+    "units": "fracción",
+    "applies_when": "Extracción líquido-líquido en mezclador-sedimentador",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Extraction, Liquid-Liquid», regla 3"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "ext.settler_residence",
+    "area": "extraction",
+    "rule_es": "Tiempo de residencia en sedimentadores abiertos de 30-60 min.",
+    "quantity": "tiempo de residencia del sedimentador",
+    "low": 30,
+    "high": 60,
+    "typical": null,
+    "units": "min",
+    "applies_when": "Sedimentadores de extracción",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Extraction, Liquid-Liquid», regla 3"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "ext.sieve_tray_eff",
+    "area": "extraction",
+    "rule_es": "Torres de platos perforados para extracción: eficiencia de plato de 20-30 %; espaciamiento de 6-24 in.",
+    "quantity": "eficiencia de plato (extracción)",
+    "low": 0.2,
+    "high": 0.3,
+    "typical": null,
+    "units": "fracción",
+    "applies_when": "Extracción en torres de platos perforados",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Extraction, Liquid-Liquid», regla 6"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "ext.packed_hets",
+    "area": "extraction",
+    "rule_es": "Torres empacadas de extracción para 5-10 etapas; carga de fase dispersa ≤ 25 gal/(min·ft²); HETS de 5-10 ft (1.5-3.0 m).",
+    "quantity": "HETS (torre empacada)",
+    "low": 1.5,
+    "high": 3.0,
+    "typical": null,
+    "units": "m",
+    "applies_when": "Extracción en torres empacadas",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Extraction, Liquid-Liquid», regla 5"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "evap.steam_economy",
+    "area": "evaporators",
+    "rule_es": "La economía de vapor de un evaporador de N efectos es aproximadamente 0.8·N lb evaporadas por lb de vapor externo.",
+    "quantity": "economía de vapor / N",
+    "low": null,
+    "high": null,
+    "typical": 0.8,
+    "units": "kg/kg por efecto",
+    "applies_when": "Evaporadores de múltiple efecto",
+    "source_consulted": {
+      "title": "Heuristics in Chemical Engineering (reglas de Walas editadas para uso en línea por G. J. Suppes, 2002, «Reproduced with Permission from Butterworth-Heinemann»), material del curso PS-3213 Ingeniería de Procesos, USB",
+      "url": "https://gecousb.com.ve/guias/GECO/Ingenieri%CC%81a%20de%20Procesos%20(PS-3213)/Material%20Teo%CC%81rico%20(PS-3213)/PS-3213%20Heuri%CC%81sticas%20Para%20Disen%CC%83o%20de%20Equipos.pdf",
+      "accessed": "2026-11-21",
+      "location": "«Evaporators», regla 7"
+    },
+    "source_cited": "Walas, S. M., Chemical Process Equipment: Selection and Design, Butterworth-Heinemann, 1990, «Rules of Thumb: Summary» (cap. 0)",
+    "confidence": "alta",
+    "notes": ""
+  },
+  {
+    "id": "cryst.supersaturation",
+    "area": "crystallization",
+    "rule_es": "La sobresaturación S = C/Csat se mantiene en 1.02-1.05.",
+    "quantity": "S = C/Csat",
+    "low": 1.02,
+    "high": 1.05,
+    "typical": null,
+    "units": "-",
+    "applies_when": "Cristalización desde solución",
+    "source_consulted": {
+      "title": "Heuristics for Process Synthesis (apuntes CHE 417, METU, basados en Seider, Seader y Lewin, cap. 5 2.ª ed. / cap. 6 3.ª ed.)",
+      "url": "https://users.metu.edu.tr/yuludag/che417/11_Heuristics.pdf",
+      "accessed": "2026-11-21",
+      "location": "Heurística 13"
+    },
+    "source_cited": "Seider, Seader y Lewin, Product and Process Design Principles, cap. 5 (2.ª ed.) / cap. 6 (3.ª ed.), heurísticas de síntesis",
+    "confidence": "alta",
+    "notes": "Walas («Crystallization from Solution», regla 4) da el mismo intervalo."
+  }
+]
