@@ -383,7 +383,10 @@ Hard rules:
    wall effect in a tube (column_diameter_m) and the Stokes form/friction drag split.
    Textbook energy balances: fluid_state is the steam table (any two properties of a pure fluid, including u, v, s and
    quality; differences between states give Q - W = dU and Q - Ws = dH) — never compute U = H - PV or the lever rule by
-   hand. generalized_compressibility is the generalized compressibility chart (Lee-Kesler, Kay's rule, Newton's H2/He
+   hand. Water and steam properties (latent heat, enthalpy, saturation) come from fluid_state or a SteamTables flowsheet,
+   never from a cubic equation of state (Peng-Robinson overstates the heat of vaporization of water). When the problem
+   gives or names book data (a Cp polynomial, a heat of formation, a table value), use THAT value as an input and say so;
+   if a library value is used instead, report it as a substitution. generalized_compressibility is the generalized compressibility chart (Lee-Kesler, Kay's rule, Newton's H2/He
    correction): use it whenever a problem says compressibility chart or corresponding states. mechanical_energy_balance closes Bernoulli with kinetic energy, friction and shaft work for one unknown.
    solve_algebraic_system solves n algebraic equations in n unknowns or evaluates formulas: use it for ANY arithmetic
    that is not a single product, instead of doing it by hand or pressing solve_ode_system into service.
