@@ -479,7 +479,8 @@ def test_pde_input_errors_are_clear():
 # ---------------------------------------------------------------------------------------------------------------------
 def test_tool_lists_and_wrappers_return_json():
     from packages.agent import wrappers_equations as WE
-    assert [f.__name__ for f in TE.EQUATIONS_TOOLS] == ["solve_ode_system", "solve_bvp_system", "solve_pde_1d"]
+    assert [f.__name__ for f in TE.EQUATIONS_TOOLS] == ["solve_ode_system", "solve_bvp_system", "solve_pde_1d",
+                                                         "solve_algebraic_system"]
     assert [w.name for w in WE.AGENT_WRAPPERS] == [f.__name__ for f in TE.EQUATIONS_TOOLS]
     for plain, wrapper in zip(TE.EQUATIONS_TOOLS, WE.AGENT_WRAPPERS):
         assert wrapper.to_dict()["description"].split()[:6] == plain.__doc__.split()[:6]

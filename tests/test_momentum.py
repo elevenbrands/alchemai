@@ -435,7 +435,7 @@ def test_npsh_motor_and_efficiency_policy():
 def test_tools_and_wrappers_registered():
     from packages.agent import wrappers_momentum as WM
     assert [f.__name__ for f in TM.MOMENTUM_TOOLS] == ["adiabatic_gas_pipe", "two_phase_pipe_inclined", "water_hammer",
-                                                        "pump_selection"]
+                                                        "pump_selection", "mechanical_energy_balance"]
     assert [w.name for w in WM.AGENT_WRAPPERS] == [f.__name__ for f in TM.MOMENTUM_TOOLS]
     out = json.loads(WM.water_hammer.call({"length_m": 500.0, "inner_diameter_m": 0.2, "density_kg_m3": 998.0,
                                            "initial_flow_m3_s": 0.03, "upstream_pressure_Pa": 5e5,

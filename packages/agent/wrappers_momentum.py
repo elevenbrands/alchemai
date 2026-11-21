@@ -84,4 +84,19 @@ def pump_selection(pump_curve: dict[str, list[float]], speed_rpm: float, density
                       default=float, ensure_ascii=False)
 
 
-AGENT_WRAPPERS = [adiabatic_gas_pipe, two_phase_pipe_inclined, water_hammer, pump_selection]
+@beta_tool
+def mechanical_energy_balance(density_kg_m3: float, point_1: dict, point_2: dict, solve_for: str,
+                              volumetric_flow_m3_s: float | None = None, mass_flow_kg_s: float | None = None,
+                              shaft_power_W: float | None = None, friction_loss_J_kg: float | None = None,
+                              efficiency: float | None = None, g_m_s2: float = 9.80665,
+                              kinetic_energy_factor: float = 1.0) -> str:
+    """Mechanical energy balance (extended Bernoulli) between two points of an incompressible fluid:
+    (P2-P1)/rho + (u2^2-u1^2)/2 + g(z2-z1) + F = W_shaft/m. Includes kinetic energy (pipe_network ignores it): siphons,
+    tank discharge, venturi, pump/turbine power, friction loss from measured data. point_1/point_2: {P_Pa, z_m, and one of
+    velocity_m_s | diameter_m | area_m2 | large_surface: true}. solve_for: the ONE unknown among P1_Pa, P2_Pa, z1_m, z2_m,
+    shaft_power_W (to the fluid: pump > 0, turbine < 0), friction_loss_J_kg, volumetric_flow_m3_s. Friction is the user's
+    (0 if absent, stated). Returns the value, the five terms in J/kg, velocities, drive power with efficiency, evidence."""
+    return json.dumps(TM.mechanical_energy_balance(density_kg_m3, point_1, point_2, solve_for, volumetric_flow_m3_s, mass_flow_kg_s, shaft_power_W, friction_loss_J_kg, efficiency, g_m_s2, kinetic_energy_factor), default=float, ensure_ascii=False)
+
+
+AGENT_WRAPPERS = [adiabatic_gas_pipe, two_phase_pipe_inclined, water_hammer, pump_selection, mechanical_energy_balance]

@@ -71,3 +71,26 @@ def test_shortcut_column_with_vapour_bottoms_is_not_ok():
         pytest.skip("DWSIM returned liquid bottoms with Chao-Seader in this version")
     assert bad["ok"] is False
     assert "vapor" in bad["units"][0]["error"] and "rehervidor" in bad["units"][0]["error"]
+
+
+def test_heater_and_cooler_accept_a_duty_specification():
+    """heat_added_kW / heat_removed_kW (Felder ch. 7 runs hit 'Q has no attribute Kilowatt'): water 1 kg/s, 100 kW
+    raises the temperature by Q/(m·cp) ≈ 23.9 K; removing the same duty brings it back."""
+    from packages.dwsim_client import tools as T
+    fid = T.new_flowsheet("duty", ["Water"], "SteamTables")["flowsheet_id"]
+    T.add_material_stream(fid, "in", temperature_K=300.0, pressure_Pa=2e5, mass_flow_kg_s=1.0, mole_fractions={"Water": 1.0})
+    for n in ("hot", "back"):
+        T.add_material_stream(fid, n)
+    for n in ("Qh", "Qc"):
+        T.add_energy_stream(fid, n)
+    T.add_unit(fid, "heater", "H", {"heat_added_kW": 100.0})
+    T.add_unit(fid, "cooler", "C", {"heat_removed_kW": 100.0})
+    T.connect(fid, "H", ["in"], ["hot"], ["Qh"], None)
+    T.connect(fid, "C", ["hot"], ["back"], None, ["Qc"])
+    sol = T.solve(fid)
+    assert sol["solved"], sol
+    hot, back = T.read_stream(fid, "hot"), T.read_stream(fid, "back")
+    key = "temperature_K" if "temperature_K" in hot else "T_K"
+    assert hot[key] - 300.0 == pytest.approx(100.0 / 4.18, rel=0.01)
+    assert back[key] == pytest.approx(300.0, abs=0.05)
+    T.close_flowsheet(fid)

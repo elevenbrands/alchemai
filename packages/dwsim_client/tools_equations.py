@@ -134,4 +134,28 @@ def solve_pde_1d(variables: list[str], domain: list[float], t_end: float, initia
                            space_variable, time_variable, oscillation_window_fraction)
 
 
-EQUATIONS_TOOLS = [solve_ode_system, solve_bvp_system, solve_pde_1d]
+def solve_algebraic_system(equations: list[str] | None = None, unknowns: dict | None = None,
+                           parameters: dict | None = None, definitions: dict | None = None,
+                           outputs: dict | None = None, tolerance: float = 1e-9) -> dict:
+    """Sistema de ecuaciones ALGEBRAICAS no lineales escrito por el usuario, o evaluación directa de fórmulas (calculadora
+    con evidencia). Úsala para aritmética de balances, ecuaciones implícitas (Antoine inversa, factor de fricción,
+    raíces de un polinomio, n ecuaciones con n incógnitas) en vez de calcular a mano o de forzar solve_ode_system.
+
+    equations: lista de textos "lhs = rhs" (o una expresión que debe valer 0), tantas como incógnitas.
+    unknowns: {nombre: estimación inicial} o {nombre: {"guess": x o [x1, x2...], "lower": a, "upper": b}}; con varios
+      guess o con límites se prueban varios arranques y se reportan TODAS las raíces distintas halladas.
+    parameters: {nombre: número}. definitions: {nombre: expresión} intermedias, en orden (pueden usar incógnitas).
+    outputs: {nombre: expresión} a evaluar en la solución. Sin equations ni unknowns evalúa definitions y outputs.
+    Expresiones: + − * / ^, exp, log, log10, sqrt, sin, cos, tan, abs, min, max, where(cond, a, b), pi. Sin unidades:
+    el usuario cuida la coherencia.
+
+    Devuelve solution {unknowns, residuals, definitions, outputs, at_bound}, other_solutions si hay más de una raíz,
+    warnings y evidence. converged=false: no hay raíz con esos arranques o límites; no reportes números de ese intento."""
+    from packages.numerics import algebraic as AL
+    try:
+        return AL.solve(equations, unknowns, parameters, definitions, outputs, tolerance)
+    except ValueError as ex:
+        return {"ok": False, "error": str(ex)}
+
+
+EQUATIONS_TOOLS = [solve_ode_system, solve_bvp_system, solve_pde_1d, solve_algebraic_system]

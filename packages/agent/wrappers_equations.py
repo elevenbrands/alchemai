@@ -62,4 +62,12 @@ def solve_pde_1d(variables: list[str], domain: list[float], t_end: float, initia
                       default=float, ensure_ascii=False)
 
 
-AGENT_WRAPPERS = [solve_ode_system, solve_bvp_system, solve_pde_1d]
+@beta_tool
+@_doc_of(TE.solve_algebraic_system)
+def solve_algebraic_system(equations: list[str] | None = None, unknowns: dict | None = None,
+                           parameters: dict | None = None, definitions: dict | None = None,
+                           outputs: dict | None = None, tolerance: float = 1e-9) -> str:
+    return json.dumps(TE.solve_algebraic_system(equations, unknowns, parameters, definitions, outputs, tolerance), default=float, ensure_ascii=False)
+
+
+AGENT_WRAPPERS = [solve_ode_system, solve_bvp_system, solve_pde_1d, solve_algebraic_system]

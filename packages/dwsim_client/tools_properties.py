@@ -254,6 +254,30 @@ def shortcut_distillation_design(components: list[str], feed: dict, pressure_Pa:
         return {"ok": False, "error": f"{type(ex).__name__}: {ex}"}
 
 
+def fluid_state(fluid: str, states: list[dict]) -> dict:
+    """Estado termodinámico de un FLUIDO PURO a partir de DOS propiedades cualesquiera (ecuación de estado de referencia
+    de CoolProp; agua = IAPWS-95, las tablas de vapor), sin flowsheet. Úsala para todo lo que en un libro se resuelve
+    «con tablas de vapor»: energía interna, volumen específico, estados a volumen constante (tanque rígido), calidad,
+    estrangulamiento (h constante), turbina o compresor isentrópicos (s constante).
+
+    fluid: nombre de CoolProp (Water, Ammonia, R134a, R12, CarbonDioxide, Nitrogen, Methane, Propane, n-Butane...).
+    states: lista de estados; cada uno con exactamente DOS de T_K, P_Pa, h_J_kg, s_J_kgK, u_J_kg, v_m3_kg (o rho_kg_m3),
+      quality (0 = líquido saturado, 1 = vapor saturado); opcionales label y mass_kg o mass_flow_kg_s.
+
+    Devuelve por estado T, P, phase, v, rho, h, u, s, quality, cp, cv, saturation_at_P (T_sat, v_f, v_g, h_f, h_g, u_f,
+    u_g, s_f, s_g), P_sat_at_T, sobrecalentamiento o subenfriamiento y, con masa o flujo, H, U, V totales y el reparto
+    líquido/vapor; y consecutive_differences entre estados seguidos (Δh, Δu, Δs, Δv y ΔH, ΔU con la masa): un balance de
+    sistema cerrado es Q − W = ΔU y uno abierto Q − Ws = ΔH (+ ΔEk + ΔEp), que salen directo de ahí. La referencia de h, u
+    y s es la de CoolProp (agua: líquido saturado en el punto triple): solo las DIFERENCIAS son comparables con otra tabla.
+    Solo fluidos puros; para mezclas usa independent_flash."""
+    from packages.properties import fluid_state as FS
+    try:
+        return FS.fluid_state(fluid, states)
+    except ValueError as ex:
+        return {"ok": False, "error": str(ex)}
+
+
 PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
                     binary_distillation_design,
-                    shortcut_distillation_design, reaction_equilibrium]
+                    shortcut_distillation_design, fluid_state,
+                    reaction_equilibrium]

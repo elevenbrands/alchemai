@@ -77,9 +77,9 @@ def set_unit_param(flowsheet_id: str, unit: str, param: str, value: float) -> di
     elif param == "efficiency_pct":
         b.WithEfficiencyPercent(v)
     elif param == "heat_added_kW":
-        b.WithHeatAdded(Q.Kilowatt(v))
+        b.WithHeatAdded(Q.Kilowatts(v))
     elif param == "heat_removed_kW":
-        b.WithHeatRemoved(Q.Kilowatt(v))
+        b.WithHeatRemoved(Q.Kilowatts(v))
     elif param == "split_ratio_0":
         b.WithSplitRatios(v, 1.0 - v)
     elif param == "bottoms_molar_flow_mol_s" and kind == "distillation_column":

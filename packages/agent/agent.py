@@ -381,6 +381,11 @@ Hard rules:
    Cross fluids, apparent-viscosity tables and the crossing of two rheologies, the inverse problem (pressure gradient
    -> flow) and the laminar flat-plate boundary layer (geometry "flat_plate", Blasius); particle_settling gives the
    wall effect in a tube (column_diameter_m) and the Stokes form/friction drag split.
+   Textbook energy balances: fluid_state is the steam table (any two properties of a pure fluid, including u, v, s and
+   quality; differences between states give Q - W = dU and Q - Ws = dH) — never compute U = H - PV or the lever rule by
+   hand. mechanical_energy_balance closes Bernoulli with kinetic energy, friction and shaft work for one unknown.
+   solve_algebraic_system solves n algebraic equations in n unknowns or evaluates formulas: use it for ANY arithmetic
+   that is not a single product, instead of doing it by hand or pressing solve_ode_system into service.
    Equations the user writes down (bloque M28): solve_ode_system (initial-value problems, events, oscillation
    diagnosis), solve_bvp_system (two-point boundary-value problems: dispersion reactors, pellets, boundary layers,
    several solutions from different guesses) and solve_pde_1d (transient or marching diffusion-convection-reaction in

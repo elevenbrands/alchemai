@@ -207,13 +207,13 @@ def add_unit(flowsheet_id: str, kind: str, name: str, params: dict[str, Any] | N
             if "outlet_T_K" in p:
                 b = b.WithOutletTemperature(Q.Kelvin(float(p["outlet_T_K"])))
             elif "heat_added_kW" in p:
-                b = b.WithHeatAdded(Q.Kilowatt(float(p["heat_added_kW"])))
+                b = b.WithHeatAdded(Q.Kilowatts(float(p["heat_added_kW"])))
         elif kind == "cooler":
             b = fs.AddCooler(name)
             if "outlet_T_K" in p:
                 b = b.WithOutletTemperature(Q.Kelvin(float(p["outlet_T_K"])))
             elif "heat_removed_kW" in p:
-                b = b.WithHeatRemoved(Q.Kilowatt(float(p["heat_removed_kW"])))
+                b = b.WithHeatRemoved(Q.Kilowatts(float(p["heat_removed_kW"])))
         elif kind == "valve":
             b = fs.AddValve(name).WithOutletPressure(Q.Pascal(float(p["outlet_P_Pa"])))
         elif kind == "pump":

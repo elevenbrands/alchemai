@@ -141,6 +141,18 @@ def shortcut_distillation_design(components: list[str], feed: dict, pressure_Pa:
     return json.dumps(TPR.shortcut_distillation_design(components, feed, pressure_Pa, light_key, heavy_key, recovery_light_key_in_distillate, recovery_heavy_key_in_bottoms, model, n_stages, reflux_ratio, R_over_Rmin, N_over_Nmin, condenser, kij, activity_parameters), default=float, ensure_ascii=False)
 
 
+@beta_tool
+def fluid_state(fluid: str, states: list[dict]) -> str:
+    """Thermodynamic state of a PURE fluid from ANY TWO properties (CoolProp reference EOS; water = IAPWS-95, the steam
+    tables), no flowsheet: internal energy, specific volume, constant-volume states (rigid tank), quality, throttling (h),
+    isentropic machines (s). states: list of {two of T_K, P_Pa, h_J_kg, s_J_kgK, u_J_kg, v_m3_kg | rho_kg_m3, quality;
+    optional label, mass_kg or mass_flow_kg_s}. Returns every property per state, saturation values at P, totals with the
+    mass, and consecutive_differences (dh, du, ds, dH, dU): closed system Q - W = dU, open system Q - Ws = dH. Only
+    differences are comparable with another table (reference state). Pure fluids only."""
+    return json.dumps(TPR.fluid_state(fluid, states), default=float, ensure_ascii=False)
+
+
 AGENT_WRAPPERS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
                     binary_distillation_design,
-                  shortcut_distillation_design, reaction_equilibrium]
+                  shortcut_distillation_design, fluid_state,
+                  reaction_equilibrium]

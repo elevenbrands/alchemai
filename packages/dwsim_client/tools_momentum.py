@@ -134,4 +134,29 @@ def pump_selection(pump_curve: dict, speed_rpm: float, density_kg_m3: float, sys
                              impeller_diameter_m, new_impeller_diameter_m, target_flow_m3_s)
 
 
-MOMENTUM_TOOLS = [adiabatic_gas_pipe, two_phase_pipe_inclined, water_hammer, pump_selection]
+def mechanical_energy_balance(density_kg_m3: float, point_1: dict, point_2: dict, solve_for: str,
+                              volumetric_flow_m3_s: float | None = None, mass_flow_kg_s: float | None = None,
+                              shaft_power_W: float | None = None, friction_loss_J_kg: float | None = None,
+                              efficiency: float | None = None, g_m_s2: float = 9.80665,
+                              kinetic_energy_factor: float = 1.0) -> dict:
+    """Balance de ENERGÍA MECÁNICA (Bernoulli extendido) entre dos puntos de un fluido incompresible:
+    (P2 − P1)/ρ + (u2² − u1²)/2 + g(z2 − z1) + F = W_flecha/ṁ. Incluye la energía cinética, que pipe_network ignora:
+    úsala para sifones, descarga de tanques (Torricelli), venturis, potencia de bomba o turbina con ΔP, Δz y Δu, y para
+    despejar la pérdida por fricción de datos medidos.
+
+    point_1, point_2: {P_Pa, z_m, y la velocidad por UNA vía: velocity_m_s, diameter_m, area_m2 o large_surface: true
+      (superficie libre grande, u ≈ 0)}. solve_for: la ÚNICA incógnita, una de P1_Pa, P2_Pa, z1_m, z2_m, shaft_power_W,
+      friction_loss_J_kg, volumetric_flow_m3_s. Flujo: volumetric_flow_m3_s o mass_flow_kg_s.
+    shaft_power_W: potencia entregada AL fluido (bomba > 0, turbina < 0). friction_loss_J_kg: F ≥ 0 del usuario (si no se
+      da se toma 0 y se declara; pipe_hydraulics la calcula). efficiency: fracción para la potencia del accionamiento.
+
+    Devuelve value, los cinco términos en J/kg, velocidades, flujo másico, drive_power_W, supuestos y evidencia de cierre.
+    No calcula fricción ni flujo compresible."""
+    from packages.transport import mechanical_energy as ME
+    try:
+        return ME.balance(density_kg_m3, point_1, point_2, solve_for, volumetric_flow_m3_s, mass_flow_kg_s, shaft_power_W, friction_loss_J_kg, efficiency, g_m_s2, kinetic_energy_factor)
+    except ValueError as ex:
+        return {"ok": False, "error": str(ex)}
+
+
+MOMENTUM_TOOLS = [adiabatic_gas_pipe, two_phase_pipe_inclined, water_hammer, pump_selection, mechanical_energy_balance]
