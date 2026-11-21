@@ -180,4 +180,47 @@ def reaction_equilibrium(reactions: list[dict], T_K: float | list[float], P_Pa: 
                                    cantera_mechanism)
 
 
-PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume, reaction_equilibrium]
+def binary_distillation_design(components: list[str], pressure_Pa: float, feed: dict, x_distillate: float,
+                            x_bottoms: float | None = None, recovery_in_distillate: float | None = None,
+                            model: str = "ideal", parameters: dict | None = None, n_stages: float | None = None,
+                            reflux_ratio: float | None = None, psat: dict | None = None, vapor_phase: str = "ideal",
+                            wilson_volumes_m3_mol: dict | None = None, uniquac_rq: dict | None = None) -> dict:
+    """Diseño de una columna de destilación BINARIA sobre el diagrama de McCabe-Thiele con la curva de equilibrio REAL de
+    un modelo de actividad (γ-φ a la presión de la columna), sin DWSIM. Úsala en vez de `shortcut_column` siempre que la
+    mezcla no sea ideal (alcohol-agua, cualquier par con azeótropo o con α muy variable): ahí Fenske-Underwood con α
+    constante da N_min y R_min equivocados por decenas de por ciento y no ve el azeótropo. También sirve con Raoult.
+
+    components: [ligero, pesado] (el 1.º debe ser el más volátil entre fondo y destilado). pressure_Pa: presión de la columna.
+    feed: {z1 (fracción mol del componente 1), molar_flow (opcional, cualquier unidad: los flujos de producto salen en la
+      misma), y UNA condición térmica: q, vapor_fraction o T_K (q se estima con Cp y ΔHvap de los puros; sin nada, q = 1)}.
+    x_distillate: fracción mol del componente 1 en el destilado. Da además x_bottoms O recovery_in_distillate (fracción del
+      componente 1 alimentado que sale por el destilado).
+    model: "ideal" (Raoult), "Wilson", "NRTL" o "UNIQUAC". parameters: None = Wilson/NRTL de la base de ChemSep incluida en
+      thermo (queda marcado como SUPUESTO de librería); o {b12, b21 [K], a12, a21, alpha (NRTL), V (Wilson), r, q (UNIQUAC)}
+      en la convención de vle_binary_regression; o {"energy_J_mol": [d12, d21]}; o {"lambda12", "lambda21"} (Wilson con Λ
+      constantes de libro).
+    n_stages: etapas de equilibrio disponibles (incluye el rehervidor; condensador total aparte) → reflujo requerido.
+    reflux_ratio: reflujo de operación → etapas y plato óptimo de alimentación.
+    psat: {nombre: {"antoine": {A, B, C, log, P_unit, T_unit}}} si se quiere otra presión de vapor que la de thermo.
+    vapor_phase: "ideal" (por defecto) o "virial".
+
+    Devuelve products (x, D/F, flujos, recuperaciones, T de burbuja), feed {q, q_basis}, azeotropes, relative_volatility
+    (cabeza, alimentación, fondo), N_min (reflujo total; exacto para este ELV), R_min con el tipo de pinch (alimentación o
+    TANGENTE) y x_pinch, for_n_stages {reflux_ratio_required, optimal_feed_stage} y at_reflux_ratio {stages,
+    optimal_feed_stage}, constant_alpha_comparison (Fenske con α media, solo como contraste), assumptions, warnings y
+    evidence. Si x_distillate queda más allá del azeótropo o las etapas dadas son menos que N_min, feasible=false con el
+    motivo: repórtalo así, no fuerces un número. R_min, etapas a R y R requerido suponen flujo molar constante (sin balance
+    de entalpía por etapa): para cargas térmicas y perfiles usa después la columna rigurosa con ese reflujo como arranque.
+    Validación: benceno-tolueno contra Fenske/Underwood analíticos con α constante y etanol-agua (azeótropo, pinch
+    tangente) en tests/test_mccabe_thiele.py."""
+    from packages.vle import mccabe as MC
+    from packages.vle.equilibrium import DataError
+    from packages.vle.tool import MissingData
+    try:
+        return MC.design(components, pressure_Pa, feed, x_distillate, x_bottoms, recovery_in_distillate, model, parameters, n_stages, reflux_ratio, psat, vapor_phase, wilson_volumes_m3_mol, uniquac_rq)
+    except (DataError, MissingData, KeyError) as ex:
+        return {"ok": False, "error": f"{type(ex).__name__}: {ex}"}
+
+
+PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
+                    binary_distillation_design, reaction_equilibrium]

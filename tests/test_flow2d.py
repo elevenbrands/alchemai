@@ -1,6 +1,7 @@
 """laminar_flow_2d (FEniCSx Taylor-Hood Navier-Stokes on user geometry): every case against an exact or published value.
 
-Vortex shedding at Re = 100 takes ~5 min and runs only with ALCHEMAI_SLOW_FLOW2D=1."""
+Non-Newtonian cases against the analytic developed flow of a power-law fluid; the transient against the exact
+start-up of Couette flow. Vortex shedding at Re = 100 (several minutes) runs only with ALCHEMAI_SLOW_FLOW2D=1."""
 import json
 import math
 import os
@@ -35,6 +36,69 @@ def test_rejects_bad_requests_before_launching():
     for bad in ("__import__('os').system('true')", "x.real", "open('f')", "[1][0]"):
         with pytest.raises(ValueError):
             F.laminar_flow_2d(geo, [{"name": "in", "type": "inlet", "on": {"side": "left"}, "velocity": [bad, 0]}], **WATER)
+
+
+def test_rejects_bad_rheology_transient_and_budget_requests():
+    geo = {"mode": "axisymmetric", "rectangles": [[0, 0, 0.1, 0.005]]}
+    pl = {"model": "power_law", "K": 0.01, "n": 0.5}
+    with pytest.raises(ValueError, match="rheology.model"):
+        F.laminar_flow_2d(geo, IN_OUT, density_kg_m3=1000, rheology={"model": "bingham", "tau_y": 1})
+    with pytest.raises(ValueError, match="no se admite reynolds ni viscosity_Pa_s"):
+        F.laminar_flow_2d(geo, IN_OUT, **WATER, rheology=pl)
+    with pytest.raises(ValueError, match="no se admite reynolds"):
+        F.laminar_flow_2d(geo, IN_OUT, reynolds=10, rheology=pl)
+    with pytest.raises(ValueError, match="claves no reconocidas"):
+        F.laminar_flow_2d(geo, IN_OUT, density_kg_m3=1000, rheology=dict(pl, eta0=1))
+    with pytest.raises(ValueError, match="rheology.n"):
+        F.laminar_flow_2d(geo, IN_OUT, density_kg_m3=1000, rheology=dict(pl, n=0))
+    with pytest.raises(ValueError, match="gamma_reg_1_s"):
+        F.laminar_flow_2d(geo, IN_OUT, density_kg_m3=1000, rheology=dict(pl, gamma_reg_1_s=0))
+    with pytest.raises(ValueError, match="transient no está soportado"):
+        F.laminar_flow_2d(geo, IN_OUT, density_kg_m3=1000, rheology=pl, transient={})
+    with pytest.raises(ValueError, match="refinement"):
+        F.laminar_flow_2d(geo, IN_OUT, **WATER, transient={"refinement": "triple"})
+    with pytest.raises(ValueError, match="max_wall_s"):
+        F.laminar_flow_2d(geo, IN_OUT, **WATER, max_wall_s=0)
+
+
+def test_transient_defaults_choose_time_step_and_wake_mesh():
+    """Request-side defaults of a transient (no FEniCSx): dt left to the solver (Courant-capped), a wake box behind the
+    obstacle when the user gives no mesh, and the wall budget passed on with a kill margin above it."""
+    geo = {"mode": "planar", "rectangles": [[-15, -15, 30, 15]],
+           "obstacles": [{"name": "cyl", "type": "circle", "center": [0, 0], "radius": 0.5}]}
+    bnd = [{"name": "in", "type": "stream", "on": {"side": "left"}, "velocity": [1, 0]},
+           {"name": "out", "type": "outlet", "on": {"side": "right"}, "normal_flow": False}]
+    args = dict(density_kg_m3=None, viscosity_Pa_s=None, reynolds=100, reference_length_m=None, reference_velocity_m_s=None,
+                stream_direction="+x", points=None, sections=None, pressure_drop_between=None, scalar=None)
+    p, ctx = F._prepare(geo, bnd, **args, transient={}, mesh=None)
+    tr = p["transient"]
+    assert tr["dt"] is None and tr["t_end"] == pytest.approx(150.0) and tr["refinement"] == "dt" and tr["initial"] == "steady"
+    assert p["mesh"]["boxes"] == [{"box": [pytest.approx(-1.2), pytest.approx(-1.2), pytest.approx(10.0), pytest.approx(1.2)],
+                                   "size": pytest.approx(1 / 7)}]
+    assert any("caja de estela" in n for n in ctx["notes"])
+    p, ctx = F._prepare(geo, bnd, **args, transient={"dt_s": 0.02}, mesh={"boxes": [{"box": [-1, -1, 5, 1], "size": 0.2}]})
+    assert p["transient"]["dt"] == 0.02 and len(p["mesh"]["boxes"]) == 1 and not ctx["notes"]     # the user's mesh is respected
+    p, _ = F._prepare(geo, bnd, **args, transient=None, mesh=None)
+    assert "transient" not in p and p["mesh"]["boxes"] == []
+
+
+def test_apparent_viscosity_laws():
+    """The viscosity laws the solver assembles, in plain Python: limits that must hold exactly."""
+    car = F._rheology({"model": "carreau", "eta0": 2.0, "eta_inf": 0.1, "lambda_s": 3.0, "n": 0.4}, 1.0)
+    cy = F._rheology({"model": "carreau_yasuda", "eta0": 2.0, "eta_inf": 0.1, "lambda_s": 3.0, "n": 0.4, "a": 2.0, "gamma_reg_1_s": 1e-12}, 1.0)
+    for g in (0.0, 0.01, 1.0, 50.0):
+        assert F.apparent_viscosity(cy, g) == pytest.approx(F.apparent_viscosity(car, g), rel=1e-9)     # Yasuda a = 2 is Carreau
+        assert 0.1 <= F.apparent_viscosity(car, g) <= 2.0
+    assert F.apparent_viscosity(car, 0.0) == 2.0 and F.apparent_viscosity(car, 1e9) == pytest.approx(0.1, rel=1e-3)
+    assert F.apparent_viscosity(car, 2.0) == pytest.approx(0.1 + 1.9 * 37.0 ** -0.3)
+    for kw in ({"n": 1.0}, {"lambda_s": 0.0}, {"eta_inf": 2.0}):                                        # Newtonian members
+        r = F._rheology({"model": "carreau", "eta0": 2.0, "eta_inf": 0.1, "lambda_s": 3.0, "n": 0.4, **kw}, 1.0)
+        assert r["newtonian_equivalent_Pa_s"] == 2.0 and F.apparent_viscosity(r, 7.0) == pytest.approx(2.0)
+    assert car["newtonian_equivalent_Pa_s"] is None
+    pl = F._rheology({"model": "power_law", "K": 0.3, "n": 0.5}, 20.0)
+    assert pl["gamma_reg_1_s"] == pytest.approx(0.02)                                                   # default 1e-3·U_ref/L_ref
+    assert F.apparent_viscosity(pl, 4.0) == pytest.approx(0.3 * 4.0 ** -0.5, rel=1e-4)
+    assert F.apparent_viscosity(pl, 0.0) == pytest.approx(0.3 * 0.02 ** -0.5)                           # bounded at rest
 
 
 def test_solver_side_expression_evaluator_is_a_whitelist():
@@ -75,6 +139,10 @@ def test_tool_and_wrapper_share_signature_and_docstring():
     assert w.name == "laminar_flow_2d"
     assert list(w.to_dict()["input_schema"]["properties"]) == list(inspect.signature(T.laminar_flow_2d).parameters)
     assert "geometry" in T.laminar_flow_2d.__doc__ and "Example" in T.laminar_flow_2d.__doc__
+    assert w.to_dict()["description"].strip() == inspect.cleandoc(T.laminar_flow_2d.__doc__).strip() or \
+        inspect.getdoc(w.func) == inspect.getdoc(T.laminar_flow_2d)
+    for word in ("rheology", "power_law", "carreau", "gamma_reg_1_s", "max_wall_s", "provisional_not_final", "refinement"):
+        assert word in T.laminar_flow_2d.__doc__
 
 
 # ---------------------------------------------------------------- exact solutions
@@ -288,6 +356,170 @@ def test_sphere_heat_transfer_tends_to_two(sphere):
     assert sphere[1.0]["evidence"]["mesh_converged"]
 
 
+# ---------------------------------------------------------------- non-Newtonian (generalised Newtonian) fluids
+UNIFORM_IN = [dict(IN_OUT[0], profile="uniform"), IN_OUT[1]]
+
+
+@needs_fenicsx
+@pytest.mark.parametrize("mode", ["axisymmetric", "planar"])
+@pytest.mark.parametrize("n", [0.5, 1.5])
+def test_power_law_developed_flow_is_analytic(mode, n):
+    """Developed flow of a power-law fluid τ = K γ̇ⁿ from a UNIFORM inlet (so the profile is computed, not imposed).
+    Exact (Bird, Armstrong & Hassager, Dynamics of Polymeric Liquids vol. 1; derivable by integrating τ_rz = −(dp/dz) r/2):
+    tube  u_max/ū = (3n+1)/(n+1),  −dp/dz = (2K/R)·[(3n+1)/n · ū/R]ⁿ
+    plates (gap H = 2h)  u_max/ū = (2n+1)/(n+1),  −dp/dx = (K/h)·[(2n+1)/n · ū/h]ⁿ."""
+    K, U, L, rho = 0.01, 0.01, 0.1, 1000.0
+    if mode == "axisymmetric":
+        R = 0.005
+        geo, centre = {"mode": mode, "rectangles": [[0, 0, L, R]]}, [0.09, 0.0]
+        ratio, grad = (3 * n + 1) / (n + 1), 2 * K / R * ((3 * n + 1) / n * U / R) ** n
+    else:
+        H = 0.01
+        geo, centre = {"mode": mode, "rectangles": [[0, 0, L, H]]}, [0.09, H / 2]
+        ratio, grad = (2 * n + 1) / (n + 1), K / (H / 2) * ((2 * n + 1) / n * U / (H / 2)) ** n
+    r = F.laminar_flow_2d(geo, UNIFORM_IN, density_kg_m3=rho, rheology={"model": "power_law", "K": K, "n": n}, points=[centre])
+    s = r["straight_sections"][0]
+    assert r["converged"] and s["developed"]
+    assert s["u_max_over_mean_at_end"] == pytest.approx(ratio, rel=2e-3)
+    assert r["points"][0]["velocity"][0] == pytest.approx(ratio * U, rel=2e-3)
+    assert s["pressure_drop_per_length"] == pytest.approx(grad, rel=2e-3)
+    assert s["poiseuille_pressure_drop_per_length"] == pytest.approx(grad, rel=1e-4)       # built-in reference: same formula, measured flow
+    assert "power-law analytic" in s["developed_reference"] and r["evidence"]["poiseuille_self_check"]
+    # entry length is reported (99 % of the developed centre-line velocity); no reference value is asserted: the
+    # correlations for power-law entry lengths I could quote are from memory and NOT verified
+    assert 0 < s["entry_length_99"] < 0.5 * L and s["entry_length_reference"].startswith("analytic")
+    assert s["entry_length_99_over_width"] == pytest.approx(s["entry_length_99"] / 0.01)
+    assert s["centreline_velocity_start_over_developed"] < 0.8
+    rh = r["rheology"]
+    assert rh["model"] == "power_law" and rh["parameters"] == {"n": n, "K": K}
+    assert rh["regularisation_shear_rate_1_s"] == pytest.approx(1e-3 * U / 0.01)           # declared: 1e-3·U_ref/L_ref
+    assert rh["reference_viscosity_Pa_s"] == pytest.approx(K * (U / 0.01) ** (n - 1), rel=1e-5) and r["Re"] == pytest.approx(10, rel=1e-5)
+    assert rh["field"]["cells_below_regularisation_rate_fraction"] == 0.0
+    assert rh["field"]["apparent_viscosity_max_Pa_s"] > rh["field"]["apparent_viscosity_min_Pa_s"] > 0
+    if mode == "axisymmetric":
+        assert rh["Re_metzner_reed"] == pytest.approx(rho * U ** (2 - n) * 0.01 ** n / (K * 8 ** (n - 1) * ((3 * n + 1) / (4 * n)) ** n))
+    ev = r["evidence"]
+    assert ev["newton_converged"] and ev["newton_residual_norm"] < 1e-8 and ev["newton_tolerances"]["snes_rtol"] == 1e-10
+    assert ev["mass_balanced"] and "newtoniano generalizado" in r["assumptions"][0]
+
+
+@needs_fenicsx
+def test_power_law_developed_inlet_profile_is_a_fixed_point():
+    """With the developed power-law profile at the inlet (profile "parabolic" = developed for the model) nothing changes
+    along the tube: entry length 0, exact gradient from the first diameter, and the whole result is mesh-verified."""
+    K, n, U, R, L = 0.01, 0.5, 0.01, 0.005, 0.1
+    r = F.laminar_flow_2d({"mode": "axisymmetric", "rectangles": [[0, 0, L, R]]}, IN_OUT, density_kg_m3=1000.0,
+                          rheology={"model": "power_law", "K": K, "n": n})
+    s = r["straight_sections"][0]
+    grad = 2 * K / R * ((3 * n + 1) / n * U / R) ** n
+    assert s["pressure_drop_per_length"] == pytest.approx(grad, rel=1e-3)
+    assert r["pressure_drops"]["in->out"] == pytest.approx(grad * L, rel=2e-3)
+    assert s["entry_length_99"] == 0.0 and s["u_max_over_mean_at_end"] == pytest.approx(5 / 3, rel=1e-3)
+    assert r["evidence"]["verified"], r["evidence"]["reasons"]
+
+
+@needs_fenicsx
+@pytest.mark.parametrize("newtonian", [{"n": 1.0, "lambda_s": 3.0}, {"n": 0.4, "lambda_s": 0.0}])
+def test_carreau_reduces_to_newtonian(newtonian):
+    """Carreau with n = 1 or λ = 0 is Newtonian with η0: Hagen-Poiseuille must come out of the generalised-Newtonian
+    code path (stress-divergence form, viscosity evaluated from γ̇), −dp/dz = 8 η0 ū / R², u_axis = 2 ū."""
+    R, L, U = 0.005, 0.1, 0.01
+    r = F.laminar_flow_2d({"mode": "axisymmetric", "rectangles": [[0, 0, L, R]]}, IN_OUT, density_kg_m3=1000.0,
+                          rheology={"model": "carreau", "eta0": 1e-3, "eta_inf": 0.0, **newtonian}, points=[[0.08, 0.0]])
+    g = 8 * 1e-3 * U / R ** 2
+    assert r["Re"] == pytest.approx(100) and r["rheology"]["newtonian_equivalent_Pa_s"] == 1e-3
+    assert r["pressure_drops"]["in->out"] == pytest.approx(g * L, rel=1e-5)
+    assert r["straight_sections"][0]["pressure_drop_per_length"] == pytest.approx(g, rel=1e-5)
+    assert r["points"][0]["velocity"][0] == pytest.approx(2 * U, rel=1e-5)
+    f = r["rheology"]["field"]
+    assert f["apparent_viscosity_min_Pa_s"] == pytest.approx(1e-3) and f["apparent_viscosity_max_Pa_s"] == pytest.approx(1e-3)
+    assert r["evidence"]["verified"], r["evidence"]["reasons"]
+
+
+@needs_fenicsx
+def test_carreau_power_law_limit_and_bounds():
+    """Two analytic anchors for Carreau with n ≠ 1. (a) For λγ̇ ≫ 1 and η∞ = 0 it IS the power law K = η0 λ^(n−1): with
+    λ = 1000 s (λγ̇_wall = 10⁴) the tube gradient must equal the power-law one. (b) A fluid with η∞ ≤ η ≤ η0 has a
+    pressure gradient between the two Hagen-Poiseuille values and a profile between plug and parabola; no closed form,
+    so the entry length is referred to the measured developed velocity."""
+    R, L, U, n, K, lam = 0.005, 0.1, 0.01, 0.5, 0.01, 1000.0
+    geo = {"mode": "axisymmetric", "rectangles": [[0, 0, L, R]]}
+    r = F.laminar_flow_2d(geo, UNIFORM_IN, density_kg_m3=1000.0,
+                          rheology={"model": "carreau", "eta0": K * lam ** (1 - n), "lambda_s": lam, "n": n})
+    s = r["straight_sections"][0]
+    assert s["pressure_drop_per_length"] == pytest.approx(2 * K / R * ((3 * n + 1) / n * U / R) ** n, rel=2e-3)
+    assert s["u_max_over_mean_at_end"] == pytest.approx((3 * n + 1) / (n + 1), rel=2e-3)
+    r = F.laminar_flow_2d(geo, UNIFORM_IN, density_kg_m3=1000.0,
+                          rheology={"model": "carreau", "eta0": 5e-3, "eta_inf": 1e-3, "lambda_s": 1.0, "n": 0.4})
+    s = r["straight_sections"][0]
+    assert 8 * 1e-3 * U / R ** 2 < s["pressure_drop_per_length"] < 8 * 5e-3 * U / R ** 2
+    assert 1.0 < s["u_centre_over_mean_developed_measured"] < 2.0 and "poiseuille_error_rel" not in s
+    assert "measured" in s["entry_length_reference"] and 0 < s["entry_length_99"] < 0.5 * L
+    f = r["rheology"]["field"]
+    assert 1e-3 <= f["apparent_viscosity_min_Pa_s"] < f["apparent_viscosity_max_Pa_s"] <= 5e-3
+    assert r["rheology"]["regularisation_shear_rate_1_s"] is None and r["evidence"]["poiseuille_self_check"] is None
+
+
+# ---------------------------------------------------------------- transient
+COUETTE = dict(
+    geometry={"mode": "planar", "rectangles": [[0, 0, 0.02, 0.01]]},
+    boundaries=[{"name": "plate", "type": "wall", "on": {"side": "bottom"}, "velocity": [0.01, 0]},
+                {"name": "l", "type": "outlet", "on": {"side": "left"}}, {"name": "r", "type": "outlet", "on": {"side": "right"}}],
+    **WATER)
+
+
+@needs_fenicsx
+def test_transient_couette_startup_is_analytic():
+    """Start-up of Couette flow (fluid at rest between plates a distance H apart, the lower one set in motion at t = 0):
+    u/U = (1 − y/H) − (2/π) Σ_k (1/k) exp(−k²π² ν t / H²) sin(kπ y / H)  (separation of variables; e.g. Bird, Stewart &
+    Lightfoot, Transport Phenomena, unsteady flow between parallel plates). Compared at ν t / H² = 0.05, far from steady."""
+    H, U, nu = 0.01, 0.01, 1e-6
+    t_end = 0.05 * H ** 2 / nu
+    ys = [0.1 * H, 0.25 * H, 0.5 * H]
+    r = F.laminar_flow_2d(**COUETTE, points=[[0.01, y] for y in ys],
+                          transient={"initial": "rest", "dt_s": t_end / 100, "t_end_s": t_end, "stop_when_settled": False,
+                                     "refinement": "both"})
+    tr = r["transient"]
+
+    def exact(y, t):
+        return U * ((1 - y / H) - 2 / math.pi * sum(math.exp(-k * k * math.pi ** 2 * nu * t / H ** 2) * math.sin(k * math.pi * y / H) / k
+                                                    for k in range(1, 400)))
+    assert tr["complete"] and r["partial"] is False and tr["stopped_by"] == "t_end" and tr["steps"] == 100
+    assert tr["time_simulated"] == pytest.approx(t_end) and tr["initial_condition"] == "rest"
+    for y, q in zip(ys, tr["points_at_end"]):
+        assert q["velocity"][0] == pytest.approx(exact(y, t_end), rel=2e-3)
+        assert abs(q["velocity"][1]) < 1e-6 * U
+        assert abs(q["velocity"][0] - U * (1 - y / H)) > 0.05 * U                 # really unsteady: far from the steady profile
+    assert tr["state"] == "not_settled" and tr["field_rate_of_change_final"] > 0   # the field is still evolving at t_end
+    ref = tr["refinement"]
+    assert ref["time_step"]["done"] and ref["time_step"]["converged"] and ref["time_step"]["dt"] == pytest.approx(2 * t_end / 100)
+    assert ref["mesh"]["done"] and ref["mesh"]["converged"] and ref["mesh"]["mesh"]["cells"] < r["transient"]["mesh"]["cells"]
+    assert ref["time_step"]["table"]["point1.velocity"]["change_rel"] < 1e-3
+    assert tr["time_step"]["chosen_by"].startswith("user") and tr["performance"]["lu_factorisations"] < 10
+    ev = r["evidence"]
+    assert ev["transient_time_step_converged"] and ev["transient_mesh_converged"] and ev["verified"], ev["reasons"]
+    json.dumps(r, default=float)
+
+
+@needs_fenicsx
+def test_transient_out_of_wall_budget_returns_a_flagged_partial_result():
+    """200 000 steps cannot fit in 5 s: the run must come back PARTIAL, with nothing presented as a final number."""
+    import time
+    t0 = time.perf_counter()
+    r = F.laminar_flow_2d(**COUETTE, points=[[0.01, 0.005]], max_wall_s=5,
+                          transient={"initial": "rest", "dt_s": 0.002, "t_end_s": 400.0, "stop_when_settled": False})
+    assert time.perf_counter() - t0 < 60
+    tr = r["transient"]
+    assert r["partial"] is True and "PARCIAL" in r["status"] and "presupuesto" in r["status"]
+    assert tr["complete"] is False and tr["stopped_by"] == "time_budget" and 0 < tr["steps"] < 200000
+    assert tr["time_simulated"] < 400.0 and "provisional_not_final" in tr and "points_at_interruption" in tr
+    for key in ("strouhal", "drag_coefficient_mean", "points_at_end", "signal_final"):
+        assert key not in tr
+    assert tr["refinement"]["time_step"]["done"] is False
+    ev = r["evidence"]
+    assert not ev["verified"] and ev["transient_complete"] is False and any("PARCIAL" in s for s in ev["reasons"])
+
+
 CYLINDER = dict(
     geometry={"mode": "planar", "rectangles": [[-30, -30, 60, 30]],
               "obstacles": [{"name": "cyl", "type": "circle", "center": [0, 0], "radius": 0.5}]},
@@ -329,9 +561,13 @@ def test_unconverged_mesh_is_flagged():
 
 @slow
 def test_cylinder_vortex_shedding_re100():
-    """Re = 100: periodic shedding. Williamson, Annu. Rev. Fluid Mech. 28 (1996): St = 0.164; Norberg (2003) St = 0.164;
-    2-D computations (Henderson 1995; Park, Kwon & Choi 1998): mean C_D = 1.33–1.35, lift amplitude ≈ 0.33. A domain of
-    ±15 D with slip sides (blockage 3 %) raises both slightly: accepted St 0.16–0.17, C_D 1.3–1.4."""
+    """Re = 100: periodic shedding, with the time-step and mesh checks as convergence evidence, inside the wall budget.
+
+    Reference values QUOTED FROM MEMORY, NOT re-checked against the papers (hence the wide intervals): St ≈ 0.164
+    (Williamson, Annu. Rev. Fluid Mech. 28, 1996; published interval ~0.16–0.17); 2-D computations (Henderson 1995;
+    Park, Kwon & Choi 1998) mean C_D ≈ 1.33–1.35 and lift amplitude ≈ 0.33. A domain of ±15 D with slip sides
+    (blockage 3 %) raises St and C_D slightly. The assertions that do not depend on memory are the refinement ones:
+    St and mean C_D must change < 1 % when dt is doubled and when the mesh is coarsened by 1.5."""
     r = F.laminar_flow_2d(
         {"mode": "planar", "rectangles": [[-15, -15, 30, 15]],
          "obstacles": [{"name": "cyl", "type": "circle", "center": [0, 0], "radius": 0.5}]},
@@ -340,11 +576,25 @@ def test_cylinder_vortex_shedding_re100():
          {"name": "out", "type": "outlet", "on": {"side": "right"}, "normal_flow": False}],
         reynolds=100, mesh={"size": 2.0, "obstacle_size": 0.05, "growth": 0.2, "refinement_check": False,
                             "boxes": [{"box": [-1, -1.2, 10, 1.2], "size": 0.15}]},
-        transient={"dt_s": 0.05, "t_end_s": 150}, timeout_s=1500)
+        transient={"refinement": "both"}, max_wall_s=900)
     tr = r["transient"]
-    assert tr["state"] == "periodic" and tr["signal"] == "lift_coefficient"
-    assert 0.160 < tr["strouhal"] < 0.170
-    assert 1.30 < tr["drag_coefficient_mean"] < 1.40
+    assert tr["state"] == "periodic" and tr["signal"] == "lift_coefficient" and tr["complete"] and r["partial"] is False
+    assert r["timing_s"]["total"] < 600                                             # the 10-minute target, checks included
+    assert tr["time_step"]["chosen_by"].startswith("accuracy") and tr["dt"] == pytest.approx(0.05)
+    assert 0.155 < tr["strouhal"] < 0.175                                           # memory value 0.16–0.17, widened
+    assert 1.25 < tr["drag_coefficient_mean"] < 1.45
     assert 0.25 < tr["lift_coefficient_amplitude"] < 0.40
     assert r["obstacles"]["cyl"]["drag_coefficient"] < tr["drag_coefficient_mean"]   # the steady (unstable) branch has less drag
-    assert not r["evidence"]["verified"] and any("transitorio sin estudio" in s for s in r["evidence"]["reasons"])
+    ref = tr["refinement"]
+    for key in ("time_step", "mesh"):
+        assert ref[key]["done"], ref[key]
+        assert ref[key]["table"]["strouhal"]["change_rel"] < 0.01
+        assert ref[key]["table"]["drag_coefficient_mean"]["change_rel"] < 0.01
+        assert ref[key]["table"]["lift_coefficient_amplitude"]["change_rel"] < 0.05
+    assert ref["mesh"]["mesh"]["cells"] < tr["mesh"]["cells"] and ref["time_step"]["dt"] == pytest.approx(0.1)
+    ev = r["evidence"]
+    assert ev["transient_complete"] and ev["transient_refinement"]["time_step"]["table"]["strouhal"]["converged"]
+    # sealed only if every check passed; here the steady part has no mesh study (refinement_check false), so it is not
+    assert not ev["verified"] and any("sin estudio de malla" in s_ for s_ in ev["reasons"])
+    if not (ref["time_step"]["converged"] and ref["mesh"]["converged"]):
+        assert any("transitorio no convergido" in s_ for s_ in ev["reasons"])

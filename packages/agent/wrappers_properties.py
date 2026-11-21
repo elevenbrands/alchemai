@@ -102,4 +102,25 @@ def reaction_equilibrium(reactions: list[dict[str, object]], T_K: float | list[f
                                                cantera_mechanism), default=float, ensure_ascii=False)
 
 
-AGENT_WRAPPERS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume, reaction_equilibrium]
+@beta_tool
+def binary_distillation_design(components: list[str], pressure_Pa: float, feed: dict, x_distillate: float,
+                            x_bottoms: float | None = None, recovery_in_distillate: float | None = None,
+                            model: str = "ideal", parameters: dict | None = None, n_stages: float | None = None,
+                            reflux_ratio: float | None = None, psat: dict | None = None, vapor_phase: str = "ideal",
+                            wilson_volumes_m3_mol: dict | None = None, uniquac_rq: dict | None = None) -> str:
+    """BINARY distillation design on the McCabe-Thiele diagram with the REAL equilibrium curve of an activity model
+    (gamma-phi at column pressure), no DWSIM. Use it instead of shortcut_column whenever the pair is non-ideal
+    (alcohol-water, any azeotrope, strongly varying alpha): constant-alpha Fenske-Underwood is then wrong by tens of
+    percent and blind to the azeotrope. components [light, heavy]; feed {z1, molar_flow?, and q | vapor_fraction | T_K};
+    x_distillate plus x_bottoms OR recovery_in_distillate; model "ideal" | "Wilson" | "NRTL" | "UNIQUAC"; parameters None
+    = ChemSep library set (flagged as an assumption), or {b12, b21 [K], a12, a21, alpha, V, r, q} as in
+    vle_binary_regression, or {"energy_J_mol": [d12, d21]}, or {"lambda12", "lambda21"}. n_stages (incl. reboiler,
+    total condenser apart) -> required reflux; reflux_ratio -> stages and optimal feed stage. Returns products, feed q,
+    azeotropes, N_min (exact for this VLE), R_min with pinch type (feed or TANGENT), required reflux / stages, evidence.
+    feasible=false (distillate beyond the azeotrope, fewer stages than N_min) must be reported as such. R_min and stage
+    counts assume constant molar overflow: get duties from a rigorous column afterwards."""
+    return json.dumps(TPR.binary_distillation_design(components, pressure_Pa, feed, x_distillate, x_bottoms, recovery_in_distillate, model, parameters, n_stages, reflux_ratio, psat, vapor_phase, wilson_volumes_m3_mol, uniquac_rq), default=float, ensure_ascii=False)
+
+
+AGENT_WRAPPERS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
+                    binary_distillation_design, reaction_equilibrium]

@@ -118,29 +118,47 @@ def annulus_shape(kappa):
     return lambda xi: 2 * (1 - xi ** 2 + c * np.log(np.maximum(xi, 1e-300))) / mean
 
 
-def profile_shape(geo: Geometry, b, sym_lo, sym_hi, profile):
-    """Dimensionless shape f(t) with unit (area-weighted) mean on the line selector b; t is the tangent coordinate."""
+def profile_shape(geo: Geometry, b, sym_lo, sym_hi, profile, n=1.0):
+    """Dimensionless shape f(t) with unit (area-weighted) mean on the line selector b; t is the tangent coordinate.
+    `n` is the power-law index: the developed profile is 1 − ξ^((n+1)/n) (n = 1: the Newtonian parabola). The annulus
+    has no closed form for n ≠ 1 and keeps the Newtonian shape."""
     lo, hi = b["range"]
     w = hi - lo
+    e = (n + 1.0) / n
     if profile == "uniform" or (sym_lo and sym_hi):
         return lambda t: np.ones_like(t)
     if geo.axi and b["axis"] == "x":
-        if sym_lo:                                                    # axis → wall: Hagen-Poiseuille
-            return lambda t: 2 * (1 - (t / hi) ** 2)
+        if sym_lo:                                                    # axis → wall: Hagen-Poiseuille (power law: (3n+1)/(n+1))
+            return lambda t: (3 * n + 1) / (n + 1) * (1 - np.abs(t / hi) ** e)
         f = annulus_shape(lo / hi)
         return lambda t: f(t / hi)
+    k = (2 * n + 1) / (n + 1)
     if sym_lo:
-        return lambda t: 1.5 * (1 - ((t - lo) / w) ** 2)
+        return lambda t: k * (1 - np.abs((t - lo) / w) ** e)
     if sym_hi:
-        return lambda t: 1.5 * (1 - ((hi - t) / w) ** 2)
-    return lambda t: 1.5 * (1 - ((2 * t - lo - hi) / w) ** 2)
+        return lambda t: k * (1 - np.abs((hi - t) / w) ** e)
+    return lambda t: k * (1 - np.abs((2 * t - lo - hi) / w) ** e)
 
 
-def developed_gradient(geo: Geometry, axis, lo, hi, sym_lo, sym_hi, nu, umean):
-    """Exact fully developed −dp/ds (kinematic, ρ = 1) and u_max/ū for a straight section; None when not applicable."""
+def developed_gradient(geo: Geometry, axis, lo, hi, sym_lo, sym_hi, nu, umean, power_law=None):
+    """Exact fully developed −dp/ds (kinematic, ρ = 1) and u_max/ū for a straight section; None when not applicable.
+    power_law = (K, n) in the same kinematic non-dimensional units (τ = K γ̇ⁿ): tube −dp/dz = (2K/R)·[(3n+1)/n·ū/R]ⁿ,
+    u_max/ū = (3n+1)/(n+1); plates of half-gap h: −dp/dx = (K/h)·[(2n+1)/n·ū/h]ⁿ, u_max/ū = (2n+1)/(n+1)
+    (Bird, Armstrong & Hassager, Dynamics of Polymeric Liquids vol. 1, power-law tube / slit flow). No closed form
+    for the annulus with n ≠ 1."""
     w = hi - lo
     if sym_lo and sym_hi:
         return None
+    if power_law is not None and power_law[1] != 1.0:
+        K, n = power_law
+        if geo.axi:
+            if axis != "x" or not sym_lo:
+                return None
+            return 2 * K / hi * ((3 * n + 1) / n * umean / hi) ** n, (3 * n + 1) / (n + 1)
+        h = w if (sym_lo or sym_hi) else 0.5 * w
+        return K / h * ((2 * n + 1) / n * umean / h) ** n, (2 * n + 1) / (n + 1)
+    if power_law is not None:
+        nu = power_law[0]
     if geo.axi:
         if axis != "x":
             return None

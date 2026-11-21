@@ -35,6 +35,7 @@ T0 = time.perf_counter()
 LU = {"ksp_type": "preonly", "pc_type": "lu", "pc_factor_mat_solver_type": "mumps", "mat_mumps_icntl_14": 120,
       "ksp_error_if_not_converged": False}
 REV_TOL = 1e-3                    # reversed flow: streamwise velocity below −REV_TOL·U_ref
+STEADY_RATE = 1e-4                # transient "steady": max |∂u/∂t| below this (units U_ref²/L_ref)
 _uid = [0]
 
 
@@ -91,6 +92,19 @@ class Case:
         self.dx = ufl.Measure("dx", domain=dom, metadata={"quadrature_degree": 6})
         self.nu = fem.Constant(dom, 1.0)
         self.w = fem.Function(self.W)
+        # generalised Newtonian fluid: η(γ̇); θ blends from the Newtonian reference (θ = 0) to the model (θ = 1)
+        self.rheo = p.get("rheology")
+        self.theta = fem.Constant(dom, 1.0)
+        self.nu_ref = p["mu"] / (p["rho"] * p["U_ref"] * p["L_ref"])
+        self.power_law_nd, self.analytic_developed = None, True
+        if self.rheo:
+            r = self.rheo
+            if r["model"] == "power_law":
+                self.power_law_nd = (r["K"] / (p["rho"] * p["U_ref"] * p["L_ref"]) * (p["U_ref"] / p["L_ref"]) ** (r["n"] - 1), r["n"])
+            elif r.get("newtonian_equivalent_Pa_s") is not None:
+                self.power_law_nd = (r["newtonian_equivalent_Pa_s"] / (p["rho"] * p["U_ref"] * p["L_ref"]), 1.0)
+            else:
+                self.analytic_developed = False
         self._tag_facets()
         self._bcs()
         nloc = dom.topology.index_map(2).size_local
@@ -159,7 +173,8 @@ class Case:
         probe[a], probe[1 - a] = b["value"] + 1e-4, tm
         sign = 1.0 if bool(geo.in_fluid(probe[0], probe[1])) else -1.0
         sl, sh = self.sym_ends(b)
-        shape = G.profile_shape(geo, b, sl, sh, b.get("profile", "parabolic"))
+        n_pl = self.rheo["n"] if (self.rheo and self.rheo["model"] == "power_law") else 1.0
+        shape = G.profile_shape(geo, b, sl, sh, b.get("profile", "parabolic"), n_pl)
         um = b["mean_velocity"] / U
 
         def f(X):
@@ -224,10 +239,45 @@ class Case:
     def div(self, u):
         return ufl.div(u) + u[1] / self.x[1] if self.axi else ufl.div(u)
 
-    def momentum(self, u, p, v, conv=None):
-        """Momentum residual tested with v (without boundary terms): ((c·∇)u, v) + ν(∇u, ∇v) − (p, ∇·v)."""
+    def rate2(self, u):
+        """γ̇² = 2 D:D (non-dimensional, units (U_ref/L_ref)²); axisymmetric: includes the hoop term D_θθ = u_r / r."""
+        D = ufl.sym(ufl.grad(u))
+        g2 = 2 * ufl.inner(D, D)
+        return g2 + 2 * (u[1] / self.x[1]) ** 2 if self.axi else g2
+
+    def visc(self, u):
+        """Non-dimensional apparent kinematic viscosity η(γ̇)/(ρ U L) evaluated with the velocity field u."""
+        if not self.rheo:
+            return self.nu
+        r, p = self.rheo, self.p
+        s, rate = 1.0 / (p["rho"] * p["U_ref"] * p["L_ref"]), p["U_ref"] / p["L_ref"]
+        g2 = self.rate2(u)
+        eps2 = (r.get("gamma_reg_1_s", 0.0) / rate) ** 2
+        n = r["n"]
+        if r["model"] == "power_law":
+            nu = r["K"] * s * rate ** (n - 1) * (g2 + eps2) ** ((n - 1) / 2)
+        elif r["model"] == "carreau":
+            nu = s * (r["eta_inf"] + (r["eta0"] - r["eta_inf"]) * (1 + (r["lambda_s"] * rate) ** 2 * g2) ** ((n - 1) / 2))
+        else:                                                         # carreau_yasuda
+            a = r["a"]
+            nu = s * (r["eta_inf"] + (r["eta0"] - r["eta_inf"]) * (1 + (r["lambda_s"] * rate) ** a * (g2 + eps2) ** (a / 2)) ** ((n - 1) / a))
+        # self.nu / nu_ref is 1 at the target Re (it is > 1 only during continuation in Re)
+        return self.nu * (nu / self.nu_ref) ** self.theta
+
+    def viscous(self, u, v, lag=None):
+        """Viscous term. Newtonian: ν(∇u, ∇v) (Laplace form). Generalised Newtonian: (2η(γ̇) D(u), D(v)) with γ̇ from
+        `lag` (frozen field, semi-implicit) or from u itself."""
+        if not self.rheo:
+            return self.nu * self.gin(u, v)
+        e = ufl.inner(ufl.sym(ufl.grad(u)), ufl.sym(ufl.grad(v)))
+        if self.axi:
+            e = e + u[1] * v[1] / self.x[1] ** 2
+        return 2 * self.visc(u if lag is None else lag) * e
+
+    def momentum(self, u, p, v, conv=None, lag=None, dx=None):
+        """Momentum residual tested with v (without boundary terms): ((c·∇)u, v) + viscous(u, v) − (p, ∇·v)."""
         c = u if conv is None else conv
-        return (ufl.inner(ufl.dot(ufl.grad(u), c), v) + self.nu * self.gin(u, v) - p * self.div(v)) * self.wgt * self.dx
+        return (ufl.inner(ufl.dot(ufl.grad(u), c), v) + self.viscous(u, v, lag) - p * self.div(v)) * self.wgt * (dx or self.dx)
 
     def outlet_terms(self, v):
         n = ufl.FacetNormal(self.dom)
@@ -246,7 +296,10 @@ class Case:
                     snes_stol=0.0, snes_max_it=25, snes_error_if_not_converged=False)
         prob = NonlinearProblem(F, self.w, bcs=self.bcs, petsc_options_prefix=prefix("ns"), petsc_options=opts)
         self._res_form = fem.form(F)
-        rep = {"path": [], "newton_iterations": 0}
+        rep = {"path": [], "newton_iterations": 0,
+               "tolerances": {"snes_rtol": 1e-10, "snes_atol": 1e-11, "criterion": "‖F‖ < max(rtol·‖F0‖, atol), residual of the full nonlinear system"}}
+        if self.rheo:
+            self.theta.value = 0.0                                    # start from the Newtonian reference viscosity
 
         def attempt(re):
             self.nu.value = 1.0 / re
@@ -262,8 +315,10 @@ class Case:
                 log(f"SNES exception at Re {re:g}: {ex}")
             ok = reason > 0 and np.all(np.isfinite(self.w.x.array))
             rep["path"].append({"Re": re, "converged": bool(ok), "iterations": int(its), "residual_norm": float(fn)})
+            if self.rheo:
+                rep["path"][-1]["theta_rheology"] = float(self.theta.value)
             rep["newton_iterations"] += int(its)
-            log(f"Re {re:g}: reason {reason}, its {its}, |F| {fn:.2e}")
+            log(f"Re {re:g} theta {float(self.theta.value):g}: reason {reason}, its {its}, |F| {fn:.2e}")
             if not ok:
                 self.w.x.array[:] = back
                 self.w.x.scatter_forward()
@@ -285,6 +340,26 @@ class Case:
             ok = ok and re >= re_target * (1 - 1e-12)
             rep["Re_reached"] = re
             self.nu.value = 1.0 / re_target
+        if self.rheo and ok:
+            # Newton on the full generalised-Newtonian system from the Newtonian solution; if it fails, continuation
+            # in θ with η_θ = η_ref^(1−θ)·η(γ̇)^θ (for a power law this is continuation in the index n)
+            def att_theta(th):
+                self.theta.value = th
+                return attempt(re_target)
+            ok, fn = att_theta(1.0)
+            if not ok:
+                th, step, tries = 0.0, 0.5, 0
+                while th < 1.0 - 1e-12 and step > 1.0 / 128 and tries < 40:
+                    nxt, tries = min(th + step, 1.0), tries + 1
+                    ok2, fn2 = att_theta(nxt)
+                    if ok2:
+                        th, fn = nxt, fn2
+                    else:
+                        step /= 2
+                rep["continuation_in_rheology_used"] = True
+                ok = th >= 1.0 - 1e-12
+                rep["theta_reached"] = th
+            self.theta.value = 1.0
         rep["converged"] = bool(ok)
         rep["residual_norm"] = float(fn)
         if self.pressure_pinned:                                      # no pressure boundary: report p with zero mean
@@ -363,7 +438,7 @@ def obstacle_forces(c: Case, u, p, tag, o, extra=None):
         form = c.momentum(u, p, phi) if extra is None else extra(phi)
         tot[i] = -c.two_pi * fem.assemble_scalar(fem.form(form))
         pre[i] = c.two_pi * fem.assemble_scalar(fem.form(p * n[i] * c.wgt * c.ds(tag)))
-        tau = c.nu * (ufl.grad(u) + ufl.grad(u).T)
+        tau = c.visc(u) * (ufl.grad(u) + ufl.grad(u).T)
         direct[i] = pre[i] - c.two_pi * fem.assemble_scalar(fem.form(ufl.dot(tau, n)[i] * c.wgt * c.ds(tag)))
     return tot, pre, direct
 
@@ -550,7 +625,8 @@ def straight_sections(c: Case, u, p, sc: Scales):
         g1, g2 = -(pm[2] - pm[0]) / abs(st[2] - st[0]), -(pm[4] - pm[2]) / abs(st[4] - st[2])
         g = -(pm[4] - pm[0]) / abs(st[4] - st[0])
         umean = abs(secs[-1]["flow"]) / secs[-1]["area"]
-        ex = G.developed_gradient(geo, axis, t0, t1, syl, syh, float(c.nu.value), umean)
+        ex = G.developed_gradient(geo, axis, t0, t1, syl, syh, float(c.nu.value), umean, c.power_law_nd) \
+            if c.analytic_developed else None
         sec = {"axis": axis, "from": start * sc.L, "to": end * sc.L, "across": [t0 * sc.L, t1 * sc.L],
                "sides": ["symmetry" if syl else "wall", "symmetry" if syh else "wall"],
                "flow_direction": ("+" if d > 0 else "-") + axis, "mean_velocity": umean * sc.U,
@@ -559,13 +635,23 @@ def straight_sections(c: Case, u, p, sc: Scales):
                "gradient_uniformity": abs(g1 - g2) / abs(g) if g else None,
                "u_max_over_mean_at_end": secs[-1]["u_max"] / umean}
         sec["developed"] = bool(g and abs(g1 - g2) <= 0.02 * abs(g))
+        tc = t0 if syl else (t1 if syh else 0.5 * (t0 + t1))
+        ratio = None
         if ex is not None:
             ga, ratio = ex
             sec.update(poiseuille_pressure_drop_per_length=ga * sc.G, poiseuille_error_rel=g / ga - 1,
-                       poiseuille_u_max_over_mean=ratio)
+                       poiseuille_u_max_over_mean=ratio, entry_length_reference="analytic developed centre-line velocity")
+            if c.power_law_nd is not None and c.power_law_nd[1] != 1.0:
+                sec["developed_reference"] = "power-law analytic (tube / parallel plates), exact for the unregularised model"
+        elif sec["developed"] and not c.analytic_developed and not (syl and syh):
+            # no closed form (Carreau...): the developed centre-line velocity is the one MEASURED at the last station
+            pe = [st[-1], tc] if axis == "x" else [tc, st[-1]]
+            ratio = float(abs(c.samp(u, [pe])[0, 0 if axis == "x" else 1])) / umean
+            sec.update(u_centre_over_mean_developed_measured=ratio,
+                       entry_length_reference="centre-line velocity measured at the last station of the section (no analytic profile for this model)")
+        if ratio is not None:
             # entry length: first station (from the section start, flow direction) where the centre-line velocity
             # is within 1 % of the developed value and stays there
-            tc = t0 if syl else (t1 if syh else 0.5 * (t0 + t1))
             if not (c.axi and not syl):
                 ss = np.linspace(start + d * 1e-6 * Ls, end - d * 1e-6 * Ls, 801)
                 pts = np.column_stack([ss, np.full_like(ss, tc)] if axis == "x" else [np.full_like(ss, tc), ss])
@@ -575,9 +661,17 @@ def straight_sections(c: Case, u, p, sc: Scales):
                 if len(bad) == 0:
                     sec["entry_length_99"] = 0.0
                 elif bad[-1] < len(ss) - 1:
-                    sec["entry_length_99"] = abs(ss[bad[-1] + 1] - start) * sc.L
+                    # linear interpolation of |uc − 1| = 0.01 between the last station outside the band and the next
+                    i = bad[-1]
+                    e0, e1 = abs(uc[i] - 1) - 0.01, abs(uc[i + 1] - 1) - 0.01
+                    f = e0 / (e0 - e1) if e0 > e1 else 1.0
+                    sec["entry_length_99"] = abs(ss[i] + f * (ss[i + 1] - ss[i]) - start) * sc.L
+                    sec["entry_length_station_spacing"] = abs(ss[1] - ss[0]) * sc.L
                 else:
                     sec["entry_length_99"] = None
+                sec["hydraulic_width"] = (2 * t1 if c.axi else w * (2 if (syl or syh) else 1)) * sc.L
+                if sec["entry_length_99"] is not None:
+                    sec["entry_length_99_over_width"] = sec["entry_length_99"] / sec["hydraulic_width"]
         sec["_rect"] = (axis, s0, s1, t0, t1, d)
         out.append(sec)
     return out
@@ -733,6 +827,19 @@ def postprocess(c: Case, p, sc: Scales, rep):
     if p.get("scalar"):
         res["scalar"], qs = scalar_solve(c, u, sc, p)
         q.update(qs)
+    if c.rheo:
+        Q0 = fem.functionspace(c.dom, ("DG", 0))
+        pts0 = Q0.element.interpolation_points
+        pts0 = pts0() if callable(pts0) else pts0
+        vis, gam = fem.Function(Q0), fem.Function(Q0)
+        vis.interpolate(fem.Expression(c.visc(u), pts0))
+        gam.interpolate(fem.Expression(ufl.sqrt(c.rate2(u)), pts0))
+        eta, gd = vis.x.array * sc.rho * sc.U * sc.L, gam.x.array * sc.U / sc.L
+        eps = c.rheo.get("gamma_reg_1_s", 0.0)
+        res["rheology_field"] = {"apparent_viscosity_min_Pa_s": float(eta.min()), "apparent_viscosity_max_Pa_s": float(eta.max()),
+                                 "shear_rate_max_1_s": float(gd.max()), "shear_rate_min_1_s": float(gd.min()),
+                                 "evaluated_at": "cell midpoints",
+                                 "cells_below_regularisation_rate_fraction": float(np.mean(gd < eps)) if eps else 0.0}
     return res, q
 
 
@@ -772,111 +879,404 @@ def analyse_signal(t, s, scale):
     return out
 
 
-def transient(c: Case, p, sc: Scales, deadline):
-    """Semi-implicit BDF2 (convection linearised with the extrapolated velocity), one LU per step, from the steady
-    solution plus a transverse perturbation. Monitors drag / lift on the first obstacle (or v at the first point)."""
-    tp = p["transient"]
-    ax, sg = stream_axis(p)
-    dt, t_end = tp["dt"] / sc.T, tp["t_end"] / sc.T
-    W, V = c.W, c.V
-    un, unm1, ustar, hist = (fem.Function(V) for _ in range(4))
-    un.x.array[:] = c.w.x.array[c.vmap]
-    obs = next(((i + 1, b) for i, b in enumerate(c.bnds) if b.get("obstacle") is not None), None)
-    if obs:
-        o = next(o for o in c.geo.obstacles if o["name"] == obs[1]["obstacle"])
-        bx = c.geo.obstacle_box(o)
-        d, A = c.geo.obstacle_size(o, ax)
-        ctr = [0.5 * (bx[0] + bx[2]), 0.5 * (bx[1] + bx[3])]
-        ctr[ax] += sg * 1.5 * d
-    else:
-        d, A = 1.0, 1.0
-        ctr = [0.5 * (c.geo.bbox[0] + c.geo.bbox[2]), 0.5 * (c.geo.bbox[1] + c.geo.bbox[3])]
-    eps = tp.get("perturbation", 0.2)
-    pert = fem.Function(V)
+class Stepper:
+    """Semi-implicit BDF2 on one mesh: (a0/dt) u + (u*·∇)u − ∇·(2η D) + ∇p = hist/dt, ∇·u = 0, with u* = 2uⁿ − uⁿ⁻¹
+    (first step: BDF1 with u* = uⁿ). Coupled velocity-pressure solve, so there is no splitting error and the boundary
+    conditions and the consistent force evaluation are those of the steady problem.
 
-    def bump(X):
-        v = np.zeros((2, X.shape[1]))
-        v[1 - ax] = eps * np.exp(-((X[0] - ctr[0]) ** 2 + (X[1] - ctr[1]) ** 2) / d ** 2)
-        return v
-    pert.interpolate(bump)
-    un.x.array[:] += pert.x.array
-    unm1.x.array[:] = un.x.array
-    a0 = fem.Constant(c.dom, 1.0)
-    idt = fem.Constant(c.dom, 1.0 / dt)
-    (u, pr), (v, qq) = ufl.TrialFunctions(W), ufl.TestFunctions(W)
-    a = a0 * idt * ufl.inner(u, v) * c.wgt * c.dx + c.momentum(u, pr, v, conv=ustar) + qq * c.div(u) * c.wgt * c.dx
-    Lf = idt * ufl.inner(hist, v) * c.wgt * c.dx
-    if c.outlets:
-        Lf -= c.outlet_terms(v)
-    wn = fem.Function(W)
-    prob = LinearProblem(a, Lf, bcs=c.bcs, u=wn, petsc_options=LU, petsc_options_prefix=prefix("tr"))
-    us, ps = ufl.split(wn)
-    forms = None
-    if obs:
-        forms = []
-        for i in ([0] if c.axi else [0, 1]):
-            phi = c.lifting(obs[0], i)
-            forms.append(fem.form(idt * ufl.inner(a0 * us - hist, phi) * c.wgt * c.dx + c.momentum(us, ps, phi, conv=ustar)))
-    probe = np.asarray(p["points"][0], float) / sc.L if p.get("points") else None
-    ts, cd, sig = [], [], []
-    t, step, stopped = 0.0, 0, "t_end"
-    use_lift = obs is not None and not c.axi
-    t_step = None
-    while t < t_end - 1e-12:
-        t1 = time.perf_counter()
-        if step == 0:
-            a0.value, hist.x.array[:], ustar.x.array[:] = 1.0, un.x.array, un.x.array
+    Cost per step (profiled on the cylinder case, 65 k dofs): assembling the matrix 0.06 s, MUMPS numeric LU 0.24 s,
+    one back-substitution 0.012 s. The matrix changes only through u*, which moves little between steps, so the LU is
+    NOT recomputed every step: it is kept as the preconditioner of GMRES (converged to rtol 1e-8, i.e. the same linear
+    system is solved) and refreshed when the time spent in extra iterations since the last factorisation reaches the
+    time of one factorisation (the break-even rule). The initial guess is the extrapolation 2wⁿ − wⁿ⁻¹."""
+
+    def __init__(self, c: Case, p, sc: Scales, dt):
+        from dolfinx.fem import petsc as fp
+        from petsc4py import PETSc
+        self.fp, self.PETSc = fp, PETSc
+        self.c, self.p, self.sc = c, p, sc
+        ax, sg = stream_axis(p)
+        self.ax, self.sg = ax, sg
+        W, V = c.W, c.V
+        self.un, self.unm1, self.ustar, self.hist = (fem.Function(V) for _ in range(4))
+        self.a0 = fem.Constant(c.dom, 1.0)
+        self.idt = fem.Constant(c.dom, 1.0 / dt)
+        self.dt = dt
+        (u, pr), (v, qq) = ufl.TrialFunctions(W), ufl.TestFunctions(W)
+        a = self.a0 * self.idt * ufl.inner(u, v) * c.wgt * c.dx + c.momentum(u, pr, v, conv=self.ustar, lag=self.ustar) \
+            + qq * c.div(u) * c.wgt * c.dx
+        Lf = self.idt * ufl.inner(self.hist, v) * c.wgt * c.dx
+        if c.outlets:
+            Lf -= c.outlet_terms(v)
+        self.a_form, self.L_form = fem.form(a), fem.form(Lf)
+        self.wn = fem.Function(W)
+        self.A = fp.create_matrix(self.a_form)
+        self.b = self.A.createVecRight()
+        ksp = PETSc.KSP().create(self.A.comm)
+        ksp.setOperators(self.A)
+        ksp.setType("gmres")
+        ksp.setGMRESRestart(80)
+        ksp.setTolerances(rtol=1e-8, atol=1e-13, max_it=80)
+        ksp.setInitialGuessNonzero(True)
+        pc = ksp.getPC()
+        pc.setType("lu")
+        pc.setFactorSolverType("mumps")
+        ksp.setOptionsPrefix(prefix("tr"))
+        opts = PETSc.Options()
+        opts[ksp.getOptionsPrefix() + "mat_mumps_icntl_14"] = 120
+        ksp.setFromOptions()
+        self.ksp = ksp
+        self.obs = next(((i + 1, b) for i, b in enumerate(c.bnds) if b.get("obstacle") is not None), None)
+        self.forms = None
+        if self.obs:
+            o = next(o for o in c.geo.obstacles if o["name"] == self.obs[1]["obstacle"])
+            self.box = c.geo.obstacle_box(o)
+            self.d, self.A_ref = c.geo.obstacle_size(o, ax)
+            # the lifting function is non-zero only in the cells touching the obstacle: integrate there only
+            top = c.dom.topology
+            top.create_connectivity(1, 0)
+            top.create_connectivity(0, 2)
+            verts = mesh.compute_incident_entities(top, c.fac(self.obs[0]), 1, 0)
+            cells = np.sort(mesh.compute_incident_entities(top, verts, 0, 2)).astype(np.int32)
+            dxo = ufl.Measure("dx", domain=c.dom, subdomain_data=mesh.meshtags(c.dom, 2, cells, np.full(len(cells), 1, np.int32)),
+                              metadata={"quadrature_degree": 6})(1)
+            us, ps = ufl.split(self.wn)
+            self.forms = []
+            for i in ([0] if c.axi else [0, 1]):
+                phi = c.lifting(self.obs[0], i)
+                self.forms.append(fem.form(self.idt * ufl.inner(self.a0 * us - self.hist, phi) * c.wgt * dxo
+                                           + c.momentum(us, ps, phi, conv=self.ustar, lag=self.ustar, dx=dxo)))
         else:
-            a0.value = 1.5
-            hist.x.array[:] = 2.0 * un.x.array - 0.5 * unm1.x.array
-            ustar.x.array[:] = 2.0 * un.x.array - unm1.x.array
-        prob.solve()
-        if not np.all(np.isfinite(wn.x.array)):
-            stopped = "diverged"
-            break
-        t += dt
-        step += 1
-        unm1.x.array[:] = un.x.array
-        un.x.array[:] = wn.x.array[c.vmap]
-        ts.append(t)
-        if forms:
-            f = [-c.two_pi * fem.assemble_scalar(fm) for fm in forms]
-            cd.append(sg * f[0 if c.axi else ax] / (0.5 * A))
-            sig.append(f[1 - ax] / (0.5 * A) if use_lift else cd[-1])
-        else:
-            sig.append(float(c.samp(un, [probe])[0, 1 - ax]) if probe is not None else float(np.abs(un.x.array).max()))
-        t_step = time.perf_counter() - t1 if t_step is None else 0.9 * t_step + 0.1 * (time.perf_counter() - t1)
-        if step % 50 == 0:
-            an = analyse_signal(ts, sig, 1.0)
-            log(f"t* {t:.1f} step {step} sig {sig[-1]:+.4f} state {an['state']} cycles {an['n_cycles']} ({t_step:.2f} s/step)")
-            if step >= tp.get("min_steps", 200) and an["state"] in ("periodic", "steady") and tp.get("stop_when_settled", True) \
-                    and (an["state"] == "steady" or an["n_cycles"] >= tp.get("min_cycles", 8)):
-                stopped = "settled"
+            self.d, self.A_ref = 1.0, 1.0
+        self.use_lift = self.obs is not None and not c.axi
+        self.probe = np.asarray(p["points"][0], float) / sc.L if p.get("points") else None
+        self.signal_name = ("lift_coefficient" if self.use_lift else "drag_coefficient") if self.forms \
+            else ("transverse_velocity_at_first_point" if self.probe is not None else "max_abs_velocity_component")
+
+    def set_dt(self, dt):
+        self.dt = dt
+        self.idt.value = 1.0 / dt
+
+    def initial_state(self, tp):
+        """Steady solution plus a transverse Gaussian bump behind the obstacle (breaks the symmetry), or rest."""
+        c, V = self.c, self.c.V
+        u0 = np.zeros_like(self.un.x.array)
+        if tp.get("initial", "steady") == "steady":
+            u0[:] = c.w.x.array[c.vmap]
+            eps = tp.get("perturbation", 0.2)
+            if eps:
+                if self.obs:
+                    bx = self.box
+                    ctr = [0.5 * (bx[0] + bx[2]), 0.5 * (bx[1] + bx[3])]
+                    ctr[self.ax] += self.sg * 1.5 * self.d
+                else:
+                    ctr = [0.5 * (c.geo.bbox[0] + c.geo.bbox[2]), 0.5 * (c.geo.bbox[1] + c.geo.bbox[3])]
+                pert = fem.Function(V)
+                ax, d = self.ax, self.d
+
+                def bump(X):
+                    v = np.zeros((2, X.shape[1]))
+                    v[1 - ax] = eps * np.exp(-((X[0] - ctr[0]) ** 2 + (X[1] - ctr[1]) ** 2) / d ** 2)
+                    return v
+                pert.interpolate(bump)
+                u0 += pert.x.array
+        return u0
+
+    def march(self, u0, t_end, deadline, tp, label="main", stop_when_settled=True, min_cycles=8, um1=None):
+        """Advance from velocity u0 (BDF1 first step unless um1, the velocity one step earlier, is given) up to t_end.
+        Stops early when the monitored signal is periodic / steady, or when the wall-clock deadline would be passed."""
+        c, fp, ksp, dt = self.c, self.fp, self.ksp, self.dt
+        un, unm1, ustar, hist, wn = self.un, self.unm1, self.ustar, self.hist, self.wn
+        un.x.array[:] = u0
+        unm1.x.array[:] = u0 if um1 is None else um1
+        wn.x.array[c.vmap] = u0
+        ts, cd, sig = [], [], []
+        t, step, stopped, rate = 0.0, 0, "t_end", float("inf")
+        tm = {"assemble": 0.0, "solve": 0.0, "forces": 0.0, "analysis": 0.0}
+        n_fact, n_its, refactor, t_fact, t_iter, its_fresh, extra = 0, 0, True, None, None, None, 0.0
+        w_prev = None
+        t_step = None
+        w_start = time.perf_counter()
+        while t < t_end - 1e-9 * max(t_end, 1.0):
+            t1 = time.perf_counter()
+            if step == 0 and um1 is None:
+                self.a0.value, hist.x.array[:], ustar.x.array[:] = 1.0, un.x.array, un.x.array
+            else:
+                if float(self.a0.value) != 1.5:
+                    refactor = True                                   # BDF1 → BDF2 changes the matrix
+                self.a0.value = 1.5
+                hist.x.array[:] = 2.0 * un.x.array - 0.5 * unm1.x.array
+                ustar.x.array[:] = 2.0 * un.x.array - unm1.x.array
+            self.A.zeroEntries()
+            fp.assemble_matrix(self.A, self.a_form, bcs=c.bcs)
+            self.A.assemble()
+            with self.b.localForm() as bl:
+                bl.set(0.0)
+            fp.assemble_vector(self.b, self.L_form)
+            fp.apply_lifting(self.b, [self.a_form], bcs=[c.bcs])
+            fp.set_bc(self.b, c.bcs)
+            t2 = time.perf_counter()
+            tm["assemble"] += t2 - t1
+            w_now = wn.x.array.copy()
+            if w_prev is not None and float(self.a0.value) == 1.5:
+                wn.x.array[:] = 2.0 * w_now - w_prev                  # extrapolated initial guess
+            w_prev = w_now
+            for _try in range(2):
+                ksp.getPC().setReusePreconditioner(not refactor)
+                ksp.setOperators(self.A)
+                ts0 = time.perf_counter()
+                ksp.solve(self.b, wn.x.petsc_vec)
+                its, reason = ksp.getIterationNumber(), ksp.getConvergedReason()
+                el = time.perf_counter() - ts0
+                if refactor:
+                    n_fact += 1
+                    t_fact = max(el - its * (t_iter or 0.0), 0.2 * el)
+                    its_fresh, extra = its, 0.0
+                elif its > 0:
+                    t_iter = el / its if t_iter is None else 0.9 * t_iter + 0.1 * el / its
+                if reason > 0 or refactor:
+                    break
+                refactor = True                                       # stale preconditioner failed: factorise and redo
+                wn.x.array[:] = w_now
+            n_its += its
+            # break-even rule: refactorise once the extra iterations since the last LU have cost one LU
+            its_fresh = its if its_fresh is None else min(its_fresh, its)
+            extra += max(its - its_fresh, 0) * (t_iter or 0.0)
+            refactor = bool(t_fact) and extra >= t_fact
+            wn.x.scatter_forward()
+            t3 = time.perf_counter()
+            tm["solve"] += t3 - t2
+            if reason <= 0 or not np.all(np.isfinite(wn.x.array)):
+                stopped = "diverged"
                 break
-        if time.perf_counter() - T0 + 3 * t_step > deadline:
-            stopped = "time_budget"
-            break
-    c.w.x.array[:] = wn.x.array
-    an = analyse_signal(ts, sig, 1.0) if stopped != "diverged" else {"state": "diverged", "frequency": None, "n_cycles": 0}
-    out = {"state": an["state"], "stopped_by": stopped, "steps": step, "dt": dt * sc.T, "time_simulated": t * sc.T,
-           "signal": ("lift_coefficient" if use_lift else "drag_coefficient") if forms else "transverse_velocity_at_first_point",
-           "analysis": an, "seconds_per_step": t_step, "characteristic_length": d * sc.L}
-    if an.get("frequency"):
-        out["frequency"] = an["frequency"] / sc.T
-        out["strouhal"] = an["frequency"] * d                       # f d / U_ref
-        out["steps_per_period"] = 1 / (an["frequency"] * dt)
-        w0, w1 = an["window"]
-        m = (np.asarray(ts) >= w0) & (np.asarray(ts) <= w1)
-        if forms:
-            out["drag_coefficient_mean"] = float(np.mean(np.asarray(cd)[m]))
-            out["drag_coefficient_amplitude"] = float(0.5 * np.ptp(np.asarray(cd)[m]))
-            if use_lift:
-                out["lift_coefficient_amplitude"] = an["amplitude"]
-                out["lift_coefficient_rms"] = float(np.std(np.asarray(sig)[m]))
-    elif forms and an["state"] == "steady":
-        out["drag_coefficient_mean"] = float(cd[-1])
-    stride = max(1, len(ts) // 400)
-    out["history"] = {"time": [x * sc.T for x in ts[::stride]], "signal": sig[::stride], "drag_coefficient": cd[::stride] if forms else None}
+            t += dt
+            step += 1
+            ts.append(t)
+            if self.forms:
+                fo = [-c.two_pi * fem.assemble_scalar(fm) for fm in self.forms]
+                cd.append(self.sg * fo[0 if c.axi else self.ax] / (0.5 * self.A_ref))
+                sig.append(fo[1 - self.ax] / (0.5 * self.A_ref) if self.use_lift else cd[-1])
+            unm1.x.array[:] = un.x.array
+            un.x.array[:] = wn.x.array[c.vmap]
+            rate = float(np.max(np.abs(un.x.array - unm1.x.array))) / dt
+            if not self.forms:
+                sig.append(float(c.samp(un, [self.probe])[0, 1 - self.ax]) if self.probe is not None else float(np.abs(un.x.array).max()))
+            t4 = time.perf_counter()
+            tm["forces"] += t4 - t3
+            t_step = t4 - t1 if t_step is None else 0.9 * t_step + 0.1 * (t4 - t1)
+            if step % 50 == 0:
+                an = analyse_signal(ts, sig, 1.0)
+                log(f"[{label}] t* {t:.1f} step {step} sig {sig[-1]:+.4f} state {an['state']} cycles {an['n_cycles']} "
+                    f"({t_step:.3f} s/step, {n_fact} LU, {n_its / step:.1f} its/step)")
+                tm["analysis"] += time.perf_counter() - t4
+                if stop_when_settled and step >= tp.get("min_steps", 200) and an["state"] in ("periodic", "steady") \
+                        and ((an["state"] == "steady" and rate < STEADY_RATE) or an["n_cycles"] >= min_cycles):
+                    stopped = "settled"
+                    break
+            if time.perf_counter() - T0 + 3 * t_step > deadline:
+                stopped = "time_budget"
+                break
+        wall = time.perf_counter() - w_start
+        an = analyse_signal(ts, sig, 1.0) if stopped != "diverged" else {"state": "diverged", "frequency": None, "n_cycles": 0}
+        if an["state"] == "steady" and not rate < STEADY_RATE:
+            an["state"] = "not_settled"                               # the monitored signal is flat but the field still evolves
+        return {"rate": rate, "ts": ts, "cd": cd, "sig": sig, "t": t, "steps": step, "stopped": stopped, "analysis": an, "dt": dt,
+                "u": un.x.array.copy(), "um1": unm1.x.array.copy(), "w": wn.x.array.copy(),
+                "perf": {"wall_s": wall, "seconds_per_step": wall / max(step, 1), "lu_factorisations": n_fact,
+                         "gmres_iterations_per_step": n_its / max(step, 1),
+                         "breakdown_s": {k: v for k, v in tm.items()}}}
+
+    def summary(self, r):
+        """Numbers of one run (non-dimensional time scale removed). Periodic numbers only from the analysed window."""
+        sc, an, dt = self.sc, r["analysis"], r["dt"]
+        out = {"state": an["state"], "stopped_by": r["stopped"], "steps": r["steps"], "dt": dt * sc.T,
+               "time_simulated": r["t"] * sc.T, "signal": self.signal_name,
+               "field_rate_of_change_final": r["rate"] * sc.U / sc.T}       # max |uⁿ − uⁿ⁻¹| / dt, m/s²
+        num = {}
+        ts, cd, sig = np.asarray(r["ts"]), np.asarray(r["cd"]), np.asarray(r["sig"])
+        if an.get("frequency"):
+            num["frequency"] = an["frequency"] / sc.T
+            num["strouhal"] = an["frequency"] * self.d                 # f d / U_ref
+            num["steps_per_period"] = 1 / (an["frequency"] * dt)
+            num["cycles_analysed"] = an["n_cycles"]
+            w0, w1 = an["window"]
+            m = (ts >= w0) & (ts <= w1)
+            if self.forms:
+                num["drag_coefficient_mean"] = float(np.mean(cd[m]))
+                num["drag_coefficient_amplitude"] = float(0.5 * np.ptp(cd[m]))
+                if self.use_lift:
+                    num["lift_coefficient_amplitude"] = an["amplitude"]
+                    num["lift_coefficient_rms"] = float(np.std(sig[m] - np.mean(sig[m])))
+        elif self.forms and an["state"] == "steady":
+            num["drag_coefficient_mean"] = float(cd[-1])
+        if len(sig):
+            num["signal_final"] = float(sig[-1])
+        return out, num
+
+
+def final_points(c: Case, p, sc: Scales, w):
+    """Velocity and pressure at the requested points for the mixed state vector w (end of a transient run)."""
+    if not p.get("points"):
+        return None
+    c.w.x.array[:] = w
+    u, ph = c.split()
+    pts = np.asarray(p["points"], float) / sc.L
+    uv, pv = c.samp(u, pts), c.samp(ph, pts)[:, 0]
+    return [{"point": pt, "inside_fluid": bool(np.isfinite(b)),
+             "velocity": [a[0] * sc.U, a[1] * sc.U] if np.isfinite(b) else None,
+             "pressure": b * sc.P if np.isfinite(b) else None} for pt, a, b in zip(p["points"], uv, pv)]
+
+
+def auto_dt(c: Case, sc: Scales, tp, d):
+    """Time step when the user gives none: 1/20 of the convective time of the obstacle (≈ 120 steps per shedding
+    period at St ≈ 0.17; d = L_ref without obstacle), capped by a cell Courant number of 2 on the starting field.
+    The scheme is semi-implicit (no stability limit of CFL type); the cap is for accuracy. Returns (dt, report)."""
+    nloc = c.dom.topology.index_map(2).size_local
+    h = c.dom.h(2, np.arange(nloc, dtype=np.int32))
+    Q0 = fem.functionspace(c.dom, ("DG", 0))
+    pts0 = Q0.element.interpolation_points
+    pts0 = pts0() if callable(pts0) else pts0
+    spd = fem.Function(Q0)
+    if tp.get("initial", "steady") == "steady":
+        u, _ = ufl.split(c.w)
+        spd.interpolate(fem.Expression(ufl.sqrt(ufl.inner(u, u)), pts0))
+        speed = np.maximum(spd.x.array[:nloc], 1e-12)
+    else:
+        speed = np.ones(nloc)                                         # from rest: U_ref everywhere (conservative)
+    cell_time = float(np.min(h / speed))                              # min over cells of h / |u|
+    dt_acc, dt_cfl = 0.05 * d, 2.0 * cell_time
+    given = tp.get("dt")
+    dt = given / sc.T if given else min(dt_acc, dt_cfl)
+    rep = {"dt_s": dt * sc.T, "chosen_by": "user (dt_s)" if given else
+           ("accuracy: 0.05·d/U_ref" if dt_acc <= dt_cfl else "cell Courant number 2 on the starting velocity field"),
+           "courant_max_on_starting_field": dt / cell_time, "h_over_speed_min_s": cell_time * sc.T}
+    return dt, rep
+
+
+def compare(a: dict, b: dict, keys, tol):
+    """Relative change of each number between two runs (a = reported, b = check)."""
+    table, ok = {}, True
+    for k in keys:
+        if a.get(k) is None or b.get(k) is None:
+            continue
+        ref = max(abs(a[k]), abs(b[k]), 1e-3)                         # signals are non-dimensional, O(1)
+        ch = abs(a[k] - b[k]) / ref
+        table[k] = {"reported": a[k], "check": b[k], "change_rel": ch, "converged": bool(ch < tol)}
+        ok = ok and ch < tol
+    return table, bool(ok and table)
+
+
+def point_table(table, pa, pb, sc, tol):
+    """Add the change of the velocity at each requested point (relative to the largest point speed) to `table`."""
+    if pa and pb:
+        vmax = max(max((math.hypot(*q["velocity"]) for q in pa if q["inside_fluid"]), default=0.0), 1e-9 * sc.U)
+        for k, (qa, qb) in enumerate(zip(pa, pb)):
+            if qa["inside_fluid"] and qb["inside_fluid"]:
+                ch = math.hypot(qa["velocity"][0] - qb["velocity"][0], qa["velocity"][1] - qb["velocity"][1]) / vmax
+                table[f"point{k}.velocity"] = {"reported": qa["velocity"], "check": qb["velocity"], "change_rel": ch,
+                                               "converged": bool(ch < tol)}
+    return bool(table) and all(v["converged"] for v in table.values())
+
+
+CHECK_KEYS = ("strouhal", "drag_coefficient_mean", "lift_coefficient_amplitude", "lift_coefficient_rms")
+
+
+def transient(c: Case, p, sc: Scales, deadline):
+    """Main run on mesh `c` and, as evidence, a time-step check (same mesh, 2·dt) and optionally a mesh check (coarser
+    mesh, same dt). A run cut by the wall-clock budget returns what it has, flagged complete = False, and its numbers
+    go under `provisional_not_final`."""
+    tp = p["transient"]
+    tol = float(tp.get("tolerance", 0.02))
+    stp = Stepper(c, p, sc, 1.0)
+    dt, dt_rep = auto_dt(c, sc, tp, stp.d)
+    t_end = tp["t_end"] / sc.T
+    if t_end / dt > 400000:
+        raise ValueError(f"transient: {t_end / dt:.0f} pasos (dt = {dt * sc.T:.3g} s); acorta t_end_s o da dt_s mayor")
+    stp.set_dt(dt)
+    sws, mc = tp.get("stop_when_settled", True), tp.get("min_cycles", 8)
+    u0 = stp.initial_state(tp)
+    r = stp.march(u0, t_end, deadline, tp, "main", sws, mc)
+    out, num = stp.summary(r)
+    an = r["analysis"]
+    complete = r["stopped"] == "settled" or (r["stopped"] == "t_end" and (not sws or an["state"] in ("periodic", "steady")))
+    out.update(complete=bool(complete), time_step=dt_rep, characteristic_length=stp.d * sc.L,
+               initial_condition=tp.get("initial", "steady"), performance=r["perf"], seconds_per_step=r["perf"]["seconds_per_step"],
+               scheme="semi-implicit BDF2, coupled u-p (Taylor-Hood), GMRES preconditioned with a lagged LU (rtol 1e-8)")
+    if complete:
+        out.update(num)
+    else:
+        out["provisional_not_final"] = num
+    fp_ = final_points(c, p, sc, r["w"])
+    if fp_ is not None:
+        out["points_at_end" if complete else "points_at_interruption"] = fp_
+    stride = max(1, len(r["ts"]) // 400)
+    out["history"] = {"time": [x * sc.T for x in r["ts"][::stride]], "signal": r["sig"][::stride],
+                      "drag_coefficient": r["cd"][::stride] if stp.forms else None}
+    want = tp.get("refinement", "dt")
+    checks = {}
+    # ---- time-step check: same mesh, 2·dt
+    if want in ("dt", "both"):
+        ck = {"what": "same mesh, time step doubled (2·dt); BDF2 is second order, so the error of the reported value is "
+                      "about one third of the change", "dt": 2 * dt * sc.T, "tolerance_rel": tol}
+        if not complete:
+            ck.update(done=False, why="main run not complete")
+        elif an["state"] == "steady":
+            ck.update(done=True, converged=True, why="the run reached a steady state, which does not depend on the time step")
+        else:
+            stp.set_dt(2 * dt)
+            if an["state"] == "periodic" and r["stopped"] == "settled":
+                # restart from the periodic state: only the re-settling at the new step is computed
+                per = 1.0 / an["frequency"]
+                r2 = stp.march(r["u"], max(40 * per, 400 * dt), deadline, tp, "check 2dt", True, max(4, min(mc, 6)))
+                ck["start"] = "periodic state of the main run"
+                ok_run = r2["stopped"] == "settled"
+            else:
+                r2 = stp.march(u0, t_end, deadline, tp, "check 2dt", False, mc)
+                ck["start"] = "same initial condition, same final time"
+                ok_run = r2["stopped"] == "t_end"
+            stp.set_dt(dt)
+            o2, n2 = stp.summary(r2)
+            ck.update(state=o2["state"], stopped_by=o2["stopped_by"], steps=o2["steps"], wall_s=r2["perf"]["wall_s"])
+            if ok_run:
+                keys = CHECK_KEYS if an["state"] == "periodic" else ("signal_final",)
+                table, ok = compare(num, n2, keys, tol)
+                if an["state"] != "periodic":
+                    ok = point_table(table, fp_, final_points(c, p, sc, r2["w"]), sc, tol)
+                ck.update(done=True, converged=ok, table=table)
+            else:
+                ck.update(done=False, why=f"check run stopped by {r2['stopped']} in state {o2['state']}")
+        checks["time_step"] = ck
+    # ---- mesh check: coarser mesh (sizes × refine_ratio), same dt, its own steady start
+    if want in ("mesh", "both"):
+        ratio = float(p["mesh"].get("refine_ratio", 1.5))
+        ck = {"what": f"mesh with every size × {ratio:g} (coarser), same dt, started from its own steady solution",
+              "tolerance_rel": tol}
+        if not complete:
+            ck.update(done=False, why="main run not complete")
+        elif time.perf_counter() - T0 > deadline:
+            ck.update(done=False, why="no wall-clock budget left")
+        else:
+            c2 = Case(p, c.mesh_info["size_factor"] / ratio)
+            ck["mesh"] = c2.mesh_info
+            re_ = sc.rho * sc.U * sc.L / p["mu"]
+            rep2 = c2.steady(re_) if tp.get("initial", "steady") == "steady" else {"converged": True}
+            c2.nu.value = 1.0 / re_
+            s2 = Stepper(c2, p, sc, dt)
+            r2 = s2.march(s2.initial_state(tp), t_end, deadline, tp, "check mesh", sws, mc)
+            o2, n2 = s2.summary(r2)
+            ck.update(state=o2["state"], stopped_by=o2["stopped_by"], steps=o2["steps"], wall_s=r2["perf"]["wall_s"],
+                      steady_start_converged=bool(rep2["converged"]))
+            same_end = o2["state"] == an["state"] and r2["stopped"] == r["stopped"]
+            if same_end:
+                table, ok = compare(num, n2, CHECK_KEYS if an["state"] == "periodic" else ("drag_coefficient_mean", "signal_final"), tol)
+                if an["state"] != "periodic":
+                    ok = point_table(table, fp_, final_points(c2, p, sc, r2["w"]), sc, tol)
+                ck.update(done=True, converged=ok, table=table)
+            else:
+                ck.update(done=False, why=f"check run stopped by {r2['stopped']} in state {o2['state']}")
+        checks["mesh"] = ck
+    out["refinement"] = checks
+    c.w.x.array[:] = r["w"]
     return out
 
 

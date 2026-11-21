@@ -4,7 +4,8 @@ The fluid domain is a union of axis-aligned rectangles minus obstacles (rectangl
 axis of an axisymmetric domain is a sphere). Boundary segments are picked with simple geometric selectors and default
 to no-slip walls. The steady Navier-Stokes equations are solved with Taylor-Hood P2-P1 elements and Newton (with
 continuation in Re when Newton fails); optionally a semi-implicit BDF2 transient (vortex shedding) and a steady passive
-scalar (Nusselt / Sherwood on a surface).
+scalar (Nusselt / Sherwood on a surface). The fluid is Newtonian or generalised Newtonian (`rheology`: power law,
+Carreau, Carreau-Yasuda; steady only), with the apparent viscosity a function of γ̇ = √(2 D:D).
 
 FEniCSx runs as a SEPARATE PROCESS (`packages/transport/fenicsx/flow2d_solver.py`, JSON in/out) with a timeout that
 kills the process group, exactly like `reactor_field`. Nothing from dolfinx is imported here. This module validates
@@ -16,7 +17,10 @@ the request, chooses reference scales and mesh sizes, and turns the solver outpu
     the ones that do not are listed in `not_mesh_converged`
   * poiseuille_self_check: on every straight section where the flow is fully developed, the measured dp/ds equals
     the exact Poiseuille value for the measured flow (None when no section is developed)
-`verified` is true only when all hold (and, for a transient request, never: no time-step / mesh study is run for it).
+`verified` is true only when all hold. For a transient request it also needs the run to be complete (periodic / steady
+/ fixed final time reached, not cut by `max_wall_s`) and BOTH transient checks done and passed: time step (2·dt, on by
+default) and mesh (coarser mesh, `transient.refinement = "both"`). A run cut by the wall-clock budget is returned with
+`partial = True` and its numbers under `transient.provisional_not_final`.
 """
 from __future__ import annotations
 
@@ -34,6 +38,9 @@ MAX_BASE_CELLS = 20000
 TYPES = ("inlet", "outlet", "wall", "symmetry", "stream")
 SIDES = {"left": ("x", 0), "right": ("x", 2), "bottom": ("y", 1), "top": ("y", 3)}
 EXPR_NAMES = {"x", "y", "r", "z", "pi"}
+RHEOLOGY_KEYS = {"power_law": {"model", "K", "n", "gamma_reg_1_s"},
+                 "carreau": {"model", "eta0", "eta_inf", "lambda_s", "n"},
+                 "carreau_yasuda": {"model", "eta0", "eta_inf", "lambda_s", "n", "a", "gamma_reg_1_s"}}
 
 fenicsx_python = RF.fenicsx_python
 fenicsx_available = RF.fenicsx_available
@@ -90,8 +97,57 @@ def _line(on, bbox, rects, what):
     return {"axis": axis, "value": float(value), "range": [float(rng[0]), float(rng[1])]}
 
 
+def apparent_viscosity(r: dict, shear_rate_1_s: float) -> float:
+    """η(γ̇) in Pa·s of a normalised rheology dict (the same expressions the solver assembles, regularisation included)."""
+    g, n = float(shear_rate_1_s), r["n"]
+    e2 = r.get("gamma_reg_1_s", 0.0) ** 2
+    if r["model"] == "power_law":
+        return r["K"] * (g * g + e2) ** ((n - 1) / 2)
+    if r["model"] == "carreau":
+        return r["eta_inf"] + (r["eta0"] - r["eta_inf"]) * (1 + (r["lambda_s"] * g) ** 2) ** ((n - 1) / 2)
+    a = r["a"]
+    return r["eta_inf"] + (r["eta0"] - r["eta_inf"]) * (1 + r["lambda_s"] ** a * (g * g + e2) ** (a / 2)) ** ((n - 1) / a)
+
+
+def _rheology(rheology, rate_ref):
+    """Validate and normalise the rheology request. `rate_ref` = U_ref / L_ref (1/s) scales the default regularisation."""
+    if not isinstance(rheology, dict) or rheology.get("model") not in RHEOLOGY_KEYS:
+        raise ValueError(f"rheology.model debe ser uno de {', '.join(RHEOLOGY_KEYS)}")
+    model = rheology["model"]
+    unknown = set(rheology) - RHEOLOGY_KEYS[model]
+    if unknown:
+        raise ValueError(f"rheology ({model}): claves no reconocidas {sorted(unknown)}; válidas: {sorted(RHEOLOGY_KEYS[model])}")
+    n = _num(rheology.get("n"), "rheology.n")
+    if not 0.05 <= n <= 3:
+        raise ValueError("rheology.n (índice de flujo) debe estar entre 0.05 y 3")
+    r = {"model": model, "n": n}
+    if model == "power_law":
+        r["K"] = _num(rheology.get("K"), "rheology.K (Pa·s^n)")
+        if r["K"] <= 0:
+            raise ValueError("rheology.K debe ser positivo (Pa·s^n)")
+        r["gamma_reg_1_s"] = _num(rheology.get("gamma_reg_1_s", 1e-3 * rate_ref), "rheology.gamma_reg_1_s")
+        if r["gamma_reg_1_s"] <= 0:
+            raise ValueError("rheology.gamma_reg_1_s debe ser positivo: la ley de potencia no está definida en γ̇ = 0")
+    else:
+        r["eta0"] = _num(rheology.get("eta0"), "rheology.eta0 (Pa·s)")
+        r["eta_inf"] = _num(rheology.get("eta_inf", 0.0), "rheology.eta_inf (Pa·s)")
+        r["lambda_s"] = _num(rheology.get("lambda_s"), "rheology.lambda_s (s)")
+        if r["eta0"] <= 0 or r["eta_inf"] < 0 or r["lambda_s"] < 0:
+            raise ValueError("rheology: eta0 > 0, eta_inf ≥ 0 y lambda_s ≥ 0")
+        if model == "carreau_yasuda":
+            r["a"] = _num(rheology.get("a", 2.0), "rheology.a")
+            if r["a"] <= 0:
+                raise ValueError("rheology.a (exponente de Yasuda) debe ser positivo")
+            r["gamma_reg_1_s"] = _num(rheology.get("gamma_reg_1_s", 1e-6 * rate_ref), "rheology.gamma_reg_1_s")
+            if r["gamma_reg_1_s"] <= 0:
+                raise ValueError("rheology.gamma_reg_1_s debe ser positivo")
+        # exactly Newtonian members of the family: the developed-flow self-check then uses Poiseuille with η0
+        r["newtonian_equivalent_Pa_s"] = r["eta0"] if (n == 1 or r["lambda_s"] == 0 or r["eta0"] == r["eta_inf"]) else None
+    return r
+
+
 def _prepare(geometry, boundaries, density_kg_m3, viscosity_Pa_s, reynolds, reference_length_m, reference_velocity_m_s,
-             stream_direction, points, sections, pressure_drop_between, scalar, transient, mesh):
+             stream_direction, points, sections, pressure_drop_between, scalar, transient, mesh, rheology=None):
     if not isinstance(geometry, dict) or geometry.get("mode") not in ("planar", "axisymmetric"):
         raise ValueError("geometry.mode debe ser 'planar' o 'axisymmetric'")
     axi = geometry["mode"] == "axisymmetric"
@@ -214,7 +270,18 @@ def _prepare(geometry, boundaries, density_kg_m3, viscosity_Pa_s, reynolds, refe
         Lr, l_def = _num(Lr, "reference_length_m"), "dada por el usuario"
     if U <= 0 or Lr <= 0:
         raise ValueError("reference_velocity_m_s y reference_length_m deben ser positivos")
-    if reynolds is not None:
+    rheo = None
+    if rheology is not None:
+        if reynolds is not None or viscosity_Pa_s is not None or density_kg_m3 is None:
+            raise ValueError("rheology: da density_kg_m3 y los parámetros del modelo en SI; no se admite reynolds ni viscosity_Pa_s "
+                             "(la viscosidad la da el modelo)")
+        if transient is not None:
+            raise ValueError("rheology con transient no está soportado (el transitorio no newtoniano no está validado)")
+        rheo = _rheology(rheology, U / Lr)
+        rho, mu = float(density_kg_m3), apparent_viscosity(rheo, U / Lr)
+        fluid = (f"no newtoniano ({rheo['model']}); la viscosidad de referencia μ_ref = η(γ̇_ref) = {mu:.4g} Pa·s se evalúa en "
+                 f"γ̇_ref = U_ref/L_ref = {U / Lr:.4g} 1/s y solo fija la escala de Re")
+    elif reynolds is not None:
         if viscosity_Pa_s is not None:
             raise ValueError("da reynolds o viscosity_Pa_s, no ambos")
         rho = density_kg_m3 if density_kg_m3 is not None else 1.0
@@ -241,12 +308,28 @@ def _prepare(geometry, boundaries, density_kg_m3, viscosity_Pa_s, reynolds, refe
             notes.append(f"mesh.size por omisión limitado a {h:.3g} para no pasar de ~{MAX_BASE_CELLS} celdas en la malla base")
     else:
         h = _num(m["size"], "mesh.size")
-    for o in obstacles:
-        o["mesh_size"] = min(float(m.get("obstacle_size") or o["_size"] / 24.0), h)
-        del o["_size"]
     boxes = []
     for bx in m.get("boxes") or []:
         boxes.append({"box": _box(bx.get("box"), "mesh.boxes[].box"), "size": _num(bx.get("size"), "mesh.boxes[].size")})
+    if transient is not None and not boxes and m.get("size") is None:
+        # automatic wake box for a transient: the default mesh grows away from the obstacle and would smear the vortices
+        for o in obstacles:
+            d = o["_size"]
+            c = o["center"] if o["type"] == "circle" else [0.5 * (o["box"][0] + o["box"][2]), 0.5 * (o["box"][1] + o["box"][3])]
+            lo, hi = [c[0] - 1.2 * d, c[1] - 1.2 * d], [c[0] + 1.2 * d, c[1] + 1.2 * d]
+            sgn = 1.0 if stream_direction[0] == "+" else -1.0
+            if sgn > 0:
+                hi[sax] = c[sax] + 10 * d
+            else:
+                lo[sax] = c[sax] - 10 * d
+            bx = [max(lo[0], bbox[0]), max(lo[1], bbox[1]), min(hi[0], bbox[2]), min(hi[1], bbox[3])]
+            if bx[2] > bx[0] and bx[3] > bx[1] and d / 7.0 < h:
+                boxes.append({"box": bx, "size": d / 7.0})
+                notes.append(f"transient sin mesh.boxes: se añadió una caja de estela de tamaño d/7 = {d / 7.0:.3g} detrás de '{o['name']}' "
+                             f"({bx[0]:.3g}..{bx[2]:.3g} × {bx[1]:.3g}..{bx[3]:.3g})")
+    for o in obstacles:
+        o["mesh_size"] = min(float(m.get("obstacle_size") or o["_size"] / 24.0), h)
+        del o["_size"]
     mp = {"size": h, "growth": float(m.get("growth", 0.12)), "boxes": boxes, "refine_ratio": float(m.get("refine_ratio", 1.5)),
           "refinement_check": bool(m.get("refinement_check", True))}
     if h <= 0 or not 1.2 <= mp["refine_ratio"] <= 3 or not 0.01 <= mp["growth"] <= 1:
@@ -254,6 +337,8 @@ def _prepare(geometry, boundaries, density_kg_m3, viscosity_Pa_s, reynolds, refe
 
     payload = {"mode": geometry["mode"], "rectangles": rects, "obstacles": obstacles, "boundaries": bnds, "rho": rho, "mu": mu,
                "L_ref": Lr, "U_ref": U, "stream_direction": stream_direction, "mesh": mp}
+    if rheo:
+        payload["rheology"] = rheo
     if points:
         payload["points"] = [[_num(pt[0], "points"), _num(pt[1], "points")] for pt in points]
     secs = []
@@ -281,16 +366,25 @@ def _prepare(geometry, boundaries, density_kg_m3, viscosity_Pa_s, reynolds, refe
         payload["scalar"] = {"peclet": pe, "values": {k: _num(v, "scalar.values") for k, v in vals.items()}}
         if scalar.get("reference_inlet_value") is not None:
             payload["scalar"]["reference_inlet_value"] = _num(scalar["reference_inlet_value"], "scalar.reference_inlet_value")
-    if transient:
+    if transient is not None:
+        if not isinstance(transient, dict):
+            raise ValueError("transient debe ser un objeto ({} = valores por omisión)")
         tref = Lr / U
-        unknown = set(transient) - {"dt_s", "t_end_s", "perturbation", "min_cycles", "stop_when_settled", "mesh"}
+        unknown = set(transient) - {"dt_s", "t_end_s", "perturbation", "min_cycles", "stop_when_settled", "mesh", "initial",
+                                    "refinement", "tolerance"}
         if unknown:
             raise ValueError(f"transient: claves no reconocidas {sorted(unknown)}")
-        tr = {"dt": float(transient.get("dt_s") or 0.05 * tref), "t_end": float(transient.get("t_end_s") or 150 * tref),
+        tr = {"dt": float(transient["dt_s"]) if transient.get("dt_s") else None,       # None: chosen by the solver (see auto_dt)
+              "t_end": float(transient.get("t_end_s") or 150 * tref),
               "perturbation": float(transient.get("perturbation", 0.2)), "min_cycles": int(transient.get("min_cycles", 8)),
-              "stop_when_settled": bool(transient.get("stop_when_settled", True)), "mesh": transient.get("mesh", "base")}
-        if tr["dt"] <= 0 or tr["t_end"] <= tr["dt"] or tr["mesh"] not in ("base", "fine") or tr["t_end"] / tr["dt"] > 200000:
-            raise ValueError("transient: dt_s > 0, t_end_s > dt_s, mesh 'base' o 'fine', y como mucho 200 000 pasos")
+              "stop_when_settled": bool(transient.get("stop_when_settled", True)), "mesh": transient.get("mesh", "base"),
+              "initial": transient.get("initial", "steady"), "refinement": transient.get("refinement", "dt"),
+              "tolerance": float(transient.get("tolerance", m.get("tolerance", MESH_TOL)))}
+        if tr["initial"] not in ("steady", "rest") or tr["refinement"] not in ("dt", "mesh", "both", "none"):
+            raise ValueError("transient: initial debe ser 'steady' o 'rest'; refinement 'dt', 'mesh', 'both' o 'none'")
+        if (tr["dt"] is not None and (tr["dt"] <= 0 or tr["t_end"] <= tr["dt"] or tr["t_end"] / tr["dt"] > 200000)) \
+                or tr["t_end"] <= 0 or tr["mesh"] not in ("base", "fine") or tr["min_cycles"] < 4 or tr["tolerance"] <= 0:
+            raise ValueError("transient: dt_s > 0, t_end_s > dt_s, mesh 'base' o 'fine', min_cycles ≥ 4 y como mucho 200 000 pasos")
         payload["transient"] = tr
     ctx = {"u_def": u_def, "l_def": l_def, "fluid": fluid, "notes": notes, "bbox": bbox, "axi": axi, "sax": sax,
            "tol": float(m.get("tolerance", MESH_TOL))}
@@ -356,16 +450,23 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
                     reference_velocity_m_s: float | None = None, stream_direction: str = "+x", points: list | None = None,
                     sections: list | None = None, pressure_drop_between: list | None = None, scalar: dict | None = None,
                     transient: dict | None = None, mesh: dict | None = None, figure_path: str | None = None,
-                    timeout_s: int | None = None) -> dict:
+                    timeout_s: int | None = None, rheology: dict | None = None, max_wall_s: float | None = None) -> dict:
     """Steady (optionally transient) laminar incompressible flow on a 2-D planar or axisymmetric geometry with FEniCSx
     (separate process). See the module docstring for the evidence and `packages.dwsim_client.tools_flow2d` for the
     user-facing description of every argument."""
     payload, ctx = _prepare(geometry, boundaries, density_kg_m3, viscosity_Pa_s, reynolds, reference_length_m,
                             reference_velocity_m_s, stream_direction, points, sections, pressure_drop_between, scalar,
-                            transient, mesh)
+                            transient, mesh, rheology)
+    if max_wall_s is not None:
+        max_wall_s = _num(max_wall_s, "max_wall_s")
+        if max_wall_s <= 0:
+            raise ValueError("max_wall_s debe ser positivo (segundos de pared para el transitorio)")
     if timeout_s is None:
-        timeout_s = 1800 if transient else 300
-    payload["time_budget_s"] = max(timeout_s - 20, 0.6 * timeout_s)
+        timeout_s = 1800 if transient is not None else 300
+        if max_wall_s is not None:                                    # room to finish the step, post-process and write
+            timeout_s = int(max_wall_s + max(120.0, 0.25 * max_wall_s))
+    # wall-clock budget of the solver process: the transient stops cleanly there and returns a PARTIAL result
+    payload["time_budget_s"] = max(timeout_s - 20, 0.6 * timeout_s) if max_wall_s is None else min(max_wall_s, max(timeout_s - 5, 0.5 * timeout_s))
     if figure_path:
         payload["figure_path"] = str(Path(figure_path).expanduser().resolve())
     L, U, rho, mu = payload["L_ref"], payload["U_ref"], payload["rho"], payload["mu"]
@@ -377,7 +478,8 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
     except RuntimeError as ex:
         if "no terminó" in str(ex):
             raise RuntimeError(f"FEniCSx no terminó en {timeout_s} s (laminar_flow_2d). Sube timeout_s, engruesa la malla "
-                               "(mesh.size, mesh.obstacle_size) o acorta el transitorio (t_end_s, dt_s).") from None
+                               "(mesh.size, mesh.obstacle_size), acorta el transitorio (t_end_s, dt_s) o da max_wall_s menor que "
+                               "timeout_s para recibir un resultado parcial.") from None
         raise
     res = out.get("result")
     newton = out["steady"]["newton"]
@@ -385,8 +487,14 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
     ev = {"newton_converged": bool(out["steady"]["converged"]), "newton_residual_norm": newton["residual_norm"],
           "newton_residual_norm_initial": newton.get("residual_norm_initial"),
           "newton_iterations": newton["newton_iterations"], "continuation_in_Re": bool(newton.get("continuation_used")),
-          "newton_path": newton["path"]}
-    if not ev["newton_converged"]:
+          "newton_path": newton["path"], "newton_tolerances": newton.get("tolerances")}
+    rheo = payload.get("rheology")
+    if rheo:
+        ev["continuation_in_rheology"] = bool(newton.get("continuation_in_rheology_used"))
+    if not ev["newton_converged"] and rheo and newton.get("theta_reached") is not None:
+        reasons.append(f"Newton no convergió con el modelo reológico completo (la continuación llegó a θ = {newton['theta_reached']:.3g} "
+                       "de 1 entre newtoniano y el modelo): sube rheology.gamma_reg_1_s o refina la malla")
+    elif not ev["newton_converged"]:
         reasons.append(f"Newton no convergió al Re pedido (alcanzó Re = {newton.get('Re_reached', 0):.4g} por continuación): "
                        "probablemente no hay solución estacionaria estable alcanzable; usa transient o refina la malla")
     result = {"converged": ev["newton_converged"], "mode": payload["mode"], "Re": Re,
@@ -397,11 +505,39 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
                         else "POR UNIDAD DE PROFUNDIDAD: m²/s y N/m") + ". Si se dio reynolds sin fluido, ρ = 1 y las "
                         "presiones y fuerzas quedan en esas unidades (úsense los coeficientes adimensionales)."),
               "stream_direction": stream_direction}
-    if res is not None and (ev["newton_converged"] or transient):
+    if rheo:
+        rate = U / L
+        rb = {"model": rheo["model"], "parameters": {k: v for k, v in rheo.items() if k not in ("model", "gamma_reg_1_s", "newtonian_equivalent_Pa_s")},
+              "viscosity_law": {"power_law": "η = K·(γ̇² + γ̇_reg²)^((n−1)/2)",
+                                "carreau": "η = η∞ + (η0 − η∞)·[1 + (λγ̇)²]^((n−1)/2)",
+                                "carreau_yasuda": "η = η∞ + (η0 − η∞)·[1 + (λγ̇_r)^a]^((n−1)/a), γ̇_r = √(γ̇² + γ̇_reg²)"}[rheo["model"]],
+              "shear_rate_definition": "γ̇ = √(2 D:D), D = (∇u + ∇uᵀ)/2" + ("; axisimétrico: incluye D_θθ = u_r/r" if ctx["axi"] else ""),
+              "regularisation_shear_rate_1_s": rheo.get("gamma_reg_1_s"),
+              "regularisation_note": ("la ley de potencia se regulariza cerca de γ̇ = 0: η ≤ K·γ̇_reg^(n−1)" if rheo["model"] == "power_law"
+                                      else ("γ̇_reg solo hace derivable (λγ̇)^a en γ̇ = 0" if rheo["model"] == "carreau_yasuda"
+                                            else "sin regularización: Carreau es regular en γ̇ = 0")),
+              "reference_shear_rate_1_s": rate, "reference_viscosity_Pa_s": mu,
+              "Re_definition": "Re = ρ·U_ref·L_ref/η(γ̇_ref), γ̇_ref = U_ref/L_ref (escala, no un Re generalizado)",
+              "iteration": "Newton (SNES, búsqueda lineal) sobre el sistema completo con η(γ̇) derivada exactamente; arranque desde la "
+                           "solución newtoniana con μ_ref y, si falla, continuación η_θ = μ_ref^(1−θ)·η^θ",
+              "newtonian_equivalent_Pa_s": rheo.get("newtonian_equivalent_Pa_s")}
+        if rheo["model"] == "power_law" and ctx["axi"] and "diámetro del tubo" in ctx["l_def"]:
+            n_, K_ = rheo["n"], rheo["K"]
+            # Metzner & Reed (1955) generalised Reynolds number for a power-law fluid in a tube (definition)
+            rb["Re_metzner_reed"] = rho * U ** (2 - n_) * L ** n_ / (K_ * 8 ** (n_ - 1) * ((3 * n_ + 1) / (4 * n_)) ** n_)
+            rb["Re_metzner_reed_definition"] = "ρ·ū^(2−n)·D^n / [K·8^(n−1)·((3n+1)/(4n))^n], con ū = U_ref y D = L_ref"
+        result["rheology"] = rb
+    if res is not None and (ev["newton_converged"] or transient is not None):
         for k in ("boundaries", "mass_balance", "pressure_drops", "points", "sections", "straight_sections", "obstacles",
                   "recirculation", "scalar", "velocity_max", "pressure_min_max"):
             if k in res:
                 result[k] = res[k]
+        if rheo and res.get("rheology_field"):
+            result["rheology"]["field"] = res["rheology_field"]
+            frac = res["rheology_field"]["cells_below_regularisation_rate_fraction"]
+            if rheo["model"] == "power_law" and frac > 0.05:
+                warnings.append(f"Ley de potencia: en el {frac:.0%} de las celdas γ̇ < γ̇_reg = {rheo['gamma_reg_1_s']:.3g} 1/s (viscosidad "
+                                "regularizada, no la del modelo); baja rheology.gamma_reg_1_s y comprueba que el resultado no cambia.")
         mb = res["mass_balance"]
         ev["mass_imbalance_rel"] = mb["imbalance_rel"]
         ev["mass_balanced"] = mb["imbalance_rel"] < MASS_TOL
@@ -450,7 +586,7 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
             o = next(o for o in payload["obstacles"] if o["name"] == name)
             re_o = Re * ob["characteristic_length"] / L
             ob["reynolds_obstacle"] = re_o
-            if not transient and o["type"] == "circle":
+            if transient is None and not rheo and o["type"] == "circle":
                 lim = 210.0 if ctx["axi"] else 47.0
                 if re_o > lim:
                     warnings.append(f"Re del obstáculo '{name}' = {re_o:.0f} > {lim:.0f}: la solución ESTACIONARIA calculada existe pero es "
@@ -462,32 +598,64 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
         warnings.append("Sin frontera 'outlet': la presión queda definida salvo una constante; se reporta con media nula (solo valen diferencias).")
     if Re > 2300 and not payload["obstacles"]:
         warnings.append(f"Re = {Re:.0f} sobre L_ref: en un conducto el flujo real sería de transición o turbulento; este modelo es laminar.")
-    if transient:
+    if transient is not None:
         tr = out.get("transient", {})
-        tr.pop("analysis", None)
         result["transient"] = tr
         ev["transient_state"] = tr.get("state")
-        ev["transient_refinement_checked"] = False
-        reasons.append("transitorio sin estudio de malla ni de paso de tiempo: St y C_D medio son de UNA malla y UN dt "
-                       "(repite con mesh.size y dt_s menores para acotar el error)")
-        if tr.get("state") == "not_settled":
-            reasons.append(f"el transitorio no llegó a un régimen establecido (paró por {tr.get('stopped_by')}); sube t_end_s / timeout_s")
-        if tr.get("state") == "diverged":
-            reasons.append("el transitorio divergió: reduce dt_s o alarga el dominio aguas abajo")
-        if tr.get("steps_per_period") and tr["steps_per_period"] < 40:
-            warnings.append(f"Solo {tr['steps_per_period']:.0f} pasos por periodo: reduce dt_s (BDF2 amortigua y desfasa con pocos pasos).")
+        ev["transient_complete"] = bool(tr.get("complete"))
+        checks = tr.get("refinement", {})
+        ev["transient_refinement"] = {k: {kk: c.get(kk) for kk in ("what", "done", "converged", "why", "table", "tolerance_rel")}
+                                      for k, c in checks.items()}
+        dt_ok = bool(checks.get("time_step", {}).get("done") and checks["time_step"].get("converged"))
+        mesh_ok = bool(checks.get("mesh", {}).get("done") and checks["mesh"].get("converged"))
+        ev["transient_time_step_converged"] = dt_ok if "time_step" in checks else None
+        ev["transient_mesh_converged"] = mesh_ok if "mesh" in checks else None
+        ev["transient_refinement_checked"] = bool(dt_ok and mesh_ok)
+        if not tr.get("complete"):
+            result["partial"] = True
+            cut = tr.get("stopped_by") == "time_budget"
+            result["status"] = ("RESULTADO PARCIAL, NO TERMINADO: el transitorio " +
+                                (f"se cortó por el presupuesto de tiempo de pared ({payload['time_budget_s']:.0f} s)" if cut
+                                 else f"paró por {tr.get('stopped_by')} en estado {tr.get('state')}") +
+                                f" a t = {tr.get('time_simulated', 0):.4g} s ({tr.get('steps', 0)} pasos). Los números de "
+                                "transient.provisional_not_final NO son valores finales y no deben citarse como resultado.")
+            reasons.append(result["status"])
+            if tr.get("state") == "diverged":
+                reasons.append("el transitorio divergió: reduce dt_s o alarga el dominio aguas abajo")
+            elif cut:
+                reasons.append("sube max_wall_s / timeout_s, engruesa la malla o da dt_s mayor para terminar")
+            else:
+                reasons.append("el transitorio no llegó a un régimen establecido: sube t_end_s")
+        else:
+            result["partial"] = False
+        for key, label, hint in (("time_step", "paso de tiempo", "reduce dt_s"), ("mesh", "malla", "reduce mesh.size / mesh.obstacle_size")):
+            c = checks.get(key)
+            if c is None:
+                reasons.append(f"transitorio sin estudio de {label} (transient.refinement = '{payload['transient']['refinement']}'; "
+                               "usa 'both' para comprobar paso de tiempo y malla)")
+            elif not c.get("done"):
+                reasons.append(f"transitorio: la comprobación de {label} no se completó ({c.get('why')})")
+            elif not c.get("converged"):
+                bad = [k for k, v in (c.get("table") or {}).items() if not v["converged"]]
+                reasons.append(f"transitorio no convergido en {label}: {', '.join(bad)} cambian más de {c.get('tolerance_rel', 0):.0%}; {hint}")
+        spp = tr.get("steps_per_period") or tr.get("provisional_not_final", {}).get("steps_per_period")
+        if spp and spp < 40:
+            warnings.append(f"Solo {spp:.0f} pasos por periodo: reduce dt_s (BDF2 amortigua y desfasa con pocos pasos).")
         if ctx["axi"]:
             warnings.append("Transitorio axisimétrico: no captura inestabilidades tridimensionales (estela de esfera a Re > ~210).")
     ev["verified"] = not reasons
     ev["reasons"] = reasons
     result.update(mesh=out["steady"]["mesh"], evidence=ev, warnings=warnings, timing_s=out["timing_s"],
                   figure_path=out.get("figure_path"), engine=f"FEniCSx dolfinx {out.get('dolfinx_version', '?')} + gmsh",
-                  assumptions=["fluido newtoniano incompresible de propiedades constantes, flujo laminar, sin gravedad (p es la presión "
+                  assumptions=[("fluido newtoniano generalizado (" + rheo["model"] + ": viscosidad aparente función de γ̇; forma "
+                                "(2η D(u), D(v)) del término viscoso)" if rheo else "fluido newtoniano") +
+                               " incompresible de propiedades constantes, flujo laminar, sin gravedad (p es la presión "
                                "dinámica: añádase ρgh aparte)",
                                "2-D plano (profundidad infinita) o axisimétrico sin giro (x = eje z, y = radio r)",
                                "Taylor-Hood P2-P1, Newton con LU directo (MUMPS); salida p = p0 con flujo normal",
                                "fuerzas por reacción del residuo (consistente); parte de presión = ∫ p n dS; viscosa = total − presión"],
-                  not_included=["turbulencia", "flujo 3-D o con giro", "superficie libre, dos fases", "no newtoniano",
+                  not_included=["turbulencia", "flujo 3-D o con giro", "superficie libre, dos fases",
+                                "esfuerzo de cedencia (Bingham, Herschel-Bulkley), viscoelasticidad, tixotropía; transitorio no newtoniano",
                                 "propiedades variables / flotación", "paredes curvas distintas de círculos, o inclinadas",
                                 "escalar transitorio o acoplado al flujo"])
     return result

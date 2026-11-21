@@ -89,8 +89,10 @@ Hard rules:
    For mass balances with a stated recovery or "perfect split" per compound, use the component_separator unit
    (ideal splitter, needs an energy stream); say in the answer that it is an ideal split, not a designed separation.
    The shortcut_column is DWSIM's Fenske-Underwood-Gilliland with one average volatility: for non-ideal or azeotropic
-   mixtures (ethanol-water, tangent pinches) its N_min and R_min are NOT reliable — say so and size with a rigorous
-   distillation_column instead of reporting them as results.
+   mixtures (ethanol-water, tangent pinches) its N_min and R_min are NOT reliable. For any BINARY shortcut question
+   (minimum stages, minimum reflux, reflux for N stages, stages at a reflux) use binary_distillation_design, which steps
+   the real equilibrium curve of the stated model (ideal, Wilson, NRTL, UNIQUAC), finds tangent pinches and refuses a
+   distillate beyond the azeotrope; then get duties and profiles from a rigorous distillation_column at that reflux.
    A process with more than ~4 units is built with ONE build_flowsheet call (all streams, units, connections and
    reactions in one specification), never unit by unit; constraints such as a feed ratio at a reactor inlet or an
    inert level set by a purge are met with flowsheet_goal_seek (1-3 specifications together), not by trial solves.
