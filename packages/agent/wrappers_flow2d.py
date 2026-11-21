@@ -56,7 +56,10 @@ def laminar_flow_2d(geometry: dict, boundaries: list[dict], density_kg_m3: float
       size, else L_ref) capped by a cell Courant number of 2; reported in transient.time_step. t_end_s default 150
       L_ref/U_ref; the run stops earlier once periodic ("min_cycles", default 8) or steady. "mesh": "base"|"fine".
       "refinement": "dt" (default: repeats with 2*dt on the same mesh) | "mesh" (coarser mesh) | "both" | "none"; the
-      changes of strouhal, mean C_D, lift amplitude (or of the point velocities) are the convergence evidence
+      changes of strouhal, mean C_D, lift amplitude (or of the point velocities) are the convergence evidence. For a
+      periodic flow the time-step check adds a third level (4*dt): each table row gives observed_order,
+      extrapolated_dt_to_zero and error_estimate_rel; a row that changes more than the tolerance is accepted only if the
+      observed order is 1.5-2.5 (BDF2) and that error estimate is below the tolerance (converged_by says which rule)
       ("tolerance", default 0.02). Without mesh.size / mesh.boxes a wake box of size d/7 is added behind each obstacle.
       A cylinder at Re = 100 takes about 4-9 min (6 000-14 000 cells); set max_wall_s.
     mesh: {"size", "obstacle_size", "growth", "boxes": [{"box": [x0,y0,x1,y1], "size"}], "refine_ratio" (1.5),
@@ -69,14 +72,20 @@ def laminar_flow_2d(geometry: dict, boundaries: list[dict], density_kg_m3: float
     Returns Re, reference, boundaries {name: flow_out (per unit depth m2/s, or m3/s axisymmetric), mean_pressure},
     mass_balance, pressure_drops, points, sections, straight_sections (fully developed dp/dx vs the exact Poiseuille or
     power-law value, u_max/mean, entry_length_99 = distance from the section start to where the centre-line velocity
-    stays within 1 % of the developed one, entry_length_99_over_width (tube: /D), entry_length_reference = analytic or,
-    for Carreau, the velocity measured at the section end), rheology {model, parameters, viscosity_law,
+    stays within 1 % of the developed one MEASURED at the section end (entry_length_reference; analytic only if the
+    section is not developed), with entry_length_98 / _995 and entry_length_99_sensitivity_rel_per_0p1pct_reference
+    (the crossing is flat: quote the length with that sensitivity), entry_length_99_mesh_check {change_rel, converged}
+    and entry_length_99_status when NOT mesh converged (then do not quote it), entry_length_99_over_width (tube: /D)),
+    rheology {model, parameters, viscosity_law,
     regularisation_shear_rate_1_s, reference_viscosity_Pa_s, Re_metzner_reed (power law in a tube), field: apparent
     viscosity min/max and shear-rate max}, obstacles {name: drag split into pressure and viscous, drag_coefficient,
     lift}, recirculation {exists, zones: extent, wall {from, to} = separation/reattachment by wall-shear sign change, or
-    length_from_obstacle_rear for wakes}, domain (blockage of each obstacle; results depend on it at low Re), scalar,
+    length_from_obstacle_rear for wakes}, domain (blockage d/H and upstream / downstream / lateral distances of each obstacle in obstacle sizes; C_D and St
+    depend on the domain at the ~1 % level even at blockage 1-3 %: a warning says so, no blockage correction is applied
+    and evidence.verified does NOT cover domain size), scalar,
     transient {state "steady"|"periodic"|"not_settled"|"diverged", complete, stopped_by, strouhal (f*d/U_ref),
-    drag_coefficient_mean, lift_coefficient_amplitude, points_at_end, time_step, refinement {time_step, mesh: table of
+    drag_coefficient_mean, lift_coefficient_amplitude (parabolic peak, not the largest sample;
+    lift_amplitude_growth_per_cycle = its drift at the end of the run), points_at_end, time_step, refinement {time_step, mesh: table of
     changes, converged}, performance (s/step, LU count)}, partial, status, evidence {newton_converged, residual,
     newton_tolerances, mass_imbalance_rel, mesh_refinement (change of every steady number between two meshes),
     not_mesh_converged, poiseuille_self_check, transient_time_step_converged, transient_mesh_converged, verified,

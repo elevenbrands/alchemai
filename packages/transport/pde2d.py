@@ -19,9 +19,15 @@ Evidence returned with every call: the problem is solved on three nested grids (
 carries its change between the last two, the observed order and a `grid_converged` flag; the nonlinear residual and the
 global balance (boundary fluxes, convection term, integrated source) evaluated with array formulas that do not use the
 assembled matrix.
+
+outputs['derived'] expressions may contain measurements of the field (MEASURES: point value, wall normal derivative /
+flux / value, area and cup-mixing averages over a section), so that e.g. a local Nusselt number is one expression, and
+may be evaluated as a profile along a coordinate. A grid can be graded towards an interior position ('cluster': 'at'),
+for a wall condition that jumps there; such jumps are detected and reported (evidence.grid_refinement).
 """
 from __future__ import annotations
 
+import ast
 import math
 import time
 
@@ -30,7 +36,7 @@ from scipy import sparse
 from scipy.interpolate import RegularGridInterpolator
 from scipy.sparse.linalg import splu
 
-from packages.transport.pde2d_expr import RESERVED, Expr
+from packages.transport.pde2d_expr import MEASURE_KEY, RESERVED, Expr
 
 SYSTEMS = {"cartesian": ("x", "y"), "axisymmetric": ("r", "z"), "polar": ("r", "theta"),
            "spherical_axisymmetric": ("r", "theta")}
@@ -44,6 +50,10 @@ NEWTON_TOL = 1e-10
 TVD_TOL = 1e-8
 PECLET_CENTRAL_LIMIT = 2.0
 _TWO_PI = 2.0 * math.pi
+# measurements that can be written inside outputs['derived'] expressions (see _Problem._measures)
+MEASURES = ("value", "wall_gradient", "wall_flux", "wall_value", "area_average", "mixing_cup")
+MEASURES_TEXT = ("value(expr, c1, c2); wall_gradient(var, lado, s), wall_flux(var, lado, s), wall_value(var, lado, s); "
+                 "area_average(expr, coord, pos), mixing_cup(expr, coord, pos)")
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -357,10 +367,123 @@ class _Problem:
             raise ValueError("outputs['derived']: se espera {nombre: expresión}")
         self.derived = []
         for n, e in d.items():
+            w = f"outputs['derived']['{n}']"
             _ident(n, "outputs['derived']")
             if n in avail or n in self.n_all:
                 raise ValueError(f"outputs['derived']: el nombre '{n}' ya está en uso")
-            self.derived.append((n, Expr(e, avail, f"outputs['derived']['{n}']")))
+            along, ats = None, [None]
+            if isinstance(e, dict):
+                if set(e) != {"expression", "along", "at"}:
+                    raise ValueError(f"{w}: como dict se espera {{'expression', 'along': coordenada, 'at': [posiciones]}} "
+                                     "(perfil de la expresión a lo largo de una coordenada)")
+                along = e["along"]
+                if along not in self.cn:
+                    raise ValueError(f"{w}['along']: debe ser '{self.cn[0]}' o '{self.cn[1]}'")
+                ats = e["at"] if isinstance(e["at"], (list, tuple)) else [e["at"]]
+                lo, hi = self.lims[self.cn.index(along)]
+                ats = [_num(a, f"{w}['at']") for a in ats]
+                if not 1 <= len(ats) <= MAX_POINTS or any(a < lo - 1e-9 * (hi - lo) or a > hi + 1e-9 * (hi - lo) for a in ats):
+                    raise ValueError(f"{w}['at']: entre 1 y {MAX_POINTS} posiciones dentro de [{lo:g}, {hi:g}]")
+                ats = [min(max(a, lo), hi) for a in ats]
+                e = e["expression"]
+            pos_names = set(self.params) | ({along} if along else set())
+            ex = Expr(e, avail | pos_names, w, measures=self._measures(pos_names))
+            for at in ats:                       # positions inside the domain, checked before solving anything
+                for h in ex.calls.values():
+                    self.positions(h, {**self.params, **({along: at} if along else {})})
+            self.derived.append({"name": n, "expr": ex, "along": along, "at": ats})
+
+    def _measures(self, pos_names):
+        """Parsers of the measurement calls allowed inside outputs['derived'] (see pde2d_expr.Expr):
+            value(expr, c1, c2)              expression of coordinates/variables at the point (c1, c2)
+            wall_gradient(var, side, s)      outward normal derivative du/dn on `side` at tangential position s
+            wall_flux(var, side, s)          -D du/dn there;  wall_value(var, side, s)  the boundary value there
+            area_average(expr, coord, pos)   area average over the section coord = pos
+            mixing_cup(expr, coord, pos)     velocity-weighted (cup-mixing) average over that section
+        Positions are expressions of the parameters (and of the 'along' coordinate of a profile)."""
+        def nargs(args, k, w, form):
+            if len(args) != k:
+                raise ValueError(f"{w}: se espera {form}")
+
+        def sub(node, names, w):
+            return Expr(ast.unparse(node), names, w)
+
+        def ident(node, options, w, what):
+            if not isinstance(node, ast.Name) or node.id not in options:
+                raise ValueError(f"{w}: {what} debe ser uno de {', '.join(options)} (nombre sin comillas)")
+            return node.id
+
+        def value(args, w):
+            nargs(args, 3, w, f"value(expresión, {self.cn[0]}, {self.cn[1]})")
+            return {"kind": "value", "expr": sub(args[0], self.n_all, f"{w}: value"),
+                    "pos": [sub(a, pos_names, f"{w}: value (posición)") for a in args[1:]], "where": f"{w}: value"}
+
+        def wall(kind):
+            def parse(args, w):
+                nargs(args, 3, w, f"{kind}(variable, lado, posición a lo largo del lado)")
+                side = self.sides.index(ident(args[1], self.sides, f"{w}: {kind}", "el lado"))
+                return {"kind": kind, "k": self.vars.index(ident(args[0], self.vars, f"{w}: {kind}", "la variable")),
+                        "side": side, "pos": [sub(args[2], pos_names, f"{w}: {kind} (posición)")],
+                        "where": f"{w}: {kind}"}
+            return parse
+
+        def section(kind):
+            def parse(args, w):
+                nargs(args, 3, w, f"{kind}(expresión, coordenada de la sección, posición)")
+                ax = self.cn.index(ident(args[1], self.cn, f"{w}: {kind}", "la coordenada de la sección"))
+                if kind == "mixing_cup" and (self.vel is None or self.vel[ax] is None):
+                    raise ValueError(f"{w}: mixing_cup necesita velocity['{self.cn[ax]}'] (componente normal a la sección)")
+                return {"kind": kind, "axis": ax, "expr": sub(args[0], self.n_all, f"{w}: {kind}"),
+                        "pos": [sub(args[2], pos_names, f"{w}: {kind} (posición)")], "where": f"{w}: {kind}"}
+            return parse
+
+        return {"value": value, "wall_gradient": wall("wall_gradient"), "wall_flux": wall("wall_flux"),
+                "wall_value": wall("wall_value"), "area_average": section("area_average"),
+                "mixing_cup": section("mixing_cup")}
+
+    def positions(self, h, env):
+        """Numeric position(s) of a measurement handle, checked against the domain and clamped to it."""
+        if h["kind"] == "value":
+            axes = (0, 1)
+        elif h["kind"] in ("area_average", "mixing_cup"):
+            axes = (h["axis"],)
+        else:
+            axes = (1 - h["side"] // 2,)
+        out = []
+        for ax, e in zip(axes, h["pos"]):
+            x = float(e(env))
+            lo, hi = self.lims[ax]
+            if not math.isfinite(x) or x < lo - 1e-9 * (hi - lo) or x > hi + 1e-9 * (hi - lo):
+                raise ValueError(f"{h['where']}: la posición {self.cn[ax]} = {x:g} ('{e.text}') está fuera del dominio "
+                                 f"[{lo:g}, {hi:g}]")
+            out.append(min(max(x, lo), hi))
+        return out
+
+    def bc_jumps(self):
+        """Interior points of a side where the boundary condition of a variable is discontinuous: a Dirichlet value that
+        jumps or a change of type next to a Dirichlet stretch. The local flux is unbounded there."""
+        out = []
+        for s, side in enumerate(self.sides):
+            ax, fixed = 1 - s // 2, self.lims[s // 2][s % 2]
+            lo, hi = self.lims[ax]
+            for v in self.vars:
+                segs = sorted(self.bcs[side][v] or [], key=lambda x: x["lo"])
+                for one, two in zip(segs[:-1], segs[1:]):
+                    x0 = two["lo"]
+                    if not lo + 1e-9 * (hi - lo) < x0 < hi - 1e-9 * (hi - lo) or "dirichlet" not in (one["kind"], two["kind"]):
+                        continue
+                    item = {"side": side, "variable": v, "coordinate": self.cn[ax], "position": x0, "axis": ax}
+                    if one["kind"] == two["kind"]:
+                        env = {**self.params, self.cn[s // 2]: fixed, self.cn[ax]: x0}
+                        a, b = float(one["value"](env)), float(two["value"](env))
+                        if not abs(a - b) > 1e-12 * max(abs(a), abs(b), 1e-300):
+                            continue
+                        item["kind"], item["values"] = "salto del valor Dirichlet", [a, b]
+                    else:
+                        item["kind"] = f"cambio de tipo de condición ({one['kind']} → {two['kind']})"
+                    if not any(j["axis"] == ax and j["position"] == x0 for j in out):
+                        out.append(item)
+        return out
 
     def _grid(self, g):
         if not isinstance(g, dict) or set(g) - {"n", "grading"}:
@@ -396,22 +519,30 @@ class _Problem:
                 w = f"grid['grading']['{c}']"
                 if x in ("uniform", "log"):
                     s = {"type": x}
-                elif isinstance(x, dict) and not set(x) - {"type", "cluster", "strength"}:
+                elif isinstance(x, dict) and not set(x) - {"type", "cluster", "strength", "position"}:
                     t = x.get("type", "power")
                     if t in ("uniform", "log"):
                         s = {"type": t}
                     elif t == "power":
                         cl = x.get("cluster", "min")
-                        if cl not in ("min", "max", "both"):
-                            raise ValueError(f"{w}['cluster']: 'min', 'max' o 'both'")
+                        if cl not in ("min", "max", "both", "at"):
+                            raise ValueError(f"{w}['cluster']: 'min', 'max', 'both' o 'at' (con 'position')")
                         p = _num(x.get("strength", 2.0), f"{w}['strength']")
                         if not 1.0 <= p <= 6.0:
                             raise ValueError(f"{w}['strength']: entre 1 (uniforme) y 6")
                         s = {"type": "power", "cluster": cl, "strength": p}
+                        if (cl == "at") != ("position" in x):
+                            raise ValueError(f"{w}: 'position' se da con 'cluster': 'at' (y solo con él)")
+                        if cl == "at":
+                            x0 = _num(x["position"], f"{w}['position']")
+                            if not lo < x0 < hi:
+                                raise ValueError(f"{w}['position']: debe estar dentro de ({lo:g}, {hi:g})")
+                            s["position"] = x0
                     else:
                         raise ValueError(f"{w}['type']: 'uniform', 'power' o 'log'")
                 else:
-                    raise ValueError(f"{w}: se espera 'uniform', 'log' o {{'cluster': 'min'|'max'|'both', 'strength': p}}")
+                    raise ValueError(f"{w}: se espera 'uniform', 'log', {{'cluster': 'min'|'max'|'both', 'strength': p}} o "
+                                     "{'cluster': 'at', 'position': x0, 'strength': p}")
                 if s["type"] == "log" and lo <= 0:
                     raise ValueError(f"{w}: la malla 'log' necesita un mínimo > 0")
             self.grading.append(s)
@@ -429,6 +560,14 @@ class _Problem:
                     xi = xi ** p
                 elif cl == "max":
                     xi = 1.0 - (1.0 - xi) ** p
+                elif cl == "at":
+                    # cells shrink towards an interior position x0 from both sides. x0 is made a face of the coarsest
+                    # grid (n/2), hence of all three; each side gets cells in proportion to its length.
+                    x0, nc = s["position"], self.n[ax] // 2
+                    xi0 = min(max(round((x0 - lo) / (hi - lo) * nc), 1), nc - 1) / nc
+                    f0 = (x0 - lo) / (hi - lo)
+                    xi = np.where(xi <= xi0, f0 * (1.0 - (1.0 - np.minimum(xi, xi0) / xi0) ** p),
+                                  f0 + (1.0 - f0) * ((np.maximum(xi, xi0) - xi0) / (1.0 - xi0)) ** p)
                 else:
                     xi = np.where(xi <= 0.5, 0.5 * (2 * xi) ** p, 1.0 - 0.5 * (2 * (1.0 - xi)) ** p)
             f = lo + (hi - lo) * xi
@@ -946,6 +1085,36 @@ class _Level:
                 "convection_term_integral": conv, "source_integral": src, "imbalance": imb,
                 "imbalance_relative": abs(imb) / scale}
 
+    def section(self, ax, at, expr, weight, what, cup=True):
+        """(cup-mixing average, area average, flow through the section) of `expr` over the section coordinate ax = at.
+        Weight of the cup-mixing average: `weight` (an Expr of the coordinates) or the velocity component normal to the
+        section; cup=False skips it (area average only)."""
+        P, U = self.P, self.U
+        ca, cb = P.cn
+        xp = self.ap if ax == 0 else self.bp
+        i = int(min(max(np.searchsorted(xp, at) - 1, 0), xp.size - 2))
+        t = (at - xp[i]) / (xp[i + 1] - xp[i])
+        if ax == 0:
+            sec = [(1 - t) * U[m, i, 1:-1] + t * U[m, i + 1, 1:-1] for m in range(P.nv)]
+            senv = {**P.params, ca: np.full(self.nb, at), cb: self.bc}
+        else:
+            sec = [(1 - t) * U[m, 1:-1, i] + t * U[m, 1:-1, i + 1] for m in range(P.nv)]
+            senv = {**P.params, ca: self.ac, cb: np.full(self.na, at)}
+        shape = sec[0].shape
+        area = self.sec_w[ax](at)
+        phi = self._finite(expr({**senv, **dict(zip(P.vars, sec))}, shape), what)
+        if np.sum(area) <= 0:
+            raise ValueError(f"{what}: la sección {P.cn[ax]} = {at:g} no tiene área")
+        avg = float(np.sum(area * phi) / np.sum(area))
+        if not cup:
+            return None, avg, None
+        wexp = weight if weight is not None else P.vel[ax]
+        w = self._finite(wexp(senv, shape), f"{what} (peso)") * area
+        if abs(np.sum(w)) <= 1e-12 * max(float(np.sum(np.abs(w))), 1e-300):
+            raise ValueError(f"{what}: el caudal neto a través de la sección {P.cn[ax]} = {at:g} es cero; el promedio "
+                             "de mezcla no está definido")
+        return float(np.sum(w * phi) / np.sum(w)), avg, float(np.sum(w))
+
     def measure(self):
         """Flat dict label -> (value, floor for the relative change) and the structured pieces for the report."""
         P, U = self.P, self.U
@@ -993,30 +1162,13 @@ class _Level:
                                        "integral": f"integral:{n}"})
         for mc in P.mixing:
             ax = mc["axis"]
-            xp = self.ap if ax == 0 else self.bp
             for at in mc["at"]:
-                i = int(min(max(np.searchsorted(xp, at) - 1, 0), xp.size - 2))
-                t = (at - xp[i]) / (xp[i + 1] - xp[i])
-                if ax == 0:
-                    sec = [(1 - t) * U[m, i, 1:-1] + t * U[m, i + 1, 1:-1] for m in range(P.nv)]
-                    senv = {**P.params, ca: np.full(self.nb, at), cb: self.bc}
-                else:
-                    sec = [(1 - t) * U[m, 1:-1, i] + t * U[m, 1:-1, i + 1] for m in range(P.nv)]
-                    senv = {**P.params, ca: self.ac, cb: np.full(self.na, at)}
-                shape = sec[0].shape
-                area = self.sec_w[ax](at)
-                wexp = mc["weight"] if mc["weight"] is not None else P.vel[ax]
-                w = self._finite(wexp(senv, shape), f"mixing_cup '{mc['name']}' (peso)") * area
-                phi = self._finite(mc["expr"]({**senv, **dict(zip(P.vars, sec))}, shape), f"mixing_cup '{mc['name']}'")
-                if abs(np.sum(w)) <= 1e-12 * max(float(np.sum(np.abs(w))), 1e-300) or np.sum(area) <= 0:
-                    raise ValueError(f"outputs['mixing_cup'] '{mc['name']}': el caudal neto a través de la sección "
-                                     f"{P.cn[ax]} = {at:g} es cero; el promedio de mezcla no está definido")
+                cup, avg, flow = self.section(ax, at, mc["expr"], mc["weight"], f"mixing_cup '{mc['name']}'")
                 lab, lab2 = f"mixing_cup:{mc['name']}@{P.cn[ax]}={at:g}", f"area_average:{mc['name']}@{P.cn[ax]}={at:g}"
-                q[lab] = (float(np.sum(w * phi) / np.sum(w)), 0.0)
-                q[lab2] = (float(np.sum(area * phi) / np.sum(area)), 0.0)
+                q[lab] = (cup, 0.0)
+                q[lab2] = (avg, 0.0)
                 struct["mixing_cup"].append({"name": mc["name"], "expression": mc["expr"].text, P.cn[ax]: at,
-                                             "mixing_cup": lab, "area_average": lab2,
-                                             "flow_through_section": float(np.sum(w))})
+                                             "mixing_cup": lab, "area_average": lab2, "flow_through_section": flow})
                 if mc["scalar"]:
                     named[mc["name"]], named[mc["name"] + "_area_average"] = q[lab][0], q[lab2][0]
         for fl in P.fluxes:
@@ -1049,10 +1201,33 @@ class _Level:
             named.update({n: vals["mean_flux_out"], n + "_integral": Q, n + "_gradient": vals["mean_normal_derivative"],
                           n + "_mean": vals["mean_value"]})
             struct["side_fluxes"].append(item)
+        def measure_call(h, env):
+            """One measurement written inside a derived expression (see _Problem._measures), on this grid."""
+            pos, kind = P.positions(h, env), h["kind"]
+            if kind == "value":
+                at = {v: float(interp[k]([pos])[0]) for k, v in enumerate(P.vars)}
+                return float(self._finite(np.asarray(h["expr"]({**P.params, ca: pos[0], cb: pos[1], **at}), float),
+                                          h["where"]))
+            if kind in ("area_average", "mixing_cup"):
+                cup, avg, _ = self.section(h["axis"], pos[0], h["expr"], None, h["where"], cup=kind == "mixing_cup")
+                return cup if kind == "mixing_cup" else avg
+            sd, ub, grad = self.side_values(h["side"], h["k"])
+            arr = {"wall_gradient": grad, "wall_flux": -sd["D"] * grad, "wall_value": ub}[kind]
+            return float(np.interp(pos[0], sd["along"], arr))
+
+        named[MEASURE_KEY] = measure_call
         struct["derived"] = {}
-        for n, e in P.derived:
-            q[f"derived:{n}"] = (float(e(named)), 0.0)
-            struct["derived"][n] = f"derived:{n}"
+        for d in P.derived:
+            n, e = d["name"], d["expr"]
+            if d["along"] is None:
+                q[f"derived:{n}"] = (float(e(named)), 0.0)
+                struct["derived"][n] = f"derived:{n}"
+                continue
+            struct["derived"][n] = {"expression": e.text, "along": d["along"], "labels": []}
+            for at in d["at"]:
+                lab = f"derived:{n}@{d['along']}={at:g}"
+                q[lab] = (float(e({**named, d["along"]: at})), 0.0)
+                struct["derived"][n]["labels"].append((at, lab))
         A2, B2 = np.meshgrid(self.ap, self.bp, indexing="ij")
         mask = np.ones(A2.shape, dtype=bool)
         mask[[0, 0, -1, -1], [0, -1, 0, -1]] = False
@@ -1164,7 +1339,10 @@ def solve_pde_2d(coordinates: str, domain: dict, equations: dict, boundary_condi
     res["side_fluxes"] = {it["name"]: {**{k: v for k, v in it.items() if k in ("side", "variable", "area", "at")},
                                        **{k: rec(it[k]) for k in fkeys if k in it}}
                           for it in struct["side_fluxes"]}
-    res["derived"] = {n: rec(lab) for n, lab in struct["derived"].items()}
+    res["derived"] = {n: rec(lab) if isinstance(lab, str) else
+                      {"expression": lab["expression"], "along": lab["along"],
+                       "values": [{lab["along"]: at, **rec(l)} for at, l in lab["labels"]]}
+                      for n, lab in struct["derived"].items()}
     res["extrema"] = {v: {name: {**{k: x for k, x in e.items() if k != "value"}, **rec(e["value"])}
                           for name, e in ext.items()} for v, ext in struct["extrema"].items()}
     res["domain_measure"] = float(np.sum(fine.V))
@@ -1195,6 +1373,25 @@ def solve_pde_2d(coordinates: str, domain: dict, equations: dict, boundary_condi
     if scheme == "central" and pe_base > PECLET_CENTRAL_LIMIT:
         warnings.append(f"Diferencias centrales con Péclet de celda {pe_base:.3g} > 2: pueden aparecer oscilaciones; "
                         "use 'tvd' o refine.")
+    jumps = []
+    for j in P.bc_jumps():
+        ax, x0 = j.pop("axis"), j["position"]
+        f = fine.af if ax == 0 else fine.bf
+        i = int(min(max(np.searchsorted(f, x0), 1), f.size - 1))
+        g = P.grading[ax]
+        j["cell_size_fine_grid"] = float(f[i] - f[i - 1])
+        j["graded_towards_it"] = bool(g.get("cluster") == "at" and g.get("position") == x0)
+        jumps.append(j)
+        if not_conv and not j["graded_towards_it"]:
+            c = j["coordinate"]
+            warnings.append(
+                f"Condición de frontera discontinua en '{j['side']}', {c} = {x0:g} ({j['kind']}"
+                + (f": {j['values'][0]:g} → {j['values'][1]:g}" if "values" in j else "")
+                + f"): el flujo local no está acotado en ese punto y la malla no está concentrada hacia él (celda de "
+                f"{j['cell_size_fine_grid']:.3g} en {c} junto al salto, malla refinada). Es la causa probable de las "
+                f"{len(not_conv)} cantidad(es) no convergida(s). Repita con grid = {{'grading': {{'{c}': {{'cluster': "
+                f"'at', 'position': {x0:g}, 'strength': 2}}}}}} (o strength 3) y pida los valores locales a más de unas "
+                "celdas del salto.")
     for ax, c in enumerate(P.cn):
         if P.grading[ax].get("default") and P.grading[ax]["type"] != "uniform":
             warnings.append(f"Malla graduada por omisión en {c} ({P.grading[ax]['type']}): "
@@ -1211,6 +1408,7 @@ def solve_pde_2d(coordinates: str, domain: dict, equations: dict, boundary_condi
             "grids": [list(s) for s in sizes], "reported_from": list(sizes[-1]), "tolerance_relative": P.tol,
             "grading": {c: {k: v for k, v in P.grading[ax].items() if k != "default"} for ax, c in enumerate(P.cn)},
             "smallest_cell": {ca: float(np.min(np.diff(fine.af))), cb: float(np.min(np.diff(fine.bf)))},
+            "boundary_condition_jumps": jumps,
             "quantities": conv,
         },
         "nonlinear": {"linear_problem": bool(fine.linear),

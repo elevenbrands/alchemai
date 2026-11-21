@@ -20,7 +20,8 @@ import math
 
 import numpy as np
 import pytest
-from scipy.integrate import solve_bvp
+from scipy.integrate import solve_bvp, solve_ivp
+from scipy.optimize import brentq
 from scipy.special import ive, jn_zeros
 
 from packages.agent import wrappers_pde2d
@@ -285,6 +286,150 @@ def test_graetz_problem():
     assert err(up) > 3 * err(res)
 
 
+def graetz_modes(n_modes=6):
+    """Independent reference for the Graetz problem, computed here (not taken from a table): eigenpairs of
+    (r R')' + lam^2 r (1 - r^2) R = 0, R'(0) = 0, R(1) = 0, by shooting (scipy DOP853 from the series start
+    R = 1 - lam^2 r^2/4 at r = 1e-6, root of R(1) with brentq). Returns [(lam, C, R'(1), I1)] with
+    I1 = int r (1 - r^2) R dr and C = I1 / int r (1 - r^2) R^2 dr (expansion coefficient of the inlet value 1).
+    Then theta = sum C R exp(-lam^2 z/2) for 2 (1 - r^2) dT/dz = (1/r) d/dr(r dT/dr), the cup-mixing value is
+    4 sum C I1 exp(..) and Nu(z) = -2 dT/dr(1) / theta_m; Nu_inf = lam_1^2 / 2."""
+    def shoot(lam, full=False):
+        e = 1e-6
+        f = lambda r, y: [y[1] / r, -lam ** 2 * r * (1 - r * r) * y[0], r * (1 - r * r) * y[0], r * (1 - r * r) * y[0] ** 2]
+        sol = solve_ivp(f, (e, 1.0), [1 - lam ** 2 * e * e / 4, -lam ** 2 * e * e / 2, e * e / 2, e * e / 2],
+                        method="DOP853", rtol=1e-12, atol=1e-14)
+        return sol.y[:, -1] if full else sol.y[0, -1]
+    grid = np.arange(1.0, 4.0 * n_modes + 2.0, 0.5)
+    vals = [shoot(x) for x in grid]
+    modes = []
+    for x0, x1, v0, v1 in zip(grid[:-1], grid[1:], vals[:-1], vals[1:]):
+        if v0 * v1 < 0 and len(modes) < n_modes:
+            lam = brentq(shoot, x0, x1, xtol=1e-13)
+            _, dR, I1, I2 = shoot(lam, full=True)             # y[1] = r R' = R'(1) at r = 1
+            modes.append((lam, I1 / I2, dR, I1))
+    return modes
+
+
+def graetz_nu(z, modes):
+    e = [math.exp(-lam ** 2 * z / 2) for lam, *_ in modes]
+    return (-2 * sum(C * dR * x for (_, C, dR, _), x in zip(modes, e))
+            / (4 * sum(C * I1 * x for (_, C, _, I1), x in zip(modes, e))))
+
+
+NU_TUBE = "2*wall_gradient(T, r_max, z)/(wall_value(T, r_max, z) - mixing_cup(T, z, z))"
+GRAETZ_GRID = {"n": [32, 64], "grading": {"z": {"cluster": "min", "strength": 2}, "r": {"cluster": "max", "strength": 1.5}}}
+
+
+def test_local_nusselt_in_one_derived_expression_graetz_tube():
+    """Graetz problem (Poiseuille flow, constant wall temperature, no axial conduction). The local Nusselt number
+    Nu(z) = (dT/dn)|wall D / (T_wall - T_mix(z)) (n = outward normal) is ONE derived expression that mixes a wall-point normal derivative, a
+    wall value and a cup-mixing average. Reference: eigenfunction series with the eigenpairs computed in graetz_modes
+    (lam_1 = 2.7043644, Nu_inf = lam_1^2/2 = 3.6567935; the literature value 3.657 is the same number rounded).
+    Tolerances from the refinement evidence of this grid (32x64 -> 64x128): the reported change on refinement is 4e-4
+    for z >= 0.4 and 3e-3 at z = 0.05; the Richardson value agrees with the series to 1e-6."""
+    modes = graetz_modes()
+    lam1 = modes[0][0]
+    assert lam1 == pytest.approx(2.7043644, abs=2e-7) and lam1 ** 2 / 2 == pytest.approx(3.657, abs=5e-4)
+    assert [m[0] for m in modes[1:3]] == pytest.approx([6.679, 10.673], abs=2e-3)       # Kays & Crawford table
+    zs = [0.05, 0.1, 0.2, 0.4, 0.8, 1.2, 2.0]
+    res = solve_pde_2d("axisymmetric", {"r": [0, 1], "z": [0, 2]}, {"T": {"D": {"r": 1, "z": 0}}},
+                       {"r_max": one(0), "z_min": one(1), "z_max": {"type": "neumann", "value": 0}},
+                       velocity={"z": "2*(1-r^2)"}, grid=GRAETZ_GRID,
+                       outputs={"mixing_cup": [{"name": "Tend", "expression": "T", "coordinate": "z", "at": 2.0}],
+                                "side_fluxes": [{"name": "qw", "side": "r_max", "at": 2.0}],
+                                "derived": {"Nu": {"expression": NU_TUBE, "along": "z", "at": zs},
+                                            "Nu_end": "2*wall_gradient(T, r_max, 2.0)/(0 - mixing_cup(T, z, 2.0))",
+                                            "Nu_old_way": "2*qw/Tend"}})
+    check_evidence(res)
+    prof = res["derived"]["Nu"]
+    assert prof["along"] == "z" and [v["z"] for v in prof["values"]] == zs and res["grid_converged"]
+    for v in prof["values"]:
+        ref = graetz_nu(v["z"], modes)
+        assert v["grid_converged"] and v["value"] == pytest.approx(ref, rel=1.5e-3 if v["z"] < 0.2 else 5e-4), v["z"]
+    nu_inf = lam1 ** 2 / 2
+    assert prof["values"][-1]["value"] == pytest.approx(nu_inf, rel=5e-4)
+    assert Q(res, "derived:Nu@z=2")["richardson_extrapolated"] == pytest.approx(nu_inf, rel=1e-5)
+    assert prof["values"][0]["value"] > prof["values"][1]["value"] > prof["values"][2]["value"] > nu_inf   # entrance
+    # the inline form and the two-named-outputs form are the same number
+    assert res["derived"]["Nu_end"]["value"] == pytest.approx(prof["values"][-1]["value"], rel=1e-12)
+    assert res["derived"]["Nu_old_way"]["value"] == pytest.approx(prof["values"][-1]["value"], rel=1e-12)
+
+
+def test_local_nusselt_in_one_derived_expression_parallel_plates():
+    """Same problem between parallel plates (half gap 1, u = 1.5 (1 - y^2), symmetry at y = 0): with the hydraulic
+    diameter 4 (twice the gap) Nu = 4 (dT/dn)|wall / (T_wall - T_mix) -> (8/3) lam_1^2 = 7.5407, lam_1 = 1.6815953 the
+    first root of Y'' + lam^2 (1 - y^2) Y = 0, Y'(0) = 0, Y(1) = 0, found here by shooting. (Energy balance of the
+    asymptotic mode T = Y(y) exp(-b x) with lam^2 = 1.5 b: -dT/dy(1)/T_mix = b.) Literature: 7.541."""
+    def shoot(lam):
+        return solve_ivp(lambda y, w: [w[1], -lam ** 2 * (1 - y * y) * w[0]], (0, 1), [1.0, 0.0], method="DOP853",
+                         rtol=1e-12, atol=1e-14).y[0, -1]
+    lam1 = brentq(shoot, 1.0, 2.5, xtol=1e-13)
+    nu_inf = 8 * lam1 ** 2 / 3
+    assert lam1 == pytest.approx(1.6815953, abs=2e-7) and nu_inf == pytest.approx(7.541, abs=5e-4)
+    res = solve_pde_2d("cartesian", {"x": [0, 3], "y": [0, 1]}, {"T": {"D": {"x": 0, "y": 1}}},
+                       {"y_max": one(0), "y_min": SYM, "x_min": one(1), "x_max": {"type": "neumann", "value": 0}},
+                       velocity={"x": "1.5*(1-y^2)"},
+                       grid={"n": [64, 32], "grading": {"x": {"cluster": "min", "strength": 2},
+                                                        "y": {"cluster": "max", "strength": 1.5}}},
+                       outputs={"derived": {"Nu": {"expression": "4*wall_gradient(T, y_max, x)/(0 - mixing_cup(T, x, x))",
+                                                   "along": "x", "at": [2.0, 3.0]}}})
+    check_evidence(res)
+    for v in res["derived"]["Nu"]["values"]:                 # reported change on refinement: 3e-4
+        assert v["grid_converged"] and v["value"] == pytest.approx(nu_inf, rel=5e-4)
+    assert Q(res, "derived:Nu@x=3")["richardson_extrapolated"] == pytest.approx(nu_inf, rel=1e-5)
+
+
+def test_inline_measurements_equal_the_named_outputs():
+    res = solve_pde_2d("axisymmetric", {"r": [0, 1], "z": [0, 1]}, {"T": {"D": {"r": 1, "z": 0}}},
+                       {"r_max": one(0), "z_min": one(1), "z_max": {"type": "neumann"}}, velocity={"z": "2*(1-r^2)"},
+                       parameters={"zc": 0.5}, grid={"n": [16, 32]},
+                       outputs={"points": [[0.3, 0.5]], "side_fluxes": [{"name": "qw", "side": "r_max", "at": 0.5}],
+                                "mixing_cup": [{"name": "Tb", "expression": "T^2", "coordinate": "z", "at": 0.5}],
+                                "derived": {"a": "value(T*r, 0.3, zc)", "b": "wall_flux(T, r_max, zc)",
+                                            "c": "wall_gradient(T, r_max, 0.5)", "d": "wall_value(T, r_max, zc)",
+                                            "e": "mixing_cup(T^2, z, zc)", "f": "area_average(T^2, z, 2*zc - 0.5)",
+                                            "g": "qw_gradient/(Tb - area_average(T^2, z, zc)) + value(T, 0.3, 0.5)"}})
+    d = {k: v["value"] for k, v in res["derived"].items()}
+    T = res["points"][0]["T"]["value"]
+    q, mc = res["side_fluxes"]["qw"], res["mixing_cup"][0]
+    assert d["a"] == pytest.approx(0.3 * T, rel=1e-13) and d["b"] == pytest.approx(q["flux_out"]["value"], rel=1e-13)
+    assert d["c"] == pytest.approx(q["normal_derivative"]["value"], rel=1e-13) and d["d"] == pytest.approx(0.0, abs=1e-14)
+    assert d["e"] == pytest.approx(mc["mixing_cup"]["value"], rel=1e-13)
+    assert d["f"] == pytest.approx(mc["area_average"]["value"], rel=1e-13)
+    assert d["g"] == pytest.approx(d["c"] / (d["e"] - d["f"]) + T, rel=1e-12)
+
+
+def test_wall_temperature_jump_needs_grading_towards_it():
+    """Wall at T = 1 (as the inlet) up to z = 1, then 0: downstream of the jump this IS the Graetz problem with the
+    origin at z = 1, so Nu(1 + s) must equal the series value Nu(s) of graetz_modes. On the default uniform grid the
+    local values near the jump are not grid-converged and the warning says why and what to do; with the grid graded
+    towards the jump they converge to the series (tolerance = refinement_tol of the run, 1 %; observed 0.1-0.3 %)."""
+    modes = graetz_modes(8)
+    kw = dict(coordinates="axisymmetric", domain={"r": [0, 1], "z": [0, 2]}, equations={"T": {"D": {"r": 1, "z": 0}}},
+              boundary_conditions={"r_max": [{"from": 0, "to": 1, **one(1)}, {"from": 1, "to": 2, **one(0)}],
+                                   "z_min": one(1), "z_max": {"type": "neumann"}}, velocity={"z": "2*(1-r^2)"},
+              outputs={"derived": {"Nu": {"expression": NU_TUBE, "along": "z", "at": [1.05, 1.1, 1.5]}}})
+    plain = solve_pde_2d(**kw)
+    bad = [v["z"] for v in plain["derived"]["Nu"]["values"] if not v["grid_converged"]]
+    assert bad == [1.05, 1.1] and not plain["grid_converged"]
+    jump = plain["evidence"]["grid_refinement"]["boundary_condition_jumps"]
+    assert len(jump) == 1 and jump[0]["position"] == 1.0 and jump[0]["values"] == [1.0, 0.0]
+    assert not jump[0]["graded_towards_it"]
+    assert any("'cluster': 'at', 'position': 1" in w and "discontinua" in w for w in plain["warnings"])
+    graded = solve_pde_2d(**kw, grid={"grading": {"z": {"cluster": "at", "position": 1.0, "strength": 2}}})
+    assert graded["grid_converged"] and not any("discontinua" in w for w in graded["warnings"])
+    j = graded["evidence"]["grid_refinement"]["boundary_condition_jumps"][0]
+    assert j["graded_towards_it"] and j["cell_size_fine_grid"] < jump[0]["cell_size_fine_grid"] / 30
+    for v in graded["derived"]["Nu"]["values"]:
+        assert v["value"] == pytest.approx(graetz_nu(v["z"] - 1.0, modes), rel=1e-2), v["z"]
+    # the grading is nested (z = 1 is a face of the three grids) and monotone
+    from packages.transport.pde2d import _Problem
+    P = _Problem(kw["coordinates"], kw["domain"], kw["equations"], kw["boundary_conditions"], kw["velocity"], None, {},
+                 {"grading": {"z": {"cluster": "at", "position": 1.0, "strength": 2}}}, None, "auto", 0.01, 60)
+    f32, f64 = P.faces(1, 32), P.faces(1, 64)
+    assert np.all(np.diff(f64) > 0) and np.allclose(f64[::2], f32, atol=1e-15) and np.any(f32 == 1.0)
+
+
 def test_wall_temperature_changing_along_z():
     """Piecewise Dirichlet wall (1 for z < 1, 0.5 after) with low cell Peclet: central scheme; far downstream of each
     step the cup-mixing temperature tends to the local wall value and stays between the bounds."""
@@ -385,6 +530,18 @@ BASE = dict(coordinates="cartesian", domain={"x": [0, 1], "y": [0, 1]}, equation
     (dict(outputs={"mixing_cup": [{"name": "m", "expression": "u", "coordinate": "x", "at": 0.5}]}), "necesita velocity"),
     (dict(outputs={"side_fluxes": [{"name": "q", "side": "top"}]}), "no es un lado"),
     (dict(outputs={"derived": {"z": "nada*2"}}), "no está declarado"),
+    (dict(outputs={"derived": {"z": "mixing_cup(u, x, 0.5)"}}), "mixing_cup necesita velocity"),
+    (dict(outputs={"derived": {"z": "wall_gradient(u, top, 0.5)"}}), "el lado debe ser uno de x_min"),
+    (dict(outputs={"derived": {"z": "wall_gradient(w, x_max, 0.5)"}}), "la variable debe ser uno de u"),
+    (dict(outputs={"derived": {"z": "value(u, 0.5, 7)"}}), "fuera del dominio"),
+    (dict(outputs={"derived": {"z": "area_average(u, x)"}}), "se espera area_average(expresión"),
+    (dict(outputs={"derived": {"z": "value(nada, 0.5, 0.5)"}}), "no está declarado"),
+    (dict(outputs={"derived": {"z": {"expression": "value(u, x, 0.5)", "along": "x", "at": [0.5, 3]}}}), "posiciones dentro"),
+    (dict(outputs={"derived": {"z": {"expression": "value(u, x, 0.5)", "along": "q", "at": [0.5]}}}), "'along'"),
+    (dict(outputs={"derived": {"z": "integral(u)"}}), "las mediciones area_average"),
+    (dict(outputs={"averages": [{"name": "m", "expression": "value(u, 0.5, 0.5)"}]}), "no admitida"),
+    (dict(grid={"grading": {"x": {"cluster": "at", "strength": 2}}}), "'position' se da con"),
+    (dict(grid={"grading": {"x": {"cluster": "at", "position": 5}}}), "debe estar dentro"),
     (dict(grid={"n": [4000, 4000]}), "incógnitas"),
     (dict(grid={"n": [2, 2]}), "mínimo 8"),
     (dict(convection_scheme="quick"), "no reconocido"),

@@ -1,8 +1,15 @@
 """Blasius laminar boundary layer (geometry='flat_plate' of `non_newtonian_pipe_flow`).
 
-Reference values (Blasius 1908; Howarth 1938; White, Viscous Fluid Flow, table 4-1; Schlichting): f''(0) = 0.33206,
-delta_99 = 4.91 x/sqrt(Re_x), delta* = 1.7208 x/sqrt(Re_x), theta = 0.664 x/sqrt(Re_x), c_f = 0.664/sqrt(Re_x),
-C_D = 1.328/sqrt(Re_L); tabulated profile f'(1) = 0.32979, f'(2) = 0.62977, f'(3) = 0.84605, f'(5) = 0.99155."""
+Reference values, verified on 2026-11-20 by integrating 2 f''' + f f'' = 0, f(0) = f'(0) = 0, f'(inf) = 1 independently
+of the code under test (scipy DOP853, rtol 1e-13, shooting with brentq, eta_max = 20):
+  f''(0) = 0.3320573362 (Wikipedia, "Blasius boundary layer", quotes 0.332057336215196; Hatta, Kokado & Yabushita,
+  Mem. Fac. Eng. Kyoto Univ. 47 (1985) 18: 0.33205734), eta_99 = 4.90999, delta* = 1.7207877 x/sqrt(Re_x),
+  theta = 0.6641147 x/sqrt(Re_x), H = 2.5911, v_inf/U = 0.8603938/sqrt(Re_x); hence c_f = 0.664/sqrt(Re_x) and
+  C_D = 1.328/sqrt(Re_L). Profile: f'(1) = 0.3297800, f'(2) = 0.6297657, f'(3) = 0.8460444, f'(5) = 0.9915419.
+The classical table (Howarth 1938, as reprinted in Schlichting and White) prints f''(0) = 0.33206 and f'(2) = 0.62977
+(seen in a transcribed table). The values 0.32979, 0.84605 and 0.99155 that this file used before for f'(1), f'(3),
+f'(5) were quoted from memory, were not found in an accessible source and are 1e-5 above the integrated values, so they
+were replaced by the integrated ones."""
 import json
 import math
 
@@ -16,15 +23,15 @@ AIR = {"model": "newtonian", "viscosity_Pa_s": 1.8e-5}
 
 def test_blasius_constants():
     b = BL.blasius_solution()
-    assert b["fpp0"] == pytest.approx(0.33206, abs=5e-6)
+    assert b["fpp0"] == pytest.approx(0.3320573, abs=1e-6)
     assert b["eta_99"] == pytest.approx(4.91, abs=5e-3)
-    assert b["displacement_coefficient"] == pytest.approx(1.7208, abs=5e-5)
+    assert b["displacement_coefficient"] == pytest.approx(1.72079, abs=1e-5)
     assert b["momentum_coefficient"] == pytest.approx(0.664, abs=5e-4)
     assert 2 * b["momentum_coefficient"] == pytest.approx(1.328, abs=5e-4)
     assert b["displacement_coefficient"] / b["momentum_coefficient"] == pytest.approx(2.59, abs=5e-3)   # shape factor
-    for eta, fp in ((1.0, 0.32979), (2.0, 0.62977), (3.0, 0.84605), (5.0, 0.99155)):
-        assert BL.similarity_profile(eta)[1] == pytest.approx(fp, abs=2e-5)
-    assert BL.similarity_profile(0.0) == (0.0, 0.0, pytest.approx(0.33206, abs=5e-6))
+    for eta, fp in ((1.0, 0.329780), (2.0, 0.629766), (3.0, 0.846044), (5.0, 0.991542)):
+        assert BL.similarity_profile(eta)[1] == pytest.approx(fp, abs=2e-6)
+    assert BL.similarity_profile(0.0) == (0.0, 0.0, pytest.approx(0.3320573, abs=1e-6))
     assert BL.similarity_profile(50.0)[1] == 1.0
 
 
@@ -63,14 +70,14 @@ def test_velocity_at_a_point_from_the_similarity_profile():
     ys = [eta * math.sqrt(nu * x / U) for eta in (1.0, 3.0, 5.0)]
     r = BL.flat_plate(U, rho, mu, positions_m=[[x, y] for y in ys] + [[x, 0.0], [x, 1.0]])
     pts = r["points"]
-    for p, eta, fp in zip(pts, (1.0, 3.0, 5.0), (0.32979, 0.84605, 0.99155)):
+    for p, eta, fp in zip(pts, (1.0, 3.0, 5.0), (0.329780, 0.846044, 0.991542)):
         assert p["eta"] == pytest.approx(eta, rel=1e-12)
-        assert p["u_over_U"] == pytest.approx(fp, abs=2e-5) and p["u_m_s"] == pytest.approx(fp * U, abs=4e-5)
+        assert p["u_over_U"] == pytest.approx(fp, abs=2e-6) and p["u_m_s"] == pytest.approx(fp * U, abs=4e-6)
     assert pts[3]["u_m_s"] == 0.0 and pts[3]["v_m_s"] == 0.0                              # no slip at the wall
     assert pts[3]["shear_stress_Pa"] == pytest.approx(pts[3]["wall_shear_stress_Pa"], rel=1e-10)
     assert pts[4]["u_over_U"] == 1.0                                                      # far outside the layer
     # outer normal velocity v/U -> 0.8604/sqrt(Re_x) (= delta* coefficient / 2)
-    assert pts[4]["v_m_s"] / U * math.sqrt(pts[4]["reynolds_x"]) == pytest.approx(1.7208 / 2, abs=5e-5)
+    assert pts[4]["v_m_s"] / U * math.sqrt(pts[4]["reynolds_x"]) == pytest.approx(0.86039, abs=1e-5)
     # u = 0.99 U exactly at y = delta_99
     edge = BL.flat_plate(U, rho, mu, positions_m=[[x, pts[0]["delta_99_m"]]])["points"][0]
     assert edge["u_over_U"] == pytest.approx(0.99, abs=1e-9)

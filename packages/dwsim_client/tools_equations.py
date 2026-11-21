@@ -111,12 +111,23 @@ def solve_pde_1d(variables: list[str], domain: list[float], t_end: float, initia
     averages {name: expression} (default each variable): section average ∫e·x^s dx/∫x^s dx at every output time
     (cylinder: 2∫e·r dr/R²). n_points grid nodes. convection_scheme 'central' or 'upwind'.
 
-    Returns success + message (plainly says blow-up/failure, with NO numbers), profiles {t, x, variable[i_t][j_x]},
+    Returns success + message, profiles {t, x, variable[i_t][j_x]},
     averages {t, name: [...]}, extrema {variable: {max, x_at_max, t_at_max, min, ...}} over all x and t (hot spot),
     boundary {face: {variable: {value, inflow}}} at the output times, steady_state {reached, settling_time},
     oscillation {signal: {kind, period, amplitude, ...}} for each average and each user output point (kinds as in
     solve_ode_system), evidence (re-run with twice the grid intervals and 10x tighter tolerances: max_rel_diff,
-    verified), warnings. Not for pure convection (hyperbolic) fronts or more than one space dimension."""
+    verified), warnings.
+    Automatic refinement: if that check fails, the grid is doubled (up to 3 more times, while time allows) and the
+    results REPORTED are those of the finest verified pair: read 'n_points' (grid actually used) and
+    evidence.automatic_refinement {n_points_requested, n_points_used, levels}. If it still fails,
+    evidence.recommended_n_points is the grid estimated to pass.
+    Ignition vs blow-up: ignition_or_steep_front = true when a variable jumps at an isolated, self-accelerating rate
+    (Arrhenius source with reactant exhaustion, travelling front); the solution is bounded and IS reported, with
+    steep_front {variable, t_at_peak_rate, peak_scaled_rate, extrema, extrema_refined, survives_refinement}: trust it
+    when survives_refinement is true (profiles at fixed times near the jump converge slower than the extrema). A run
+    the integrator cannot finish is repeated on the finer grid; success = false with blow_up {confirmed_by_refinement,
+    runs: failure time and max |u| of each} and NO numbers only when it fails again (unbounded growth, e.g. u_t = u_xx +
+    u^2, or a singularity). Not for pure convection (hyperbolic) fronts or more than one space dimension."""
     return PD.solve_pde_1d(variables, domain, t_end, initial_conditions, boundary_conditions, diffusivity, source,
                            velocity, time_coefficient, geometry, parameters, definitions, t_start, output_times,
                            n_output_times, output_points, averages, n_points, rtol, atol, method, convection_scheme,

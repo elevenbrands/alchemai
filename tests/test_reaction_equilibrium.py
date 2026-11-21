@@ -1,18 +1,32 @@
 """`reaction_equilibrium`: K(T) from formation data and ideal-gas reaction equilibrium, against published values.
 
-Independent references (numbers stated here, none computed by the code under test):
+Independent references (numbers stated here, none computed by the code under test). Checked against the sources on
+2026-11-20; what could and could not be confirmed is said for each:
   [SVN]   Smith, Van Ness & Abbott, "Introduction to Chemical Engineering Thermodynamics", 7th ed. (2005), ch. 13 and
           table C.4 (ΔfH°298, ΔfG°298, J/mol): CO −110525 / −137169; H2O(g) −241818 / −228572; CO2 −393509 / −394359;
           CH4 −74520 / −50460; NH3 −46110 / −16450; CH3OH(g) −200660 / −161960; C2H4 52510 / 68460;
           C2H5OH(g) −235100 / −168490. Table C.1 Cp/R = A + B·T + C·T² + D/T².
+          The book itself was NOT opened (not legitimately accessible online). Confirmed in secondary transcriptions:
+          the C2H4 / C2H5OH / H2O(g) ΔfG° rows and the Cp constants (FOSSEE Textbook Companion, ch. 13, Ex. 13.4,
+          https://tbc-python.fossee.in/convert-notebook/Introduction_To_Chemical_Engineering_Thermodynamics_by_J._M._Smith,_H._C._Van_Ness_And_M._M._Abbott/ch13.ipynb
+          — its H2O ΔfH° is mistyped −241572, which is why it prints K = 1.404e-1) and H2O ΔfH° through ΔH°298 = −45792
+          below. The CO, CO2, CH4, NH3 and CH3OH rows are NOT confirmed against the book (quoted from memory); CO, CO2,
+          H2O, CH4 and NH3 agree with NIST-JANAF within 0.01–0.35 kJ/mol, the tolerance used here.
           Ex. 13.4  ethylene hydration: ΔH°298 = −45792, ΔG°298 = −8378 J/mol, K(298.15) = 29.366,
-                    K(418.15 K) = 1.443e-1, K(593.15 K) = 2.942e-3.
+                    K(418.15 K) = 1.443e-1, K(593.15 K) = 2.942e-3. Confirmed (lecture slides transcribing the example,
+                    https://www.slideshare.net/Delight26/chapter-6-chemical-reactian-equilibriappt: K0 = 29.366,
+                    K1 = 4.985e-3 / 1.023e-4, K2 = 0.9860 / 0.9794).
           Ex. 13.5  water-gas shift at 1100 K (ln K = 0 read from fig. 13.2): ε = 0.5 for 1 CO + 1 H2O at 1 or 10 bar and
-                    with 2 mol N2; ε = 0.667 for 2 H2O + 1 CO; at 1650 K (ln K = −1.15) ε = 0.36.
+                    with 2 mol N2; ε = 0.667 for 2 H2O + 1 CO and for 1 H2O + 2 CO (fraction of steam reacted 0.333 and
+                    0.667); at 1650 K (ln K = −1.15, K = 0.316) ε = 0.36. Confirmed (same slides and FOSSEE notebook).
           Ex. 13.14 CH4/H2O/CO/CO2/H2 at 1000 K, 1 bar, feed 2 CH4 + 3 H2O (Gibbs minimisation):
-                    y = CH4 0.0196, H2O 0.0980, CO 0.1743, CO2 0.0371, H2 0.6710.
-  [JANAF] NIST-JANAF Thermochemical Tables, 4th ed. (Chase 1998), log10 Kf: at 500/800/1000 K CO2 41.259/25.830/20.680,
-          CO 16.235/11.914/10.459, H2O(g) 22.886/13.289/10.062; CH4 at 1000 K −1.011; NH3 ΔfG°(700 K) = 27.190 kJ/mol,
+                    y = CH4 0.0196, H2O 0.0980, CO 0.1743, CO2 0.0371, H2 0.6710. The printed answer is NOT confirmed
+                    in a source (quoted from memory). Reproduced independently on 2026-11-20 from the book's
+                    ΔfG°(1000 K) = CH4 19720 (memory), H2O −192420, CO −200240, CO2 −395790 J/mol (the last three
+                    confirmed in the FOSSEE notebook, Ex. 13.13) with R = 8.314: 0.0196, 0.0980, 0.1743, 0.0371, 0.6711.
+  [JANAF] NIST-JANAF Thermochemical Tables, 4th ed. (Chase 1998), read from https://janaf.nist.gov/tables/ (C-095 CO2,
+          C-093 CO, H-064 H2O(g), C-067 CH4, H-083 NH3), log10 Kf at 500/800/1000 K: CO2 41.259/25.829/20.679,
+          CO 16.236/11.916/10.461, H2O(g) 22.884/13.287/10.060; CH4 at 1000 K −1.018; NH3 ΔfG°(700 K) = 27.190 kJ/mol,
           ΔfG°(298.15 K) = −16.367 kJ/mol.
 
 Tolerances: the tool's databank is chemicals (ΔfH° from Active Thermochemical Tables "ATCT_G", S° from CRC). Evaluated
@@ -78,7 +92,7 @@ def test_every_datum_has_a_source():
 def test_water_gas_shift_K_of_T_vs_janaf():
     r = reaction_equilibrium([WGS], [500.0, 800.0, 1000.0])
     _verified(r)
-    ref = [41.259 - 16.235 - 22.886, 25.830 - 11.914 - 13.289, 20.680 - 10.459 - 10.062]   # 2.138, 0.627, 0.159
+    ref = [41.259 - 16.236 - 22.884, 25.829 - 11.916 - 13.287, 20.679 - 10.461 - 10.060]   # 2.139, 0.626, 0.158
     for i, (T, lg) in enumerate(zip((500.0, 800.0, 1000.0), ref)):
         k = _k(r, 0, i)
         assert k["log10K"] == pytest.approx(lg, abs=DG_TOL / (R_GAS * T * LN10)), (T, k)
@@ -98,7 +112,7 @@ def test_ammonia_and_steam_reforming_K_vs_janaf():
     assert _k(r)["lnK"] == pytest.approx(lnk_ref, abs=DG_TOL / (R_GAS * 700.0))
     r = reaction_equilibrium([SMR], 1000.0)
     _verified(r)
-    assert _k(r)["log10K"] == pytest.approx(10.459 + 1.011 - 10.062, abs=DG_TOL / (R_GAS * 1000.0 * LN10))   # 1.408
+    assert _k(r)["log10K"] == pytest.approx(10.461 + 1.018 - 10.060, abs=DG_TOL / (R_GAS * 1000.0 * LN10))   # 1.419
     assert r["reactions"][0]["character"] == "endotérmica"
 
 
@@ -149,7 +163,8 @@ def test_smith_van_ness_example_13_5_water_gas_shift_extents():
 
 def test_smith_van_ness_example_13_14_two_simultaneous_reactions():
     """Steam reforming + shift, 2 CH4 + 3 H2O, 1000 K, 1 bar. The book minimises G with its own ΔfG°(1000 K); mole
-    fractions agree to 0.002 with the databank's data."""
+    fractions agree to 0.002 with the databank's data. The book's printed answer was not re-read; the reference values
+    are the ones reproduced from the book's ΔfG°(1000 K), see the module docstring."""
     r = reaction_equilibrium([{"name": "SMR", "stoichiometry": SMR}, {"name": "WGS", "stoichiometry": WGS}], 1000.0, 1e5,
                              {"methane": 2, "water": 3})
     _verified(r)

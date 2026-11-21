@@ -75,9 +75,14 @@ def test_ethanol_water_wilson_sees_azeotrope_and_tangent_pinch():
     i = TPR.binary_distillation_design(x_distillate=0.84, model="ideal", **kw)
     assert w["ok"] and i["ok"]
     az = w["azeotropes"]
-    # the ethanol-water azeotrope at 1 atm is near 89 mol % ethanol and 78.2 °C (textbook value, quoted from memory:
-    # hence the wide window; the library Wilson set puts it at 0.869)
-    assert len(az) == 1 and 0.85 < az[0]["x1"] < 0.92 and 350.5 < az[0]["T_K"] < 352.0
+    # ethanol-water azeotrope at 1 atm, read on 2026-11-20: 95.6 wt % ethanol (4.40 wt % water) at 78.20 °C in the
+    # Edinburgh azeotrope database (https://www.homepages.ed.ac.uk/jwp/Chemeng/azeotrope/EE.html) and 95.5 wt % at
+    # 78.1 °C in the Lange / CRC table reproduced in https://en.wikipedia.org/wiki/Azeotrope_tables, i.e.
+    # x1 = 0.892-0.895 (M = 46.07, 18.015) and 351.25-351.35 K. The library Wilson set puts it at x1 = 0.869, 351.25 K:
+    # the temperature is right and the composition is 0.025 low (the y-x curve is almost tangent to the diagonal there,
+    # so the azeotrope composition is very sensitive to the parameters). The window on x1 states that known deviation
+    # of the default parameters; it is not a literature uncertainty.
+    assert len(az) == 1 and az[0]["x1"] == pytest.approx(0.894, abs=0.03) and az[0]["T_K"] == pytest.approx(351.3, abs=0.3)
     assert w["R_min_pinch"].startswith("tangente") and i["R_min_pinch"] == "alimentación"
     assert w["N_min"] > i["N_min"] and w["R_min"] > 1.5 * i["R_min"]
     assert any("librería" in a for a in w["assumptions"]) and w["warnings"]

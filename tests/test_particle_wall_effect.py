@@ -1,12 +1,15 @@
 """Wall effect on a sphere falling along the axis of a tube and Stokes drag split of `particle_settling`.
 
-Published values used (read 2026-11-20):
-  * «Studies on falling ball viscometry», arXiv:1202.1400, Table 9: wall factor u_wall/u_unbounded in creeping flow at
-    d/D = 0.1 ... 0.6 by the exact theory (0.792, 0.595, 0.422, 0.278, 0.168, 0.090), by the Haberman-Sayre equation
-    (0.792, 0.595, 0.422, 0.279, 0.170, 0.094) and by Di Felice at Re -> 0 (0.789, 0.600, 0.435, 0.296, 0.184, 0.101);
-    Eqs. 18 and 20-22 give the formulas.
-  * Braz. J. Chem. Eng. 16(4), 1999 (doi 10.1590/S0104-66321999000400007), Eqs. 6-7: Munroe f = 1 - b^1.5 (Re > 1000),
-    Francis f = ((1 - b)/(1 - 0.475 b))^4 (Re < 0.1, b < 0.8)."""
+Published values used (re-read and confirmed on 2026-11-20, page images of the equations included):
+  * Singh, Sharma & Gupta-Bhaya, "Studies on falling ball viscometry", arXiv:1202.1400 (https://arxiv.org/abs/1202.1400),
+    Table 9: wall factor u_wall/u_unbounded in creeping flow at d/D = 0.1 ... 0.6 by the exact theory (0.792, 0.595,
+    0.422, 0.278, 0.168, 0.090), by the Haberman-Sayre equation (0.792, 0.595, 0.422, 0.279, 0.170, 0.094) and by
+    Di Felice at Re -> 0 (0.789, 0.600, 0.435, 0.296, 0.184, 0.101). Eq. 22 is the Haberman-Sayre drag ratio
+    (1 - 0.75857 l^5)/(1 - 2.1050 l + 2.0865 l^3 - 1.7068 l^5 + 0.72603 l^6), stated for l < 0.8 and Re < 2; Eqs. 18a-b
+    are Di Felice, f = ((1 - l)/(1 - 0.33 l))^alpha with (3.3 - alpha)/(alpha - 0.85) = 0.1 Re_unbounded.
+  * Ataide, Pereira & Barrozo, Braz. J. Chem. Eng. 16(4), 1999 (https://doi.org/10.1590/S0104-66321999000400007),
+    Eqs. 6-7: Munroe f = 1 - b^1.5 (Newton regime, Re > 1000), Francis f = ((1 - b)/(1 - 0.475 b))^4 (Re < 0.1,
+    0 < b < 0.8). The original papers (Haberman & Sayre 1958, Francis 1933, Di Felice 1996, Munroe 1888) were not read."""
 import json
 import math
 
@@ -40,9 +43,10 @@ def test_di_felice_francis_munroe_formulas():
         assert PT.wall_factor_di_felice(lam, 0.0) == pytest.approx(d, abs=6e-4)
     assert PT.wall_factor_di_felice(0.4, 0.0) == pytest.approx((0.6 / (1 - 0.132)) ** 3.3, rel=1e-14)
     assert PT.wall_factor_di_felice(0.4, 1e9) == pytest.approx((0.6 / (1 - 0.132)) ** 0.85, rel=1e-6)
-    # (3.3 - alpha)/(alpha - 0.85) = 0.1 Re at Re = 100 -> alpha = 0.80 in the source's words ("0.80 at Re = 100")
+    # Eq. 18b at Re = 100: (3.3 - alpha)/(alpha - 0.85) = 10 -> alpha = 1.073. (The running text of arXiv:1202.1400 says
+    # "0.80 at Re = 100", which contradicts its own Eq. 18b, whose lower bound is 0.85; the equation is what is tested.)
     alpha = math.log(PT.wall_factor_di_felice(0.4, 100.0)) / math.log(0.6 / (1 - 0.132))
-    assert (3.3 - alpha) / (alpha - 0.85) == pytest.approx(10.0, rel=1e-9)
+    assert (3.3 - alpha) / (alpha - 0.85) == pytest.approx(10.0, rel=1e-9) and alpha == pytest.approx(11.8 / 11.0, rel=1e-9)
     assert PT.wall_factor_francis(0.2) == pytest.approx((0.8 / 0.905) ** 4, rel=1e-14)
     assert PT.wall_factor_munroe(0.25) == pytest.approx(0.875, rel=1e-14)
 

@@ -44,12 +44,27 @@ def solve_pde_2d(coordinates: str, domain: dict[str, list[float]], equations: di
         area average over the section coordinate = at;
       'side_fluxes': [{'name', 'side', 'variable', 'from', 'to'}] area-averaged and integrated OUTWARD diffusive flux
         -D du/dn, mean du/dn and mean u over the side or a stretch; or with 'at': position, the local values;
-      'derived': {name: expr} of params and output names: <average>, <average>_integral, <mixing_cup> (scalar 'at'),
-        <side_flux> (mean or local flux out), <side_flux>_integral, <side_flux>_gradient (du/dn), <side_flux>_mean.
-        E.g. Nu = '-2*q' for a sphere at T = 1 (r_min) in dimensionless r; local Nu in a tube '2*qw/Tb'.
+      'derived': {name: expr} combines, in ONE expression, params, the named outputs above (<average>,
+        <average>_integral, <mixing_cup> (scalar 'at'), <side_flux> (mean or local flux out), <side_flux>_integral,
+        <side_flux>_gradient (du/dn), <side_flux>_mean) and these measurements written inline (side and coordinate
+        names without quotes; positions are numbers or expressions of params):
+          value(expr, c1, c2)             expression of coords/variables at the point (c1, c2)
+          wall_gradient(var, side, s)     OUTWARD normal derivative du/dn on the side, at position s along it
+          wall_flux(var, side, s)         -D du/dn there;   wall_value(var, side, s)  boundary value there
+          area_average(expr, coord, pos)  area average over the section coord = pos
+          mixing_cup(expr, coord, pos)    velocity-weighted (cup-mixing) average over that section
+        Profile along a coordinate: {name: {'expression': expr, 'along': 'z', 'at': [z1, z2, ..]}}; inside expr the name
+        z is each position. Local Nusselt number of a tube (r in [0,1], wall r_max, diameter 2), in one expression:
+          'Nu': {'expression': '2*wall_gradient(T, r_max, z)/(wall_value(T, r_max, z) - mixing_cup(T, z, z))',
+                 'along': 'z', 'at': [0.1, 0.5, 1.0]}
+        i.e. Nu = (dT/dn)|wall * D/(T_wall - T_mix) > 0, dT/dn = +dT/dr at r_max. Returned as derived[name] = {expression,
+        along, values: [{z, value, relative_change_on_refinement, grid_converged}]}. Sphere at T = 1 (r_min):
+        Nu = '-2*q' with q a side_flux.
     grid: {'n': [n1, n2] base cells (default 64 x 64), 'grading': {coord: 'uniform' | 'log' | {'cluster': 'min' | 'max'
-      | 'both', 'strength': 1..6}}}. Defaults: polar from r = 0 is graded towards r = 0; a spherical shell with
-      R_out/R > 3 is 'log' in r. initial_guess: {var: expr} for nonlinear problems.
+      | 'both', 'strength': 1..6} | {'cluster': 'at', 'position': x0, 'strength': 1..6} (cells shrink towards x0:
+      use it where a wall condition jumps, local fluxes near a jump do not converge on a uniform grid; a warning
+      names the jump and this option when that happens)}}. Defaults: polar from r = 0 is graded towards r = 0; a
+      spherical shell with R_out/R > 3 is 'log' in r. initial_guess: {var: expr} for nonlinear problems.
     convection_scheme: 'auto' (central if cell Peclet <= 2, else van Leer TVD), 'central', 'upwind', 'tvd'.
 
     Returns points, derivative_points, averages, mixing_cup, side_fluxes, derived, extrema (min/max and where); every

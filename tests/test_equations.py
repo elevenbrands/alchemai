@@ -375,11 +375,85 @@ def test_pde_graetz_problem_with_velocity_profile_as_time_coefficient():
     assert nusselt == pytest.approx(2.7043644 ** 2 / 2, rel=2e-4)
 
 
+_IGNITION = {"T": "B*Da*c*exp(g*(1 - 1/T))", "c": "-Da*c*exp(g*(1 - 1/T))"}       # first order, Arrhenius, T/T0 and c/c0
+
+
+def test_pde_ignition_is_reported_as_a_verified_steep_front_not_a_blow_up():
+    """Adiabatic, uniform reacting slab (zero flux at both faces, uniform start): the PDE reduces to the batch-reactor
+    ODEs T' = B·Da·c·e^{γ(1−1/T)}, c' = −Da·c·e^{γ(1−1/T)}. With γ = 40 the temperature sits near 1 and then jumps to the
+    adiabatic value 1 + B = 1.6 in ~1e-5 of the interval. Reference: the same two ODEs integrated here with scipy
+    Radau (a different integrator from the tool's BDF) at rtol = 1e-12, plus the exact invariant T + B·c = 1 + B."""
+    from scipy.integrate import solve_ivp
+    P = {"B": 0.6, "Da": 0.5, "g": 40.0}
+    sym = {"type": "symmetry"}
+    t_out = [0.05, 0.09, 0.0924, 0.093, 0.2, 0.5]
+    r = TE.solve_pde_1d(["T", "c"], [0, 1], 0.5, {"T": 1.0, "c": 1.0},
+                        {"left": {"T": sym, "c": sym}, "right": {"T": sym, "c": sym}}, {"T": 0.01, "c": 0.01},
+                        source=_IGNITION, parameters=P, output_times=t_out, rtol=1e-9, atol=1e-12)
+
+    def f(t, y):
+        k = P["Da"] * y[1] * math.exp(P["g"] * (1 - 1 / y[0]))
+        return [P["B"] * k, -k]
+    ref = solve_ivp(f, (0, 0.5), [1.0, 1.0], method="Radau", rtol=1e-12, atol=1e-14, dense_output=True)
+    assert r["success"] and r["ignition_or_steep_front"] is True
+    sf = r["steep_front"]
+    assert sf["bounded"] and sf["survives_refinement"] and r["evidence"]["verified"]
+    assert sf["peak_scaled_rate"] > 1e3                       # the whole rise takes < 1/1000 of the interval
+    i_peak = int(np.argmax(np.abs(np.gradient(ref.sol(np.linspace(0.092, 0.093, 200001))[0]))))
+    assert sf["t_at_peak_rate"] == pytest.approx(0.092 + 1e-3 * i_peak / 200000, abs=3e-4)   # sampled every 2.5e-4
+    assert r["extrema"]["T"]["max"] == pytest.approx(1 + P["B"], rel=1e-8)
+    assert r["extrema"]["T"]["max"] == pytest.approx(float(np.max(ref.y[0])), rel=1e-8)
+    # t = 0.0924 is in the middle of the jump, where T rises at ≈ 7e4 per unit time: an error of 1e-9 in the ignition
+    # time (the tolerance asked for) moves T by ≈ 1e-4 there; everywhere else the agreement is ≈ 1e-7
+    for m, t in enumerate(t_out):
+        for k, v in enumerate(("T", "c")):
+            err = float(np.max(np.abs(np.array(r["profiles"][v][m]) - ref.sol(t)[k])))
+            assert err < (3e-4 if t == 0.0924 else 1e-6), (v, t, err)
+    assert 1.2 < r["profiles"]["T"][2][0] < 1.5
+
+
+def test_pde_ignition_with_fixed_surface_values_is_not_mistaken_for_a_blow_up():
+    """Regression: catalyst sphere with fixed surface T and c and γ = 40. The integrator's finite-difference Jacobian
+    perturbs the Dirichlet nodes ten times more at each evaluation (they do not affect the right-hand side), so after
+    ~108 Jacobian evaluations, which an ignition needs, the raw state vector passed 1e100 and the run was reported as a
+    finite-time blow-up at t ≈ 0.416. The solution is bounded: T + B·c obeys the pure diffusion equation (equal
+    diffusivities) with surface value 1 + B and start 1, so by the maximum principle T ≤ 1 + B everywhere."""
+    from packages.numerics import pde1d
+    B = 0.6
+    m = pde1d._Model(["T", "c"], [0, 1], "sphere", {"B": B, "Da": 3.0, "g": 40.0}, None, {"T": 1.0, "c": 1.0}, _IGNITION,
+                     None, None, {"T": 1.0, "c": 0.0},
+                     {"left": {}, "right": {"T": {"type": "dirichlet", "value": 1.0},
+                                            "c": {"type": "dirichlet", "value": 1.0}}}, "x", "t", "central")
+    g, sol, state, _ = pde1d._run(m, 101, 0.0, 1.0, "BDF", 1e-6, 1e-9, pde1d.Deadline())
+    assert sol.status == 0 and not sol.blew_up and sol.njev > 100
+    Y = state(np.linspace(0, 1, 401))
+    assert np.max(Y[:, 0]) <= (1 + B) * (1 + 1e-5) and np.max(Y[:, 0]) > 1.59
+    assert np.max(Y[:, 0] + B * Y[:, 1]) <= (1 + B) * (1 + 1e-5)
+
+
 def test_pde_blow_up_is_reported_plainly():
     r = TE.solve_pde_1d(["u"], [0, 1], 5.0, {"u": 5.0}, {"left": {"u": "symmetry"}, "right": {"u": "symmetry"}},
                         {"u": 1.0}, source={"u": "u^2"})                 # uniform: u' = u², blows up at t = 0.2
     assert r["success"] is False and "profiles" not in r
-    assert "crece sin límite" in r["message"] or "no pudo pasar" in r["message"]
+    assert "crece sin límite" in r["message"] and r["ignition_or_steep_front"] is False
+    assert r["blow_up"]["confirmed_by_refinement"]
+    assert [run["t_failure"] for run in r["blow_up"]["runs"]] == pytest.approx([0.2, 0.2], abs=2e-5)
+
+
+def test_pde_finite_time_blow_up_with_diffusion_is_still_a_blow_up():
+    """u_t = u_xx + u², u = 0 at both faces, u(x, 0) = 20·sin(πx): the diffusion loss (π²·u) is smaller than the source
+    from the start (u² > π²·u where u > 9.87), so the solution blows up in finite time (Kaplan's argument). Without
+    diffusion the peak would blow up at t = 1/20 = 0.05, so the blow-up time must be later than that; both grids must
+    fail at the same time and no numbers may be reported."""
+    zero = {"type": "dirichlet", "value": 0.0}
+    r = TE.solve_pde_1d(["u"], [0, 1], 1.0, {"u": "20*sin(pi*x)"}, {"left": {"u": zero}, "right": {"u": zero}},
+                        {"u": 1.0}, source={"u": "u^2"})
+    assert r["success"] is False and "profiles" not in r and "extrema" not in r
+    assert "crece sin límite" in r["message"] and r["ignition_or_steep_front"] is False
+    runs = r["blow_up"]["runs"]
+    assert r["blow_up"]["confirmed_by_refinement"] and len(runs) == 2
+    assert 0.05 < runs[0]["t_failure"] < 0.2 and runs[1]["t_failure"] == pytest.approx(runs[0]["t_failure"], rel=1e-3)
+    assert min(run["max_abs_value_reached"] for run in runs) > 1e9
 
 
 def test_pde_input_errors_are_clear():

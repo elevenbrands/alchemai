@@ -27,8 +27,18 @@ differences (second order; warns when the cell Péclet number exceeds 2) or firs
 by scipy BDF (or Radau) with the block-tridiagonal sparsity pattern of the Jacobian.
 
 Evidence of correctness: the problem is solved again with twice the grid intervals and tolerances 10 times tighter and the
-largest difference on every reported number is returned."""
+largest difference on every reported number is returned. While that check fails and there is time, the fine run becomes
+the reported one and is checked against a finer one (automatic refinement, at most MAX_AUTO_REFINEMENTS doublings); if it
+still fails, the grid that would pass is estimated from the observed order.
+
+Ignition versus blow-up: a reaction with an Arrhenius source can raise a variable by orders of magnitude in rate and then
+saturate (reactant exhausted). That is a bounded, physical solution and it is reported, flagged
+`ignition_or_steep_front` with the refinement evidence (extrema of the two grids, time of the peak rate). A run the
+integrator cannot finish is repeated on the finer grid with tighter tolerances: only if that fails too (same place,
+values growing without bound) is it reported as a blow-up, with both failure times."""
 from __future__ import annotations
+
+import time
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -36,7 +46,8 @@ from scipy.sparse import lil_matrix
 
 from packages.numerics import diagnostics as DG
 from packages.numerics import expressions as EX
-from packages.numerics.common import (EVIDENCE_TOL, TIMEOUT_TEXT, Deadline, Timeout, full, number, number_list, rel_diff)
+from packages.numerics.common import (EVIDENCE_TOL, MAX_SECONDS, TIMEOUT_TEXT, Deadline, Timeout, full, number, number_list,
+                                      rel_diff)
 
 GEOMETRY = {"slab": 0, "cylinder": 1, "sphere": 2}
 METHODS = ("BDF", "Radau")
@@ -47,8 +58,14 @@ MAX_OUTPUT_POINTS = 200
 MAX_DIAGNOSED_POINTS = 6
 N_SAMPLE = 2001
 BLOWUP = 1e100
+GROWTH = 1e6            # see _run: growth factor that classifies a failed integration as unbounded
 STEADY_TOL = 1e-4       # |∂u/∂t|·(t_end − t_start)/scale below this at every node → steady state reached
 SETTLE_BAND = 1e-3      # settling time: last time a monitored signal is farther than this fraction of its total change
+STEEP_RATE = 50.0       # peak |∂u/∂t|·(interval)/(range of u) above this → ignition / steep front (see _steep_front)
+STEEP_FRACTION = 0.05
+MAX_AUTO_REFINEMENTS = 3   # extra grid doublings tried automatically when the refinement check does not pass
+AUTO_REFINE_BUDGET = 0.5   # ... while the projected time stays below this fraction of the wall-clock budget
+RTOL_FLOOR = 1e-11
 _FLUX_TYPES = ("flux", "robin", "neumann")
 _ZERO_TYPES = ("symmetry", "zero_flux", "insulated")
 
@@ -259,15 +276,20 @@ def _run(model: _Model, n, t0, tf, method, rtol, atol, deadline):
     g = model.grid(n)
     U0 = model.impose(g, t0, model.initial(g))
     nv = model.nv
-    last = [t0]
+    last = [t0, 0.0]
 
     def f(t, y):
         deadline.tick()
-        U = y.reshape(n, nv).T.copy()
-        if not np.max(np.abs(U)) < BLOWUP:
+        U = model.impose(g, t, y.reshape(n, nv).T.copy())
+        # Checked AFTER imposing the Dirichlet values: the integrator's finite-difference Jacobian perturbs every
+        # unknown, and for the Dirichlet nodes (which the right-hand side ignores) it enlarges the perturbation tenfold
+        # at every Jacobian evaluation without limit. Checking the raw vector made a run with many Jacobian evaluations
+        # (an ignition) look like a blow-up although every state was bounded.
+        m = np.max(np.abs(U))
+        if not m < BLOWUP:
             raise _Blowup()
-        last[0] = t
-        return model.rhs(g, t, model.impose(g, t, U)).T.ravel()
+        last[0], last[1] = t, float(m)
+        return model.rhs(g, t, U).T.ravel()
 
     with np.errstate(all="ignore"):
         D, R, v, c = model.coefficients(g, t0, U0)
@@ -292,6 +314,16 @@ def _run(model: _Model, n, t0, tf, method, rtol, atol, deadline):
         sol.blew_up = False
     except _Blowup:
         sol = type("Failed", (), {"status": -1, "blew_up": True, "t": np.array([t0, last[0]]), "message": ""})()
+    except (RuntimeError, np.linalg.LinAlgError) as exc:     # singular iteration matrix: non-finite Jacobian
+        sol = type("Failed", (), {"status": -1, "blew_up": False, "t": np.array([t0, last[0]]), "message": str(exc)})()
+    sol.last_max = last[1]
+    if sol.status != 0 and not sol.blew_up and getattr(sol, "y", None) is not None and sol.y.shape[1] > 1:
+        # the integrator gave up (step below round-off): unbounded growth if the accepted solution ended at least a
+        # million times larger than it was over the first half of the time it covered
+        size = np.max(np.abs(sol.y), axis=0)
+        ref = float(np.max(size[sol.t <= t0 + 0.5 * (sol.t[-1] - t0)]))
+        sol.blew_up = bool(size[-1] > GROWTH * max(ref, 1e-300))
+        sol.last_max = float(size[-1])
 
     def state(times):
         """U at the given times, shape (len(times), nv, n), Dirichlet values imposed."""
@@ -301,6 +333,31 @@ def _run(model: _Model, n, t0, tf, method, rtol, atol, deadline):
         return Y
     return g, sol, state, {"cell_peclet": float(np.max(np.abs(v) * g["h"] / np.where(D > 0, D, np.inf))) if model.has_v else 0.0,
                            "pure_convection": bool(model.has_v and np.any((D == 0) & (v != 0)))}
+
+
+def _steep_front(tm, dt, rates, names, ext, scale, t0, span):
+    """Largest isolated, self-accelerating rate of change: the signature of an ignition (or of a front crossing the
+    domain). tm, dt: mid-times and lengths of the sampled intervals; rates[m, k] = max over the nodes of |Δu_k|/Δt.
+    Returns None unless some variable changes at a peak rate that would cover its whole range in less than
+    1/STEEP_RATE of the interval, the rate was at least 10 times lower at some EARLIER time (so a jump between the
+    initial and the boundary condition, whose rate only decays, does not count) and it stays above a tenth of the peak
+    for less than STEEP_FRACTION of the interval (so a sustained oscillation does not count)."""
+    ok = dt > 1e-9 * span
+    if not np.any(ok):
+        return None
+    tm, dt, rates = tm[ok], dt[ok], rates[ok]
+    best = None
+    for k, v in enumerate(names):
+        rng = ext[v]["max"] - ext[v]["min"]
+        if not rng > 1e-9 * max(scale[k], 1e-300):
+            continue
+        r = rates[:, k] * span / rng
+        i = int(np.argmax(r))
+        if (r[i] > STEEP_RATE and tm[i] - t0 > 1e-3 * span and i > 0 and np.min(r[:i]) < 0.1 * r[i]
+                and np.sum(dt[r > 0.1 * r[i]]) < STEEP_FRACTION * span and (best is None or r[i] > best["peak_scaled_rate"])):
+            best = {"variable": v, "t_at_peak_rate": float(tm[i]), "peak_scaled_rate": float(r[i]),
+                    "fraction_of_interval_above_tenth_of_peak": float(np.sum(dt[r > 0.1 * r[i]]) / span)}
+    return best
 
 
 def solve_pde_1d(variables: list, domain: list, t_end: float, initial_conditions: dict, boundary_conditions: dict,
@@ -380,8 +437,14 @@ def solve_pde_1d(variables: list, domain: list, t_end: float, initial_conditions
         ext = {v: {"max": -np.inf, "min": np.inf} for v in model.vars}
         scale = np.zeros(nv)
         sig_t = np.linspace(tf - oscillation_window_fraction * span, tf, N_SAMPLE)
+        prev, r_t, r_dt, r_val = None, [], [], []
         for chunk in np.array_split(ts, max(1, len(ts) * n * nv // 2_000_000 + 1)):
             Y = state(chunk)
+            tc, Yc = (chunk, Y) if prev is None else (np.concatenate([[prev[0]], chunk]), np.concatenate([prev[1][None], Y]))
+            r_t.append(0.5 * (tc[1:] + tc[:-1]))
+            r_dt.append(np.diff(tc))
+            r_val.append(np.max(np.abs(np.diff(Yc, axis=0)), axis=2) / np.diff(tc)[:, None])
+            prev = (chunk[-1], Y[-1])
             for k, v in enumerate(model.vars):
                 scale[k] = max(scale[k], float(np.max(np.abs(Y[:, k]))))
                 for label, fn in (("max", np.argmax), ("min", np.argmin)):
@@ -390,6 +453,8 @@ def solve_pde_1d(variables: list, domain: list, t_end: float, initial_conditions
                     if (label == "max" and val > ext[v]["max"]) or (label == "min" and val < ext[v]["min"]):
                         ext[v].update({label: val, f"{xname}_at_{label}": float(x[idx[1]]),
                                        f"{tname}_at_{label}": float(chunk[idx[0]])})
+        front = _steep_front(np.concatenate(r_t), np.concatenate(r_dt), np.concatenate(r_val), model.vars, ext, scale,
+                             t0, span)
         # signals for the oscillation / settling diagnosis: averages and (user) point values
         Yw = state(sig_t)
         signals = {f"average[{k}]": val for k, val in average_series(sig_t, Yw).items()}
@@ -416,23 +481,148 @@ def solve_pde_1d(variables: list, domain: list, t_end: float, initial_conditions
         rate = np.abs(model.rhs(g, tf, U_end.copy())) * span / np.maximum(scale, atol)[:, None]
         return {"ok": True, "g": g, "sol": sol, "info": info, "profiles": prof, "averages": avg, "extrema": ext,
                 "scale": np.maximum(scale, atol), "signals": signals, "sig_t": sig_t, "boundary": bnd,
-                "steady_rate": float(np.max(rate)), "state": state}
+                "steady_rate": float(np.max(rate)), "state": state, "front": front}
 
-    try:
-        res = analyse(n_points, rtol, atol)
-    except Timeout:
-        raise ValueError(TIMEOUT_TEXT) from None
-    out: dict = {"success": bool(res["ok"]), "variables": model.vars, "geometry": geometry, "space_variable": xname,
-                 "time_variable": tname, "n_points": n_points, "method": method, "rtol": rtol, "atol": atol}
-    if not res["ok"]:
-        sol = res["sol"]
+    def attempt(n, rt, at):
+        """analyse, with the time spent; None when the wall-clock budget runs out."""
+        start = time.monotonic()
+        try:
+            return analyse(n, rt, at), time.monotonic() - start
+        except Timeout:
+            return None, time.monotonic() - start
+
+    def finer(n, rt, at):
+        return 2 * n - 1, max(rt * 0.1, min(rt, RTOL_FLOOR)), at * 0.1
+
+    def failure_text(sol):
         t_fail = float(sol.t[-1])
-        out["message"] = ((f"la solución crece sin límite cerca de {tname} = {t_fail:.6g} (explosión en tiempo finito, p. "
-                           "ej. embalamiento térmico, o inestabilidad del modelo)") if sol.blew_up else
-                          (f"el integrador no pudo pasar de {tname} = {t_fail:.6g} ({sol.message}): expresiones no finitas "
-                           "o singularidad")) + ". NO se reporta ninguna solución"
-        out["warnings"] = [out["message"]]
-        return out
+        return (f"la solución crece sin límite cerca de {tname} = {t_fail:.6g} (llegó a |u| = {sol.last_max:.3g}: "
+                "explosión en tiempo finito, p. ej. embalamiento térmico sin consumo de reactivo, o inestabilidad del "
+                "modelo)" if sol.blew_up else
+                f"el integrador no pudo pasar de {tname} = {t_fail:.6g} ({sol.message}): expresiones no finitas o "
+                "singularidad")
+
+    started = time.monotonic()
+    res, spent = attempt(n_points, rtol, atol)
+    if res is None:
+        raise ValueError(TIMEOUT_TEXT)
+    used = (n_points, rtol, atol)
+    recovered = None
+    if not res["ok"]:
+        # Suspected blow-up. A numerical instability does not survive refinement, a real ignition does: run again with
+        # twice the intervals and tighter tolerances before deciding.
+        runs = [{"n_points": n_points, "rtol": rtol, "atol": atol, f"{tname}_failure": float(res["sol"].t[-1]),
+                 "max_abs_value_reached": res["sol"].last_max, "failure": failure_text(res["sol"])}]
+        trial = finer(*used)
+        retry, spent = attempt(*trial)
+        if retry is not None and retry["ok"]:
+            recovered = runs[0]
+            res, used = retry, trial
+        else:
+            if retry is not None:
+                runs.append({"n_points": trial[0], "rtol": trial[1], "atol": trial[2],
+                             f"{tname}_failure": float(retry["sol"].t[-1]),
+                             "max_abs_value_reached": retry["sol"].last_max, "failure": failure_text(retry["sol"])})
+            out: dict = {"success": False, "variables": model.vars, "geometry": geometry, "space_variable": xname,
+                         "time_variable": tname, "n_points": n_points, "method": method, "rtol": rtol, "atol": atol,
+                         "ignition_or_steep_front": False}
+            confirmed = len(runs) == 2
+            out["blow_up"] = {"confirmed_by_refinement": confirmed, "runs": runs,
+                              "check": "la corrida que falla se repite con el doble de intervalos y tolerancias 10 veces "
+                                       "más estrictas: una ignición real (acotada) se completa al refinar; una explosión "
+                                       "o singularidad vuelve a fallar en el mismo punto"}
+            out["message"] = failure_text(res["sol"]) + (
+                f". Al refinar ({trial[0]} nodos, tolerancias 10 veces más estrictas) vuelve a fallar en {tname} = "
+                f"{runs[1][f'{tname}_failure']:.6g}: no es un artefacto de la malla ni del paso" if confirmed else
+                ". No se pudo repetir en malla fina (tiempo límite)") + ". NO se reporta ninguna solución"
+            out["warnings"] = [out["message"]]
+            return out
+    # evidence: finer grid and tighter tolerances; while it does not pass and there is time, the fine run becomes the
+    # reported one and is checked against a finer one still (automatic refinement)
+    levels: list[dict] = []
+    ev: dict = {}
+    while True:
+        trial = finer(*used)
+        ev = {"check": f"mismo problema con {trial[0]} nodos (el doble de intervalos) y tolerancias 10 veces más estrictas",
+              "n_points_check": trial[0]}
+        fine, spent = (None, 0.0) if trial[0] > 2 * MAX_POINTS else attempt(*trial)
+        if fine is None:
+            ev.update(verified=False, note="la corrida en malla fina excedió el tiempo límite")
+            warnings.append("no se pudo completar la comprobación de malla (tiempo límite): resultado sin verificar")
+            break
+        if not fine["ok"]:
+            ev.update(verified=False, note="la corrida en la malla fina no terminó: " + failure_text(fine["sol"]))
+            warnings.append("la comprobación en malla fina falló: resultado sin verificar")
+            break
+        sc = res["scale"]
+        diffs = {"profiles": rel_diff(res["profiles"], fine["profiles"], sc[None, :, None]),
+                 "averages": max(rel_diff(res["averages"][k], fine["averages"][k],
+                                          max(float(np.max(np.abs(fine["averages"][k]))), 1e-300)) for k in avg_fns)
+                 if avg_fns else 0.0,
+                 "extrema": float(max(abs(res["extrema"][v][m] - fine["extrema"][v][m]) / sc[k]
+                                      for k, v in enumerate(model.vars) for m in ("max", "min")))}
+        ev.update(rel_diff=diffs, max_rel_diff=float(max(diffs.values())),
+                  relative_to="máximo valor absoluto de cada variable (o de cada promedio) en la corrida")
+        ev["verified"] = bool(ev["max_rel_diff"] < EVIDENCE_TOL)
+        ev["extrema_check"] = {v: {m: fine["extrema"][v][m] for m in ("max", "min")} for v in model.vars}
+        levels.append({"n_points": used[0], "n_points_check": trial[0], "max_rel_diff": ev["max_rel_diff"]})
+        projected = time.monotonic() - started + 4.0 * spent      # one more level: ≈ 2× nodes, more steps
+        if (ev["verified"] or len(levels) > MAX_AUTO_REFINEMENTS or trial[0] > MAX_POINTS
+                or projected > AUTO_REFINE_BUDGET * MAX_SECONDS):
+            break
+        res, used = fine, trial
+    n_used = used[0]
+    if "max_rel_diff" in ev and not ev["verified"]:
+        d = [lv["max_rel_diff"] for lv in levels]
+        order = float(np.clip(np.log2(d[-2] / d[-1]), 1.0, 2.0)) if len(d) > 1 and d[-1] > 0 and d[-2] > d[-1] else 2.0
+        n_rec = int(np.ceil((n_used - 1) * (ev["max_rel_diff"] / EVIDENCE_TOL) ** (1.0 / order))) + 1
+        ev["observed_order"] = order
+        ev["recommended_n_points"] = n_rec
+        warnings.append(
+            f"al duplicar la malla ({n_used} → {ev['n_points_check']} nodos) los resultados cambian "
+            f"{ev['max_rel_diff']:.2e} (relativo): NO son independientes de la malla. Para bajar de {EVIDENCE_TOL:g} con "
+            f"el orden observado ({order:.2g}) hacen falta ≈ {n_rec} nodos"
+            + (f" (más que el máximo de {MAX_POINTS}: acortar el dominio o el intervalo)" if n_rec > MAX_POINTS else
+               f": repetir con n_points = {n_rec}")
+            + "; con salto inicial entre la condición inicial y la de frontera, o con un frente de ignición cuyo instante "
+              "se desplaza con la malla, los perfiles a tiempo fijo convergen más despacio que los extremos")
+    if len(levels) > 1 or n_used != n_points:
+        ev["automatic_refinement"] = {"n_points_requested": n_points, "n_points_used": n_used, "levels": levels}
+        warnings.append(f"refinamiento automático: la malla pedida ({n_points} nodos) no "
+                        + ("se pudo integrar" if recovered and len(levels) <= 1 else "pasó la comprobación")
+                        + f"; los resultados reportados son los de {n_used} nodos (rtol = {used[1]:.1e})")
+    front = res["front"]
+    out = {"success": True, "variables": model.vars, "geometry": geometry, "space_variable": xname,
+           "time_variable": tname, "n_points": n_used, "method": method, "rtol": used[1], "atol": used[2]}
+    out["ignition_or_steep_front"] = bool(front is not None or recovered is not None)
+    if out["ignition_or_steep_front"]:
+        sf: dict = dict(front or {})
+        sf["bounded"] = True
+        sf["extrema"] = {v: {m: res["extrema"][v][m] for m in ("max", "min")} for v in model.vars}
+        if "extrema_check" in ev:
+            sf["extrema_refined"] = ev["extrema_check"]
+            sf["survives_refinement"] = bool(ev["rel_diff"]["extrema"] < EVIDENCE_TOL)
+            sf["extrema_rel_diff"] = ev["rel_diff"]["extrema"]
+            if front and fine is not None and fine["ok"] and fine["front"]:
+                sf[f"{tname}_at_peak_rate_refined"] = fine["front"]["t_at_peak_rate"]
+        else:
+            sf["survives_refinement"] = False
+        if front:
+            sf[f"{tname}_at_peak_rate"] = sf.pop("t_at_peak_rate")
+        if recovered is not None:
+            sf["first_run_failed"] = recovered
+        sf["criterion"] = (f"una variable cambia a un ritmo máximo que recorrería todo su intervalo de valores en menos de "
+                           f"1/{STEEP_RATE:g} del intervalo integrado, tras acelerarse al menos 10 veces, durante menos del "
+                           f"{100 * STEEP_FRACTION:g} % del intervalo; es física (no explosión numérica) si la solución "
+                           "queda acotada y sus extremos coinciden al refinar malla y tolerancias")
+        out["steep_front"] = sf
+        warnings.append(
+            ("ignición o frente pronunciado" + (f" en '{front['variable']}' cerca de {tname} = {front['t_at_peak_rate']:.6g}"
+                                               if front else "")
+             + ": la solución queda acotada"
+             + (" y sus extremos coinciden al refinar (no es una explosión numérica)" if sf["survives_refinement"] else
+                ", pero sus extremos NO coinciden todavía al refinar: tratar el resultado como no verificado"))
+            + (f". La primera corrida ({recovered['n_points']} nodos) falló y la refinada se completó" if recovered else ""))
     out["message"] = f"integración completa hasta {tname} = {tf:.6g}"
     out["n_time_steps"] = int(len(res["sol"].t) - 1)
     info = res["info"]
@@ -476,36 +666,6 @@ def solve_pde_1d(variables: list, domain: list, t_end: float, initial_conditions
         out["steady_state"]["settling_definition"] = (f"primer {tname} a partir del cual todo el perfil queda a menos de "
                                                       f"{SETTLE_BAND:g} de su cambio total respecto del perfil final")
 
-    # evidence: finer grid and tighter tolerances
-    n2 = 2 * n_points - 1
-    ev: dict = {"check": f"mismo problema con {n2} nodos (el doble de intervalos) y tolerancias 10 veces más estrictas",
-                "n_points_check": n2}
-    try:
-        if n2 > 2 * MAX_POINTS:
-            raise Timeout()
-        fine = analyse(n2, rtol * 0.1, atol * 0.1)
-        if not fine["ok"]:
-            ev.update(verified=False, note="la corrida en la malla fina no terminó")
-            warnings.append("la comprobación en malla fina falló: resultado sin verificar")
-        else:
-            sc = res["scale"]
-            diffs = {"profiles": rel_diff(res["profiles"], fine["profiles"], sc[None, :, None]),
-                     "averages": max(rel_diff(res["averages"][k], fine["averages"][k],
-                                              max(float(np.max(np.abs(fine["averages"][k]))), 1e-300)) for k in avg_fns)
-                     if avg_fns else 0.0,
-                     "extrema": float(max(abs(res["extrema"][v][m] - fine["extrema"][v][m]) / sc[k]
-                                          for k, v in enumerate(model.vars) for m in ("max", "min")))}
-            ev.update(rel_diff=diffs, max_rel_diff=float(max(diffs.values())),
-                      relative_to="máximo valor absoluto de cada variable (o de cada promedio) en la corrida")
-            ev["verified"] = bool(ev["max_rel_diff"] < EVIDENCE_TOL)
-            if not ev["verified"]:
-                warnings.append(f"al duplicar la malla los resultados cambian {ev['max_rel_diff']:.2e} (relativo): NO son "
-                                "independientes de la malla; aumentar n_points (el error baja ≈ 4 veces al duplicar; "
-                                "con salto inicial entre la condición inicial y la de frontera, los primeros instantes "
-                                "convergen más despacio)")
-    except Timeout:
-        ev.update(verified=False, note="la corrida en malla fina excedió el tiempo límite")
-        warnings.append("no se pudo completar la comprobación de malla (tiempo límite): resultado sin verificar")
     out["evidence"] = ev
     out["warnings"] = warnings
     out["assumptions"] = ["ecuaciones, coeficientes y condiciones son los escritos por el usuario; no se comprueban unidades",

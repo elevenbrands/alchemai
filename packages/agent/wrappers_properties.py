@@ -122,5 +122,25 @@ def binary_distillation_design(components: list[str], pressure_Pa: float, feed: 
     return json.dumps(TPR.binary_distillation_design(components, pressure_Pa, feed, x_distillate, x_bottoms, recovery_in_distillate, model, parameters, n_stages, reflux_ratio, psat, vapor_phase, wilson_volumes_m3_mol, uniquac_rq), default=float, ensure_ascii=False)
 
 
+@beta_tool
+def shortcut_distillation_design(components: list[str], feed: dict, pressure_Pa: float, light_key: str, heavy_key: str,
+                                 recovery_light_key_in_distillate: float, recovery_heavy_key_in_bottoms: float,
+                                 model: str, n_stages: float | None = None, reflux_ratio: float | None = None,
+                                 R_over_Rmin: float | None = None, N_over_Nmin: float | None = None,
+                                 condenser: str = "total", kij: list[dict] | None = None,
+                                 activity_parameters: list[dict] | None = None) -> str:
+    """Multicomponent SHORTCUT column (Fenske-Underwood-Gilliland-Kirkbride) without DWSIM, K-values from
+    independent_flash. Use it instead of DWSIM's shortcut_column, which takes the relative volatility at the feed only
+    and inflates N_min (~10 % on close-boiling splits) and with it R, N and duties; this one uses the geometric mean of
+    alpha at the top (dew point of the overhead vapour) and bottom (bubble point) at column pressure. feed: {molar_flows
+    or mole_fractions + molar_flow; q | vapor_fraction | T_K, optional feed P_Pa (adiabatic let-down to column pressure)}.
+    Key recoveries as fractions. model as in independent_flash. Give ONE of n_stages, reflux_ratio, R_over_Rmin,
+    N_over_Nmin. Returns products (Fenske non-key split), N_min, R_min, operation {reflux_ratio, stages incl. reboiler,
+    feed_stage_from_top, condenser_duty, reboiler_duty in J/time for the flow units given}, evidence. It is a shortcut:
+    confirm with a rigorous column. For non-ideal or azeotropic binaries use binary_distillation_design."""
+    return json.dumps(TPR.shortcut_distillation_design(components, feed, pressure_Pa, light_key, heavy_key, recovery_light_key_in_distillate, recovery_heavy_key_in_bottoms, model, n_stages, reflux_ratio, R_over_Rmin, N_over_Nmin, condenser, kij, activity_parameters), default=float, ensure_ascii=False)
+
+
 AGENT_WRAPPERS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
-                    binary_distillation_design, reaction_equilibrium]
+                    binary_distillation_design,
+                  shortcut_distillation_design, reaction_equilibrium]

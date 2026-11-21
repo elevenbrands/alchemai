@@ -25,12 +25,18 @@ _BINOPS = {ast.Add: np.add, ast.Sub: np.subtract, ast.Mult: np.multiply, ast.Div
 ALLOWED_TEXT = ("números, nombres declarados, pi, + − * / ** (o ^), signo y las funciones "
                 + ", ".join(sorted(FUNCS1)) + " (un argumento) y " + ", ".join(sorted(FUNCS2)) + " (dos argumentos)")
 RESERVED = set(FUNCS1) | set(FUNCS2) | set(CONSTANTS)
+MEASURE_KEY = " measure"    # environment key (not an identifier) of the callback that evaluates measurement calls
 
 
 class Expr:
-    """A checked expression: `names` are the declared names it uses; call it with a dict name -> float/ndarray."""
+    """A checked expression: `names` are the declared names it uses; call it with a dict name -> float/ndarray.
 
-    def __init__(self, text, names: set[str], where: str):
+    `measures` (optional) adds call forms that are not numeric functions but measurements of a computed field, e.g.
+    mixing_cup(T, z, 0.5): {function name: parser(args: list of ast nodes, where) -> handle}. The parser validates the
+    arguments (building ordinary `Expr` objects from them, so the same whitelist applies) and its handle is passed back
+    at evaluation time to the callback found in the environment under MEASURE_KEY: env[MEASURE_KEY](handle, env)."""
+
+    def __init__(self, text, names: set[str], where: str, measures: dict | None = None):
         if isinstance(text, bool) or text is None:
             raise ValueError(f"{where}: falta la expresión (texto o número)")
         if isinstance(text, (int, float)):
@@ -49,6 +55,8 @@ class Expr:
         self.where = where
         self.names: set[str] = set()
         self._allowed = names
+        self._measures = measures or {}
+        self.calls: dict[int, object] = {}
         self._check(tree.body, 0)
         self._node = tree.body
 
@@ -74,10 +82,14 @@ class Expr:
         elif isinstance(node, ast.Call):
             if not isinstance(node.func, ast.Name) or node.keywords:
                 raise ValueError(f"{w}: llamada no permitida; se admiten {ALLOWED_TEXT}")
+            if node.func.id in self._measures:
+                self.calls[id(node)] = self._measures[node.func.id](node.args, w)
+                return
             n = 1 if node.func.id in FUNCS1 else 2 if node.func.id in FUNCS2 else 0
             if n == 0 or len(node.args) != n:
                 raise ValueError(f"{w}: función '{node.func.id}' no admitida o con número de argumentos incorrecto; "
-                                 f"se admiten {ALLOWED_TEXT}")
+                                 f"se admiten {ALLOWED_TEXT}"
+                                 + (" y las mediciones " + ", ".join(sorted(self._measures)) if self._measures else ""))
             for a in node.args:
                 self._check(a, depth + 1)
         else:
@@ -94,6 +106,8 @@ class Expr:
         if isinstance(node, ast.UnaryOp):
             v = self._eval(node.operand, env)
             return -v if isinstance(node.op, ast.USub) else v
+        if id(node) in self.calls:
+            return env[MEASURE_KEY](self.calls[id(node)], env)
         args = [self._eval(a, env) for a in node.args]
         return (FUNCS1.get(node.func.id) or FUNCS2[node.func.id])(*args)
 

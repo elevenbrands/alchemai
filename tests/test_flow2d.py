@@ -224,11 +224,36 @@ def test_tee_junction_conserves_mass_and_recovers_developed_gradient():
     assert r["evidence"]["poiseuille_self_check"] and r["evidence"]["verified"], r["evidence"]["reasons"]
 
 
+@needs_fenicsx
+@pytest.mark.parametrize("n", [1.0, 0.6])
+def test_entry_length_field_agrees_with_probes(n):
+    """Creeping flow between parallel plates from a uniform inlet. Internal consistency: a probe placed at the reported
+    entry_length_99 must read 99 % of the developed centre-line velocity measured in the same solution (it read
+    98.9 % when the length was measured from the detection grid instead of the inlet and normalised analytically).
+    Newtonian reference L_e ≈ 0.63 gaps as Re → 0: VALUE FROM MEMORY, NOT CHECKED AGAINST A SOURCE, hence only a
+    wide window. No reference is asserted for the power-law case."""
+    H, L, U, rho, Re = 0.01, 0.06, 0.01, 1000.0, 0.01
+    kw = dict(reynolds=Re) if n == 1.0 else dict(density_kg_m3=rho, rheology={"model": "power_law", "n": n,
+                                                                              "K": rho * U ** (2 - n) * H ** n / Re})
+    geo = {"mode": "planar", "rectangles": [[0, 0, L, H]]}
+    s = F.laminar_flow_2d(geo, UNIFORM_IN, **kw)["straight_sections"][0]
+    le = s["entry_length_99"]
+    assert s["developed"] and s["entry_length_reference_measured"] and s["entry_length_measured_from"] == pytest.approx(0.0, abs=1e-12)
+    assert s["entry_length_98"] < le < s["entry_length_995"] and s["entry_length_99_sensitivity_rel_per_0p1pct_reference"] > 0.005
+    assert s["entry_length_99_mesh_check"]["converged"] and "entry_length_99_status" not in s
+    r = F.laminar_flow_2d(geo, UNIFORM_IN, **kw, points=[[le, H / 2], [L - H, H / 2]])
+    u = [q["velocity"][0] for q in r["points"]]
+    assert u[0] / u[1] == pytest.approx(0.99, abs=2e-4)
+    if n == 1.0:
+        assert 0.58 < le / H < 0.68                                               # memory value 0.63, not verified
+
+
 # ---------------------------------------------------------------- published values
 @needs_fenicsx
 def test_backward_facing_step_reattachment():
     """Armaly, Durst, Pereira & Schönung, J. Fluid Mech. 127 (1983) 473: step S = 4.9 mm, inlet height h = 5.2 mm
-    (expansion ratio 1.94), Re = ū·2h/ν = 100 → reattachment x_r/S ≈ 3 (2-D computations: 2.8–3.0)."""
+    (expansion ratio 1.94), Re = ū·2h/ν = 100 → reattachment x_r/S ≈ 3 (2-D computations: 2.8–3.0).
+    NOT CONFIRMED AGAINST THE SOURCE: the Re = 100 value and the 2.8–3.0 interval were not re-checked in the paper."""
     h, S = 1.0, 0.9423
     r = F.laminar_flow_2d({"mode": "planar", "rectangles": [[-5, S, 0, S + h], [0, 0, 30, S + h]]},
                           [dict(IN_OUT[0], mean_velocity=1.0), IN_OUT[1]], reynolds=100, reference_length_m=2 * h,
@@ -243,7 +268,8 @@ def test_backward_facing_step_reattachment():
 def test_sudden_pipe_expansion_reattachment_length():
     """1:2 sudden expansion in a pipe, developed inlet. Macagno & Hung, J. Fluid Mech. 28 (1967) 43 (computation and
     experiment, Re_d ≤ 200): the reattachment length grows linearly, L_r/h ≈ 0.088–0.09 Re_d (h = step height, Re_d on the
-    inlet diameter and mean velocity)."""
+    inlet diameter and mean velocity).
+    NOT CONFIRMED AGAINST THE SOURCE: the slope 0.088–0.09 was not re-checked in the paper."""
     Re, h = 50, 0.5
     r = F.laminar_flow_2d({"mode": "axisymmetric", "rectangles": [[0, 0, 2, 0.5], [2, 0, 12, 1]]},
                           [dict(IN_OUT[0], mean_velocity=1.0), IN_OUT[1]], reynolds=Re)
@@ -277,7 +303,9 @@ def test_orifice_plate_in_a_tube_creeping_flow():
 def test_lid_driven_cavity_re1000_needs_continuation():
     """Lid-driven cavity, Re = 1000 (moving wall, no outlet → pressure with zero mean). u on the vertical centre-line:
     Botella & Peyret, Comput. Fluids 27 (1998) 421 (spectral): −0.38857, −0.28037, −0.10820, −0.06206, 0.18867 at
-    y = 0.1719, 0.2813, 0.4531, 0.5, 0.7344; Ghia, Ghia & Shin, J. Comput. Phys. 48 (1982) 387 gives −0.38289 … 0.18719.
+    y = 0.1719, 0.2813, 0.4531, 0.5, 0.7344 — this table is NOT CONFIRMED AGAINST THE SOURCE (not re-checked in the
+    paper). Ghia, Ghia & Shin, J. Comput. Phys. 48 (1982) 387 gives −0.38289 … 0.18719 at the same points (Re = 1000
+    column, confirmed); the asserted values are within 1.5 % of Ghia's at the two points quoted here.
     Newton from rest fails at this Re: the answer must come from the continuation in Re."""
     ys = (0.1719, 0.2813, 0.4531, 0.5, 0.7344)
     r = F.laminar_flow_2d({"mode": "planar", "rectangles": [[0, 0, 1, 1]]},
@@ -387,7 +415,12 @@ def test_power_law_developed_flow_is_analytic(mode, n):
     assert "power-law analytic" in s["developed_reference"] and r["evidence"]["poiseuille_self_check"]
     # entry length is reported (99 % of the developed centre-line velocity); no reference value is asserted: the
     # correlations for power-law entry lengths I could quote are from memory and NOT verified
-    assert 0 < s["entry_length_99"] < 0.5 * L and s["entry_length_reference"].startswith("analytic")
+    # normalised with the developed centre-line velocity MEASURED at the section end (the analytic one belongs to the
+    # unregularised model and the crossing is flat: 0.1 % in the reference moves the length by several %)
+    assert 0 < s["entry_length_99"] < 0.5 * L and s["entry_length_reference_measured"]
+    assert s["entry_length_98"] < s["entry_length_99"] < s["entry_length_995"]
+    assert s["developed_centreline_measured_over_analytic"] == pytest.approx(1.0, abs=2e-3)
+    assert s["entry_length_99_mesh_check"]["converged"] == (s.get("entry_length_99_status") is None)
     assert s["entry_length_99_over_width"] == pytest.approx(s["entry_length_99"] / 0.01)
     assert s["centreline_velocity_start_over_developed"] < 0.8
     rh = r["rheology"]
@@ -454,7 +487,7 @@ def test_carreau_power_law_limit_and_bounds():
     s = r["straight_sections"][0]
     assert 8 * 1e-3 * U / R ** 2 < s["pressure_drop_per_length"] < 8 * 5e-3 * U / R ** 2
     assert 1.0 < s["u_centre_over_mean_developed_measured"] < 2.0 and "poiseuille_error_rel" not in s
-    assert "measured" in s["entry_length_reference"] and 0 < s["entry_length_99"] < 0.5 * L
+    assert s["entry_length_reference_measured"] and 0 < s["entry_length_99"] < 0.5 * L
     f = r["rheology"]["field"]
     assert 1e-3 <= f["apparent_viscosity_min_Pa_s"] < f["apparent_viscosity_max_Pa_s"] <= 5e-3
     assert r["rheology"]["regularisation_shear_rate_1_s"] is None and r["evidence"]["poiseuille_self_check"] is None
@@ -533,9 +566,17 @@ CYLINDER = dict(
 @needs_fenicsx
 @pytest.mark.parametrize("Re, cd_range, wake_range", [(20, (1.99, 2.10), (0.87, 0.97)), (40, (1.49, 1.60), (2.1, 2.4))])
 def test_cylinder_steady_wake(Re, cd_range, wake_range):
-    """Steady flow past a circular cylinder. Dennis & Chang, J. Fluid Mech. 42 (1970) 471: C_D = 2.045 (Re 20), 1.522
-    (Re 40), wake length L/D = 0.94, 2.35; Fornberg, J. Fluid Mech. 98 (1980) 819: 2.000, 1.498 and 0.91, 2.24; Tritton's
-    experiments (1959) 2.0–2.1 and 1.5–1.6; Coutanceau & Bouard (1977) L/D = 0.93, 2.13. Attached twin vortices."""
+    """Steady flow past a circular cylinder, attached twin vortices. References and their status:
+      * Fornberg, J. Fluid Mech. 98 (1980) 819: C_D = 2.000 (Re 20), 1.498 (Re 40); wake length L/D = 0.91, 2.24
+        (confirmed as quoted in arXiv:2205.15886, Table 1).
+      * Dennis & Chang, J. Fluid Mech. 42 (1970) 471, Re 40: C_D = 1.522, L/D = 2.345 (confirmed as quoted in
+        arXiv:1310.6641, Table 1). Re 20: 2.045 and 0.94 — NOT CONFIRMED AGAINST THE SOURCE.
+      * Coutanceau & Bouard (1977), experiment: L/D = 2.13 at Re 40 (confirmed); 0.93 at Re 20 — NOT CONFIRMED.
+      * Tritton (1959), experiment: NOT used as support. The earlier attribution "2.0–2.1 and 1.5–1.6" is not
+        confirmed (arXiv:1310.6641 attributes C_D = 1.48 at Re 40 to Tritton).
+    The windows rest on the confirmed values only: Re 20 C_D (1.99, 2.10) contains Fornberg 2.000 and L/D (0.87, 0.97)
+    contains Fornberg 0.91; Re 40 C_D (1.49, 1.60) contains Fornberg 1.498 and Dennis & Chang 1.522, and L/D (2.1, 2.4)
+    contains 2.13, 2.24 and 2.345. The finite domain (blockage 1/60, slip sides) raises C_D slightly."""
     r = F.laminar_flow_2d(**CYLINDER, reynolds=Re)
     ob = r["obstacles"]["cyl"]
     assert cd_range[0] < ob["drag_coefficient"] < cd_range[1]
@@ -563,27 +604,38 @@ def test_unconverged_mesh_is_flagged():
 def test_cylinder_vortex_shedding_re100():
     """Re = 100: periodic shedding, with the time-step and mesh checks as convergence evidence, inside the wall budget.
 
-    Reference values QUOTED FROM MEMORY, NOT re-checked against the papers (hence the wide intervals): St ≈ 0.164
-    (Williamson, Annu. Rev. Fluid Mech. 28, 1996; published interval ~0.16–0.17); 2-D computations (Henderson 1995;
-    Park, Kwon & Choi 1998) mean C_D ≈ 1.33–1.35 and lift amplitude ≈ 0.33. A domain of ±15 D with slip sides
-    (blockage 3 %) raises St and C_D slightly. The assertions that do not depend on memory are the refinement ones:
-    St and mean C_D must change < 1 % when dt is doubled and when the mesh is coarsened by 1.5."""
+    References and their status:
+      * St = 0.164 (Williamson, Annu. Rev. Fluid Mech. 28, 1996) and mean C_D = 1.35 (Henderson 1995): confirmed as
+        quoted in arXiv:1609.04364, Table 3.
+      * mean C_D = 1.33 (Park, Kwon & Choi 1998): confirmed as quoted in arXiv:2205.15886.
+      * lift amplitude: other 2-D computations give 0.32–0.34 (arXiv:1803.09380, Table 1). The value 0.33 formerly
+        attributed here to Park et al. could NOT be attributed to that paper.
+    The domain is ±15 d with slip sides (blockage 3.3 %, inlet at 14.5 d): at that level C_D and St depend on the
+    domain (measured with this solver: ±20 d → ±40 d lowered C_D 1.3 % and St 0.9 %), so the windows are those
+    references widened upwards, not a claim of agreement to the last digit; the result must carry the domain warning.
+    The assertions that do not depend on references are the refinement ones. Time step: St and mean C_D change < 1 %
+    on doubling dt; the lift amplitude changes 2.3 % (a real discretisation error: sampling of the peak is 0.01 % and
+    saturation 0.03 %), so it is sealed only through the three-level Richardson rule (observed order ≈ 2, error
+    estimate of the dt value < 2 %), never by loosening the tolerance."""
     r = F.laminar_flow_2d(
         {"mode": "planar", "rectangles": [[-15, -15, 30, 15]],
          "obstacles": [{"name": "cyl", "type": "circle", "center": [0, 0], "radius": 0.5}]},
         [{"name": "in", "type": "stream", "on": {"side": "left"}, "velocity": [1, 0]},
          {"name": "top", "type": "symmetry", "on": {"side": "top"}}, {"name": "bot", "type": "symmetry", "on": {"side": "bottom"}},
          {"name": "out", "type": "outlet", "on": {"side": "right"}, "normal_flow": False}],
-        reynolds=100, mesh={"size": 2.0, "obstacle_size": 0.05, "growth": 0.2, "refinement_check": False,
+        reynolds=100, mesh={"size": 2.0, "obstacle_size": 0.05, "growth": 0.2,
                             "boxes": [{"box": [-1, -1.2, 10, 1.2], "size": 0.15}]},
         transient={"refinement": "both"}, max_wall_s=900)
     tr = r["transient"]
     assert tr["state"] == "periodic" and tr["signal"] == "lift_coefficient" and tr["complete"] and r["partial"] is False
     assert r["timing_s"]["total"] < 600                                             # the 10-minute target, checks included
     assert tr["time_step"]["chosen_by"].startswith("accuracy") and tr["dt"] == pytest.approx(0.05)
-    assert 0.155 < tr["strouhal"] < 0.175                                           # memory value 0.16–0.17, widened
-    assert 1.25 < tr["drag_coefficient_mean"] < 1.45
-    assert 0.25 < tr["lift_coefficient_amplitude"] < 0.40
+    assert 0.160 < tr["strouhal"] < 0.172                                           # 0.164 (Williamson) + blockage 3.3 %
+    assert 1.32 < tr["drag_coefficient_mean"] < 1.40                                # 1.33 (Park), 1.35 (Henderson) + blockage
+    assert 0.31 < tr["lift_coefficient_amplitude"] < 0.35                           # 0.32–0.34 (arXiv:1803.09380 Table 1)
+    # the peak is interpolated; the largest sample is lower by less than (π/N)²/2, and the amplitude has stopped growing
+    assert 0 <= tr["lift_coefficient_amplitude"] - tr["lift_coefficient_amplitude_sampled"] < 1e-3 * tr["lift_coefficient_amplitude"]
+    assert abs(tr["lift_amplitude_growth_per_cycle"]) < 1e-3
     assert r["obstacles"]["cyl"]["drag_coefficient"] < tr["drag_coefficient_mean"]   # the steady (unstable) branch has less drag
     ref = tr["refinement"]
     for key in ("time_step", "mesh"):
@@ -592,9 +644,21 @@ def test_cylinder_vortex_shedding_re100():
         assert ref[key]["table"]["drag_coefficient_mean"]["change_rel"] < 0.01
         assert ref[key]["table"]["lift_coefficient_amplitude"]["change_rel"] < 0.05
     assert ref["mesh"]["mesh"]["cells"] < tr["mesh"]["cells"] and ref["time_step"]["dt"] == pytest.approx(0.1)
+    assert ref["mesh"]["converged"] and ref["mesh"]["table"]["lift_coefficient_amplitude"]["change_rel"] < 0.02
+    # time step: three levels, observed order of BDF2; rows above the tolerance are sealed by Richardson only
+    ts, rich = ref["time_step"]["table"], ref["time_step"]["richardson"]
+    assert rich["done"] and rich["dt_levels"] == pytest.approx([0.05, 0.1, 0.2])
+    for key in ("strouhal", "drag_coefficient_mean", "lift_coefficient_amplitude"):
+        assert 1.5 <= ts[key]["observed_order"] <= 2.5 and ts[key]["error_estimate_rel"] < 0.02
+    assert ts["strouhal"]["converged_by"].startswith("change") and ts["drag_coefficient_mean"]["converged_by"].startswith("change")
+    amp = ts["lift_coefficient_amplitude"]
+    if amp["change_rel"] >= 0.02:
+        assert amp["converged_by"].startswith("Richardson") and amp["extrapolated_dt_to_zero"] < amp["reported"]
+        assert "lift_coefficient_amplitude" in r["evidence"]["transient_time_step_sealed_by_richardson"]
+        assert any("Richardson" in w for w in r["warnings"])
     ev = r["evidence"]
-    assert ev["transient_complete"] and ev["transient_refinement"]["time_step"]["table"]["strouhal"]["converged"]
-    # sealed only if every check passed; here the steady part has no mesh study (refinement_check false), so it is not
-    assert not ev["verified"] and any("sin estudio de malla" in s_ for s_ in ev["reasons"])
-    if not (ref["time_step"]["converged"] and ref["mesh"]["converged"]):
-        assert any("transitorio no convergido" in s_ for s_ in ev["reasons"])
+    assert ev["transient_complete"] and ev["transient_time_step_converged"] and ev["transient_mesh_converged"]
+    assert ev["verified"], ev["reasons"]
+    # verified covers mesh and time step, not the domain: the blockage warning must be there
+    assert r["domain"]["cyl"]["blockage_ratio"] == pytest.approx(1 / 30) and "domain_dependence" in r["domain"]["cyl"]
+    assert any("DEPENDEN DEL DOMINIO" in w for w in r["warnings"])

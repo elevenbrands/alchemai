@@ -21,6 +21,13 @@ the request, chooses reference scales and mesh sizes, and turns the solver outpu
 / fixed final time reached, not cut by `max_wall_s`) and BOTH transient checks done and passed: time step (2·dt, on by
 default) and mesh (coarser mesh, `transient.refinement = "both"`). A run cut by the wall-clock budget is returned with
 `partial = True` and its numbers under `transient.provisional_not_final`.
+
+Time-step check of a periodic flow: three levels (dt, 2·dt, 4·dt). A number passes when it changes less than the
+tolerance between dt and 2·dt, or, failing that, when the observed order is coherent with BDF2 (1.5–2.5) AND the
+Richardson error estimate of the value at dt (factor 1.25) is below the same tolerance; the table says which rule
+sealed each number and gives the extrapolated value. `verified` covers mesh and time step, NOT the size of the domain:
+for an obstacle in a free stream `domain` reports blockage and distances and a warning declares the dependence (no
+blockage correction is applied).
 """
 from __future__ import annotations
 
@@ -391,6 +398,10 @@ def _prepare(geometry, boundaries, density_kg_m3, viscosity_Pa_s, reynolds, refe
     return payload, ctx
 
 
+# free-stream obstacle: below these the domain is declared as an unchecked influence (see _domain_report)
+DOMAIN_BLOCKAGE, DOMAIN_LENGTH = 0.01, 20.0
+
+
 def _mesh_evidence(q_f: dict, q_c: dict, scales: dict, tol: float) -> tuple[dict, list]:
     table, bad = {}, []
     for k, f in q_f.items():
@@ -442,6 +453,17 @@ def _domain_report(payload: dict, ctx: dict, res: dict) -> tuple[dict, list]:
                          f"{e['lateral_half_width_over_size']:.0f} al lado): a Re bajo el arrastre depende del tamaño del dominio "
                          "(esfera: factor ≈ 1/(1 − 2.1·a/R); cilindro 2-D: no existe límite de Stokes, paradoja de Stokes). "
                          "Repite con un dominio mayor para medir esa dependencia.")
+        elif free and (e["blockage_ratio"] > DOMAIN_BLOCKAGE or min(e["upstream_length_over_size"],
+                                                                     e["downstream_length_over_size"]) < DOMAIN_LENGTH):
+            # no numerical blockage correction is applied: the dependence is only declared
+            e["domain_dependence"] = "no comprobada: C_D y St dependen del dominio a este nivel"
+            warns.append(f"Obstáculo '{o['name']}' en corriente libre con dominio finito: bloqueo {'(áreas)' if axi else 'd/H'} = {e['blockage_ratio']:.3g} "
+                         f"({e['lateral_half_width_over_size']:.0f} d al lado), entrada a {e['upstream_length_over_size']:.0f} d y "
+                         f"salida a {e['downstream_length_over_size']:.0f} d. A este nivel C_D y St (y la amplitud de sustentación) "
+                         "DEPENDEN DEL DOMINIO en torno al 1 % o más (caso medido con este solver, cilindro a Re 100: pasar de "
+                         "±20 d a ±40 d bajó C_D 1.3 % y St 0.9 %; ni ±40 d quedó demostrado como convergido). 'verified' "
+                         "cubre malla y paso de tiempo, NO el tamaño del dominio; no se aplica ninguna corrección de bloqueo. "
+                         "Para compararlo con valores de corriente no confinada repite con un dominio mayor y reporta el cambio.")
     return rep, warns
 
 
@@ -552,12 +574,23 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
             table, bad = _mesh_evidence(out["quantities"], out["quantities_coarse"], scales, ctx["tol"])
             ev.update(mesh_refinement=table, mesh_converged=not bad, not_mesh_converged=bad, mesh_tolerance_rel=ctx["tol"],
                       meshes=out["meshes"])
+            for k, sec in enumerate(res.get("straight_sections", [])):
+                row = table.get(f"entry_length{k}.99")
+                if row is not None:
+                    sec["entry_length_99_mesh_check"] = {"coarse_mesh": row["coarse"], "change_rel": row["change_rel"],
+                                                         "tolerance_rel": ctx["tol"], "converged": row["converged"]}
+                    if not row["converged"]:
+                        sec["entry_length_99_status"] = ("NO CONVERGIDA EN MALLA: cambia {:.1%} entre las dos mallas (tolerancia {:.0%}); "
+                                                         "no citar como valor final").format(row["change_rel"] or 0.0, ctx["tol"])
             if bad:
                 reasons.append("no convergidos en malla (cambio > {:.0%} entre las dos mallas): {}; reduce mesh.size / "
                                "mesh.obstacle_size o añade mesh.boxes".format(ctx["tol"], ", ".join(bad)))
         else:
             ev.update(mesh_converged=None, meshes=out["meshes"])
             reasons.append("sin estudio de malla (mesh.refinement_check = false)")
+            for sec in res.get("straight_sections", []):
+                if sec.get("entry_length_99") is not None:
+                    sec["entry_length_99_status"] = "sin comprobación de malla (mesh.refinement_check = false)"
         # Poiseuille self-check on developed straight sections
         dev = [s for s in res["straight_sections"] if s["developed"] and s.get("poiseuille_error_rel") is not None]
         if dev:
@@ -604,7 +637,7 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
         ev["transient_state"] = tr.get("state")
         ev["transient_complete"] = bool(tr.get("complete"))
         checks = tr.get("refinement", {})
-        ev["transient_refinement"] = {k: {kk: c.get(kk) for kk in ("what", "done", "converged", "why", "table", "tolerance_rel")}
+        ev["transient_refinement"] = {k: {kk: c.get(kk) for kk in ("what", "done", "converged", "why", "table", "tolerance_rel", "richardson")}
                                       for k, c in checks.items()}
         dt_ok = bool(checks.get("time_step", {}).get("done") and checks["time_step"].get("converged"))
         mesh_ok = bool(checks.get("mesh", {}).get("done") and checks["mesh"].get("converged"))
@@ -638,6 +671,16 @@ def laminar_flow_2d(geometry: dict, boundaries: list, density_kg_m3: float | Non
             elif not c.get("converged"):
                 bad = [k for k, v in (c.get("table") or {}).items() if not v["converged"]]
                 reasons.append(f"transitorio no convergido en {label}: {', '.join(bad)} cambian más de {c.get('tolerance_rel', 0):.0%}; {hint}")
+        by_rich = [k for k, v in (checks.get("time_step", {}).get("table") or {}).items()
+                   if str(v.get("converged_by", "")).startswith("Richardson")]
+        ev["transient_time_step_sealed_by_richardson"] = by_rich
+        if by_rich:
+            tb = checks["time_step"]["table"]
+            warnings.append("Paso de tiempo: " + "; ".join(
+                f"{k} cambia {tb[k]['change_rel']:.1%} entre dt y 2·dt (más que la tolerancia), pero el orden observado con dt, "
+                f"2·dt y 4·dt es {tb[k]['observed_order']:.2f} (BDF2: 2) y el error estimado del valor a dt es "
+                f"{tb[k]['error_estimate_rel']:.2%}; valor extrapolado a dt→0: {tb[k]['extrapolated_dt_to_zero']:.4g}" for k in by_rich)
+                + ". Se da por convergido por extrapolación de Richardson, no por el cambio directo; cita el valor con ese error.")
         spp = tr.get("steps_per_period") or tr.get("provisional_not_final", {}).get("steps_per_period")
         if spp and spp < 40:
             warnings.append(f"Solo {spp:.0f} pasos por periodo: reduce dt_s (BDF2 amortigua y desfasa con pocos pasos).")

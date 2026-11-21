@@ -605,9 +605,10 @@ def straight_sections(c: Case, u, p, sc: Scales):
             edges = np.flatnonzero(np.diff(np.concatenate([[0], ok.astype(int), [0]])))
             for i0, i1 in zip(edges[::2], edges[1::2]):
                 if s[i1 - 1] - s[i0] >= 2 * w and len(set(types[0][i0:i1])) == 1 and len(set(types[1][i0:i1])) == 1:
-                    cands.append((axis, float(s[i0]), float(s[i1 - 1]), t0, t1, types[0][i0] == "symmetry", types[1][i0] == "symmetry"))
+                    cands.append((axis, float(s[i0]), float(s[i1 - 1]), t0, t1, types[0][i0] == "symmetry", types[1][i0] == "symmetry",
+                                  a0 if i0 == 0 else float(s[i0]), a1 if i1 == len(s) else float(s[i1 - 1])))
     out, seen = [], set()
-    for axis, s0, s1, t0, t1, syl, syh in cands:
+    for axis, s0, s1, t0, t1, syl, syh, e0, e1 in cands:
         key = (axis, round(s0, 6), round(s1, 6), round(t0, 6), round(t1, 6))
         if key in seen:
             continue
@@ -636,42 +637,66 @@ def straight_sections(c: Case, u, p, sc: Scales):
                "u_max_over_mean_at_end": secs[-1]["u_max"] / umean}
         sec["developed"] = bool(g and abs(g1 - g2) <= 0.02 * abs(g))
         tc = t0 if syl else (t1 if syh else 0.5 * (t0 + t1))
-        ratio = None
+        comp = 0 if axis == "x" else 1
+        ratio_an = None
         if ex is not None:
-            ga, ratio = ex
+            ga, ratio_an = ex
             sec.update(poiseuille_pressure_drop_per_length=ga * sc.G, poiseuille_error_rel=g / ga - 1,
-                       poiseuille_u_max_over_mean=ratio, entry_length_reference="analytic developed centre-line velocity")
+                       poiseuille_u_max_over_mean=ratio_an)
             if c.power_law_nd is not None and c.power_law_nd[1] != 1.0:
                 sec["developed_reference"] = "power-law analytic (tube / parallel plates), exact for the unregularised model"
-        elif sec["developed"] and not c.analytic_developed and not (syl and syh):
-            # no closed form (Carreau...): the developed centre-line velocity is the one MEASURED at the last station
-            pe = [st[-1], tc] if axis == "x" else [tc, st[-1]]
-            ratio = float(abs(c.samp(u, [pe])[0, 0 if axis == "x" else 1])) / umean
-            sec.update(u_centre_over_mean_developed_measured=ratio,
-                       entry_length_reference="centre-line velocity measured at the last station of the section (no analytic profile for this model)")
-        if ratio is not None:
-            # entry length: first station (from the section start, flow direction) where the centre-line velocity
-            # is within 1 % of the developed value and stays there
-            if not (c.axi and not syl):
-                ss = np.linspace(start + d * 1e-6 * Ls, end - d * 1e-6 * Ls, 801)
-                pts = np.column_stack([ss, np.full_like(ss, tc)] if axis == "x" else [np.full_like(ss, tc), ss])
-                uc = np.abs(c.samp(u, pts)[:, 0 if axis == "x" else 1]) / (ratio * umean)
-                bad = np.where(np.abs(uc - 1) > 0.01)[0]
-                sec["centreline_velocity_start_over_developed"] = float(uc[0])
+        # developed centre-line velocity MEASURED in this solution (last two measuring stations). The 99 % crossing lies
+        # where the centre-line velocity is very flat, so a 0.1 % error in the normalisation moves the length by ~10 %:
+        # the analytic value (unregularised model, exact mesh) is not good enough when the model is regularised.
+        ratio_me = flat = None
+        if sec["developed"] and not (syl and syh):
+            pe = [[v, tc] if axis == "x" else [tc, v] for v in (st[-2], st[-1])]
+            ue = np.abs(c.samp(u, pe)[:, comp]) / umean
+            ratio_me, flat = float(ue[1]), float(abs(ue[1] - ue[0]) / ue[1])
+            sec.update(u_centre_over_mean_developed_measured=ratio_me, centreline_change_over_last_stretch_rel=flat)
+        use_measured = ratio_me is not None and flat < 1e-3
+        ratio = ratio_me if use_measured else ratio_an
+        if ratio is not None and not (c.axi and not syl):
+            # entry length: distance from the section start (flow direction) to the last crossing into the band
+            # |u_c / u_developed − 1| < 1 − level, linearly interpolated between centre-line stations
+            # measured from the true end of the rectangle (the detection grid starts one grid step, Ls/800, inside)
+            origin = e0 if d > 0 else e1
+            ss = np.linspace(origin + d * 1e-6 * Ls, end - d * 1e-6 * Ls, 3201)
+            pts = np.column_stack([ss, np.full_like(ss, tc)] if axis == "x" else [np.full_like(ss, tc), ss])
+            uraw = np.abs(c.samp(u, pts)[:, comp]) / umean
+
+            def crossing(ref, band):
+                uc = uraw / ref
+                bad = np.where(np.abs(uc - 1) > band)[0]
                 if len(bad) == 0:
-                    sec["entry_length_99"] = 0.0
-                elif bad[-1] < len(ss) - 1:
-                    # linear interpolation of |uc − 1| = 0.01 between the last station outside the band and the next
-                    i = bad[-1]
-                    e0, e1 = abs(uc[i] - 1) - 0.01, abs(uc[i + 1] - 1) - 0.01
-                    f = e0 / (e0 - e1) if e0 > e1 else 1.0
-                    sec["entry_length_99"] = abs(ss[i] + f * (ss[i + 1] - ss[i]) - start) * sc.L
-                    sec["entry_length_station_spacing"] = abs(ss[1] - ss[0]) * sc.L
-                else:
-                    sec["entry_length_99"] = None
-                sec["hydraulic_width"] = (2 * t1 if c.axi else w * (2 if (syl or syh) else 1)) * sc.L
-                if sec["entry_length_99"] is not None:
-                    sec["entry_length_99_over_width"] = sec["entry_length_99"] / sec["hydraulic_width"]
+                    return 0.0
+                i = bad[-1]
+                if i >= len(ss) - 1:
+                    return None
+                e0, e1 = abs(uc[i] - 1) - band, abs(uc[i + 1] - 1) - band
+                f = e0 / (e0 - e1) if e0 > e1 else 1.0
+                return float(abs(ss[i] + f * (ss[i + 1] - ss[i]) - origin) * sc.L)
+
+            sec["entry_length_reference"] = (
+                "centre-line velocity MEASURED at the downstream end of the section (developed there)" if use_measured else
+                "analytic developed centre-line velocity (section not developed / not flat at its end: the measured "
+                "value is not usable, so the length is less reliable)")
+            sec["entry_length_reference_measured"] = bool(use_measured)
+            sec["centreline_velocity_start_over_developed"] = float(uraw[0] / ratio)
+            sec["entry_length_station_spacing"] = abs(ss[1] - ss[0]) * sc.L
+            sec["entry_length_measured_from"] = origin * sc.L
+            for key, band in (("98", 0.02), ("99", 0.01), ("995", 0.005)):
+                sec[f"entry_length_{key}"] = crossing(ratio, band)
+            if use_measured and ratio_an is not None:
+                sec["entry_length_99_analytic_reference"] = crossing(ratio_an, 0.01)
+                sec["developed_centreline_measured_over_analytic"] = ratio_me / ratio_an
+            l98, l99, l995 = (sec[f"entry_length_{k}"] for k in ("98", "99", "995"))
+            if l98 is not None and l995 is not None and l99:
+                # the length moves by this fraction per 0.1 % of error in the developed velocity (local slope of the curve)
+                sec["entry_length_99_sensitivity_rel_per_0p1pct_reference"] = float((l995 - l98) / 15.0 / l99)
+            sec["hydraulic_width"] = (2 * t1 if c.axi else w * (2 if (syl or syh) else 1)) * sc.L
+            if sec["entry_length_99"] is not None:
+                sec["entry_length_99_over_width"] = sec["entry_length_99"] / sec["hydraulic_width"]
         sec["_rect"] = (axis, s0, s1, t0, t1, d)
         out.append(sec)
     return out
@@ -794,6 +819,8 @@ def postprocess(c: Case, p, sc: Scales, rep):
     res["straight_sections"] = straight_sections(c, u, ph, sc)
     for k, s in enumerate(res["straight_sections"]):
         q[f"straight_section{k}.pressure_drop_per_length"] = s["pressure_drop_per_length"]
+        if s.get("entry_length_99") is not None:
+            q[f"entry_length{k}.99"] = s["entry_length_99"]               # compared between meshes like every other number
     res["obstacles"] = {}
     for i, b in enumerate(c.bnds):
         if b.get("obstacle") is None:
@@ -844,6 +871,18 @@ def postprocess(c: Case, p, sc: Scales, rep):
 
 
 # ---------------------------------------------------------------- transient
+def parabolic_extreme(s, i):
+    """Value at the vertex of the parabola through samples i−1, i, i+1 (uniform step); s[i] at the ends of the record
+    or when the three samples do not bracket an extreme."""
+    if i <= 0 or i >= len(s) - 1:
+        return float(s[i])
+    a, b, c = s[i - 1], s[i], s[i + 1]
+    den = a - 2 * b + c
+    if den == 0 or (b - a) * (b - c) < 0:
+        return float(b)
+    return float(b - 0.125 * (c - a) ** 2 / den)
+
+
 def analyse_signal(t, s, scale):
     """Classify a signal as steady / periodic / not settled; frequency from upward zero crossings of the last cycles."""
     t, s = np.asarray(t), np.asarray(s)
@@ -866,13 +905,22 @@ def analyse_signal(t, s, scale):
         return out
     tc = th[k] + (th[k + 1] - th[k]) * (-z[k]) / (z[k + 1] - z[k])
     per = np.diff(tc)
-    peaks = np.array([sh[(th >= a) & (th < b)].max() - sh[(th >= a) & (th < b)].min() for a, b in zip(tc[:-1], tc[1:])]) / 2
+    # half peak-to-peak of each cycle: `raw` from the largest / smallest SAMPLE (biased low by up to (π/N)²/2 with N steps
+    # per period), `peaks` from the vertex of the parabola through each extreme sample and its two neighbours
+    raw, peaks = [], []
+    for a, b in zip(tc[:-1], tc[1:]):
+        i = np.where((th >= a) & (th < b))[0]
+        raw.append(0.5 * (sh[i].max() - sh[i].min()))
+        peaks.append(0.5 * (parabolic_extreme(sh, i[np.argmax(sh[i])]) - parabolic_extreme(sh, i[np.argmin(sh[i])])))
+    raw, peaks = np.array(raw), np.array(peaks)
     out["n_cycles"] = int(len(per))
     n = min(4, len(per))
     out["frequency"] = float(1 / per[-n:].mean())
     out["period_spread_rel"] = float(np.ptp(per[-n:]) / per[-n:].mean())
     out["amplitude_spread_rel"] = float(np.ptp(peaks[-n:]) / peaks[-n:].mean())
     out["amplitude"] = float(peaks[-n:].mean())
+    out["amplitude_sampled"] = float(raw[-n:].mean())
+    out["cycle_amplitudes"] = [float(x) for x in peaks[-n:]]
     out["window"] = [float(tc[-n - 1]), float(tc[-1])]
     if len(per) >= 4 and out["period_spread_rel"] < 0.01 and out["amplitude_spread_rel"] < 0.02:
         out["state"] = "periodic"
@@ -1106,6 +1154,9 @@ class Stepper:
                 num["drag_coefficient_amplitude"] = float(0.5 * np.ptp(cd[m]))
                 if self.use_lift:
                     num["lift_coefficient_amplitude"] = an["amplitude"]
+                    num["lift_coefficient_amplitude_sampled"] = an["amplitude_sampled"]
+                    num["lift_amplitude_growth_per_cycle"] = float(np.polyfit(np.arange(len(an["cycle_amplitudes"])),
+                                                                                an["cycle_amplitudes"], 1)[0] / an["amplitude"])
                     num["lift_coefficient_rms"] = float(np.std(sig[m] - np.mean(sig[m])))
         elif self.forms and an["state"] == "steady":
             num["drag_coefficient_mean"] = float(cd[-1])
@@ -1178,6 +1229,37 @@ def point_table(table, pa, pb, sc, tol):
     return bool(table) and all(v["converged"] for v in table.values())
 
 
+ORDER_BAND, GCI_FACTOR, MIN_STEPS_4DT = (1.5, 2.5), 1.25, 20
+
+
+def richardson(table, n4, tol):
+    """Three time-step levels (dt, 2·dt, 4·dt): observed order p = log2[(f4 − f2)/(f2 − f1)], extrapolated value
+    f1 + (f1 − f2)/(2^p − 1) and error estimate of f1 with Roache's factor for a three-level study (1.25). Updates the
+    rows of `table` (made by `compare` for dt vs 2·dt) in place; a row not converged by the plain change is accepted
+    only with p inside ORDER_BAND and the error estimate below `tol`. No extrapolation when the order is not coherent.
+    Returns the overall verdict."""
+    for k, row in table.items():
+        f1, f2, f4 = row["reported"], row["check"], n4.get(k)
+        row["converged_by"] = "change between dt and 2·dt" if row["converged"] else None
+        if f4 is None:
+            continue
+        row["value_4dt"] = f4
+        d21, d42 = f2 - f1, f4 - f2
+        ref = max(abs(f1), abs(f2), 1e-3)
+        if abs(d21) < 1e-5 * ref or d42 / d21 <= 1:
+            row["observed_order"] = None                              # changes too small to measure, or not monotone
+            continue
+        po = math.log2(d42 / d21)
+        row["observed_order"] = po
+        row["order_coherent_with_bdf2"] = bool(ORDER_BAND[0] <= po <= ORDER_BAND[1])
+        if row["order_coherent_with_bdf2"]:
+            row["extrapolated_dt_to_zero"] = f1 - d21 / (2 ** po - 1)
+            row["error_estimate_rel"] = GCI_FACTOR * abs(d21) / (2 ** po - 1) / ref
+            if not row["converged"] and row["error_estimate_rel"] < tol:
+                row.update(converged=True, converged_by="Richardson: observed order coherent with BDF2 and error estimate below tolerance")
+    return all(r_["converged"] for r_ in table.values())
+
+
 CHECK_KEYS = ("strouhal", "drag_coefficient_mean", "lift_coefficient_amplitude", "lift_coefficient_rms")
 
 
@@ -1217,7 +1299,8 @@ def transient(c: Case, p, sc: Scales, deadline):
     # ---- time-step check: same mesh, 2·dt
     if want in ("dt", "both"):
         ck = {"what": "same mesh, time step doubled (2·dt); BDF2 is second order, so the error of the reported value is "
-                      "about one third of the change", "dt": 2 * dt * sc.T, "tolerance_rel": tol}
+                      "about one third of the change; for a periodic flow a third level (4·dt) gives the observed order (see "
+                      "richardson)", "dt": 2 * dt * sc.T, "tolerance_rel": tol}
         if not complete:
             ck.update(done=False, why="main run not complete")
         elif an["state"] == "steady":
@@ -1234,7 +1317,6 @@ def transient(c: Case, p, sc: Scales, deadline):
                 r2 = stp.march(u0, t_end, deadline, tp, "check 2dt", False, mc)
                 ck["start"] = "same initial condition, same final time"
                 ok_run = r2["stopped"] == "t_end"
-            stp.set_dt(dt)
             o2, n2 = stp.summary(r2)
             ck.update(state=o2["state"], stopped_by=o2["stopped_by"], steps=o2["steps"], wall_s=r2["perf"]["wall_s"])
             if ok_run:
@@ -1242,9 +1324,25 @@ def transient(c: Case, p, sc: Scales, deadline):
                 table, ok = compare(num, n2, keys, tol)
                 if an["state"] != "periodic":
                     ok = point_table(table, fp_, final_points(c, p, sc, r2["w"]), sc, tol)
+                elif o2["state"] == "periodic" and r2["stopped"] == "settled" and n2.get("steps_per_period", 0) >= 2 * MIN_STEPS_4DT:
+                    # third level (4·dt) from the periodic state at 2·dt: observed order and Richardson extrapolation
+                    stp.set_dt(4 * dt)
+                    r4 = stp.march(r2["u"], max(40 * per, 200 * dt), deadline, tp, "check 4dt", True, max(4, min(mc, 6)))
+                    o4, n4 = stp.summary(r4)
+                    ck["richardson"] = {"dt_levels": [dt * sc.T, 2 * dt * sc.T, 4 * dt * sc.T], "steps": o4["steps"],
+                                        "wall_s": r4["perf"]["wall_s"], "done": bool(r4["stopped"] == "settled" and o4["state"] == "periodic")}
+                    if ck["richardson"]["done"]:
+                        ok = richardson(table, n4, tol)
+                        ck["richardson"]["rule"] = (
+                            f"a number that changes more than {tol:.0%} between dt and 2·dt is accepted only if the observed "
+                            f"order from dt, 2·dt, 4·dt is within {ORDER_BAND[0]}–{ORDER_BAND[1]} (BDF2: 2) AND the error estimate "
+                            f"of the value at dt, {GCI_FACTOR}·|f(dt) − f(2dt)| / (2^p − 1), is below the same {tol:.0%}")
+                    else:
+                        ck["richardson"]["why"] = f"4·dt run stopped by {r4['stopped']} in state {o4['state']}"
                 ck.update(done=True, converged=ok, table=table)
             else:
                 ck.update(done=False, why=f"check run stopped by {r2['stopped']} in state {o2['state']}")
+            stp.set_dt(dt)
         checks["time_step"] = ck
     # ---- mesh check: coarser mesh (sizes × refine_ratio), same dt, its own steady start
     if want in ("mesh", "both"):

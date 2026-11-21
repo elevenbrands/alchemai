@@ -222,5 +222,38 @@ def binary_distillation_design(components: list[str], pressure_Pa: float, feed: 
         return {"ok": False, "error": f"{type(ex).__name__}: {ex}"}
 
 
+def shortcut_distillation_design(components: list[str], feed: dict, pressure_Pa: float, light_key: str, heavy_key: str,
+                                 recovery_light_key_in_distillate: float, recovery_heavy_key_in_bottoms: float,
+                                 model: str, n_stages: float | None = None, reflux_ratio: float | None = None,
+                                 R_over_Rmin: float | None = None, N_over_Nmin: float | None = None,
+                                 condenser: str = "total", kij: list[dict] | None = None,
+                                 activity_parameters: list[dict] | None = None) -> dict:
+    """Diseño por ATAJO de una columna multicomponente (Fenske-Underwood-Gilliland-Kirkbride) sin DWSIM, con K de
+    independent_flash. Úsala en vez del `shortcut_column` de DWSIM: aquel evalúa la volatilidad relativa solo en la
+    alimentación e infla N_min (~10 % en cortes de puntos de ebullición cercanos) y con él R, N y las cargas; esta usa
+    la media geométrica de α en cabeza (rocío del vapor de cabeza) y fondo (burbuja) a la presión de la columna.
+
+    components: nombres. feed: {molar_flows {comp: flujo} o mole_fractions + molar_flow; condición térmica: q, o
+      vapor_fraction, o T_K, con P_Pa opcional de la alimentación (si difiere de la columna se hace la expansión
+      adiabática); sin nada = líquido saturado a la presión de la columna}. pressure_Pa: presión de la columna.
+    light_key / heavy_key y sus recuperaciones (fracción 0.5–1: clave ligera al destilado, clave pesada a fondos).
+    model: el de independent_flash ("PR", "SRK", "NRTL"...; kij / activity_parameters opcionales).
+    Da UNO de: n_stages, reflux_ratio, R_over_Rmin, N_over_Nmin (ninguno = solo N_min y R_min).
+    condenser: "total" o "partial".
+
+    Devuelve feed {q}, products (flujos y fracciones por componente con el reparto de Fenske de los no clave, T de
+    cabeza y fondo), relative_volatility_to_heavy_key (cabeza, fondo, alimentación, media usada), N_min, R_min,
+    operation {reflux_ratio, stages (incluye el rehervidor), feed_stage_from_top (Kirkbride), condenser_duty,
+    reboiler_duty en J/tiempo según las unidades del flujo}, sensitivity (N_min con α solo de la alimentación, como
+    contraste), warnings y evidence. Es un atajo: Underwood con una raíz y flujo molar constante; confirma con una
+    columna rigurosa. Para binarios no ideales o con azeótropo usa binary_distillation_design."""
+    from packages.vle import fug as FUG
+    try:
+        return FUG.design(components, feed, pressure_Pa, light_key, heavy_key, recovery_light_key_in_distillate, recovery_heavy_key_in_bottoms, model, n_stages, reflux_ratio, R_over_Rmin, N_over_Nmin, condenser, kij, activity_parameters)
+    except (ValueError, KeyError) as ex:
+        return {"ok": False, "error": f"{type(ex).__name__}: {ex}"}
+
+
 PROPERTIES_TOOLS = [compound_properties, independent_flash, compare_flash, cubic_eos_volume,
-                    binary_distillation_design, reaction_equilibrium]
+                    binary_distillation_design,
+                    shortcut_distillation_design, reaction_equilibrium]
